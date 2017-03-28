@@ -1,4 +1,6 @@
 #!/bin/bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. "$SCRIPT_DIR"/functions.sh
 
 # COPY PASTE THIS IN JENKINS JOB
 
@@ -11,31 +13,56 @@
 CODE_SUCCESS=0
 CODE_FAILURE=1
 CODE_INSTABLE=2
+CODE_ABORT=3
 
-build_dir="$1"
-src_dir="$(cd "$2" && pwd)"
+usage() {
+    echo "Usage: main.sh <build-dir> <src-dir> <compiler> <architecture> <build-type> <build-options>"
+}
 
-## Init scripts
-git clone <url> scripts 
-cd scripts
-. functions.sh
+if [ "$#" -ge 5 ]; then
+    if [[ ! -d "$1" ]]; then mkdir -p "$1"; fi
+    BUILD_DIR="$(cd "$1" && pwd)"
+    SRC_DIR="$(cd "$2" && pwd)"
+    
+    CI_COMPILER="$3"
+    CI_ARCH="$4"
+    CI_BUILD_TYPE="$5"
+    CI_BUILD_OPTIONS="${*:6}"
+else
+    usage; exit 1
+fi
+
+# hash=$(git log --pretty=format:'%H' -1)
+# author=$(git log --pretty=format:'%an' -1)
+# author_email=$(git log --pretty=format:'%aE' -1)
+# committer=$(git log --pretty=format:'%cn' -1)
+# committer_email=$(git log --pretty=format:'%cE' -1)
+# date=$(git log --pretty=format:%ct -1)
+# subject=$(git log --pretty=format:'%s' -1)
+# subject_full=$(git log --pretty=%B -1)
+
+## Init dashboard
+notify-dashboard "platform=$CI_PLATFORM" "compiler=$CI_COMPILER" "options=$CI_OPTIONS" "build_url=$BUILD_URL" "job_url=$JOB_URL"
 
 ## Init build
-notify-dashboard "platform=$CI_PLATFORM" "compiler=$CI_COMPILER" "options=$CI_OPTIONS" "build_url=$BUILD_URL" "job_url=$JOB_URL"
-"$src_dir/scripts/ci/init-build.sh" "$build_dir" "$src_dir"
+"$SRC_DIR/scripts/ci/init.sh" "$BUILD_DIR" "$SRC_DIR" "$CI_BUILD_OPTIONS"
+if [ $? = $CODE_ABORT ]; then
+    notify-dashboard "status=abort"
+    exit $CODE_ABORT # Build aborted
+fi
 
 # Clean flag files
-rm -f "$build_dir/build-started"
-rm -f "$build_dir/build-finished"
-touch "$build_dir/build-started" # used to detect aborts
+rm -f "$BUILD_DIR/build-started"
+rm -f "$BUILD_DIR/build-finished"
+touch "$BUILD_DIR/build-started" # used to detect aborts
 
 ## Configure
 notify-dashboard "status=configure"
-"$src_dir/scripts/ci/configure.sh" "$build_dir" "$src_dir"
+"$SRC_DIR/scripts/ci/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CI_COMPILER" "$CI_ARCH" "$CI_BUILD_TYPE" "$CI_BUILD_OPTIONS"
 
 ## Compile
 notify-dashboard "status=build"
-"$src_dir/scripts/ci/compile.sh" "$build_dir"
+"$SRC_DIR/scripts/ci/compile.sh" "$BUILD_DIR" "$CI_COMPILER" "$CI_ARCH"
 if [ $? = $CODE_SUCCESS ]; then
     notify-dashboard "status=success"
 elif [ $? = $CODE_FAILURE ]; then
@@ -54,35 +81,33 @@ fi
 if [[ -n "$CI_UNIT_TESTS" ]]; then
     notify-dashboard "tests_status=running"
 
-    "$src_dir/scripts/ci/tests.sh" run "$build_dir" "$src_dir"
-    "$src_dir/scripts/ci/tests.sh" print-summary "$build_dir" "$src_dir"
+    "$SRC_DIR/scripts/ci/tests.sh" run "$BUILD_DIR" "$SRC_DIR"
+    "$SRC_DIR/scripts/ci/tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
     
-    tests_total=$("$src_dir/scripts/ci/tests.sh" count-tests $build_dir $src_dir)
-    tests_failures=$("$src_dir/scripts/ci/tests.sh" count-failures $build_dir $src_dir)
-    tests_disabled=$("$src_dir/scripts/ci/tests.sh" count-disabled $build_dir $src_dir)
-    tests_errors=$("$src_dir/scripts/ci/tests.sh" count-errors $build_dir $src_dir)
-    tests_suites=$("$src_dir/scripts/ci/tests.sh" count-test-suites $build_dir $src_dir)
-    tests_crash=$("$src_dir/scripts/ci/tests.sh" count-crashes $build_dir $src_dir)
+    tests_suites=$("$SRC_DIR/scripts/ci/tests.sh" count-test-suites $BUILD_DIR $SRC_DIR)
+    tests_total=$("$SRC_DIR/scripts/ci/tests.sh" count-tests $BUILD_DIR $SRC_DIR)
+    tests_disabled=$("$SRC_DIR/scripts/ci/tests.sh" count-disabled $BUILD_DIR $SRC_DIR)
+    tests_failures=$("$SRC_DIR/scripts/ci/tests.sh" count-failures $BUILD_DIR $SRC_DIR)
+    tests_errors=$("$SRC_DIR/scripts/ci/tests.sh" count-errors $BUILD_DIR $SRC_DIR)
 
     notify-dashboard \
-        "tests_total=$tests_total" \
-        "tests_failures=$tests_failures" \
-        "tests_disabled=$tests_disabled" \
-        "tests_errors=$tests_errors" \
         "tests_suites=$tests_suites" \
-        "tests_crash=$tests_crash"
+        "tests_total=$tests_total" \
+        "tests_disabled=$tests_disabled" \
+        "tests_failures=$tests_failures" \
+        "tests_errors=$tests_errors" 
 fi
 
 ## Scene tests
 if [[ -n "$CI_SCENE_TESTS" ]]; then
     notify-dashboard "scenes_status=running"
     
-    "$src_dir/scripts/ci/scene-tests.sh" run "$build_dir" "$src_dir"
-    "$src_dir/scripts/ci/scene-tests.sh" print-summary "$build_dir" "$src_dir"
+    "$SRC_DIR/scripts/ci/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
+    "$SRC_DIR/scripts/ci/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
     
-    scenes_total=$("$src_dir/scripts/ci/scene-tests.sh" count-tests $build_dir $src_dir)
-    scenes_errors=$("$src_dir/scripts/ci/scene-tests.sh" count-errors $build_dir $src_dir)
-    scenes_crashes=$("$src_dir/scripts/ci/scene-tests.sh" count-crashes $build_dir $src_dir)
+    scenes_total=$("$SRC_DIR/scripts/ci/scene-tests.sh" count-tests $BUILD_DIR $SRC_DIR)
+    scenes_errors=$("$SRC_DIR/scripts/ci/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
+    scenes_crashes=$("$SRC_DIR/scripts/ci/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
     
     notify-dashboard \
         "scenes_total=$scenes_total" \
@@ -90,4 +115,4 @@ if [[ -n "$CI_SCENE_TESTS" ]]; then
         "scenes_crashes=$scenes_crashes"
 fi
 
-touch "$build_dir/build-finished" # used to detect aborts
+touch "$BUILD_DIR/build-finished" # used to detect aborts

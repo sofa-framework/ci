@@ -1,4 +1,6 @@
 #!/bin/bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. "$SCRIPT_DIR"/functions.sh
 
 # Here we pick what gets to be compiled. The role of this script is to
 # call cmake with the appropriate options. After this, the build
@@ -12,17 +14,6 @@
 # - CI_BUILD_TYPE             Debug|Release
 # - CC and CXX
 # - CI_COMPILER               # important for Visual Studio paths (VS-2012, VS-2013 or VS-2015)
-# About available libraries:
-# - CI_HAVE_BOOST
-# - CI_BOOST_PATH             (empty string if installed in standard location)
-# - CI_QT_PATH
-# - CI_BULLET_DIR             (Path to the directory containing BulletConfig.cmake)
-# - CI_HAVE_ASSIMP
-# - CI_HAVE_OPENCASCADE
-# - CI_HAVE_CUDA
-# - CI_HAVE_OPENCL
-# - CI_HAVE_CSPARSE
-# - CI_HAVE_METIS
 
 
 # Exit on error
@@ -32,30 +23,31 @@ set -o errexit
 ## Checks
 
 usage() {
-    echo "Usage: configure.sh <build-dir> <src-dir>"
+    echo "Usage: configure.sh <build-dir> <src-dir> <compiler> <architecture> <build-type> <build-options>"
 }
 
-if [[ "$#" = 2 ]]; then
-    build_dir="$1"
-    if [[ $(uname) = Darwin || $(uname) = Linux ]]; then
-        src_dir="$(cd "$2" && pwd)"
-    else
-        # pwd with a Windows format (c:/ instead of /c/)
-        src_dir="$(cd "$2" && pwd -W)"
-    fi
+if [[ "$#" = 6 ]]; then
+    BUILD_DIR="$(cd "$1" && pwd)"
+    SRC_DIR="$(cd "$2" && pwd)"
+    # if vm-is-windows; then
+        # # pwd with a Windows format (c:/ instead of /c/)
+        # SRC_DIR="$(cd "$2" && pwd -W)"
+    # else
+        # SRC_DIR="$(cd "$2" && pwd)"
+    # fi
+    CI_COMPILER="$3"
+    CI_ARCH="$4"
+    CI_BUILD_TYPE="$5"
+    CI_BUILD_OPTIONS="$6"
 else
     usage; exit 1
 fi
 
-if [[ ! -d "$src_dir/applications/plugins" ]]; then
-    echo "Error: '$src_dir' does not look like a Sofa source tree."
+if [[ ! -d "$SRC_DIR/applications/plugins" ]]; then
+    echo "Error: '$SRC_DIR' does not look like a Sofa source tree."
     usage; exit 1
 fi
 
-if [[ ! -d "$build_dir" ]]; then
-    mkdir -p "$build_dir"
-fi
-build_dir="$(cd "$build_dir" && pwd)"
 
 
 ## Defaults
@@ -71,16 +63,15 @@ if [ -z "$CI_BUILD_TYPE" ]; then CI_BUILD_TYPE="Release"; fi
 generator() {
     if [ -x "$(command -v ninja)" ]; then
         echo "Ninja"
-    elif [[ $(uname) = Darwin || $(uname) = Linux ]]; then
-        echo "Unix Makefiles"
-    else
+    elif vm-is-windows; then
         echo "\"NMake Makefiles\""
+    else
+        echo "Unix Makefiles"
     fi
 }
 
 call-cmake() {
-    pwd
-    if [[ "$(uname)" != "Darwin" && "$(uname)" != "Linux" ]]; then
+    if vm-is-windows; then
         # Call vcvarsall.bat first to setup environment
         if [ "$CI_COMPILER" = "VS-2015" ]; then
             vcvarsall="call \"%VS140COMNTOOLS%..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
@@ -113,95 +104,93 @@ if [[ -n "$CI_HAVE_BOOST" ]]; then
     append "-DBOOST_ROOT=$CI_BOOST_PATH"
 fi
 
-case $CI_OPTIONS in
+if in-array "build-all-plugins" "$CI_BUILD_OPTIONS"; then
     # Build with as many options enabled as possible
-    *options*)
-        append "-DSOFA_BUILD_METIS=ON"
-        append "-DSOFA_BUILD_ARTRACK=ON"
-        append "-DSOFA_BUILD_MINIFLOWVR=ON"
+    append "-DSOFA_BUILD_METIS=ON"
+    append "-DSOFA_BUILD_ARTRACK=ON"
+    append "-DSOFA_BUILD_MINIFLOWVR=ON"
 
-        if [[ -n "$CI_QT_PATH" ]]; then
-            append "-DQT_ROOT=$CI_QT_PATH"
-        fi
+    if [[ -n "$CI_QT_PATH" ]]; then
+        append "-DQT_ROOT=$CI_QT_PATH"
+    fi
 
-        if [[ -n "$CI_BULLET_DIR" ]]; then
-            append "-DBullet_DIR=$CI_BULLET_DIR"
-        fi
+    if [[ -n "$CI_BULLET_DIR" ]]; then
+        append "-DBullet_DIR=$CI_BULLET_DIR"
+    fi
 
-        ### Plugins
-        append "-DPLUGIN_ARTRACK=ON"
-        if [[ -n "$CI_BULLET_DIR" ]]; then
-            append "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
-        else
-            append "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
-        fi
-        # Missing CGAL library
-        append "-DPLUGIN_CGALPLUGIN=OFF"
-        # For Windows, there is the dll of the assimp library *inside* the repository
-        if [[ ( $(uname) = Darwin || $(uname) = Linux ) && -z "$CI_HAVE_ASSIMP" ]]; then
-            append "-DPLUGIN_COLLADASCENELOADER=OFF"
-        else
-            append "-DPLUGIN_COLLADASCENELOADER=ON"
-        fi
-        append "-DPLUGIN_COMPLIANT=ON"
-        append "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
-        append "-DPLUGIN_FLEXIBLE=ON"
-        # Requires specific libraries.
-        append "-DPLUGIN_HAPTION=OFF"
-        append "-DPLUGIN_IMAGE=ON"
-        append "-DPLUGIN_INVERTIBLEFVM=ON"
-        append "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
-        append "-DPLUGIN_MANUALMAPPING=ON"
-        if [ -n "$CI_HAVE_OPENCASCADE" ]; then
-            append "-DPLUGIN_MESHSTEPLOADER=ON"
-        else
-            append "-DPLUGIN_MESHSTEPLOADER=OFF"
-        fi
-        append "-DPLUGIN_MULTITHREADING=ON"
-        append "-DPLUGIN_OPTITRACKNATNET=ON"
-        # Does not compile, but it just needs to be updated.
-        append "-DPLUGIN_PERSISTENTCONTACT=OFF"
-        append "-DPLUGIN_PLUGINEXAMPLE=ON"
-        append "-DPLUGIN_REGISTRATION=ON"
-        # Requires OpenHaptics libraries.
-        append "-DPLUGIN_SENSABLE=OFF"
-        if [[ -n "$CI_HAVE_BOOST" ]]; then
-            append "-DPLUGIN_SENSABLEEMULATION=ON"
-        else
-            append "-DPLUGIN_SENSABLEEMULATION=OFF"
-        fi
-        # Requires Sixense libraries.
-        append "-DPLUGIN_SIXENSEHYDRA=OFF"
-        append "-DPLUGIN_SOFACARVING=ON"
-        if [[ -n "$CI_HAVE_CUDA" ]]; then
-            append "-DPLUGIN_SOFACUDA=ON"
-        else
-            append "-DPLUGIN_SOFACUDA=OFF"
-        fi
-        # Requires HAPI libraries.
-        append "-DPLUGIN_SOFAHAPI=OFF"
-        # Not sure if worth maintaining
-        append "-DPLUGIN_SOFASIMPLEGUI=ON"
-        append "-DPLUGIN_THMPGSPATIALHASHING=ON"
-        # Requires XiRobot library.
-        append "-DPLUGIN_XITACT=OFF"
-        append "-DPLUGIN_RIGIDSCALE=ON"
-        ;;
-esac
+    ### Plugins
+    append "-DPLUGIN_ARTRACK=ON"
+    if [[ -n "$CI_BULLET_DIR" ]]; then
+        append "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
+    else
+        append "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
+    fi
+    # Missing CGAL library
+    append "-DPLUGIN_CGALPLUGIN=OFF"
+    # For Windows, there is the dll of the assimp library *inside* the repository
+    if [[ ( $(uname) = Darwin || $(uname) = Linux ) && -z "$CI_HAVE_ASSIMP" ]]; then
+        append "-DPLUGIN_COLLADASCENELOADER=OFF"
+    else
+        append "-DPLUGIN_COLLADASCENELOADER=ON"
+    fi
+    append "-DPLUGIN_COMPLIANT=ON"
+    append "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
+    append "-DPLUGIN_FLEXIBLE=ON"
+    # Requires specific libraries.
+    append "-DPLUGIN_HAPTION=OFF"
+    append "-DPLUGIN_IMAGE=ON"
+    append "-DPLUGIN_INVERTIBLEFVM=ON"
+    append "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
+    append "-DPLUGIN_MANUALMAPPING=ON"
+    if [ -n "$CI_HAVE_OPENCASCADE" ]; then
+        append "-DPLUGIN_MESHSTEPLOADER=ON"
+    else
+        append "-DPLUGIN_MESHSTEPLOADER=OFF"
+    fi
+    append "-DPLUGIN_MULTITHREADING=ON"
+    append "-DPLUGIN_OPTITRACKNATNET=ON"
+    # Does not compile, but it just needs to be updated.
+    append "-DPLUGIN_PERSISTENTCONTACT=OFF"
+    append "-DPLUGIN_PLUGINEXAMPLE=ON"
+    append "-DPLUGIN_REGISTRATION=ON"
+    # Requires OpenHaptics libraries.
+    append "-DPLUGIN_SENSABLE=OFF"
+    if [[ -n "$CI_HAVE_BOOST" ]]; then
+        append "-DPLUGIN_SENSABLEEMULATION=ON"
+    else
+        append "-DPLUGIN_SENSABLEEMULATION=OFF"
+    fi
+    # Requires Sixense libraries.
+    append "-DPLUGIN_SIXENSEHYDRA=OFF"
+    append "-DPLUGIN_SOFACARVING=ON"
+    if [[ -n "$CI_HAVE_CUDA" ]]; then
+        append "-DPLUGIN_SOFACUDA=ON"
+    else
+        append "-DPLUGIN_SOFACUDA=OFF"
+    fi
+    # Requires HAPI libraries.
+    append "-DPLUGIN_SOFAHAPI=OFF"
+    # Not sure if worth maintaining
+    append "-DPLUGIN_SOFASIMPLEGUI=ON"
+    append "-DPLUGIN_THMPGSPATIALHASHING=ON"
+    # Requires XiRobot library.
+    append "-DPLUGIN_XITACT=OFF"
+    append "-DPLUGIN_RIGIDSCALE=ON"
+fi
 
 # Options passed via the environnement
 if [ ! -z "$CI_CMAKE_OPTIONS" ]; then
     cmake_options="$cmake_options $CI_CMAKE_OPTIONS"
 fi
 
-cd "$build_dir"
+cd "$BUILD_DIR"
 
 ## Configure
 
 echo "Calling cmake with the following options:"
 echo "$cmake_options" | tr -s ' ' '\n'
 if [ -e "full-build" ]; then
-    call-cmake -G"$(generator)" $cmake_options "$src_dir"
+    call-cmake -G"$(generator)" $cmake_options "$SRC_DIR"
 else
     call-cmake $cmake_options .
 fi
