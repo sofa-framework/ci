@@ -29,14 +29,11 @@ else
 fi
 cd "$SRC_DIR"
 
-# Get Windows dependency pack
-if vm-is-windows && [[ ! -d "$SRC_DIR/lib" ]]; then    
-    echo "Copying dependency pack in the source tree."
-    /bin/cp -rf /c/dependencies/* "$SRC_DIR"
-    # TODO: wget https://www.sofa-framework.org/download/WinDepPack/VS2013 (does not exist yet)
-fi
+
+
 
 # Check ci-ignore flag in commit message
+
 commit_message=$(git log --pretty=%B -1)
 if [[ "$commit_message" == *"[ci-ignore]"* ]]; then
     # Ignore this build
@@ -45,7 +42,7 @@ if [[ "$commit_message" == *"[ci-ignore]"* ]]; then
 fi
 
 
-## Choose between incremental build and full build
+# Choose between incremental build and full build
 
 full_build=""
 sha=$(git --git-dir="$SRC_DIR/.git" rev-parse HEAD)

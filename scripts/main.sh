@@ -32,6 +32,11 @@ else
     usage; exit 1
 fi
 
+# Setup Windows environment variables
+if vm-is-windows; then
+    . /c/setup-vm-env.sh
+fi
+
 # hash=$(git log --pretty=format:'%H' -1)
 # author=$(git log --pretty=format:'%an' -1)
 # author_email=$(git log --pretty=format:'%aE' -1)
@@ -41,24 +46,31 @@ fi
 # subject=$(git log --pretty=format:'%s' -1)
 # subject_full=$(git log --pretty=%B -1)
 
-## Init dashboard
-notify-dashboard "platform=$CI_PLATFORM" "compiler=$CI_COMPILER" "options=$CI_OPTIONS" "build_url=$BUILD_URL" "job_url=$JOB_URL"
-
-## Init build
-"$SRC_DIR/scripts/ci/init.sh" "$BUILD_DIR" "$SRC_DIR" "$CI_BUILD_OPTIONS"
-if [ $? = $CODE_ABORT ]; then
-    notify-dashboard "status=abort"
-    exit $CODE_ABORT # Build aborted
+# Check ci-ignore flag in commit message
+commit_message=$(git log --pretty=%B -1)
+if [[ "$commit_message" == *"[ci-ignore]"* ]]; then
+    # Ignore this build
+    echo "WARNING: [ci-ignore] detected, build aborted."
+    exit $CODE_ABORT
 fi
 
-# Clean flag files
+## Create dashboard build line
+notify-dashboard "platform=$CI_PLATFORM" "compiler=$CI_COMPILER" "options=$CI_OPTIONS" "build_url=$BUILD_URL" "job_url=$JOB_URL"
+
+# Clean flag files (used to detect aborts)
 rm -f "$BUILD_DIR/build-started"
 rm -f "$BUILD_DIR/build-finished"
-touch "$BUILD_DIR/build-started" # used to detect aborts
+touch "$BUILD_DIR/build-started"
 
 ## Configure
 notify-dashboard "status=configure"
 "$SRC_DIR/scripts/ci/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CI_COMPILER" "$CI_ARCH" "$CI_BUILD_TYPE" "$CI_BUILD_OPTIONS"
+if [ $? = $CODE_ABORT ]; then
+    exit $CODE_ABORT
+elif [ $? = $CODE_FAILURE ]; then
+    notify-dashboard "status=fail"
+    exit $CODE_FAILURE # Build failed
+fi
 
 ## Compile
 notify-dashboard "status=build"
@@ -71,8 +83,13 @@ elif [ $? = $CODE_FAILURE ]; then
 fi
 
 ## [Full build] Count Warnings
-if [[ -n "$CI_FULL_BUILD" ]]; then
-    warning_count=$(count-warnings)
+if in-array "force-full-build" "$CI_BUILD_OPTIONS"; then
+    if vm-is-windows; then
+        warning_count=$(grep ' : warning [A-Z]\+[0-9]\+:' "$build_dir/make-output.txt" | sort | uniq | wc -l)
+    else
+        warning_count=$(grep '^[^:]\+:[0-9]\+:[0-9]\+: warning:' "$build_dir/make-output.txt" | sort -u | wc -l | tr -d ' ')
+    fi
+    echo "$warning_count"
     echo "Counted $warning_count compiler warnings."
     notify-dashboard "fullbuild=true" "warnings=$warning_count"
 fi
