@@ -28,13 +28,12 @@ usage() {
 
 if [[ "$#" = 6 ]]; then
     BUILD_DIR="$(cd "$1" && pwd)"
-    SRC_DIR="$(cd "$2" && pwd)"
-    # if vm-is-windows; then
-        # # pwd with a Windows format (c:/ instead of /c/)
-        # SRC_DIR="$(cd "$2" && pwd -W)"
-    # else
-        # SRC_DIR="$(cd "$2" && pwd)"
-    # fi
+    if vm-is-windows; then
+        # pwd with a Windows format (c:/ instead of /c/)
+        SRC_DIR="$(cd "$2" && pwd -W)"
+    else
+        SRC_DIR="$(cd "$2" && pwd)"
+    fi
     CI_COMPILER="$3"
     CI_ARCH="$4"
     CI_BUILD_TYPE="$5"
@@ -48,6 +47,7 @@ if [[ ! -d "$SRC_DIR/applications/plugins" ]]; then
     usage; exit 1
 fi
 
+cd "$SRC_DIR"
 
 
 ## Defaults
@@ -58,37 +58,56 @@ if [ -z "$CI_JOB" ]; then CI_JOB="default"; fi
 if [ -z "$CI_BUILD_TYPE" ]; then CI_BUILD_TYPE="Release"; fi
 
 
-## Utils
+# Get Windows dependency pack
 
-generator() {
-    if [ -x "$(command -v ninja)" ]; then
-        echo "Ninja"
-    elif vm-is-windows; then
-        echo "\"NMake Makefiles\""
-    else
-        echo "Unix Makefiles"
+if vm-is-windows && [[ ! -d "$SRC_DIR/lib" ]]; then
+    echo "Copying dependency pack in the source tree."
+    curl "https://www.sofa-framework.org/download/WinDepPack/$CI_COMPILER/latest" --output dependencies_tmp.zip
+    unzip dependencies_tmp.zip -d dependencies_tmp
+    cp -rf dependencies_tmp/*/* "$SRC_DIR"
+    rm -rf dependencies_tmp*
+fi
+
+
+# Choose between incremental build and full build
+
+full_build=""
+sha=$(git --git-dir="$SRC_DIR/.git" rev-parse HEAD)
+
+if in-array "force-full-build" "$CI_BUILD_OPTIONS"; then
+    full_build="Full build forced."
+elif [ ! -e "$BUILD_DIR/CMakeCache.txt" ]; then
+    full_build="No previous build detected."
+elif [ ! -e "$BUILD_DIR/last-commit-built.txt" ]; then
+    full_build="Last build's commit not found."
+else
+    # Sometimes, a change in a cmake script can cause an incremental
+    # build to fail, so let's be extra cautious and make a full build
+    # each time a .cmake file changes.
+    last_commit_build="$(cat "$BUILD_DIR/last-commit-built.txt")"
+    if git --git-dir="$SRC_DIR/.git" diff --name-only "$last_commit_build" "$sha" | grep 'cmake/.*\.cmake' ; then
+        full_build="Detected changes in a CMake script file."
     fi
-}
+fi
 
-call-cmake() {
-    if vm-is-windows; then
-        # Call vcvarsall.bat first to setup environment
-        if [ "$CI_COMPILER" = "VS-2015" ]; then
-            vcvarsall="call \"%VS140COMNTOOLS%..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
-        elif [ "$CI_COMPILER" = "VS-2013" ]; then
-            vcvarsall="call \"%VS120COMNTOOLS%..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
-        else
-            vcvarsall="call \"%VS110COMNTOOLS%..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
-        fi
-        echo "Calling $COMSPEC /c \"$vcvarsall & cmake $*\""
-        $COMSPEC /c "$vcvarsall & cmake $*"
-    else
-        cmake "$@"
-    fi
-}
+if [ -n "$full_build" ]; then
+    echo "Starting a full build. ($full_build)"
+    # '|| true' is an ugly workaround, because rm sometimes fails to remove the
+    # build directory on the Windows slaves, for reasons unknown yet.
+    rm -rf "$BUILD_DIR" || true
+    mkdir -p "$BUILD_DIR"
+    # Flag. E.g. we check this before counting compiler warnings,
+    # which is not relevant after an incremental build.
+    touch "$BUILD_DIR/full-build"
+    echo "$sha" > "$BUILD_DIR/last-commit-built.txt"
+else
+    rm -f "$BUILD_DIR/full-build"
+    echo "Starting an incremental build"
+fi
 
 
-## CMake options
+
+# CMake options
 
 cmake_options="-DCMAKE_COLOR_MAKEFILE=OFF -DCMAKE_BUILD_TYPE=$CI_BUILD_TYPE"
 
@@ -96,42 +115,67 @@ append() {
     cmake_options="$cmake_options $*"
 }
 
-# Options common to all configurations
-append "-DSOFA_BUILD_TUTORIALS=ON"
-append "-DSOFA_BUILD_TESTS=ON"
-append "-DPLUGIN_SOFAPYTHON=ON"
-if [[ -n "$CI_HAVE_BOOST" ]]; then
-    append "-DBOOST_ROOT=$CI_BOOST_PATH"
+# Cache systems
+if vm-is-windows; then
+    if [[ -n "$CI_CLCACHE_PATH" ]]; then
+        append "-DCMAKE_C_COMPILER=$CI_CLCACHE_PATH/bin/clcache.bat"
+        append "-DCMAKE_CXX_COMPILER=$CI_CLCACHE_PATH/bin/clcache.bat"
+    fi
+else
+    if [ -x "$(command -v ccache)" ]; then
+        export CC="ccache "
+        export CXX="ccache "
+    fi
 fi
 
+# Options common to all configurations
+if [[ -n "$CI_QT_PATH" ]]; then
+    if vm-is-windows; then
+        qt_compiler=msvc"$(cut -d "-" -f 2 <<< "$CI_COMPILER")"
+    else
+        qt_compiler="$CI_COMPILER"
+    if [ "$CI_ARCH" = "amd64" ]; then
+        append "-DQt5_DIR=$CI_QT_PATH/"$qt_compiler"_64/lib/cmake/Qt5"
+    else
+        append "-DQt5_DIR=$CI_QT_PATH/"$qt_compiler"/lib/cmake/Qt5"
+    fi
+fi
+if [[ -n "$CI_BOOST_PATH" ]]; then
+    append "-DBOOST_ROOT=$CI_BOOST_PATH"
+    append "-DBOOST_LIBRARYDIR=$CI_BOOST_PATH/lib64-msvc-14.0"
+fi
+if [[ -n "$CI_PYTHON_PATH" ]]; then
+    append "-DPYTHON_LIBRARY=$CI_PYTHON_PATH/libs/python27.lib"
+    append "-DPYTHON_INCLUDE_DIR=$CI_PYTHON_PATH/include"
+fi
+append "-DPLUGIN_SOFAPYTHON=ON"
+append "-DSOFA_BUILD_TUTORIALS=ON"
+append "-DSOFA_BUILD_TESTS=ON"
+
+# "build-all-plugins" specific options
 if in-array "build-all-plugins" "$CI_BUILD_OPTIONS"; then
     # Build with as many options enabled as possible
     append "-DSOFA_BUILD_METIS=ON"
     append "-DSOFA_BUILD_ARTRACK=ON"
     append "-DSOFA_BUILD_MINIFLOWVR=ON"
 
-    if [[ -n "$CI_QT_PATH" ]]; then
-        append "-DQT_ROOT=$CI_QT_PATH"
-    fi
-
-    if [[ -n "$CI_BULLET_DIR" ]]; then
-        append "-DBullet_DIR=$CI_BULLET_DIR"
+    if [[ -n "$CI_BULLET_PATH" ]]; then
+        append "-DBullet_DIR=$CI_BULLET_PATH"
     fi
 
     ### Plugins
     append "-DPLUGIN_ARTRACK=ON"
-    if [[ -n "$CI_BULLET_DIR" ]]; then
+    if [[ -n "$CI_BULLET_PATH" ]]; then
         append "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
         append "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
     fi
     # Missing CGAL library
     append "-DPLUGIN_CGALPLUGIN=OFF"
-    # For Windows, there is the dll of the assimp library *inside* the repository
-    if [[ ( $(uname) = Darwin || $(uname) = Linux ) && -z "$CI_HAVE_ASSIMP" ]]; then
-        append "-DPLUGIN_COLLADASCENELOADER=OFF"
-    else
+    if [ -n "$CI_HAVE_ASSIMP" ]; then
         append "-DPLUGIN_COLLADASCENELOADER=ON"
+    else
+        append "-DPLUGIN_COLLADASCENELOADER=OFF"
     fi
     append "-DPLUGIN_COMPLIANT=ON"
     append "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
@@ -155,11 +199,8 @@ if in-array "build-all-plugins" "$CI_BUILD_OPTIONS"; then
     append "-DPLUGIN_REGISTRATION=ON"
     # Requires OpenHaptics libraries.
     append "-DPLUGIN_SENSABLE=OFF"
-    if [[ -n "$CI_HAVE_BOOST" ]]; then
-        append "-DPLUGIN_SENSABLEEMULATION=ON"
-    else
-        append "-DPLUGIN_SENSABLEEMULATION=OFF"
-    fi
+    append "-DPLUGIN_SENSABLEEMULATION=ON"
+
     # Requires Sixense libraries.
     append "-DPLUGIN_SIXENSEHYDRA=OFF"
     append "-DPLUGIN_SOFACARVING=ON"
@@ -185,7 +226,35 @@ fi
 
 cd "$BUILD_DIR"
 
-## Configure
+
+# Configure
+
+generator() {
+    if [ -x "$(command -v ninja)" ]; then
+        echo "Ninja"
+    elif vm-is-windows; then
+        echo "\"NMake Makefiles\""
+    else
+        echo "Unix Makefiles"
+    fi
+}
+
+call-cmake() {
+    if vm-is-windows; then
+        # Call vcvarsall.bat first to setup environment
+        if [ "$CI_COMPILER" = "VS-2015" ]; then
+            vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+        elif [ "$CI_COMPILER" = "VS-2013" ]; then
+            vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+        else
+            vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+        fi
+        echo "Calling $COMSPEC /c \"$vcvarsall & cmake $*\""
+        $COMSPEC /c "$vcvarsall & cmake $*"
+    else
+        cmake "$@"
+    fi
+}
 
 echo "Calling cmake with the following options:"
 echo "$cmake_options" | tr -s ' ' '\n'
