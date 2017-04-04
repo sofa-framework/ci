@@ -19,16 +19,6 @@ notify-dashboard() {
     echo "notify dashboard $*"
 }
 
-count-warnings() {
-    local warning_count=-1
-    if [[ $(uname) = Darwin || $(uname) = Linux ]]; then
-        warning_count=$(grep '^[^:]\+:[0-9]\+:[0-9]\+: warning:' "$build_dir/make-output.txt" | sort -u | wc -l | tr -d ' ')
-    else
-        warning_count=$(grep ' : warning [A-Z]\+[0-9]\+:' "$build_dir/make-output.txt" | sort | uniq | wc -l)
-    fi
-    echo "$warning_count"
-}
-
 vm-is-windows() {
     if [[ "$(uname)" != "Darwin" && "$(uname)" != "Linux" ]]; then
         return 0 # true

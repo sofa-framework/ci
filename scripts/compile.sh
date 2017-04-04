@@ -46,11 +46,11 @@ call-make() {
     if vm-is-windows; then
         # Call vcvarsall.bat first to setup environment
         if [ "$CI_COMPILER" = "VS-2015" ]; then
-            vcvarsall="call \"%VS140COMNTOOLS%..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+            vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
         elif [ "$CI_COMPILER" = "VS-2013" ]; then
-            vcvarsall="call \"%VS120COMNTOOLS%..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+            vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
         else
-            vcvarsall="call \"%VS110COMNTOOLS%..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+            vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
         fi
         toolname="nmake"
         if [ -x "$(command -v ninja)" ]; then
@@ -65,7 +65,7 @@ call-make() {
             echo "Using ninja as build system"
 	        toolname="ninja"
         fi 
-	$toolname $CI_MAKE_OPTIONS
+        $toolname $CI_MAKE_OPTIONS
     fi
 }
 
