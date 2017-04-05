@@ -133,7 +133,8 @@ if [[ -n "$CI_QT_PATH" ]]; then
     if vm-is-windows; then
         qt_compiler=msvc"$(cut -d "-" -f 2 <<< "$CI_COMPILER")"
     else
-        qt_compiler="$CI_COMPILER"
+        qt_compiler="$(cut -d "-" -f 1 <<< "$CI_COMPILER")"
+    fi
     if [ "$CI_ARCH" = "amd64" ]; then
         append "-DQt5_DIR=$CI_QT_PATH/"$qt_compiler"_64/lib/cmake/Qt5"
     else
