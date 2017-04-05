@@ -65,9 +65,10 @@ touch "$BUILD_DIR/build-started"
 ## Configure
 notify-dashboard "status=configure"
 "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CI_COMPILER" "$CI_ARCH" "$CI_BUILD_TYPE" "$CI_BUILD_OPTIONS"
-if [ $? = $CODE_ABORT ]; then
+exit_code="$?"
+if [ "$exit_code" = "$CODE_ABORT" ]; then
     exit $CODE_ABORT
-elif [ $? = $CODE_FAILURE ]; then
+elif [ "$exit_code" = "$CODE_FAILURE" ]; then
     notify-dashboard "status=fail"
     exit $CODE_FAILURE # Build failed
 fi
@@ -75,9 +76,10 @@ fi
 ## Compile
 notify-dashboard "status=build"
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$CI_COMPILER" "$CI_ARCH"
-if [ $? = $CODE_SUCCESS ]; then
+exit_code="$?"
+if [ "$exit_code" = "$CODE_SUCCESS" ]; then
     notify-dashboard "status=success"
-elif [ $? = $CODE_FAILURE ]; then
+elif [ "$exit_code" = "$CODE_FAILURE" ]; then
     notify-dashboard "status=fail"
     exit $CODE_FAILURE # Build failed
 fi
