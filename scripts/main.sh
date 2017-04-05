@@ -64,7 +64,7 @@ touch "$BUILD_DIR/build-started"
 
 ## Configure
 notify-dashboard "status=configure"
-"$SRC_DIR/scripts/ci/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CI_COMPILER" "$CI_ARCH" "$CI_BUILD_TYPE" "$CI_BUILD_OPTIONS"
+"$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CI_COMPILER" "$CI_ARCH" "$CI_BUILD_TYPE" "$CI_BUILD_OPTIONS"
 if [ $? = $CODE_ABORT ]; then
     exit $CODE_ABORT
 elif [ $? = $CODE_FAILURE ]; then
@@ -74,7 +74,7 @@ fi
 
 ## Compile
 notify-dashboard "status=build"
-"$SRC_DIR/scripts/ci/compile.sh" "$BUILD_DIR" "$CI_COMPILER" "$CI_ARCH"
+"$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$CI_COMPILER" "$CI_ARCH"
 if [ $? = $CODE_SUCCESS ]; then
     notify-dashboard "status=success"
 elif [ $? = $CODE_FAILURE ]; then
@@ -98,14 +98,14 @@ fi
 if [[ -n "$CI_UNIT_TESTS" ]]; then
     notify-dashboard "tests_status=running"
 
-    "$SRC_DIR/scripts/ci/tests.sh" run "$BUILD_DIR" "$SRC_DIR"
-    "$SRC_DIR/scripts/ci/tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
+    "$SCRIPT_DIR/tests.sh" run "$BUILD_DIR" "$SRC_DIR"
+    "$SCRIPT_DIR/tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
     
-    tests_suites=$("$SRC_DIR/scripts/ci/tests.sh" count-test-suites $BUILD_DIR $SRC_DIR)
-    tests_total=$("$SRC_DIR/scripts/ci/tests.sh" count-tests $BUILD_DIR $SRC_DIR)
-    tests_disabled=$("$SRC_DIR/scripts/ci/tests.sh" count-disabled $BUILD_DIR $SRC_DIR)
-    tests_failures=$("$SRC_DIR/scripts/ci/tests.sh" count-failures $BUILD_DIR $SRC_DIR)
-    tests_errors=$("$SRC_DIR/scripts/ci/tests.sh" count-errors $BUILD_DIR $SRC_DIR)
+    tests_suites=$("$SCRIPT_DIR/tests.sh" count-test-suites $BUILD_DIR $SRC_DIR)
+    tests_total=$("$SCRIPT_DIR/tests.sh" count-tests $BUILD_DIR $SRC_DIR)
+    tests_disabled=$("$SCRIPT_DIR/tests.sh" count-disabled $BUILD_DIR $SRC_DIR)
+    tests_failures=$("$SCRIPT_DIR/tests.sh" count-failures $BUILD_DIR $SRC_DIR)
+    tests_errors=$("$SCRIPT_DIR/tests.sh" count-errors $BUILD_DIR $SRC_DIR)
 
     notify-dashboard \
         "tests_suites=$tests_suites" \
@@ -119,12 +119,12 @@ fi
 if [[ -n "$CI_SCENE_TESTS" ]]; then
     notify-dashboard "scenes_status=running"
     
-    "$SRC_DIR/scripts/ci/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
-    "$SRC_DIR/scripts/ci/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
+    "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
+    "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
     
-    scenes_total=$("$SRC_DIR/scripts/ci/scene-tests.sh" count-tests $BUILD_DIR $SRC_DIR)
-    scenes_errors=$("$SRC_DIR/scripts/ci/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
-    scenes_crashes=$("$SRC_DIR/scripts/ci/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
+    scenes_total=$("$SCRIPT_DIR/scene-tests.sh" count-tests $BUILD_DIR $SRC_DIR)
+    scenes_errors=$("$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
+    scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
     
     notify-dashboard \
         "scenes_total=$scenes_total" \
