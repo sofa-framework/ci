@@ -1,6 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. "$SCRIPT_DIR"/functions.sh
+. "$SCRIPT_DIR"/utils.sh
 
 # Here we pick what gets to be compiled. The role of this script is to
 # call cmake with the appropriate options. After this, the build
@@ -10,10 +10,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # - CI_JOB                    (e.g. ubuntu_gcc-4.8_options)
 # - CI_OPTIONS                if contains "options" then activate plugins
 # - CI_CMAKE_OPTIONS          (additional arguments to pass to cmake)
-# - CI_ARCH = x86 | amd64     (for Windows builds)
-# - CI_BUILD_TYPE             Debug|Release
+# - ARCHITECTURE = x86 | amd64     (for Windows builds)
+# - BUILD_TYPE             Debug|Release
 # - CC and CXX
-# - CI_COMPILER               # important for Visual Studio paths (VS-2012, VS-2013 or VS-2015)
+# - COMPILER               # important for Visual Studio paths (VS-2012, VS-2013 or VS-2015)
 
 
 # Exit on error
@@ -34,35 +34,27 @@ if [[ "$#" = 6 ]]; then
     else
         SRC_DIR="$(cd "$2" && pwd)"
     fi
-    CI_COMPILER="$3"
-    CI_ARCH="$4"
-    CI_BUILD_TYPE="$5"
-    CI_BUILD_OPTIONS="$6"
+    COMPILER="$3"
+    ARCHITECTURE="$4"
+    BUILD_TYPE="$5"
+    BUILD_OPTIONS="$6"
 else
     usage; exit 1
 fi
 
 if [[ ! -d "$SRC_DIR/applications/plugins" ]]; then
-    echo "Error: '$SRC_DIR' does not look like a Sofa source tree."
+    echo "Error: '$SRC_DIR' does not look like a SOFA source tree."
     usage; exit 1
 fi
 
 cd "$SRC_DIR"
 
 
-## Defaults
-
-if [ -z "$CI_ARCH" ]; then CI_ARCH="x86"; fi
-if [ -z "$CI_JOB" ]; then CI_JOB="$JOB_NAME"; fi
-if [ -z "$CI_JOB" ]; then CI_JOB="default"; fi
-if [ -z "$CI_BUILD_TYPE" ]; then CI_BUILD_TYPE="Release"; fi
-
-
 # Get Windows dependency pack
 
 if vm-is-windows && [[ ! -d "$SRC_DIR/lib" ]]; then
     echo "Copying dependency pack in the source tree."
-    curl "https://www.sofa-framework.org/download/WinDepPack/$CI_COMPILER/latest" --output dependencies_tmp.zip
+    curl "https://www.sofa-framework.org/download/WinDepPack/$COMPILER/latest" --output dependencies_tmp.zip
     unzip dependencies_tmp.zip -d dependencies_tmp
     cp -rf dependencies_tmp/*/* "$SRC_DIR"
     rm -rf dependencies_tmp*
@@ -74,7 +66,7 @@ fi
 full_build=""
 sha=$(git --git-dir="$SRC_DIR/.git" rev-parse HEAD)
 
-if in-array "force-full-build" "$CI_BUILD_OPTIONS"; then
+if in-array "force-full-build" "$BUILD_OPTIONS"; then
     full_build="Full build forced."
 elif [ ! -e "$BUILD_DIR/CMakeCache.txt" ]; then
     full_build="No previous build detected."
@@ -109,7 +101,7 @@ fi
 
 # CMake options
 
-cmake_options="-DCMAKE_COLOR_MAKEFILE=OFF -DCMAKE_BUILD_TYPE=$CI_BUILD_TYPE"
+cmake_options="-DCMAKE_COLOR_MAKEFILE=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
 
 append() {
     cmake_options="$cmake_options $*"
@@ -131,11 +123,11 @@ fi
 # Options common to all configurations
 if [[ -n "$CI_QT_PATH" ]]; then
     if vm-is-windows; then
-        qt_compiler=msvc"$(cut -d "-" -f 2 <<< "$CI_COMPILER")"
+        qt_compiler=msvc"$(cut -d "-" -f 2 <<< "$COMPILER")"
     else
-        qt_compiler="$(cut -d "-" -f 1 <<< "$CI_COMPILER")"
+        qt_compiler="$(cut -d "-" -f 1 <<< "$COMPILER")"
     fi
-    if [ "$CI_ARCH" = "amd64" ]; then
+    if [ "$ARCHITECTURE" = "amd64" ]; then
         append "-DQt5_DIR=$CI_QT_PATH/"$qt_compiler"_64/lib/cmake/Qt5"
     else
         append "-DQt5_DIR=$CI_QT_PATH/"$qt_compiler"/lib/cmake/Qt5"
@@ -154,7 +146,7 @@ append "-DSOFA_BUILD_TUTORIALS=ON"
 append "-DSOFA_BUILD_TESTS=ON"
 
 # "build-all-plugins" specific options
-if in-array "build-all-plugins" "$CI_BUILD_OPTIONS"; then
+if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     # Build with as many options enabled as possible
     append "-DSOFA_BUILD_METIS=ON"
     append "-DSOFA_BUILD_ARTRACK=ON"
@@ -243,12 +235,12 @@ generator() {
 call-cmake() {
     if vm-is-windows; then
         # Call vcvarsall.bat first to setup environment
-        if [ "$CI_COMPILER" = "VS-2015" ]; then
-            vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
-        elif [ "$CI_COMPILER" = "VS-2013" ]; then
-            vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+        if [ "$COMPILER" = "VS-2015" ]; then
+            vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        elif [ "$COMPILER" = "VS-2013" ]; then
+            vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         else
-            vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+            vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         fi
         echo "Calling $COMSPEC /c \"$vcvarsall & cmake $*\""
         $COMSPEC /c "$vcvarsall & cmake $*"

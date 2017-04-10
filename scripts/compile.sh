@@ -1,14 +1,14 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. "$SCRIPT_DIR"/functions.sh
+. "$SCRIPT_DIR"/utils.sh
 
 # This script basically runs 'make' and saves the compilation output
 # in make-output.txt.
 
 ## Significant environnement variables:
 # - CI_MAKE_OPTIONS       # additional arguments to pass to make
-# - CI_ARCH               # x86|amd64  (32-bit or 64-bit build - Windows-specific)
-# - CI_COMPILER           # important for Visual Studio (VS-2012, VS-2013 or VS-2015)
+# - ARCHITECTURE               # x86|amd64  (32-bit or 64-bit build - Windows-specific)
+# - COMPILER           # important for Visual Studio (VS-2012, VS-2013 or VS-2015)
 
 # Exit on error
 set -o errexit
@@ -22,8 +22,8 @@ usage() {
 
 if [[ "$#" = 3 ]]; then
     BUILD_DIR="$(cd "$1" && pwd)"
-    CI_COMPILER="$2"
-    CI_ARCH="$3"
+    COMPILER="$2"
+    ARCHITECTURE="$3"
 else
     usage; exit 1
 fi
@@ -33,24 +33,18 @@ if [[ ! -e "$BUILD_DIR/CMakeCache.txt" ]]; then
     usage; exit 1
 fi
 
+cd "$BUILD_DIR"
 
-
-### Defaults
-
-if [ -z "$CI_ARCH" ]; then CI_ARCH="x86"; fi
-
-
-### Actual work
 
 call-make() {
     if vm-is-windows; then
         # Call vcvarsall.bat first to setup environment
-        if [ "$CI_COMPILER" = "VS-2015" ]; then
-            vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
-        elif [ "$CI_COMPILER" = "VS-2013" ]; then
-            vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+        if [ "$COMPILER" = "VS-2015" ]; then
+            vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        elif [ "$COMPILER" = "VS-2013" ]; then
+            vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         else
-            vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $CI_ARCH"
+            vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         fi
         toolname="nmake"
         if [ -x "$(command -v ninja)" ]; then
@@ -68,8 +62,6 @@ call-make() {
         $toolname $CI_MAKE_OPTIONS
     fi
 }
-
-cd "$BUILD_DIR"
 
 # The output of make is saved to a file, to check for warnings later. Since make
 # is inside a pipe, errors will go undetected, thus we create a file
