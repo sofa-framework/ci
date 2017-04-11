@@ -17,3 +17,11 @@ in-array() {
     done
     return 1
 }
+
+var-is-set() {
+    if [ -z ${1+x} ]; then
+        return 0
+    else
+        return 1
+    fi
+}
