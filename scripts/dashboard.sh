@@ -2,17 +2,17 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/utils.sh
 
-dashboard-notify() {    
+dashboard-notify() {
     local message="sha=$DASH_COMMIT_HASH&config=$DASH_CONFIG"
     while [ $# -gt 0 ]; do
         message="$message&$1"
         shift
     done
-    if [ -z "$DASH_DASHBOARD_URL" ]; then
-        echo "Notify dashboard (not sent): $message"
-    else
+    if [ "$DASH_REPORT_TO_DASHBOARD" = "true" ] && [ -n "$DASH_DASHBOARD_URL" ]; then
         echo "Notify dashboard (sent): $message"
         # wget --no-check-certificate --no-verbose --output-document=/dev/null --post-data="$message" "$DASH_DASHBOARD_URL"
+    else
+        echo "Notify dashboard (not sent): $message"
     fi
 }
 
@@ -23,7 +23,7 @@ dashboard-init() {
     local BUILD_OPTIONS="$4"
     
     if in-array "report-to-dashboard" "$BUILD_OPTIONS"; then
-        export DASH_REPORT_TO_DASHBOARD
+        export DASH_REPORT_TO_DASHBOARD="true"
     fi
 
     export DASH_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
@@ -70,7 +70,7 @@ dashboard-init() {
 
     # Create/update build frame with empty status
     if in-array "force-full-build" "$BUILD_OPTIONS"; then
-        dashboard-notify "fullbuild" "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
+        dashboard-notify "fullbuild=true" "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
     else
         dashboard-notify "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
     fi

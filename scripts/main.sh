@@ -32,9 +32,7 @@ else
 fi
 
 # CI environment variables
-if in-array "report-to-dashboard" "$BUILD_OPTIONS"; then
-    dashboard-init "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-fi
+dashboard-init "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 
 # VM environment variables
 if vm-is-windows && [ -e "$SCRIPT_DIR/env/default-windows" ]; then
