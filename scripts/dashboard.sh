@@ -34,15 +34,23 @@ dashboard-init() {
     export DASH_COMMIT_DATE="$(git log --pretty=format:%ct -1)"
     export DASH_COMMIT_MESSAGE="$(git log --pretty=format:'%s' -1)"
     # subject_full=$(git log --pretty=%B -1)
-    export DASH_COMMIT_BRANCH="$(git branch | grep \* | cut -d ' ' -f2)"
+    if [ -n "$GIT_BRANCH" ]; then # Check Jenkins env var first
+        export DASH_COMMIT_BRANCH="$GIT_BRANCH"
+    else
+        export DASH_COMMIT_BRANCH="$(git branch | grep \* | cut -d ' ' -f2)"
+    fi
     
     # DASH_PLATFORM = [mac, ubuntu, centos, winxp, windows7, windows7-64]
-    case "$OSTYPE" in
-        darwin*)      export DASH_PLATFORM="mac" ;; 
-        linux-gnu*)   export DASH_PLATFORM="$(cat /etc/os-release | grep "^ID=" | cut -d "=" -f 2)" ;;
-        msys*)        export DASH_PLATFORM="windows7" ;;
-        *)            export DASH_PLATFORM="$OSTYPE" ;;
-    esac
+    if [ -n "$platform" ]; then # Check Jenkins env var first
+        export DASH_PLATFORM="$platform"
+    else
+        case "$OSTYPE" in
+            darwin*)      export DASH_PLATFORM="mac" ;; 
+            linux-gnu*)   export DASH_PLATFORM="$(cat /etc/os-release | grep "^ID=" | cut -d "=" -f 2)" ;;
+            msys*)        export DASH_PLATFORM="windows7" ;;
+            *)            export DASH_PLATFORM="$OSTYPE" ;;
+        esac
+    fi
 
     # DASH_OPTIONS = [default, options, default-debug, options-debug]
     if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
