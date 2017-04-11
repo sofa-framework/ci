@@ -1,0 +1,21 @@
+#!/bin/bash
+
+export CI_MAKE_OPTIONS="-j2"
+
+
+export CI_BOOST_PATH=""
+
+export CI_QT_PATH=""
+
+export CI_PYTHON_PATH=""
+
+export CI_BULLET_PATH=""
+
+
+export CI_USE_CCACHE="false"
+
+export CI_USE_ASSIMP="false"
+
+export CI_USE_CUDA="false"
+
+export CI_USE_OPENCASCADE="false"

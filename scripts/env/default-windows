@@ -1,0 +1,21 @@
+#!/bin/bash
+
+export CI_MAKE_OPTIONS="-j2"
+
+
+export CI_BOOST_PATH="C:/dev/boost/boost_1_59_0"
+
+export CI_QT_PATH="C:/dev/Qt/5.7"
+
+export CI_PYTHON_PATH="C:/dev/Python/2.7"
+
+export CI_BULLET_PATH=""
+
+export CI_CLCACHE_PATH="C:/dev/clcache"
+
+
+export CI_USE_ASSIMP="false"
+
+export CI_USE_CUDA="false"
+
+export CI_USE_OPENCASCADE="false"

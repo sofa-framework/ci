@@ -52,7 +52,7 @@ cd "$SRC_DIR"
 
 # Get Windows dependency pack
 
-if vm-is-windows && [[ ! -d "$SRC_DIR/lib" ]]; then
+if vm-is-windows && [ ! -d "$SRC_DIR/lib" ]; then
     echo "Copying dependency pack in the source tree."
     curl "https://www.sofa-framework.org/download/WinDepPack/$COMPILER/latest" --output dependencies_tmp.zip
     unzip dependencies_tmp.zip -d dependencies_tmp
@@ -109,12 +109,12 @@ append() {
 
 # Cache systems
 if vm-is-windows; then
-    if [[ -n "$CI_CLCACHE_PATH" ]]; then
+    if [ -n "$CI_CLCACHE_PATH" ]; then
         append "-DCMAKE_C_COMPILER=$CI_CLCACHE_PATH/bin/clcache.bat"
         append "-DCMAKE_CXX_COMPILER=$CI_CLCACHE_PATH/bin/clcache.bat"
     fi
 else
-    if [ -x "$(command -v ccache)" ]; then
+    if [ "$CI_USE_CCACHE" = "true" ] && [ -x "$(command -v ccache)" ]; then
         export CC="ccache "
         export CXX="ccache "
     fi
@@ -133,11 +133,11 @@ if [[ -n "$CI_QT_PATH" ]]; then
         append "-DQt5_DIR=$CI_QT_PATH/"$qt_compiler"/lib/cmake/Qt5"
     fi
 fi
-if [[ -n "$CI_BOOST_PATH" ]]; then
+if [ -n "$CI_BOOST_PATH" ]; then
     append "-DBOOST_ROOT=$CI_BOOST_PATH"
     append "-DBOOST_LIBRARYDIR=$CI_BOOST_PATH/lib64-msvc-14.0"
 fi
-if [[ -n "$CI_PYTHON_PATH" ]]; then
+if [ -n "$CI_PYTHON_PATH" ]; then
     append "-DPYTHON_LIBRARY=$CI_PYTHON_PATH/libs/python27.lib"
     append "-DPYTHON_INCLUDE_DIR=$CI_PYTHON_PATH/include"
 fi
@@ -152,20 +152,20 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     append "-DSOFA_BUILD_ARTRACK=ON"
     append "-DSOFA_BUILD_MINIFLOWVR=ON"
 
-    if [[ -n "$CI_BULLET_PATH" ]]; then
+    if [ -n "$CI_BULLET_PATH" ]; then
         append "-DBullet_DIR=$CI_BULLET_PATH"
     fi
 
     ### Plugins
     append "-DPLUGIN_ARTRACK=ON"
-    if [[ -n "$CI_BULLET_PATH" ]]; then
+    if [ -n "$CI_BULLET_PATH" ]; then
         append "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
         append "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
     fi
     # Missing CGAL library
     append "-DPLUGIN_CGALPLUGIN=OFF"
-    if [ -n "$CI_HAVE_ASSIMP" ]; then
+    if [ "$CI_USE_ASSIMP" = "true" ]; then
         append "-DPLUGIN_COLLADASCENELOADER=ON"
     else
         append "-DPLUGIN_COLLADASCENELOADER=OFF"
@@ -179,7 +179,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     append "-DPLUGIN_INVERTIBLEFVM=ON"
     append "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
     append "-DPLUGIN_MANUALMAPPING=ON"
-    if [ -n "$CI_HAVE_OPENCASCADE" ]; then
+    if [ "$CI_USE_OPENCASCADE" = "true" ]; then
         append "-DPLUGIN_MESHSTEPLOADER=ON"
     else
         append "-DPLUGIN_MESHSTEPLOADER=OFF"
@@ -197,7 +197,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     # Requires Sixense libraries.
     append "-DPLUGIN_SIXENSEHYDRA=OFF"
     append "-DPLUGIN_SOFACARVING=ON"
-    if [[ -n "$CI_HAVE_CUDA" ]]; then
+    if [ "$CI_USE_CUDA" = "true" ]; then
         append "-DPLUGIN_SOFACUDA=ON"
     else
         append "-DPLUGIN_SOFACUDA=OFF"
@@ -213,7 +213,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
 fi
 
 # Options passed via the environnement
-if [ ! -z "$CI_CMAKE_OPTIONS" ]; then
+if [ -n "$CI_CMAKE_OPTIONS" ]; then
     cmake_options="$cmake_options $CI_CMAKE_OPTIONS"
 fi
 

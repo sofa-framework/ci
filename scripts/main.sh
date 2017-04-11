@@ -36,9 +36,17 @@ if in-array "report-to-dashboard" "$BUILD_OPTIONS"; then
     dashboard-init "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 fi
 
-# Windows environment variables
-if vm-is-windows; then
-    . /c/setup-vm-env.sh
+# VM environment variables
+if vm-is-windows && [ -e "$SCRIPT_DIR/env/default-windows" ]; then
+    echo "ENV VARS: load $SCRIPT_DIR/env/default-windows"
+    . "$SCRIPT_DIR/env/default-windows"
+elif [ -e "$SCRIPT_DIR/env/default-unix" ]; then
+    echo "ENV VARS: load $SCRIPT_DIR/env/default-unix"
+    . "$SCRIPT_DIR/env/default-unix"
+fi
+if [ -n "$NODE_NAME" ] && [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
+    echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"
+    . "$SCRIPT_DIR/env/$NODE_NAME"
 fi
 
 # Check [ci-ignore] flag in commit message
