@@ -41,8 +41,8 @@ dashboard-init() {
     fi
     
     # DASH_PLATFORM = [mac, ubuntu, centos, winxp, windows7, windows7-64]
-    if [ -n "$platform" ]; then # Check Jenkins env var first
-        export DASH_PLATFORM="$platform"
+    if [ -n "$CI_PLATFORM" ]; then # Check Jenkins env var first
+        export DASH_PLATFORM="$CI_PLATFORM"
     else
         case "$OSTYPE" in
             darwin*)      export DASH_PLATFORM="mac" ;; 
@@ -73,10 +73,10 @@ dashboard-init() {
         export DASH_DASHBOARD_URL="https://www.sofa-framework.org/dash/input.php"
     fi
     
-    # Create/update commit line
+    echo "DASH: Create/update commit line"
     dashboard-notify "comment=$DASH_COMMIT_MESSAGE" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=$DASH_COMMIT_BRANCH"
 
-    # Create/update build frame with empty status
+    echo "DASH: Create/update build frame with empty status"
     if in-array "force-full-build" "$BUILD_OPTIONS"; then
         dashboard-notify "fullbuild=true" "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
     else
