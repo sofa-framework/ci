@@ -3,6 +3,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/utils.sh
 . "$SCRIPT_DIR"/dashboard.sh
 
+# Trap manual abort
+getAbort()
+{
+    echo "TRAP: Abort detected"
+    dashboard-notify "status=aborted"
+}
+trap 'getAbort; exit' SIGHUP SIGINT SIGTERM
+
 # Exit on error
 # set -o errexit
 # TODO :
@@ -55,6 +63,7 @@ commit_message_full="$(git log --pretty=%B -1)"
 if [[ "$commit_message_full" == *"[ci-ignore]"* ]]; then
     # Ignore this build
     echo "WARNING: [ci-ignore] detected in commit message, build aborted."
+    dashboard-notify "status=aborted"
     exit $CODE_ABORT
 fi
 
@@ -68,6 +77,7 @@ dashboard-notify "status=configure"
 "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 exit_code="$?"
 if [ "$exit_code" = "$CODE_ABORT" ]; then
+    dashboard-notify "status=aborted"
     exit $CODE_ABORT
 elif [ "$exit_code" = "$CODE_FAILURE" ]; then
     dashboard-notify "status=fail"
