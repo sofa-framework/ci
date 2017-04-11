@@ -145,7 +145,7 @@ if [ -n "$VM_PYTHON_PATH" ]; then
     append "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
 fi
 append "-DPLUGIN_SOFAPYTHON=ON"
-append "-DSOFA_BUILD_TUTORIALS=ON"
+append "-DSOFA_BUILD_TUTORIALS=OFF"
 append "-DSOFA_BUILD_TESTS=ON"
 
 # "build-all-plugins" specific options
