@@ -38,6 +38,9 @@ if [[ "$#" = 6 ]]; then
     ARCHITECTURE="$4"
     BUILD_TYPE="$5"
     BUILD_OPTIONS="$6"
+    
+    # sanitize vars
+    BUILD_TYPE="${BUILD_TYPE^}"
 else
     usage; exit 1
 fi
