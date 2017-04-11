@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # in make-output.txt.
 
 ## Significant environnement variables:
-# - CI_MAKE_OPTIONS       # additional arguments to pass to make
+# - VM_MAKE_OPTIONS       # additional arguments to pass to make
 # - ARCHITECTURE               # x86|amd64  (32-bit or 64-bit build - Windows-specific)
 # - COMPILER           # important for Visual Studio (VS-2012, VS-2013 or VS-2015)
 
@@ -51,15 +51,15 @@ call-make() {
         	echo "Using ninja as build system"
             toolname="ninja"
         fi
-        echo "Calling $COMSPEC /c \"$vcvarsall & $toolname $CI_MAKE_OPTIONS\""
-        $COMSPEC /c "$vcvarsall & $toolname $CI_MAKE_OPTIONS"
+        echo "Calling $COMSPEC /c \"$vcvarsall & $toolname $VM_MAKE_OPTIONS\""
+        $COMSPEC /c "$vcvarsall & $toolname $VM_MAKE_OPTIONS"
     else
     	toolname="make"
         if [ -x "$(command -v ninja)" ]; then
             echo "Using ninja as build system"
 	        toolname="ninja"
         fi 
-        $toolname $CI_MAKE_OPTIONS
+        $toolname $VM_MAKE_OPTIONS
     fi
 }
 

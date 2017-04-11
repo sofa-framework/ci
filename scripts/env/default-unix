@@ -1,21 +1,19 @@
 #!/bin/bash
 
-export CI_MAKE_OPTIONS="-j2"
+export VM_MAKE_OPTIONS="-j2"
 
 
-export CI_BOOST_PATH=""
+export VM_BOOST_PATH=""
 
-export CI_QT_PATH=""
+export VM_QT_PATH=""
 
-export CI_PYTHON_PATH=""
+export VM_PYTHON_PATH=""
 
-export CI_BULLET_PATH=""
+export VM_BULLET_PATH=""
 
 
-export CI_USE_CCACHE="false"
+export VM_HAS_ASSIMP="false"
 
-export CI_USE_ASSIMP="false"
+export VM_HAS_CUDA="false"
 
-export CI_USE_CUDA="false"
-
-export CI_USE_OPENCASCADE="false"
+export VM_HAS_OPENCASCADE="false"
