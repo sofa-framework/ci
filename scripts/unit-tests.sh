@@ -11,14 +11,14 @@ export GTEST_COLOR=no
 export SOFA_COLOR_TERMINAL=no
 
 usage() {
-    echo "Usage: tests.sh (run|print-summary) <build-dir> <src-dir>"
+    echo "Usage: unit-tests.sh (run|print-summary) <build-dir> <src-dir>"
 }
 
 if [[ "$#" = 3 ]]; then
     command="$1"
     build_dir="$2"
     src_dir="$3"
-    output_dir="$build_dir/tests"
+    output_dir="$build_dir/unit-tests"
 else
     usage; exit 1
 fi
@@ -46,8 +46,8 @@ list-tests() {
     popd > /dev/null
 }
 
-initialize-testing() {
-    echo "Initializing testing."
+initialize-unit-tests() {
+    echo "Initializing unit testing."
     rm -rf "$output_dir"
     rm -rf "$output_dir/reports"
     mkdir -p "$output_dir"
@@ -55,7 +55,7 @@ initialize-testing() {
     list-tests | while read test; do
         echo "$test"
         mkdir -p "$output_dir/$test"
-    done > "$output_dir/tests.txt"
+    done > "$output_dir/unit-tests.txt"
 }
 
 fix-test-report() {
@@ -123,8 +123,8 @@ run-single-test-subtests() {
 <![CDATA['"$(cat $output_dir/$test/$subtest/output.txt)"']]>
             </error>
         </testcase>
-    </testsuite>
-</testsuites>' > "$output_file"
+    </unit-testsuite>
+</unit-testsuites>' > "$output_file"
         fi
 
         if [ -f "$output_file" ]; then
@@ -172,7 +172,7 @@ run-single-test() {
 run-all-tests() {
     while read test; do
         run-single-test "$test"
-    done < "$output_dir/tests.txt"
+    done < "$output_dir/unit-tests.txt"
 }
 
 
@@ -240,12 +240,12 @@ print-summary() {
                         ;;
                 esac
             fi
-        done < "$output_dir/tests.txt"
+        done < "$output_dir/unit-tests.txt"
     fi
 }
 
 if [[ "$command" = run ]]; then
-    initialize-testing
+    initialize-unit-tests
     run-all-tests
 elif [[ "$command" = count-tests ]]; then
     tests-get tests

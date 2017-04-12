@@ -64,7 +64,7 @@ if [ -n "$NODE_NAME" ] && [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
 fi
 
 
-## Configure
+# Configure
 dashboard-notify "status=configure"
 "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 exit_code="$?"
@@ -73,7 +73,7 @@ if [ "$exit_code" = "$CODE_FAILURE" ]; then
     exit $CODE_FAILURE # Build failed
 fi
 
-## Compile
+# Compile
 dashboard-notify "status=build"
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$COMPILER" "$ARCHITECTURE"
 exit_code="$?"
@@ -84,7 +84,7 @@ elif [ "$exit_code" = "$CODE_FAILURE" ]; then
     exit $CODE_FAILURE # Build failed
 fi
 
-## [Full build] Count Warnings
+# [Full build] Count Warnings
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     if vm-is-windows; then
         warning_count=$(grep ' : warning [A-Z]\+[0-9]\+:' "$build_dir/make-output.txt" | sort | uniq | wc -l)
@@ -95,18 +95,18 @@ if in-array "force-full-build" "$BUILD_OPTIONS"; then
     dashboard-notify "warnings=$warning_count"
 fi
 
-## Unit tests
+# Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     dashboard-notify "tests_status=running"
 
-    "$SCRIPT_DIR/tests.sh" run "$BUILD_DIR" "$SRC_DIR"
-    "$SCRIPT_DIR/tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
+    "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
+    "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
     
-    tests_suites=$("$SCRIPT_DIR/tests.sh" count-test-suites $BUILD_DIR $SRC_DIR)
-    tests_total=$("$SCRIPT_DIR/tests.sh" count-tests $BUILD_DIR $SRC_DIR)
-    tests_disabled=$("$SCRIPT_DIR/tests.sh" count-disabled $BUILD_DIR $SRC_DIR)
-    tests_failures=$("$SCRIPT_DIR/tests.sh" count-failures $BUILD_DIR $SRC_DIR)
-    tests_errors=$("$SCRIPT_DIR/tests.sh" count-errors $BUILD_DIR $SRC_DIR)
+    tests_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR)
+    tests_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests $BUILD_DIR $SRC_DIR)
+    tests_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR)
+    tests_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures $BUILD_DIR $SRC_DIR)
+    tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
 
     dashboard-notify \
         "tests_suites=$tests_suites" \
@@ -116,7 +116,7 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
         "tests_errors=$tests_errors" 
 fi
 
-## Scene tests
+# Scene tests
 if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     dashboard-notify "scenes_status=running"
     

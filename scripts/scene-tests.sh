@@ -26,7 +26,7 @@ if [[ "$#" = 3 ]]; then
     command="$1"
     build_dir="$2"
     src_dir="$3"
-    output_dir="$build_dir/scene-testing"
+    output_dir="$build_dir/scene-tests"
 else
     usage; exit 1
 fi
@@ -271,7 +271,7 @@ parse-options-files() {
     done < "$output_dir/directories.txt"
 }
 
-initialize-scene-testing() {
+initialize-scene-tests() {
     echo "Initializing scene testing."
     rm -rf "$output_dir"
     mkdir -p "$output_dir"
@@ -399,7 +399,7 @@ print-summary() {
 }
 
 if [[ "$command" = run ]]; then
-    initialize-scene-testing
+    initialize-scene-tests
     test-all-scenes
     extract-warnings
     extract-errors
