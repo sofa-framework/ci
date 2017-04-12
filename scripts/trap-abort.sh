@@ -1,5 +1,4 @@
-#!/bin/bash
-pwd
+#!/bin/bash -ex
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/dashboard.sh
 
@@ -13,7 +12,7 @@ onAbort()
     echo "--------- ABORT TRAPPED ---------"
     dashboard-notify "status=aborted"
 }
-trap onAbort SIGINT SIGTERM
+trap onAbort INT TERM EXIT
 
 # set -euf -o pipefail
 echo Process group id is $$
