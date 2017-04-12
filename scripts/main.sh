@@ -31,6 +31,21 @@ else
     usage; exit 1
 fi
 
+
+# Check [ci-ignore] flag in commit message
+commit_message_full="$(git log --pretty=%B -1)"
+if [[ "$commit_message_full" == *"[ci-ignore]"* ]]; then
+    # Ignore this build
+    echo "WARNING: [ci-ignore] detected in commit message, build aborted."
+    exit $CODE_ABORT
+fi
+
+# Clean flag files (used to detect aborts)
+rm -f "$BUILD_DIR/build-started"
+rm -f "$BUILD_DIR/build-finished"
+touch "$BUILD_DIR/build-started"
+
+
 # CI environment variables + init
 dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 dashboard-init
@@ -48,28 +63,12 @@ if [ -n "$NODE_NAME" ] && [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
     . "$SCRIPT_DIR/env/$NODE_NAME"
 fi
 
-# Check [ci-ignore] flag in commit message
-commit_message_full="$(git log --pretty=%B -1)"
-if [[ "$commit_message_full" == *"[ci-ignore]"* ]]; then
-    # Ignore this build
-    echo "WARNING: [ci-ignore] detected in commit message, build aborted."
-    dashboard-notify "status=aborted"
-    exit $CODE_ABORT
-fi
-
-# Clean flag files (used to detect aborts)
-rm -f "$BUILD_DIR/build-started"
-rm -f "$BUILD_DIR/build-finished"
-touch "$BUILD_DIR/build-started"
 
 ## Configure
 dashboard-notify "status=configure"
 "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 exit_code="$?"
-if [ "$exit_code" = "$CODE_ABORT" ]; then
-    dashboard-notify "status=aborted"
-    exit $CODE_ABORT
-elif [ "$exit_code" = "$CODE_FAILURE" ]; then
+if [ "$exit_code" = "$CODE_FAILURE" ]; then
     dashboard-notify "status=fail"
     exit $CODE_FAILURE # Build failed
 fi

@@ -1,12 +1,19 @@
 #!/bin/bash
 echo "------------- ON-ABORT SCRIPT -------------"
 
-COMPILER="$1"
-ARCHITECTURE="$2"
-BUILD_TYPE="$3"
-BUILD_OPTIONS="${*:4}"
-
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+BUILD_DIR="$(cd "$1" && pwd)"
+SRC_DIR="$(cd "$2" && pwd)"
+COMPILER="$3"
+ARCHITECTURE="$4"
+BUILD_TYPE="$5"
+BUILD_OPTIONS="${*:6}"
+
+if [ ! -e "$BUILD_DIR/build-started" ]; then
+    echo "Nothing to do."
+    exit
+fi
+
 . "$SCRIPT_DIR"/dashboard.sh
 
 # We need dashboard env vars in case of abort
