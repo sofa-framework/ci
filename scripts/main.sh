@@ -5,10 +5,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Exit on error
 # set -o errexit
-# TODO :
-# exit 0 = success
-# exit 1 = instable
-# exit 2 = failure
+
 CODE_SUCCESS=0
 CODE_FAILURE=1
 CODE_INSTABLE=2

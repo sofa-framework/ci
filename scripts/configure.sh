@@ -17,7 +17,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 
 # Exit on error
-# set -o errexit
+set -o errexit
 
 
 ## Checks

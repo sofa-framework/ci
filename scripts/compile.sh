@@ -11,7 +11,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # - COMPILER           # important for Visual Studio (VS-2012, VS-2013 or VS-2015)
 
 # Exit on error
-# set -o errexit
+set -o errexit
 
 
 ### Checks
