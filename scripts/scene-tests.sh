@@ -274,7 +274,9 @@ parse-options-files() {
 initialize-scene-tests() {
     echo "Initializing scene testing."
     rm -rf "$output_dir"
+    rm -rf "$output_dir/reports"
     mkdir -p "$output_dir"
+    mkdir -p "$output_dir/reports"
 
     runSofa="$(ls "$build_dir/bin/runSofa"{,d,_d} 2> /dev/null || true)"
     if [[ -x "$runSofa" ]]; then
@@ -284,8 +286,9 @@ initialize-scene-tests() {
         exit 1
     fi
 
-    touch "$output_dir/warnings.txt"
-    touch "$output_dir/errors.txt"
+    touch "$output_dir/reports/warnings.txt"
+    touch "$output_dir/reports/errors.txt"
+    touch "$output_dir/reports/crashes.txt"
 
     create-directories
     parse-options-files
@@ -320,7 +323,7 @@ extract-warnings() {
             sed -ne "/^\[WARNING\] [^]]*/s:\([^]]*\):$scene\: \1:p \
                 " "$output_dir/$scene/output.txt"
         fi
-    done < "$output_dir/all-tested-scenes.txt" > "$output_dir/warnings.txt"
+    done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/warnings.txt"
 }
 
 extract-errors() {
@@ -329,7 +332,7 @@ extract-errors() {
             sed -ne "/^\[ERROR\] [^]]*/s:\([^]]*\):$scene\: \1:p \
                 " "$output_dir/$scene/output.txt"
         fi
-    done < "$output_dir/all-tested-scenes.txt" > "$output_dir/errors.txt"
+    done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/errors.txt"
 }
 
 extract-crashes() {
@@ -340,7 +343,7 @@ extract-crashes() {
                 echo "$scene: error: $status"
             fi
         fi
-    done < "$output_dir/all-tested-scenes.txt" > "$output_dir/crashes.txt"
+    done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
 }
 
 count-tested-scenes() {
@@ -348,15 +351,15 @@ count-tested-scenes() {
 }
 
 count-warnings() {
-    sort "$output_dir/warnings.txt" | uniq | wc -l | tr -d ' 	'
+    sort "$output_dir/reports/warnings.txt" | uniq | wc -l | tr -d ' 	'
 }
 
 count-errors() {
-    wc -l < "$output_dir/errors.txt" | tr -d ' 	'
+    wc -l < "$output_dir/reports/errors.txt" | tr -d ' 	'
 }
 
 count-crashes() {
-    wc -l < "$output_dir/crashes.txt" | tr -d '   '
+    wc -l < "$output_dir/reports/crashes.txt" | tr -d '   '
 }
 
 print-summary() {
@@ -369,7 +372,7 @@ print-summary() {
     if [[ "$errors" != 0 ]]; then
         while read error; do
 			echo "  - $error"
-        done < "$output_dir/errors.txt"
+        done < "$output_dir/reports/errors.txt"
     fi
     
     local crashes='$(count-crashes)'

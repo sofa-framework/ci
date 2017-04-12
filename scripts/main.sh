@@ -40,9 +40,14 @@ if [[ "$commit_message_full" == *"[ci-ignore]"* ]]; then
     exit $CODE_ABORT
 fi
 
-# Clean flag files (used to detect aborts)
+# Clean build dir
 rm -f "$BUILD_DIR/build-started"
 rm -f "$BUILD_DIR/build-finished"
+rm -f "$BUILD_DIR/make-output*.txt"
+rm -rf "$BUILD_DIR/unit-tests/reports"
+rm -rf "$BUILD_DIR/scene-tests/reports"
+rm -rf "$BUILD_DIR/bin"
+rm -rf "$BUILD_DIR/lib"
 touch "$BUILD_DIR/build-started"
 
 
@@ -87,9 +92,9 @@ fi
 # [Full build] Count Warnings
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     if vm-is-windows; then
-        warning_count=$(grep ' : warning [A-Z]\+[0-9]\+:' "$build_dir/make-output.txt" | sort | uniq | wc -l)
+        warning_count=$(grep ' : warning [A-Z]\+[0-9]\+:' "$BUILD_DIR/make-output.txt" | sort | uniq | wc -l)
     else
-        warning_count=$(grep '^[^:]\+:[0-9]\+:[0-9]\+: warning:' "$build_dir/make-output.txt" | sort -u | wc -l | tr -d ' ')
+        warning_count=$(grep '^[^:]\+:[0-9]\+:[0-9]\+: warning:' "$BUILD_DIR/make-output.txt" | sort -u | wc -l | tr -d ' ')
     fi
     echo "Counted $warning_count compiler warnings."
     dashboard-notify "warnings=$warning_count"
@@ -134,3 +139,7 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
 fi
 
 touch "$BUILD_DIR/build-finished" # used to detect aborts
+
+if in-array "force-full-build" "$BUILD_OPTIONS"; then
+    mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-$COMPILER.txt"
+fi
