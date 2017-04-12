@@ -1,15 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/utils.sh
-. "$SCRIPT_DIR"/dashboard.sh
-
-# Trap manual abort
-getAbort()
-{
-    echo "TRAP: Abort detected"
-    dashboard-notify "status=aborted"
-}
-trap 'getAbort; exit' SIGHUP SIGINT SIGTERM
 
 # Here we pick what gets to be compiled. The role of this script is to
 # call cmake with the appropriate options. After this, the build
@@ -26,7 +17,7 @@ trap 'getAbort; exit' SIGHUP SIGINT SIGTERM
 
 
 # Exit on error
-set -o errexit
+# set -o errexit
 
 
 ## Checks

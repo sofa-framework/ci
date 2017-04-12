@@ -1,15 +1,6 @@
 #!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/utils.sh
-. "$SCRIPT_DIR"/dashboard.sh
-
-# Trap manual abort
-getAbort()
-{
-    echo "TRAP: Abort detected"
-    dashboard-notify "status=aborted"
-}
-trap 'getAbort; exit' SIGHUP SIGINT SIGTERM
 
 # This script basically runs 'make' and saves the compilation output
 # in make-output.txt.
@@ -20,7 +11,7 @@ trap 'getAbort; exit' SIGHUP SIGINT SIGTERM
 # - COMPILER           # important for Visual Studio (VS-2012, VS-2013 or VS-2015)
 
 # Exit on error
-set -o errexit
+# set -o errexit
 
 
 ### Checks

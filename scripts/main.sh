@@ -3,14 +3,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/utils.sh
 . "$SCRIPT_DIR"/dashboard.sh
 
-# Trap manual abort
-getAbort()
-{
-    echo "TRAP: Abort detected"
-    dashboard-notify "status=aborted"
-}
-trap 'getAbort; exit' SIGHUP SIGINT SIGTERM
-
 # Exit on error
 # set -o errexit
 # TODO :
@@ -42,8 +34,9 @@ else
     usage; exit 1
 fi
 
-# CI environment variables
-dashboard-init "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+# CI environment variables + init
+dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+dashboard-init
 
 # VM environment variables
 if vm-is-windows && [ -e "$SCRIPT_DIR/env/default-windows" ]; then

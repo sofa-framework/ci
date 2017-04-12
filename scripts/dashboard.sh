@@ -17,6 +17,18 @@ dashboard-notify() {
 }
 
 dashboard-init() {
+    echo "DASH: Create/update commit line"
+    dashboard-notify "comment=$DASH_COMMIT_MESSAGE" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=$DASH_COMMIT_BRANCH"
+
+    echo "DASH: Create/update build frame with empty status"
+    if in-array "force-full-build" "$BUILD_OPTIONS"; then
+        dashboard-notify "fullbuild=true" "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
+    else
+        dashboard-notify "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
+    fi
+}
+
+dashboard-export-vars() {
     local COMPILER="$1"
     local ARCHITECTURE="$2"
     local BUILD_TYPE="$3"
@@ -64,22 +76,12 @@ dashboard-init() {
     
     # DASH_CONFIG
     export DASH_CONFIG="$DASH_PLATFORM"_"$COMPILER"_"$DASH_OPTIONS"
-    if [[ "$DASH_PLATFORM" == *"windows"* ]]; then
+    if [[ "$DASH_PLATFORM" == *"windows"* ]] && [ "$ARCHITECTURE" = "amd64" ]; then
         export DASH_CONFIG="$DASH_CONFIG"_"$ARCHITECTURE"
     fi
     
     # DASH_DASHBOARD_URL
     if [ -z "$DASH_DASHBOARD_URL" ]; then
         export DASH_DASHBOARD_URL="https://www.sofa-framework.org/dash/input.php"
-    fi
-    
-    echo "DASH: Create/update commit line"
-    dashboard-notify "comment=$DASH_COMMIT_MESSAGE" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=$DASH_COMMIT_BRANCH"
-
-    echo "DASH: Create/update build frame with empty status"
-    if in-array "force-full-build" "$BUILD_OPTIONS"; then
-        dashboard-notify "fullbuild=true" "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
-    else
-        dashboard-notify "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
     fi
 }
