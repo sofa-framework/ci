@@ -40,7 +40,12 @@ on-abort() {
     dashboard-notify "status=aborted"
 }
 
+local BUILD_RESULT="UNKNOWN"
+if [ -e "$BUILD_DIR/build-result" ]; then
+    BUILD_RESULT="$(cat $BUILD_DIR/build-result)"
+fi
 echo "BUILD_RESULT = $BUILD_RESULT"
+
 case "$BUILD_RESULT" in
     SUCCESS) on-success;;
     UNSTABLE) on-unstable;;
