@@ -46,8 +46,8 @@ rm -f "$BUILD_DIR/build-finished"
 rm -f "$BUILD_DIR/make-output*.txt"
 rm -rf "$BUILD_DIR/unit-tests/reports"
 rm -rf "$BUILD_DIR/scene-tests/reports"
-rm -rf "$BUILD_DIR/bin"
-rm -rf "$BUILD_DIR/lib"
+# rm -rf "$BUILD_DIR/bin"
+# rm -rf "$BUILD_DIR/lib"
 touch "$BUILD_DIR/build-started"
 
 
