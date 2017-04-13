@@ -370,9 +370,9 @@ print-summary() {
     local errors='$(count-errors)'
     echo "- $(count-errors) error(s)"
     if [[ "$errors" != 0 ]]; then
-        while read error; do
+        sort -u "$output_dir/reports/errors.txt" | while read error; do
 			echo "  - $error"
-        done < "$output_dir/reports/errors.txt"
+        done
     fi
     
     local crashes='$(count-crashes)'
