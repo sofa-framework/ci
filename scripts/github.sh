@@ -41,7 +41,7 @@ github-export-vars() {
     export GITHUB_CONTEXT="$2"
     export GITHUB_TARGET_URL="$3"
 
-    if in-array "report-to-github" "$BUILD_OPTIONS"; then
+    if in-array "report-to-github" "$build_options"; then
         export GITHUB_NOTIFY="true"
     fi
 
