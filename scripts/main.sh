@@ -1,9 +1,4 @@
 #!/bin/bash
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. "$SCRIPT_DIR"/utils.sh
-. "$SCRIPT_DIR"/dashboard.sh
-. "$SCRIPT_DIR"/github.sh
-
 
 # Exit on error
 set -o errexit
@@ -18,6 +13,11 @@ usage() {
 }
 
 if [ "$#" -ge 5 ]; then
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    . "$SCRIPT_DIR"/utils.sh
+    . "$SCRIPT_DIR"/dashboard.sh
+    . "$SCRIPT_DIR"/github.sh
+
     if [[ ! -d "$1" ]]; then mkdir -p "$1"; fi
     BUILD_DIR="$(cd "$1" && pwd)"
     SRC_DIR="$(cd "$2" && pwd)"

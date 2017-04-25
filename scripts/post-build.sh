@@ -6,6 +6,8 @@ usage() {
 
 if [ "$#" -ge 4 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    . "$SCRIPT_DIR"/utils.sh
+
     BUILD_DIR="$(cd "$1" && pwd)"
     COMPILER="$2"
     ARCHITECTURE="$3"

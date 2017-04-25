@@ -1,13 +1,13 @@
 #!/bin/bash
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. "$SCRIPT_DIR"/dashboard.sh
-. "$SCRIPT_DIR"/github.sh
 
 usage() {
     echo "Usage: pre-build.sh <configs-string> <build-options>"
 }
 
 if [ "$#" -ge 1 ]; then
+    script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    . "$script_dir"/utils.sh
+
     configs_string="$1"
     build_options="${*:2}"
     if [ -z "$build_options" ]; then
@@ -16,6 +16,9 @@ if [ "$#" -ge 1 ]; then
 else
     usage; exit 1
 fi
+
+. "$script_dir"/dashboard.sh
+. "$script_dir"/github.sh
 
 IFS='||' read -ra configs <<< "$configs_string"
 for config in "${configs[@]}"; do
