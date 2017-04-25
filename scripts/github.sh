@@ -23,12 +23,14 @@ github-notify() {
     [ -n "$GITHUB_COMMIT_HASH" ] && 
     [ -n "$GITHUB_TOKEN" ]; then
         if [[ "$GITHUB_NOTIFY" == "true" ]]; then
-            curl --silent --header "Authorization: token $GITHUB_TOKEN"  --data '{
-                "context": "'$GITHUB_CONTEXT'",
-                "state": "'$state'",
-                "description": "'$message'",
-                "target_url": "'$GITHUB_TARGET_URL'"
-            }' "https://api.github.com/repos/"$GITHUB_REPOSITORY"/statuses/"$GITHUB_COMMIT_HASH > /dev/null
+            local request="{
+                \"context\": \"$GITHUB_CONTEXT\",
+                \"state\": \"$state\",
+                \"description\": \"$message\",
+                \"target_url\": \"$GITHUB_TARGET_URL\"
+            }"
+
+            curl --silent --header "Authorization: token $GITHUB_TOKEN"  --data "$request" "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_COMMIT_HASH"
         fi
         notify="sent"
     fi
