@@ -33,23 +33,25 @@ github-notify() {
 
 github-export-vars() {
     local build_options="$1"
-    local context="$2"
-    local target_url="$3"
+    export GITHUB_CONTEXT="$2"
+    export GITHUB_TARGET_URL="$3"
 
     if in-array "report-to-github" "$BUILD_OPTIONS"; then
         export GITHUB_NOTIFY="true"
     fi
 
-    if [ -n "$context" ]; then
-        export GITHUB_CONTEXT="$context"
-    else # env fallback
-        export GITHUB_CONTEXT="$JOB_NAME"
+    if [ -z "$GITHUB_CONTEXT" ]; then
+        if [ -n "$JOB_NAME" ]; then
+            export GITHUB_CONTEXT="$JOB_NAME" # env fallback
+        else 
+            export GITHUB_CONTEXT="default"
+        fi
     fi
 
-    if [ -n "$target_url" ]; then 
-        export GITHUB_TARGET_URL="$target_url"
-    else # env fallback
-        export GITHUB_TARGET_URL="$BUILD_URL"
+    if [ -z "$GITHUB_TARGET_URL" ]; then
+        if [ -n "$BUILD_URL" ]; then
+            export GITHUB_TARGET_URL="$BUILD_URL" # env fallback
+        fi
     fi
 
     local subject_full="$(git log --pretty=%B -1)"

@@ -33,9 +33,9 @@ for config in "${configs[@]}"; do
     build_type="$(echo "$config" | sed "s/.*CI_TYPE *== *'\([^']*\)'.*/\1/g" )"
 
     dashboard-export-vars "${compiler#*_}" "$architecture" "$build_type" "$build_options"
-    dashboard-init
+    github-export-vars "$build_options" "$DASH_CONFIG"
 
-    github-export-vars "$build_options"
+    dashboard-init
     github-notify "pending" "Build queued."
 
     sleep 1 # ensure we are not flooding APIs

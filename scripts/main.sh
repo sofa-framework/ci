@@ -57,7 +57,7 @@ rm -rf "$BUILD_DIR/scene-tests/reports"
 dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 dashboard-init
 
-github-export-vars "$BUILD_OPTIONS"
+github-export-vars "$BUILD_OPTIONS" "$DASH_CONFIG"
 github-notify "pending" "Build started."
 
 # VM environment variables
