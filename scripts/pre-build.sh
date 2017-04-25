@@ -36,7 +36,7 @@ for config in "${configs[@]}"; do
     dashboard-init
 
     github-export-vars "$build_options"
-    github-notify "Build queued."
+    github-notify "pending" "Build queued."
 
     sleep 1 # ensure we are not flooding APIs
 done
