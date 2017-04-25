@@ -13,7 +13,7 @@ github-notify() {
     if [[ "$GITHUB_NOTIFY" == "true" ]] && 
     [ -n "$GITHUB_CONTEXT" ] && 
     [ -n "$GITHUB_TARGET_URL" ] && 
-    [ -n "$GITHUB_STATUS_URL" ] && 
+    [ -n "$GITHUB_REPOSITORY" ] && 
     [ -n "$GITHUB_COMMIT_HASH" ] && 
     [ -n "$GITHUB_TOKEN" ]; then
         if [[ "$GITHUB_NOTIFY" == "true" ]]; then
