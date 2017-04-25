@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit # Exit on error
 
 usage() {
     echo "Usage: post-build.sh <build-dir> <compiler> <architecture> <build-type> <build-options>"

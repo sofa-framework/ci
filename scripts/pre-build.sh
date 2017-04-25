@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit # Exit on error
 
 usage() {
     echo "Usage: pre-build.sh <configs-string>"

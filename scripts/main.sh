@@ -1,12 +1,5 @@
 #!/bin/bash
-
-# Exit on error
-set -o errexit
-
-CODE_SUCCESS=0
-CODE_FAILURE=1
-CODE_INSTABLE=2
-CODE_ABORT=3
+set -o errexit # Exit on error
 
 usage() {
     echo "Usage: main.sh <build-dir> <src-dir> <compiler> <architecture> <build-type> <build-options>"
@@ -39,7 +32,7 @@ commit_message_full="$(git log --pretty=%B -1)"
 if [[ "$commit_message_full" == *"[ci-ignore]"* ]]; then
     # Ignore this build
     echo "WARNING: [ci-ignore] detected in commit message, build aborted."
-    exit $CODE_ABORT
+    exit
 fi
 
 # Clean build dir

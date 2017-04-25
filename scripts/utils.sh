@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit # Exit on error
 
 vm-is-windows() {
     if [[ "$(uname)" != "Darwin" && "$(uname)" != "Linux" ]]; then
