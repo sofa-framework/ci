@@ -20,7 +20,7 @@ usage() {
     echo "Usage: compile.sh <build-dir> <compiler> <architecture>"
 }
 
-if [[ "$#" = 3 ]]; then
+if [ "$#" -eq 3 ]; then
     BUILD_DIR="$(cd "$1" && pwd)"
     COMPILER="$2"
     ARCHITECTURE="$3"
@@ -39,9 +39,9 @@ cd "$BUILD_DIR"
 call-make() {
     if vm-is-windows; then
         # Call vcvarsall.bat first to setup environment
-        if [ "$COMPILER" = "VS-2015" ]; then
+        if [[ "$COMPILER" == "VS-2015" ]]; then
             vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        elif [ "$COMPILER" = "VS-2013" ]; then
+        elif [[ "$COMPILER" == "VS-2013" ]]; then
             vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         else
             vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"

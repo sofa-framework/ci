@@ -1,45 +1,46 @@
 #!/bin/bash
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-BUILD_DIR="$(cd "$1" && pwd)"
-SRC_DIR="$(cd "$2" && pwd)"
-COMPILER="$3"
-ARCHITECTURE="$4"
-BUILD_TYPE="$5"
-BUILD_OPTIONS="${*:6}"
-
-on-success() {
-    echo "on-success()"
+usage() {
+    echo "Usage: post-build.sh <build-dir> <compiler> <architecture> <build-type> <build-options>"
 }
 
-on-unstable() {
-    echo "on-unstable()"
-}
+if [ "$#" -ge 4 ]; then
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    BUILD_DIR="$(cd "$1" && pwd)"
+    COMPILER="$2"
+    ARCHITECTURE="$3"
+    BUILD_TYPE="$4"
+    BUILD_OPTIONS="${*:5}"
+    if [ -z "$BUILD_OPTIONS" ]; then
+        BUILD_OPTIONS="$(import-build-options)" # use env vars (Jenkins)
+    fi
+else
+    usage; exit 1
+fi
+
+. "$SCRIPT_DIR"/dashboard.sh
+. "$SCRIPT_DIR"/github.sh
+
+dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+github-export-vars "$BUILD_OPTIONS"
+
 
 on-failure() {
-    echo "on-failure()"
+    dashboard-notify "status=fail"
+    github-notify "failure" "FAILURE"
 }
 
 on-error() {
-    echo "on-error()"
+    dashboard-notify "status=fail"
+    github-notify "error" "ERROR"
 }
 
 on-abort() {
-    echo "------------- ON-ABORT SCRIPT -------------"
-
-    if [ ! -e "$BUILD_DIR/build-started" ]; then
-        echo "Nothing to do."
-        exit
-    fi
-
-    . "$SCRIPT_DIR"/dashboard.sh
-
-    # We need dashboard env vars in case of abort
-    dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-
-    dashboard-notify "status=aborted"
+    dashboard-notify "status=cancel"
+    github-notify "failure" "ABORTED"
 }
 
+# Get build result from Groovy script output (Jenkins)
 local BUILD_RESULT="UNKNOWN"
 if [ -e "$BUILD_DIR/build-result" ]; then
     BUILD_RESULT="$(cat $BUILD_DIR/build-result)"
@@ -47,8 +48,6 @@ fi
 echo "BUILD_RESULT = $BUILD_RESULT"
 
 case "$BUILD_RESULT" in
-    SUCCESS) on-success;;
-    UNSTABLE) on-unstable;;
     FAILURE) on-failure;;
     ERROR) on-error;;
     ABORT) on-abort;;

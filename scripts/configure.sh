@@ -26,7 +26,7 @@ usage() {
     echo "Usage: configure.sh <build-dir> <src-dir> <compiler> <architecture> <build-type> <build-options>"
 }
 
-if [[ "$#" = 6 ]]; then
+if [ "$#" -eq 6 ]; then
     BUILD_DIR="$(cd "$1" && pwd)"
     if vm-is-windows; then
         # pwd with a Windows format (c:/ instead of /c/)
@@ -38,7 +38,7 @@ if [[ "$#" = 6 ]]; then
     ARCHITECTURE="$4"
     BUILD_TYPE="$5"
     BUILD_OPTIONS="$6"
-    
+
     # sanitize vars
     BUILD_TYPE="${BUILD_TYPE^}"
 else
@@ -124,13 +124,13 @@ else
 fi
 
 # Options common to all configurations
-if [[ -n "$VM_QT_PATH" ]]; then
+if [ -n "$VM_QT_PATH" ]; then
     if vm-is-windows; then
         qt_compiler=msvc"$(cut -d "-" -f 2 <<< "$COMPILER")"
     else
         qt_compiler="$(cut -d "-" -f 1 <<< "$COMPILER")"
     fi
-    if [ "$ARCHITECTURE" = "amd64" ]; then
+    if [[ "$ARCHITECTURE" == "amd64" ]]; then
         append "-DQt5_DIR=$VM_QT_PATH/"$qt_compiler"_64/lib/cmake/Qt5"
     else
         append "-DQt5_DIR=$VM_QT_PATH/"$qt_compiler"/lib/cmake/Qt5"
@@ -168,7 +168,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     fi
     # Missing CGAL library
     append "-DPLUGIN_CGALPLUGIN=OFF"
-    if [ "$VM_HAS_ASSIMP" = "true" ]; then
+    if [[ "$VM_HAS_ASSIMP" == "true" ]]; then
         append "-DPLUGIN_COLLADASCENELOADER=ON"
     else
         append "-DPLUGIN_COLLADASCENELOADER=OFF"
@@ -182,7 +182,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     append "-DPLUGIN_INVERTIBLEFVM=ON"
     append "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
     append "-DPLUGIN_MANUALMAPPING=ON"
-    if [ "$VM_HAS_OPENCASCADE" = "true" ]; then
+    if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
         append "-DPLUGIN_MESHSTEPLOADER=ON"
     else
         append "-DPLUGIN_MESHSTEPLOADER=OFF"
@@ -200,7 +200,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     # Requires Sixense libraries.
     append "-DPLUGIN_SIXENSEHYDRA=OFF"
     append "-DPLUGIN_SOFACARVING=ON"
-    if [ "$VM_HAS_CUDA" = "true" ]; then
+    if [[ "$VM_HAS_CUDA" == "true" ]]; then
         append "-DPLUGIN_SOFACUDA=ON"
     else
         append "-DPLUGIN_SOFACUDA=OFF"
@@ -238,9 +238,9 @@ generator() {
 call-cmake() {
     if vm-is-windows; then
         # Call vcvarsall.bat first to setup environment
-        if [ "$COMPILER" = "VS-2015" ]; then
+        if [[ "$COMPILER" == "VS-2015" ]]; then
             vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        elif [ "$COMPILER" = "VS-2013" ]; then
+        elif [[ "$COMPILER" == "VS-2013" ]]; then
             vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         else
             vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"

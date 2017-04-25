@@ -1,10 +1,12 @@
-#!/bin/bash 
+#!/bin/bash
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/utils.sh
 . "$SCRIPT_DIR"/dashboard.sh
+. "$SCRIPT_DIR"/github.sh
+
 
 # Exit on error
-# set -o errexit
+set -o errexit
 
 CODE_SUCCESS=0
 CODE_FAILURE=1
@@ -19,12 +21,15 @@ if [ "$#" -ge 5 ]; then
     if [[ ! -d "$1" ]]; then mkdir -p "$1"; fi
     BUILD_DIR="$(cd "$1" && pwd)"
     SRC_DIR="$(cd "$2" && pwd)"
-    
+
     COMPILER="$3"
     ARCHITECTURE="$4"
     BUILD_TYPE="$5"
     BUILD_OPTIONS="${*:6}"
-    
+    if [ -z "$BUILD_OPTIONS" ]; then
+        BUILD_OPTIONS="$(import-build-options)" # use env vars (Jenkins)
+    fi
+
     # sanitize vars
     BUILD_TYPE="${BUILD_TYPE^}"
 else
@@ -41,19 +46,19 @@ if [[ "$commit_message_full" == *"[ci-ignore]"* ]]; then
 fi
 
 # Clean build dir
-rm -f "$BUILD_DIR/build-started"
-rm -f "$BUILD_DIR/build-finished"
 rm -f "$BUILD_DIR/make-output*.txt"
 rm -rf "$BUILD_DIR/unit-tests/reports"
 rm -rf "$BUILD_DIR/scene-tests/reports"
 # rm -rf "$BUILD_DIR/bin"
 # rm -rf "$BUILD_DIR/lib"
-touch "$BUILD_DIR/build-started"
 
 
 # CI environment variables + init
 dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 dashboard-init
+
+github-export-vars "$BUILD_OPTIONS"
+github-notify "pending" "Build started."
 
 # VM environment variables
 if vm-is-windows && [ -e "$SCRIPT_DIR/env/default-windows" ]; then
@@ -72,22 +77,13 @@ fi
 # Configure
 dashboard-notify "status=configure"
 "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-exit_code="$?"
-if [ "$exit_code" = "$CODE_FAILURE" ]; then
-    dashboard-notify "status=fail"
-    exit $CODE_FAILURE # Build failed
-fi
+
 
 # Compile
 dashboard-notify "status=build"
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$COMPILER" "$ARCHITECTURE"
-exit_code="$?"
-if [ "$exit_code" = "$CODE_SUCCESS" ]; then
-    dashboard-notify "status=success"
-elif [ "$exit_code" = "$CODE_FAILURE" ]; then
-    dashboard-notify "status=fail"
-    exit $CODE_FAILURE # Build failed
-fi
+dashboard-notify "status=success"
+github-notify "success" "SUCCESS (tests ignored)"
 
 # [Full build] Count Warnings
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
@@ -106,7 +102,7 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
 
     "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
     "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
-    
+
     tests_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR)
     tests_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests $BUILD_DIR $SRC_DIR)
     tests_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR)
@@ -124,21 +120,19 @@ fi
 # Scene tests
 if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     dashboard-notify "scenes_status=running"
-    
+
     "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
     "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
-    
+
     scenes_total=$("$SCRIPT_DIR/scene-tests.sh" count-tests $BUILD_DIR $SRC_DIR)
     scenes_errors=$("$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
     scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
-    
+
     dashboard-notify \
         "scenes_total=$scenes_total" \
         "scenes_errors=$scenes_errors" \
         "scenes_crashes=$scenes_crashes"
 fi
-
-touch "$BUILD_DIR/build-finished" # used to detect aborts
 
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-$COMPILER.txt"
