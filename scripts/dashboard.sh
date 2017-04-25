@@ -81,7 +81,7 @@ dashboard-export-vars() {
     else
         export DASH_OPTIONS="default"
     fi
-    if [[ "$build_type" == "Debug" ]]; then
+    if [[ "$build_type" == "debug" ]]; then
         export DASH_OPTIONS="$DASH_OPTIONS"-debug
     fi
 

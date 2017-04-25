@@ -26,22 +26,22 @@ var-is-set() {
     fi
 }
 
-import-build-options() {
+list-build-options() {
     build_options=""
-    if [[ "$CI_PLUGINS" == "options" ]]; then
+    if [[ "$1" == "options" ]] || [[ "$CI_PLUGINS" == "options" ]]; then
         build_options="build-all-plugins $build_options"
     fi
-    if [[ "$CI_REPORT_TO_DASHBOARD" == "true" ]]; then
+    if [[ "$2" == "true" ]] || [[ "$CI_REPORT_TO_DASHBOARD" == "true" ]]; then
         build_options="report-to-dashboard $build_options"
     fi
-    if [[ "$CI_FORCE_FULL_BUILD" == "true" ]]; then
+    if [[ "$3" == "true" ]] || [[ "$CI_FORCE_FULL_BUILD" == "true" ]]; then
         build_options="force-full-build $build_options"
     fi
-    if [[ "$CI_RUN_UNIT_TESTS" == "true" ]]; then
+    if [[ "$4" == "true" ]] || [[ "$CI_RUN_UNIT_TESTS" == "true" ]]; then
         build_options="run-unit-tests $build_options"
     fi
-    if [[ "$CI_RUN_SCENE_TESTS" == "true" ]]; then
+    if [[ "$5" == "true" ]] || [[ "$CI_RUN_SCENE_TESTS" == "true" ]]; then
         build_options="run-scene-tests $build_options"
     fi
-    echo build_options
+    echo "$build_options"
 }

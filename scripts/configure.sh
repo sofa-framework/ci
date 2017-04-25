@@ -38,9 +38,6 @@ if [ "$#" -eq 6 ]; then
     ARCHITECTURE="$4"
     BUILD_TYPE="$5"
     BUILD_OPTIONS="$6"
-
-    # sanitize vars
-    BUILD_TYPE="${BUILD_TYPE^}"
 else
     usage; exit 1
 fi
@@ -104,7 +101,7 @@ fi
 
 # CMake options
 
-cmake_options="-DCMAKE_COLOR_MAKEFILE=OFF -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+cmake_options="-DCMAKE_COLOR_MAKEFILE=OFF -DCMAKE_BUILD_TYPE=${BUILD_TYPE^}"
 
 append() {
     cmake_options="$cmake_options $*"
