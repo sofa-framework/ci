@@ -22,7 +22,7 @@ github-notify() {
                 "state": "'$state'",
                 "description": "'$message'",
                 "target_url": "'$GITHUB_TARGET_URL'"
-            }' "${GITHUB_STATUS_URL}/${GITHUB_COMMIT_HASH}"
+            }' "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_COMMIT_HASH}"
         fi
         notify="sent"
     fi
@@ -63,7 +63,17 @@ github-export-vars() {
         export GITHUB_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
     fi
 
-    if [ -z "$GITHUB_STATUS_URL" ]; then
-        export GITHUB_STATUS_URL="https://api.github.com/repos/sofa-framework/sofa/statuses"
+    if [ -z "$GITHUB_REPOSITORY" ]; then
+        if [ -n "$GIT_URL_1" ]; then
+            git_url="$GIT_URL_1"
+        elif [ -n "$GIT_URL_2" ]; then
+            git_url="$GIT_URL_2"
+        elif [ -n "$GIT_URL" ]; then
+            git_url="$GIT_URL"
+        else
+            git_url="https://github.com/sofa-framework/sofa.git"
+        fi
+
+        export GITHUB_REPOSITORY="$( echo "$git_url" | sed "s/.*github.com\/\(.*\)\.git/\1/g" )"
     fi
 }
