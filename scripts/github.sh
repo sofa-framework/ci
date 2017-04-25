@@ -28,7 +28,7 @@ github-notify() {
                 "state": "'$state'",
                 "description": "'$message'",
                 "target_url": "'$GITHUB_TARGET_URL'"
-            }' "https://api.github.com/repos/${GITHUB_REPOSITORY}/statuses/${GITHUB_COMMIT_HASH}"
+            }' "https://api.github.com/repos/"$GITHUB_REPOSITORY"/statuses/"$GITHUB_COMMIT_HASH
         fi
         notify="sent"
     fi
