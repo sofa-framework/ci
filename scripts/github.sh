@@ -9,12 +9,6 @@ github-notify() {
 
     local options="$-"
     local notify="not sent"
-    
-    echo "GITHUB_CONTEXT = $GITHUB_CONTEXT"
-    echo "GITHUB_TARGET_URL = $GITHUB_TARGET_URL"
-    echo "GITHUB_REPOSITORY = $GITHUB_REPOSITORY"
-    echo "GITHUB_COMMIT_HASH = $GITHUB_COMMIT_HASH"
-    echo "GITHUB_NOTIFY = $GITHUB_NOTIFY"
 
     set +x # Private stuff here: echo disabled
     if [ -n "$GITHUB_CONTEXT" ] && 
