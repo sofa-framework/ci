@@ -37,13 +37,13 @@ on-error() {
     github-notify "error" "ERROR"
 }
 
-on-abort() {
+on-aborted() {
     dashboard-notify "status=cancel"
     github-notify "failure" "ABORTED"
 }
 
 # Get build result from Groovy script output (Jenkins)
-local BUILD_RESULT="UNKNOWN"
+BUILD_RESULT="UNKNOWN"
 if [ -e "$BUILD_DIR/build-result" ]; then
     BUILD_RESULT="$(cat $BUILD_DIR/build-result)"
 fi
@@ -52,5 +52,5 @@ echo "BUILD_RESULT = $BUILD_RESULT"
 case "$BUILD_RESULT" in
     FAILURE) on-failure;;
     ERROR) on-error;;
-    ABORT) on-abort;;
+    ABORTED) on-aborted;;
 esac
