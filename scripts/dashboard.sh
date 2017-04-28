@@ -4,7 +4,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/utils.sh
 
 dashboard-notify() {
-    local message="sha=$DASH_COMMIT_HASH&config=$DASH_CONFIG"
+    local message=""
     local notify="not sent"
 
     while [ $# -gt 0 ]; do
@@ -19,18 +19,23 @@ dashboard-notify() {
     fi
 
     echo "Notify Dashboard ($notify): $message"
+
+
+dashboard-notify-status() {
+    local status="$1"
+    dashboard-notify "sha=$DASH_COMMIT_HASH" "config=$DASH_CONFIG" "status=$status"
 }
 
 dashboard-init() {
     echo "DASH: Create/update commit line"
-    dashboard-notify "comment=$DASH_COMMIT_MESSAGE" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=$DASH_COMMIT_BRANCH"
+    dashboard-notify "sha=$DASH_COMMIT_HASH" "comment=$DASH_COMMIT_MESSAGE" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=$DASH_COMMIT_BRANCH"
 
     # TODO: status=queue
     echo "DASH: Create/update build frame with empty status"
     if [[ "$DASH_FULLBUILD" == "true" ]]; then
-        dashboard-notify "fullbuild=true" "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
+        dashboard-notify "sha=$DASH_COMMIT_HASH" "config=$DASH_CONFIG" "build_url=$BUILD_URL" "job_url=$JOB_URL" "status=" "fullbuild=true"
     else
-        dashboard-notify "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
+        dashboard-notify "sha=$DASH_COMMIT_HASH" "config=$DASH_CONFIG" "build_url=$BUILD_URL" "job_url=$JOB_URL" "status="
     fi
 }
 
