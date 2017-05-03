@@ -74,7 +74,7 @@ dashboard-export-vars() {
         export DASH_PLATFORM="$CI_PLATFORM"
     else
         case "$OSTYPE" in
-            darwin*)      export DASH_PLATFORM="mac" ;; 
+            darwin*)      export DASH_PLATFORM="mac" ;;
             linux-gnu*)   export DASH_PLATFORM="$(cat /etc/os-release | grep "^ID=" | cut -d "=" -f 2)" ;;
             msys*)        export DASH_PLATFORM="windows7" ;;
             *)            export DASH_PLATFORM="$OSTYPE" ;;

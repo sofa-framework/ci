@@ -366,7 +366,7 @@ print-summary() {
     echo "Scene testing summary:"
     echo "- $(count-tested-scenes) scene(s) tested"
     echo "- $(count-warnings) warning(s)"
-    
+
     local errors='$(count-errors)'
     echo "- $(count-errors) error(s)"
     if [[ "$errors" != 0 ]]; then
@@ -374,7 +374,7 @@ print-summary() {
 			echo "  - $error"
         done
     fi
-    
+
     local crashes='$(count-crashes)'
     echo "- $(count-crashes) crash(es)"
     if [[ "$crashes" != 0 ]]; then

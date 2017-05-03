@@ -11,10 +11,10 @@ github-notify() {
     local notify="not sent"
 
     set +x # Private stuff here: echo disabled
-    if [ -n "$GITHUB_CONTEXT" ] && 
-    [ -n "$GITHUB_TARGET_URL" ] && 
-    [ -n "$GITHUB_REPOSITORY" ] && 
-    [ -n "$GITHUB_COMMIT_HASH" ] && 
+    if [ -n "$GITHUB_CONTEXT" ] &&
+    [ -n "$GITHUB_TARGET_URL" ] &&
+    [ -n "$GITHUB_REPOSITORY" ] &&
+    [ -n "$GITHUB_COMMIT_HASH" ] &&
     [ -n "$GITHUB_SOFABOT_TOKEN" ]; then
         if [[ "$GITHUB_NOTIFY" == "true" ]]; then
             local request="{
@@ -48,7 +48,7 @@ github-export-vars() {
     if [ -z "$GITHUB_CONTEXT" ]; then
         if [ -n "$JOB_NAME" ]; then
             export GITHUB_CONTEXT="$JOB_NAME" # env fallback
-        else 
+        else
             export GITHUB_CONTEXT="default"
         fi
     fi
@@ -61,7 +61,7 @@ github-export-vars() {
 
     local subject_full="$(git log --pretty=%B -1)"
     local committer_name="$(git log --pretty=%cn -1)"
-    if [[ "$JOB_NAME" == "PR-"* ]] || 
+    if [[ "$JOB_NAME" == "PR-"* ]] ||
        [[ "$committer_name" == "GitHub" ]] && [[ "$subject_full" == "Merge "*" into "* ]]; then # this is a PR
         export GITHUB_COMMIT_HASH="$(git log --pretty=format:'%H' -2 | tail -1)" # skip merge commit
     else

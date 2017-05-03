@@ -121,22 +121,29 @@ else
     fi
 fi
 
+if vm-is-windows; then
+    msvc_year="$(get-msvc-year $COMPILER)"
+    msvc_version="$(get-msvc-version $COMPILER)"
+    qt_compiler="msvc-${msvc-year}"
+    boost_compiler="msvc-${msvc-version}"
+else
+    qt_compiler="$(cut -d "-" -f 1 <<< "$COMPILER")" # gcc-4.8 -> gcc
+fi
+if [[ "$ARCHITECTURE" == "amd64" ]]; then
+    qt_lib="${qt_compiler}_64/lib"
+    boost_lib="lib64-${boost_compiler}"
+else
+    qt_lib="${qt_compiler}/lib"
+    boost_lib="lib32-${boost_compiler}"
+fi
+
 # Options common to all configurations
 if [ -n "$VM_QT_PATH" ]; then
-    if vm-is-windows; then
-        qt_compiler=msvc"$(cut -d "-" -f 2 <<< "$COMPILER")"
-    else
-        qt_compiler="$(cut -d "-" -f 1 <<< "$COMPILER")"
-    fi
-    if [[ "$ARCHITECTURE" == "amd64" ]]; then
-        append "-DQt5_DIR=$VM_QT_PATH/"$qt_compiler"_64/lib/cmake/Qt5"
-    else
-        append "-DQt5_DIR=$VM_QT_PATH/"$qt_compiler"/lib/cmake/Qt5"
-    fi
+    append "-DQt5_DIR=$VM_QT_PATH/${qt_lib}/cmake/Qt5"
 fi
-if [ -n "$VM_BOOST_PATH" ]; then
+if [ -n "$VM_BOOST_PATH" ] && vm-is-windows; then # VM_BOOST_PATH is effective on Windows only
     append "-DBOOST_ROOT=$VM_BOOST_PATH"
-    append "-DBOOST_LIBRARYDIR=$VM_BOOST_PATH/lib64-msvc-14.0"
+    append "-DBOOST_LIBRARYDIR=$VM_BOOST_PATH/${boost_lib}"
 fi
 if [ -n "$VM_PYTHON_PATH" ]; then
     append "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
@@ -235,14 +242,9 @@ generator() {
 
 call-cmake() {
     if vm-is-windows; then
+        msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
-        if [[ "$COMPILER" == "VS-2015" ]]; then
-            vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        elif [[ "$COMPILER" == "VS-2013" ]]; then
-            vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        else
-            vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        fi
+        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         echo "Calling $COMSPEC /c \"$vcvarsall & cmake $*\""
         $COMSPEC /c "$vcvarsall & cmake $*"
     else

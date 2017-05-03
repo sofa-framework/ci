@@ -104,7 +104,7 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
         "tests_total=$tests_total" \
         "tests_disabled=$tests_disabled" \
         "tests_failures=$tests_failures" \
-        "tests_errors=$tests_errors" 
+        "tests_errors=$tests_errors"
 fi
 
 # Scene tests

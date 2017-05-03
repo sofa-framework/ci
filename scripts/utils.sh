@@ -9,22 +9,47 @@ vm-is-windows() {
     fi
 }
 
+get-msvc-year() {
+    if vm-is-windows; then 
+        case $1
+            "VS-2012") echo "2012" ;;
+            "VS-2013") echo "2013" ;;
+            "VS-2015") echo "2015" ;;
+            "VS-2017") echo "2017" ;;
+        esac
+    fi
+}
+
+get-msvc-version() {
+    if vm-is-windows; then    
+        case $1
+            "VS-2012") echo "11.0" ;;
+            "VS-2013") echo "12.0" ;;
+            "VS-2015") echo "14.0" ;;
+            "VS-2017") echo "14.1" ;;
+        esac
+    fi
+}
+
+get-msvc-comntools() {
+    if vm-is-windows; then    
+        case $1
+            "VS-2012") echo "VS110COMNTOOLS" ;;
+            "VS-2013") echo "VS120COMNTOOLS" ;;
+            "VS-2015") echo "VS140COMNTOOLS" ;;
+            "VS-2017") echo "VS141COMNTOOLS" ;;
+        esac
+    fi
+}
+
 in-array() {
     IFS=' ' read -ra array <<< "$2"
-    for e in "${array[@]}"; do   
+    for e in "${array[@]}"; do
         if [[ "$e" == "$1" ]]; then
-            return 0; 
+            return 0;
         fi
     done
     return 1
-}
-
-var-is-set() {
-    if [ -z ${1+x} ]; then
-        return 0
-    else
-        return 1
-    fi
 }
 
 list-build-options() {

@@ -39,15 +39,10 @@ cd "$BUILD_DIR"
 
 call-make() {
     if vm-is-windows; then
+        msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
-        if [[ "$COMPILER" == "VS-2015" ]]; then
-            vcvarsall="call \"%VS140COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        elif [[ "$COMPILER" == "VS-2013" ]]; then
-            vcvarsall="call \"%VS120COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        else
-            vcvarsall="call \"%VS110COMNTOOLS%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        fi
-        toolname="nmake"
+        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        toolname="nmake" # default
         if [ -x "$(command -v ninja)" ]; then
         	echo "Using ninja as build system"
             toolname="ninja"
@@ -55,11 +50,11 @@ call-make() {
         echo "Calling $COMSPEC /c \"$vcvarsall & $toolname $VM_MAKE_OPTIONS\""
         $COMSPEC /c "$vcvarsall & $toolname $VM_MAKE_OPTIONS"
     else
-    	toolname="make"
+    	toolname="make" # default
         if [ -x "$(command -v ninja)" ]; then
             echo "Using ninja as build system"
 	        toolname="ninja"
-        fi 
+        fi
         $toolname $VM_MAKE_OPTIONS
     fi
 }
