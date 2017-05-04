@@ -1,0 +1,12 @@
+#!/bin/bash
+
+export VM_MAKE_OPTIONS=""
+
+
+export VM_HAS_ASSIMP="true" # libassimp-dev
+
+export VM_HAS_CGAL="true" # libcgal-dev
+
+export VM_HAS_CUDA="false" # nvidia-cuda-toolkit
+
+export VM_HAS_OPENCASCADE="false" # libopencascade-dev
