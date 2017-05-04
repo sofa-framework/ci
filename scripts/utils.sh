@@ -9,35 +9,40 @@ vm-is-windows() {
     fi
 }
 
+package-is-installed() {
+    dpkg -l "$1" > /dev/null 2>&1
+    return $?
+}
+
 get-msvc-year() {
     if vm-is-windows; then 
-        case $1
-            "VS-2012") echo "2012" ;;
-            "VS-2013") echo "2013" ;;
-            "VS-2015") echo "2015" ;;
-            "VS-2017") echo "2017" ;;
+        case "$1" in
+            VS-2012) echo "2012" ;;
+            VS-2013) echo "2013" ;;
+            VS-2015) echo "2015" ;;
+            VS-2017) echo "2017" ;;
         esac
     fi
 }
 
 get-msvc-version() {
     if vm-is-windows; then    
-        case $1
-            "VS-2012") echo "11.0" ;;
-            "VS-2013") echo "12.0" ;;
-            "VS-2015") echo "14.0" ;;
-            "VS-2017") echo "14.1" ;;
+        case "$1" in
+            VS-2012) echo "11.0" ;;
+            VS-2013) echo "12.0" ;;
+            VS-2015) echo "14.0" ;;
+            VS-2017) echo "14.1" ;;
         esac
     fi
 }
 
 get-msvc-comntools() {
     if vm-is-windows; then    
-        case $1
-            "VS-2012") echo "VS110COMNTOOLS" ;;
-            "VS-2013") echo "VS120COMNTOOLS" ;;
-            "VS-2015") echo "VS140COMNTOOLS" ;;
-            "VS-2017") echo "VS141COMNTOOLS" ;;
+        case "$1" in
+            VS-2012) echo "VS110COMNTOOLS" ;;
+            VS-2013) echo "VS120COMNTOOLS" ;;
+            VS-2015) echo "VS140COMNTOOLS" ;;
+            VS-2017) echo "VS141COMNTOOLS" ;;
         esac
     fi
 }
