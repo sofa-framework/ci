@@ -19,7 +19,7 @@ dashboard-notify() {
     fi
 
     echo "Notify Dashboard ($notify): $message"
-
+}
 
 dashboard-notify-status() {
     local status="$1"
