@@ -65,14 +65,14 @@ fi
 
 
 # Configure
-dashboard-notify-status "configure"
+dashboard-notify "status=configure"
 "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 
 
 # Compile
-dashboard-notify-status "build"
+dashboard-notify "status=build"
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$COMPILER" "$ARCHITECTURE"
-dashboard-notify-status "success"
+dashboard-notify "status=success"
 github-notify "success" "SUCCESS (tests ignored)"
 
 # [Full build] Count Warnings

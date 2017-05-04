@@ -29,17 +29,17 @@ github-export-vars "$BUILD_OPTIONS" "$DASH_CONFIG"
 
 
 on-failure() {
-    dashboard-notify-status "fail"
+    dashboard-notify "status=fail"
     github-notify "failure" "FAILURE"
 }
 
 on-error() {
-    dashboard-notify-status "fail"
+    dashboard-notify "status=fail"
     github-notify "error" "ERROR"
 }
 
 on-aborted() {
-    dashboard-notify-status "cancel"
+    dashboard-notify "status=cancel"
     github-notify "failure" "ABORTED"
 }
 
