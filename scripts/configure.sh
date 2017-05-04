@@ -108,7 +108,7 @@ append() {
     cmake_options="$cmake_options $*"
 }
 
-# Cache systems
+# Compiler and cache
 if vm-is-windows; then
     if [ -n "$VM_CLCACHE_PATH" ]; then
         append "-DCMAKE_C_COMPILER=$VM_CLCACHE_PATH/bin/clcache.bat"
@@ -116,14 +116,33 @@ if vm-is-windows; then
     fi
 else
     if [ -x "$(command -v ccache)" ]; then
-        export CC="ccache "
-        export CXX="ccache "
+        prefix="ccache " # keep the space here
     fi
+    case "$COMPILER" in
+        gcc*)
+            c_compiler="gcc"
+            cxx_compiler="g++"
+        ;;
+        clang*)
+            c_compiler="clang"
+            cxx_compiler="clang++"
+        ;;
+        *) # other
+            echo "Unknown compiler: $COMPILER"
+            echo "Try a lucky guess..."
+            c_compiler="$COMPILER"
+            cxx_compiler="${COMPILER}++"
+        ;;
+    esac
+    version="$(get-compiler-version "$COMPILER")"
+    append "-DCMAKE_C_COMPILER=${prefix}${c_compiler}-${version}"
+    append "-DCMAKE_CXX_COMPILER=${prefix}${cxx_compiler}-${version}"
 fi
 
+# Handle custom lib dirs
 if vm-is-windows; then
     msvc_year="$(get-msvc-year $COMPILER)"
-    msvc_version="$(get-msvc-version $COMPILER)"
+    msvc_version="$(get-compiler-version $COMPILER)"
     qt_compiler="msvc-${msvc-year}"
     boost_compiler="msvc-${msvc-version}"
 else
@@ -136,19 +155,19 @@ else
     qt_lib="${qt_compiler}/lib"
     boost_lib="lib32-${boost_compiler}"
 fi
-
-# Options common to all configurations
-if [ -n "$VM_QT_PATH" ]; then
+if [ -d "$VM_QT_PATH" ]; then
     append "-DQt5_DIR=$VM_QT_PATH/${qt_lib}/cmake/Qt5"
 fi
-if [ -n "$VM_BOOST_PATH" ] && vm-is-windows; then # VM_BOOST_PATH is effective on Windows only
+if [ -d "$VM_BOOST_PATH" ] && vm-is-windows; then # VM_BOOST_PATH is effective on Windows only
     append "-DBOOST_ROOT=$VM_BOOST_PATH"
     append "-DBOOST_LIBRARYDIR=$VM_BOOST_PATH/${boost_lib}"
 fi
-if [ -n "$VM_PYTHON_PATH" ]; then
+if [ -d "$VM_PYTHON_PATH" ] && vm-is-windows; then # VM_PYTHON_PATH is effective on Windows only
     append "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
     append "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
 fi
+
+# Options common to all configurations
 append "-DPLUGIN_SOFAPYTHON=ON"
 append "-DSOFA_BUILD_TUTORIALS=OFF"
 append "-DSOFA_BUILD_TESTS=ON"
@@ -160,20 +179,25 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     append "-DSOFA_BUILD_ARTRACK=ON"
     append "-DSOFA_BUILD_MINIFLOWVR=ON"
 
-    if [ -n "$VM_BULLET_PATH" ]; then
+    if [ -d "$VM_BULLET_PATH" ]; then
         append "-DBullet_DIR=$VM_BULLET_PATH"
     fi
 
     ### Plugins
     append "-DPLUGIN_ARTRACK=ON"
-    if [ -n "$VM_BULLET_PATH" ]; then
+    if [ -d "$VM_BULLET_PATH" ]; then
         append "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
         append "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
     fi
     # Missing CGAL library
-    append "-DPLUGIN_CGALPLUGIN=OFF"
-    if [[ "$VM_HAS_ASSIMP" == "true" ]]; then
+    if [[ "$VM_HAS_CGAL" == "true" ]]; then
+        append "-DPLUGIN_CGALPLUGIN=ON"
+    else
+        append "-DPLUGIN_CGALPLUGIN=OFF"
+    fi
+    if [[ "$VM_HAS_ASSIMP" == "true" ]] || vm-is-windows; then
+        # INFO: ColladaSceneLoader contains assimp for Windows (but that does not mean that VM has Assimp)
         append "-DPLUGIN_COLLADASCENELOADER=ON"
     else
         append "-DPLUGIN_COLLADASCENELOADER=OFF"

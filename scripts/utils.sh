@@ -25,15 +25,15 @@ get-msvc-year() {
     fi
 }
 
-get-msvc-version() {
-    if vm-is-windows; then    
-        case "$1" in
-            VS-2012) echo "11.0" ;;
-            VS-2013) echo "12.0" ;;
-            VS-2015) echo "14.0" ;;
-            VS-2017) echo "14.1" ;;
-        esac
-    fi
+get-compiler-version() {
+    case "$1" in
+        VS-2012) echo "11.0" ;;
+        VS-2013) echo "12.0" ;;
+        VS-2015) echo "14.0" ;;
+        VS-2017) echo "14.1" ;;
+        gcc-*)   cut -d "-" -f 2 <<< "$1" ;;
+        clang-*) cut -d "-" -f 2 <<< "$1" ;;
+    esac
 }
 
 get-msvc-comntools() {
