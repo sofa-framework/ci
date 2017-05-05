@@ -115,9 +115,6 @@ if vm-is-windows; then
         append "-DCMAKE_CXX_COMPILER=$VM_CLCACHE_PATH/bin/clcache.bat"
     fi
 else
-    if [ -x "$(command -v ccache)" ]; then
-        prefix="ccache " # keep the space here
-    fi
     case "$COMPILER" in
         gcc*)
             c_compiler="gcc"
@@ -135,8 +132,13 @@ else
         ;;
     esac
     version="$(get-compiler-version "$COMPILER")"
-    append "-DCMAKE_C_COMPILER=${prefix}${c_compiler}-${version}"
-    append "-DCMAKE_CXX_COMPILER=${prefix}${cxx_compiler}-${version}"
+    append "-DCMAKE_C_COMPILER=${c_compiler}-${version}"
+    append "-DCMAKE_CXX_COMPILER=${cxx_compiler}-${version}"
+
+    if [ -x "$(command -v ccache)" ]; then
+        export CC="ccache ${c_compiler}-${version} -Qunused-arguments"
+        export CXX="ccache ${cxx_compiler}-${version} -Qunused-arguments"
+    fi
 fi
 
 # Handle custom lib dirs
