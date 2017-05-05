@@ -51,8 +51,12 @@ fi
 cd "$SRC_DIR"
 
 
-# Get Windows dependency pack
 
+########
+# Init #
+########
+
+# Get Windows dependency pack
 if vm-is-windows && [ ! -d "$SRC_DIR/lib" ]; then
     echo "Copying dependency pack in the source tree."
     curl "https://www.sofa-framework.org/download/WinDepPack/$COMPILER/latest" --output dependencies_tmp.zip
@@ -61,9 +65,7 @@ if vm-is-windows && [ ! -d "$SRC_DIR/lib" ]; then
     rm -rf dependencies_tmp*
 fi
 
-
 # Choose between incremental build and full build
-
 full_build=""
 sha=$(git --git-dir="$SRC_DIR/.git" rev-parse HEAD)
 
@@ -100,21 +102,27 @@ fi
 
 
 
-# CMake options
+#################
+# CMake options #
+#################
 
-cmake_options="-DCMAKE_COLOR_MAKEFILE=OFF -DCMAKE_BUILD_TYPE=${BUILD_TYPE^}"
-
-append() {
+cmake_options=""
+add-cmake-option() {
     cmake_options="$cmake_options $*"
 }
 
 # Compiler and cache
 if vm-is-windows; then
+    # Compiler
+    # see comntools usage in call-cmake() for compiler selection on Windows
+
+    # Cache
     if [ -n "$VM_CLCACHE_PATH" ]; then
-        append "-DCMAKE_C_COMPILER=$VM_CLCACHE_PATH/bin/clcache.bat"
-        append "-DCMAKE_CXX_COMPILER=$VM_CLCACHE_PATH/bin/clcache.bat"
+        add-cmake-option "-DCMAKE_C_COMPILER=$VM_CLCACHE_PATH/bin/clcache.bat"
+        add-cmake-option "-DCMAKE_CXX_COMPILER=$VM_CLCACHE_PATH/bin/clcache.bat"
     fi
 else
+    # Compiler
     case "$COMPILER" in
         gcc*)
             c_compiler="gcc"
@@ -132,21 +140,28 @@ else
         ;;
     esac
     version="$(get-compiler-version "$COMPILER")"
-    append "-DCMAKE_C_COMPILER=${c_compiler}-${version}"
-    append "-DCMAKE_CXX_COMPILER=${cxx_compiler}-${version}"
+    add-cmake-option "-DCMAKE_C_COMPILER=${c_compiler}-${version}"
+    add-cmake-option "-DCMAKE_CXX_COMPILER=${cxx_compiler}-${version}"
 
+    # Cache
     if [ -x "$(command -v ccache)" ]; then
-        export CC="ccache ${c_compiler}-${version} -Qunused-arguments"
-        export CXX="ccache ${cxx_compiler}-${version} -Qunused-arguments"
+        export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
     fi
 fi
+
+# Options common to all configurations
+add-cmake-option "-DCMAKE_BUILD_TYPE=${BUILD_TYPE^}"
+add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
+add-cmake-option "-DSOFA_BUILD_TUTORIALS=OFF"
+add-cmake-option "-DSOFA_BUILD_TESTS=ON"
+add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 
 # Handle custom lib dirs
 if vm-is-windows; then
     msvc_year="$(get-msvc-year $COMPILER)"
     msvc_version="$(get-compiler-version $COMPILER)"
-    qt_compiler="msvc-${msvc-year}"
-    boost_compiler="msvc-${msvc-version}"
+    qt_compiler="msvc-${msvc_year}"
+    boost_compiler="msvc-${msvc_version}"
 else
     qt_compiler="$(cut -d "-" -f 1 <<< "$COMPILER")" # gcc-4.8 -> gcc
 fi
@@ -158,103 +173,99 @@ else
     boost_lib="lib32-${boost_compiler}"
 fi
 if [ -d "$VM_QT_PATH" ]; then
-    append "-DQt5_DIR=$VM_QT_PATH/${qt_lib}/cmake/Qt5"
+    add-cmake-option "-DQt5_DIR=$VM_QT_PATH/${qt_lib}/cmake/Qt5"
 fi
 if [ -d "$VM_BOOST_PATH" ] && vm-is-windows; then # VM_BOOST_PATH is effective on Windows only
-    append "-DBOOST_ROOT=$VM_BOOST_PATH"
-    append "-DBOOST_LIBRARYDIR=$VM_BOOST_PATH/${boost_lib}"
+    add-cmake-option "-DBOOST_ROOT=$VM_BOOST_PATH"
+    add-cmake-option "-DBOOST_LIBRARYDIR=$VM_BOOST_PATH/${boost_lib}"
 fi
 if [ -d "$VM_PYTHON_PATH" ] && vm-is-windows; then # VM_PYTHON_PATH is effective on Windows only
-    append "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
-    append "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
+    add-cmake-option "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
+    add-cmake-option "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
 fi
-
-# Options common to all configurations
-append "-DPLUGIN_SOFAPYTHON=ON"
-append "-DSOFA_BUILD_TUTORIALS=OFF"
-append "-DSOFA_BUILD_TESTS=ON"
 
 # "build-all-plugins" specific options
 if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     # Build with as many options enabled as possible
-    append "-DSOFA_BUILD_METIS=ON"
-    append "-DSOFA_BUILD_ARTRACK=ON"
-    append "-DSOFA_BUILD_MINIFLOWVR=ON"
+    add-cmake-option "-DSOFA_BUILD_METIS=ON"
+    add-cmake-option "-DSOFA_BUILD_ARTRACK=ON"
+    add-cmake-option "-DSOFA_BUILD_MINIFLOWVR=ON"
 
     if [ -d "$VM_BULLET_PATH" ]; then
-        append "-DBullet_DIR=$VM_BULLET_PATH"
+        add-cmake-option "-DBullet_DIR=$VM_BULLET_PATH"
     fi
 
     ### Plugins
-    append "-DPLUGIN_ARTRACK=ON"
+    add-cmake-option "-DPLUGIN_ARTRACK=ON"
     if [ -d "$VM_BULLET_PATH" ]; then
-        append "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
+        add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
-        append "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
+        add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
     fi
     # Missing CGAL library
     if [[ "$VM_HAS_CGAL" == "true" ]]; then
-        append "-DPLUGIN_CGALPLUGIN=ON"
+        add-cmake-option "-DPLUGIN_CGALPLUGIN=ON"
     else
-        append "-DPLUGIN_CGALPLUGIN=OFF"
+        add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF"
     fi
     if [[ "$VM_HAS_ASSIMP" == "true" ]] || vm-is-windows; then
         # INFO: ColladaSceneLoader contains assimp for Windows (but that does not mean that VM has Assimp)
-        append "-DPLUGIN_COLLADASCENELOADER=ON"
+        add-cmake-option "-DPLUGIN_COLLADASCENELOADER=ON"
     else
-        append "-DPLUGIN_COLLADASCENELOADER=OFF"
+        add-cmake-option "-DPLUGIN_COLLADASCENELOADER=OFF"
     fi
-    append "-DPLUGIN_COMPLIANT=ON"
-    append "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
-    append "-DPLUGIN_FLEXIBLE=ON"
+    add-cmake-option "-DPLUGIN_COMPLIANT=ON"
+    add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
+    add-cmake-option "-DPLUGIN_FLEXIBLE=ON"
     # Requires specific libraries.
-    append "-DPLUGIN_HAPTION=OFF"
-    append "-DPLUGIN_IMAGE=ON"
-    append "-DPLUGIN_INVERTIBLEFVM=ON"
-    append "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
-    append "-DPLUGIN_MANUALMAPPING=ON"
+    add-cmake-option "-DPLUGIN_HAPTION=OFF"
+    add-cmake-option "-DPLUGIN_IMAGE=ON"
+    add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON"
+    add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
+    add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
     if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
-        append "-DPLUGIN_MESHSTEPLOADER=ON"
+        add-cmake-option "-DPLUGIN_MESHSTEPLOADER=ON"
     else
-        append "-DPLUGIN_MESHSTEPLOADER=OFF"
+        add-cmake-option "-DPLUGIN_MESHSTEPLOADER=OFF"
     fi
-    append "-DPLUGIN_MULTITHREADING=ON"
-    append "-DPLUGIN_OPTITRACKNATNET=ON"
+    add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
+    add-cmake-option "-DPLUGIN_OPTITRACKNATNET=ON"
     # Does not compile, but it just needs to be updated.
-    append "-DPLUGIN_PERSISTENTCONTACT=OFF"
-    append "-DPLUGIN_PLUGINEXAMPLE=ON"
-    append "-DPLUGIN_REGISTRATION=ON"
+    add-cmake-option "-DPLUGIN_PERSISTENTCONTACT=OFF"
+    add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON"
+    add-cmake-option "-DPLUGIN_REGISTRATION=ON"
     # Requires OpenHaptics libraries.
-    append "-DPLUGIN_SENSABLE=OFF"
-    append "-DPLUGIN_SENSABLEEMULATION=ON"
+    add-cmake-option "-DPLUGIN_SENSABLE=OFF"
+    add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
 
     # Requires Sixense libraries.
-    append "-DPLUGIN_SIXENSEHYDRA=OFF"
-    append "-DPLUGIN_SOFACARVING=ON"
+    add-cmake-option "-DPLUGIN_SIXENSEHYDRA=OFF"
+    add-cmake-option "-DPLUGIN_SOFACARVING=ON"
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
-        append "-DPLUGIN_SOFACUDA=ON"
+        add-cmake-option "-DPLUGIN_SOFACUDA=ON"
     else
-        append "-DPLUGIN_SOFACUDA=OFF"
+        add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
     fi
     # Requires HAPI libraries.
-    append "-DPLUGIN_SOFAHAPI=OFF"
+    add-cmake-option "-DPLUGIN_SOFAHAPI=OFF"
     # Not sure if worth maintaining
-    append "-DPLUGIN_SOFASIMPLEGUI=ON"
-    append "-DPLUGIN_THMPGSPATIALHASHING=ON"
+    add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON"
+    add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON"
     # Requires XiRobot library.
-    append "-DPLUGIN_XITACT=OFF"
-    append "-DPLUGIN_RIGIDSCALE=ON"
+    add-cmake-option "-DPLUGIN_XITACT=OFF"
+    add-cmake-option "-DPLUGIN_RIGIDSCALE=ON"
 fi
 
 # Options passed via the environnement
 if [ -n "$CI_CMAKE_OPTIONS" ]; then
-    cmake_options="$cmake_options $CI_CMAKE_OPTIONS"
+    add-cmake-option "$CI_CMAKE_OPTIONS"
 fi
 
-cd "$BUILD_DIR"
 
 
-# Configure
+#############
+# Configure #
+#############
 
 generator() {
     if [ -x "$(command -v ninja)" ]; then
@@ -278,6 +289,7 @@ call-cmake() {
     fi
 }
 
+cd "$BUILD_DIR"
 echo "Calling cmake with the following options:"
 echo "$cmake_options" | tr -s ' ' '\n'
 if [ -e "full-build" ]; then
