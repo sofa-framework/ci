@@ -24,8 +24,8 @@ fi
 . "$SCRIPT_DIR"/dashboard.sh
 . "$SCRIPT_DIR"/github.sh
 
+github-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-github-export-vars "$BUILD_OPTIONS" "$DASH_CONFIG"
 
 
 on-failure() {

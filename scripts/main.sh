@@ -44,11 +44,12 @@ rm -rf "$BUILD_DIR/scene-tests/reports"
 
 
 # CI environment variables + init
+github-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-dashboard-init
 
-github-export-vars "$BUILD_OPTIONS" "$DASH_CONFIG"
 github-notify "pending" "Build started."
+dashboard-notify "status=build"
+
 
 # VM environment variables
 if vm-is-windows && [ -e "$SCRIPT_DIR/env/default-windows" ]; then
@@ -65,12 +66,10 @@ fi
 
 
 # Configure
-dashboard-notify "status=configure"
 "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 
 
 # Compile
-dashboard-notify "status=build"
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$COMPILER" "$ARCHITECTURE"
 dashboard-notify "status=success"
 github-notify "success" "SUCCESS (tests ignored)"

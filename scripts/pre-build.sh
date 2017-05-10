@@ -24,17 +24,18 @@ for config in "${configs[@]}"; do
     fi
 
     # WARNING: Jenkins parameter names may change
-    compiler="$(echo "$config" | sed "s/.*CI_COMPILER *== *'\([^']*\)'.*/\1/g" )"
+    platform_compiler="$(echo "$config" | sed "s/.*CI_COMPILER *== *'\([^']*\)'.*/\1/g" )"
+    compiler="${platform_compiler#*_}" # ubuntu_gcc-4.8 -> gcc-4.8
     architecture="$(echo "$config" | sed "s/.*CI_ARCH *== *'\([^']*\)'.*/\1/g" )"
     build_type="$(echo "$config" | sed "s/.*CI_TYPE *== *'\([^']*\)'.*/\1/g" )"
     plugins="$(echo "$config" | sed "s/.*CI_PLUGINS *== *'\([^']*\)'.*/\1/g" )"
 
     build_options="$(list-build-options "$plugins")"
-    dashboard-export-vars "${compiler#*_}" "$architecture" "$build_type" "$build_options"
-    github-export-vars "$build_options" "$DASH_CONFIG"
+    github-export-vars "$compiler" "$architecture" "$build_type" "$build_options"
+    dashboard-export-vars "$compiler" "$architecture" "$build_type" "$build_options"
 
-    dashboard-init
     github-notify "pending" "Build queued."
+    dashboard-init
 
     sleep 1 # ensure we are not flooding APIs
 done
