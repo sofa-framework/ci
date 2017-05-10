@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import json;
+import json,datetime;
 
 def get_commit_message(json_string):
     obj=json.load(json_string)
