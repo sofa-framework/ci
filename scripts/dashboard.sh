@@ -27,7 +27,7 @@ dashboard-notify() {
 
 dashboard-init() {
     echo "DASH: Create/update commit line"
-    dashboard-notify-explicit "sha=$DASH_COMMIT_HASH" "comment=$DASH_COMMIT_MESSAGE" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=$DASH_COMMIT_BRANCH"
+    dashboard-notify-explicit "sha=$DASH_COMMIT_HASH" "comment=$DASH_COMMIT_SUBJECT" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=$DASH_COMMIT_BRANCH"
 
     # TODO: status=queue
     echo "DASH: Create/update build frame with empty status"
@@ -108,9 +108,9 @@ dashboard-export-vars() {
     fi
 
     if [ -n "$GITHUB_COMMIT_MESSAGE" ]; then
-        export DASH_COMMIT_MESSAGE="$GITHUB_COMMIT_MESSAGE"
+        export DASH_COMMIT_SUBJECT="$(echo "$GITHUB_COMMIT_MESSAGE" | head -n 1)"
     else
-        export DASH_COMMIT_MESSAGE="$(git log --pretty=format:'%s' -1)"
+        export DASH_COMMIT_SUBJECT="$(git log --pretty=format:'%s' -1)"
     fi
 
     if [ -n "$CI_BRANCH" ]; then # Check Jenkins env var first
