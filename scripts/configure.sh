@@ -1,7 +1,5 @@
 #!/bin/bash
 set -o errexit # Exit on error
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. "$SCRIPT_DIR"/utils.sh
 
 # Here we pick what gets to be compiled. The role of this script is to
 # call cmake with the appropriate options. After this, the build
@@ -17,10 +15,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # - COMPILER               # important for Visual Studio paths (VS-2012, VS-2013 or VS-2015)
 
 
-# Exit on error
-set -o errexit
-
-
 ## Checks
 
 usage() {
@@ -28,6 +22,9 @@ usage() {
 }
 
 if [ "$#" -eq 6 ]; then
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    . "$SCRIPT_DIR"/utils.sh
+
     BUILD_DIR="$(cd "$1" && pwd)"
     if vm-is-windows; then
         # pwd with a Windows format (c:/ instead of /c/)

@@ -1,7 +1,5 @@
 #!/bin/bash
 set -o errexit # Exit on error
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-. "$SCRIPT_DIR"/utils.sh
 
 # This script basically runs 'make' and saves the compilation output
 # in make-output.txt.
@@ -11,9 +9,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # - ARCHITECTURE               # x86|amd64  (32-bit or 64-bit build - Windows-specific)
 # - COMPILER           # important for Visual Studio (VS-2012, VS-2013 or VS-2015)
 
-# Exit on error
-set -o errexit
-
 
 ### Checks
 
@@ -22,6 +17,9 @@ usage() {
 }
 
 if [ "$#" -eq 3 ]; then
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    . "$SCRIPT_DIR"/utils.sh
+
     BUILD_DIR="$(cd "$1" && pwd)"
     COMPILER="$2"
     ARCHITECTURE="$3"

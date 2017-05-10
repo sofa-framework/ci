@@ -15,7 +15,7 @@ package-is-installed() {
 }
 
 get-msvc-year() {
-    if vm-is-windows; then 
+    if vm-is-windows; then
         case "$1" in
             VS-2012) echo "2012" ;;
             VS-2013) echo "2013" ;;
@@ -37,7 +37,7 @@ get-compiler-version() {
 }
 
 get-msvc-comntools() {
-    if vm-is-windows; then    
+    if vm-is-windows; then
         case "$1" in
             VS-2012) echo "VS110COMNTOOLS" ;;
             VS-2013) echo "VS120COMNTOOLS" ;;

@@ -14,7 +14,7 @@ export VM_BULLET_PATH=""
 
 export VM_HAS_ASSIMP="false" # libassimp-dev
 
-export VM_HAS_CGAL="false" # libcgal-dev
+export VM_HAS_CGAL="false" # libcgal-dev + libcgal-qt5-dev
 
 export VM_HAS_CUDA="false" # nvidia-cuda-toolkit
 
