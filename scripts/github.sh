@@ -100,7 +100,7 @@ github-export-vars() {
     if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
     [ -n "$GITHUB_REPOSITORY" ] &&
     [ -n "$GITHUB_COMMIT_HASH" ]; then
-        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN"  "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_COMMIT_HASH")"
+        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_COMMIT_HASH")"
         if [ -n "$response" ]; then
             local prev_pwd="$(pwd)"
             cd "$SCRIPT_DIR"
