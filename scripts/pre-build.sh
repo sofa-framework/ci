@@ -21,8 +21,8 @@ fi
 . "$script_dir"/dashboard.sh
 . "$script_dir"/github.sh
 
-github-export-vars "$compiler" "$architecture" "$build_type" "$build_options"
-dashboard-export-vars "$compiler" "$architecture" "$build_type" "$build_options"
+github-export-vars "$build_options"
+dashboard-export-vars "$build_options"
 dashboard-init
 
 IFS='||' read -ra configs <<< "$configs_string"
@@ -33,6 +33,7 @@ for config in "${configs[@]}"; do
 
     # WARNING: Matrix Axis names may change (Jenkins)
     platform_compiler="$(echo "$config" | sed "s/.*CI_COMPILER *== *'\([^']*\)'.*/\1/g" )"
+    platform="${platform_compiler%*_}" # ubuntu_gcc-4.8 -> ubuntu
     compiler="${platform_compiler#*_}" # ubuntu_gcc-4.8 -> gcc-4.8
     architecture="$(echo "$config" | sed "s/.*CI_ARCH *== *'\([^']*\)'.*/\1/g" )"
     build_type="$(echo "$config" | sed "s/.*CI_TYPE *== *'\([^']*\)'.*/\1/g" )"
@@ -40,8 +41,8 @@ for config in "${configs[@]}"; do
 
     # Update DASH_CONFIG and GITHUB_CONTEXT upon config parsing
     build_options="$(get-build-options "$plugins")"
-    export DASH_CONFIG="$(dashboard-get-config "$compiler" "$architecture" "$build_type" "$build_options")"
-    export GITHUB_CONTEXT="$(dashboard-get-config "$compiler" "$architecture" "$build_type" "$build_options")"
+    export DASH_CONFIG="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
+    export GITHUB_CONTEXT="$DASH_CONFIG"
 
     # Notify GitHub and Dashboard
     github-notify "pending" "Build queued."

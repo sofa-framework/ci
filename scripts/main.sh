@@ -2,10 +2,10 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: main.sh <build-dir> <src-dir> <compiler> <architecture> <build-type> <build-options>"
+    echo "Usage: main.sh <build-dir> <src-dir> <platform> <compiler> <architecture> <build-type> <build-options>"
 }
 
-if [ "$#" -ge 5 ]; then
+if [ "$#" -ge 6 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
     . "$SCRIPT_DIR"/dashboard.sh
@@ -15,10 +15,11 @@ if [ "$#" -ge 5 ]; then
     BUILD_DIR="$(cd "$1" && pwd)"
     SRC_DIR="$(cd "$2" && pwd)"
 
-    COMPILER="$3"
-    ARCHITECTURE="$4"
-    BUILD_TYPE="$5"
-    BUILD_OPTIONS="${*:6}"
+    PLATFORM="$3"
+    COMPILER="$4"
+    ARCHITECTURE="$5"
+    BUILD_TYPE="$6"
+    BUILD_OPTIONS="${*:7}"
     if [ -z "$BUILD_OPTIONS" ]; then
         BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi
@@ -44,8 +45,8 @@ rm -rf "$BUILD_DIR/scene-tests/reports"
 
 
 # CI environment variables + init
-github-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 
 github-notify "pending" "Build started."
 dashboard-notify "status=build"

@@ -35,22 +35,11 @@ dashboard-init() {
 }
 
 dashboard-get-config() {
-    local compiler="$1"
-    local architecture="$2"
-    local build_type="$3"
-    local build_options="$4"
-
-    # platform = [mac, ubuntu, centos, winxp, windows7, windows7-64]
-    if [ -n "$CI_PLATFORM" ]; then # Check Jenkins env var first
-        platform="$CI_PLATFORM"
-    else
-        case "$OSTYPE" in
-            darwin*)      platform="mac" ;;
-            linux-gnu*)   platform="$(cat /etc/os-release | grep "^ID=" | cut -d "=" -f 2)" ;;
-            msys*)        platform="windows7" ;;
-            *)            platform="$OSTYPE" ;;
-        esac
-    fi
+    local platform="$1"
+    local compiler="$2"
+    local architecture="$3"
+    local build_type="$4"
+    local build_options="$5"
 
     # suffix = [default, options, default-debug, options-debug]
     if in-array "build-all-plugins" "$build_options"; then
@@ -72,10 +61,17 @@ dashboard-get-config() {
 }
 
 dashboard-export-vars() {
-    local compiler="$1"
-    local architecture="$2"
-    local build_type="$3"
-    local build_options="$4"
+    if [ "$#" -ge 5 ]; then
+        local platform="$1"
+        local compiler="$2"
+        local architecture="$3"
+        local build_type="$4"
+        local build_options="$5"
+
+        export DASH_CONFIG="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
+    else
+        local build_options="$1"
+    fi
 
     if in-array "report-to-dashboard" "$build_options"; then
         export DASH_NOTIFY="true"
@@ -116,8 +112,6 @@ dashboard-export-vars() {
     else # fallback: try to get the branch manually
         export DASH_COMMIT_BRANCH="$(git branch | grep \* | cut -d ' ' -f2)"
     fi
-
-    export DASH_CONFIG="$(dashboard-get-config "$compiler" "$architecture" "$build_type" "$build_options")"
 
     # DASH_DASHBOARD_URL
     if [ -z "$DASH_DASHBOARD_URL" ]; then

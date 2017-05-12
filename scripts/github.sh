@@ -40,10 +40,17 @@ github-notify() {
 }
 
 github-export-vars() {
-    local compiler="$1"
-    local architecture="$2"
-    local build_type="$3"
-    local build_options="$4"
+    if [ "$#" -ge 5 ]; then
+        local platform="$1"
+        local compiler="$2"
+        local architecture="$3"
+        local build_type="$4"
+        local build_options="$5"
+
+        export GITHUB_CONTEXT="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
+    else
+        local build_options="$1"
+    fi
 
     if in-array "report-to-github" "$build_options"; then
         export GITHUB_NOTIFY="true"
@@ -68,24 +75,6 @@ github-export-vars() {
             export GITHUB_TARGET_URL="$BUILD_URL"
         else
             export GITHUB_TARGET_URL="#"
-        fi
-    fi
-
-    # local subject_full="$(git log --pretty=%B -1)"
-    # local committer_name="$(git log --pretty=%cn -1)"
-    # if [[ "$JOB_NAME" == "PR-"* ]] ||
-       # [[ "$committer_name" == "GitHub" ]] && [[ "$subject_full" == "Merge "*" into "* ]]; then # this is a PR
-        # export GITHUB_COMMIT_HASH="$(git log --pretty=format:'%H' -2 | tail -1)" # skip merge commit
-    # else
-        # export GITHUB_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
-    # fi
-
-    # vars for github-notify
-    if [ -z "$GITHUB_CONTEXT" ]; then
-        if [ -n "$DASH_CONFIG" ]; then
-            export GITHUB_CONTEXT="$DASH_CONFIG" # try to be consistent with Dashboard configs
-        else
-            export GITHUB_CONTEXT="$(dashboard-get-config "$compiler" "$architecture" "$build_type" "$build_options")"
         fi
     fi
 
