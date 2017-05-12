@@ -20,7 +20,7 @@ if [ "$#" -ge 5 ]; then
     BUILD_TYPE="$5"
     BUILD_OPTIONS="${*:6}"
     if [ -z "$BUILD_OPTIONS" ]; then
-        BUILD_OPTIONS="$(list-build-options)" # use env vars (Jenkins)
+        BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi
 else
     usage; exit 1

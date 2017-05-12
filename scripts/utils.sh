@@ -57,7 +57,7 @@ in-array() {
     return 1
 }
 
-list-build-options() {
+get-build-options() {
     build_options=""
     if [[ "$1" == "options" ]] || [[ "$CI_PLUGINS" == "options" ]]; then
         build_options="build-all-plugins $build_options"

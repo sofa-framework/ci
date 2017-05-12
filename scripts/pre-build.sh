@@ -2,7 +2,7 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: pre-build.sh <configs-string>"
+    echo "Usage: pre-build.sh <configs-string> <build-options>"
 }
 
 if [ "$#" -ge 1 ]; then
@@ -10,6 +10,10 @@ if [ "$#" -ge 1 ]; then
     . "$script_dir"/utils.sh
 
     configs_string="$1"
+    build_options="${*:2}"
+    if [ -z "$build_options" ]; then
+        build_options="$(get-build-options)" # use env vars (Jenkins)
+    fi
 else
     usage; exit 1
 fi
@@ -17,25 +21,31 @@ fi
 . "$script_dir"/dashboard.sh
 . "$script_dir"/github.sh
 
+github-export-vars "$compiler" "$architecture" "$build_type" "$build_options"
+dashboard-export-vars "$compiler" "$architecture" "$build_type" "$build_options"
+dashboard-init
+
 IFS='||' read -ra configs <<< "$configs_string"
 for config in "${configs[@]}"; do
     if [[ "$config" != *"=="* ]]; then
         continue
     fi
 
-    # WARNING: Jenkins parameter names may change
+    # WARNING: Matrix Axis names may change (Jenkins)
     platform_compiler="$(echo "$config" | sed "s/.*CI_COMPILER *== *'\([^']*\)'.*/\1/g" )"
     compiler="${platform_compiler#*_}" # ubuntu_gcc-4.8 -> gcc-4.8
     architecture="$(echo "$config" | sed "s/.*CI_ARCH *== *'\([^']*\)'.*/\1/g" )"
     build_type="$(echo "$config" | sed "s/.*CI_TYPE *== *'\([^']*\)'.*/\1/g" )"
     plugins="$(echo "$config" | sed "s/.*CI_PLUGINS *== *'\([^']*\)'.*/\1/g" )"
 
-    build_options="$(list-build-options "$plugins")"
-    github-export-vars "$compiler" "$architecture" "$build_type" "$build_options"
-    dashboard-export-vars "$compiler" "$architecture" "$build_type" "$build_options"
+    # Update DASH_CONFIG and GITHUB_CONTEXT upon config parsing
+    build_options="$(get-build-options "$plugins")"
+    export DASH_CONFIG="$(dashboard-get-config "$compiler" "$architecture" "$build_type" "$build_options")"
+    export GITHUB_CONTEXT="$(dashboard-get-config "$compiler" "$architecture" "$build_type" "$build_options")"
 
+    # Notify GitHub and Dashboard
     github-notify "pending" "Build queued."
-    dashboard-init
+    dashboard-notify "status="
 
     sleep 1 # ensure we are not flooding APIs
 done
