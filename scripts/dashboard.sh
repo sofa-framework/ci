@@ -67,13 +67,14 @@ dashboard-export-vars() {
         local architecture="$3"
         local build_type="$4"
         local build_options="$5"
-
-        export DASH_CONFIG="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
     else
         local build_options="$1"
     fi
 
-    if in-array "report-to-dashboard" "$build_options"; then
+    if ! in-array "report-to-dashboard" "$build_options"; then
+        export DASH_NOTIFY="false"
+        return
+    else
         export DASH_NOTIFY="true"
     fi
 
@@ -116,6 +117,10 @@ dashboard-export-vars() {
     # DASH_DASHBOARD_URL
     if [ -z "$DASH_DASHBOARD_URL" ]; then
         export DASH_DASHBOARD_URL="https://www.sofa-framework.org/dash/input.php"
+    fi
+
+    if [ -n "$platform" ]; then
+        export DASH_CONFIG="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
     fi
 
     echo "Dashboard env vars:"

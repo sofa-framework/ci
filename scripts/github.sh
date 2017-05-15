@@ -46,13 +46,14 @@ github-export-vars() {
         local architecture="$3"
         local build_type="$4"
         local build_options="$5"
-
-        export GITHUB_CONTEXT="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
     else
         local build_options="$1"
     fi
 
-    if in-array "report-to-github" "$build_options"; then
+    if ! in-array "report-to-github" "$build_options"; then
+        export GITHUB_NOTIFY="false"
+        return
+    else
         export GITHUB_NOTIFY="true"
     fi
 
@@ -100,6 +101,10 @@ github-export-vars() {
         fi
     fi
     set -$options
+
+    if [ -n "$platform" ]; then    
+        export GITHUB_CONTEXT="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
+    fi
 
     echo "GitHub env vars:"
     env | grep "^GITHUB_"

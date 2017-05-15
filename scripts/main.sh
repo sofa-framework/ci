@@ -27,6 +27,8 @@ else
     usage; exit 1
 fi
 
+cd "$SRC_DIR"
+
 
 # Check [ci-ignore] flag in commit message
 commit_message_full="$(git log --pretty=%B -1)"
