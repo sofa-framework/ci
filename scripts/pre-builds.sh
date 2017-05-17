@@ -2,7 +2,7 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: pre-build.sh <configs-string> <build-options>"
+    echo "Usage: pre-builds.sh <configs-string> <build-options>"
 }
 
 if [ "$#" -ge 1 ]; then
