@@ -81,12 +81,13 @@ github-export-vars() {
         fi
     fi
 
-    if [ -n "$CHANGE_ID" ]; then # this is a PR
+    if [[ "$GIT_BRANCH" == *"/PR-"* ]]; then # this is a PR
+        local pr_id="${GIT_BRANCH#*-}"
         local options="$-"
-        set +x # Private stuff here: echo disabled    
+        set +x # Private stuff here: echo disabled
         if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
            [ -n "$GITHUB_REPOSITORY" ]; then
-            response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$CHANGE_ID")"
+            response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$pr_id")"
             if [ -n "$response" ]; then
                 local prev_pwd="$(pwd)"
                 cd "$SCRIPT_DIR"
