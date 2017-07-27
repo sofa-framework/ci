@@ -52,11 +52,10 @@ github-export-vars() {
         local build_options="$1"
     fi
 
-    if ! in-array "report-to-github" "$build_options"; then
-        export GITHUB_NOTIFY="false"
-        return
-    else
+    if in-array "report-to-github" "$build_options"; then
         export GITHUB_NOTIFY="true"
+    else
+        export GITHUB_NOTIFY="false"
     fi
 
     if [ -z "$GITHUB_REPOSITORY" ]; then
