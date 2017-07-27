@@ -14,11 +14,11 @@ github-notify() {
 
     set +x # Private stuff here: echo disabled
     if [[ "$GITHUB_NOTIFY" == "true" ]] &&
-    [ -n "$GITHUB_CONTEXT" ] &&
-    [ -n "$GITHUB_TARGET_URL" ] &&
-    [ -n "$GITHUB_REPOSITORY" ] &&
-    [ -n "$GITHUB_COMMIT_HASH" ] &&
-    [ -n "$GITHUB_SOFABOT_TOKEN" ]; then
+       [ -n "$GITHUB_CONTEXT" ] &&
+       [ -n "$GITHUB_TARGET_URL" ] &&
+       [ -n "$GITHUB_REPOSITORY" ] &&
+       [ -n "$GITHUB_COMMIT_HASH" ] &&
+       [ -n "$GITHUB_SOFABOT_TOKEN" ]; then
         local request="{
             \"context\": \"$GITHUB_CONTEXT\",
             \"state\": \"$state\",
@@ -81,7 +81,21 @@ github-export-vars() {
         fi
     fi
 
-    if [ -n "$GIT_COMMIT" ]; then
+    if [ -n "$CHANGE_ID" ]; then # this is a PR
+        local options="$-"
+        set +x # Private stuff here: echo disabled    
+        if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
+           [ -n "$GITHUB_REPOSITORY" ]; then
+            response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$CHANGE_ID")"
+            if [ -n "$response" ]; then
+                local prev_pwd="$(pwd)"
+                cd "$SCRIPT_DIR"
+                export GITHUB_COMMIT_HASH="$( echo "$response" | python -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
+                cd "$prev_pwd"
+            fi
+        fi
+        set -$options
+    elif [ -n "$GIT_COMMIT" ]; then
         export GITHUB_COMMIT_HASH="$GIT_COMMIT"
     else # This should not happen with Jenkins
         export GITHUB_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
@@ -91,8 +105,8 @@ github-export-vars() {
     local options="$-"
     set +x # Private stuff here: echo disabled
     if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
-    [ -n "$GITHUB_REPOSITORY" ] &&
-    [ -n "$GITHUB_COMMIT_HASH" ]; then
+       [ -n "$GITHUB_REPOSITORY" ] &&
+       [ -n "$GITHUB_COMMIT_HASH" ]; then
         response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_COMMIT_HASH")"
         if [ -n "$response" ]; then
             local prev_pwd="$(pwd)"

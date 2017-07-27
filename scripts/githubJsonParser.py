@@ -2,6 +2,10 @@
 
 import json,datetime;
 
+def get_head_sha(json_string):
+    obj=json.load(json_string)
+    print obj['head']['sha']
+
 def get_commit_message(json_string):
     obj=json.load(json_string)
     print obj['commit']['message']
