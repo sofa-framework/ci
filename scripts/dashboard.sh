@@ -85,24 +85,28 @@ dashboard-export-vars() {
         export DASH_COMMIT_HASH="$GITHUB_COMMIT_HASH"
     else
         export DASH_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
+        echo "Trying to guess DASH_COMMIT_HASH: $DASH_COMMIT_HASH"
     fi
 
     if [ -n "$GITHUB_COMMIT_AUTHOR" ]; then
         export DASH_COMMIT_AUTHOR="$GITHUB_COMMIT_AUTHOR"
     else
         export DASH_COMMIT_AUTHOR="$(git log --pretty=format:'%an' -1)"
+        echo "Trying to guess DASH_COMMIT_AUTHOR: $DASH_COMMIT_AUTHOR"
     fi
 
     if [ -n "$GITHUB_COMMIT_DATE" ]; then
         export DASH_COMMIT_DATE="$GITHUB_COMMIT_DATE"
     else
         export DASH_COMMIT_DATE="$(git log --pretty=format:%ct -1)"
+        echo "Trying to guess DASH_COMMIT_DATE: $DASH_COMMIT_DATE"
     fi
 
     if [ -n "$GITHUB_COMMIT_MESSAGE" ]; then
         export DASH_COMMIT_SUBJECT="$(echo "$GITHUB_COMMIT_MESSAGE" | head -n 1)"
     else
         export DASH_COMMIT_SUBJECT="$(git log --pretty=format:'%s' -1)"
+        echo "Trying to guess DASH_COMMIT_SUBJECT: $DASH_COMMIT_SUBJECT"
     fi
 
     if [ -n "$CI_BRANCH" ]; then # Check Jenkins env var first
@@ -111,6 +115,7 @@ dashboard-export-vars() {
         export DASH_COMMIT_BRANCH="$GIT_BRANCH"
     else # fallback: try to get the branch manually
         export DASH_COMMIT_BRANCH="$(git branch | grep \* | cut -d ' ' -f2)"
+        echo "Trying to guess DASH_COMMIT_BRANCH: $DASH_COMMIT_BRANCH"
     fi
 
     # DASH_DASHBOARD_URL

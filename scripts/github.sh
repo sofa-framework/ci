@@ -83,6 +83,7 @@ github-export-vars() {
         export GITHUB_COMMIT_HASH="$GIT_COMMIT"
     else # This should not happen with Jenkins
         export GITHUB_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
+        echo "Trying to guess GITHUB_COMMIT_HASH: $GITHUB_COMMIT_HASH"
     fi
 
     local options="$-"
