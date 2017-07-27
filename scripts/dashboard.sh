@@ -71,11 +71,10 @@ dashboard-export-vars() {
         local build_options="$1"
     fi
 
-    if ! in-array "report-to-dashboard" "$build_options"; then
-        export DASH_NOTIFY="false"
-        return
-    else
+    if in-array "report-to-dashboard" "$build_options"; then
         export DASH_NOTIFY="true"
+    else
+        export DASH_NOTIFY="false"
     fi
 
     if in-array "force-full-build" "$build_options"; then
