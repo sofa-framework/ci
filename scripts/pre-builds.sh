@@ -33,7 +33,7 @@ for config in "${configs[@]}"; do
 
     # WARNING: Matrix Axis names may change (Jenkins)
     platform_compiler="$(echo "$config" | sed "s/.*CI_COMPILER *== *'\([^']*\)'.*/\1/g" )"
-    platform="${platform_compiler%*_}" # ubuntu_gcc-4.8 -> ubuntu
+    platform="${platform_compiler%_*}" # ubuntu_gcc-4.8 -> ubuntu
     compiler="${platform_compiler#*_}" # ubuntu_gcc-4.8 -> gcc-4.8
     architecture="$(echo "$config" | sed "s/.*CI_ARCH *== *'\([^']*\)'.*/\1/g" )"
     build_type="$(echo "$config" | sed "s/.*CI_TYPE *== *'\([^']*\)'.*/\1/g" )"
