@@ -35,6 +35,8 @@ dashboard-init() {
 }
 
 dashboard-get-config() {
+    echo "Calling ${FUNCNAME[0]}"
+    
     local platform="$1"
     local compiler="$2"
     local architecture="$3"
@@ -61,6 +63,8 @@ dashboard-get-config() {
 }
 
 dashboard-export-vars() {
+    echo "Calling ${FUNCNAME[0]}"
+    
     if [ "$#" -ge 5 ]; then
         local platform="$1"
         local compiler="$2"

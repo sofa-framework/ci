@@ -40,6 +40,8 @@ github-notify() {
 }
 
 github-export-vars() {
+    echo "Calling ${FUNCNAME[0]}"
+    
     if [ "$#" -ge 5 ]; then
         local platform="$1"
         local compiler="$2"
@@ -66,6 +68,7 @@ github-export-vars() {
             git_url="$GIT_URL"
         else
             git_url="https://github.com/sofa-framework/sofa.git"
+            echo "Fallback value for git_url: $git_url"
         fi
 
         export GITHUB_REPOSITORY="$( echo "$git_url" | sed "s/.*github.com\/\(.*\)\.git/\1/g" )"
