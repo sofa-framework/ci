@@ -41,7 +41,7 @@ for config in "${configs[@]}"; do
 
     # Update DASH_CONFIG and GITHUB_CONTEXT upon config parsing
     build_options="$(get-build-options "$plugins")"
-    export DASH_CONFIG="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
+    export DASH_CONFIG="$(dashboard-config-string "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
     export GITHUB_CONTEXT="$DASH_CONFIG"
 
     # Notify GitHub and Dashboard

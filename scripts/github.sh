@@ -2,7 +2,7 @@
 set -o errexit # Exit on error
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/utils.sh
-. "$SCRIPT_DIR"/dashboard.sh # needed for dashboard-get-config()
+. "$SCRIPT_DIR"/dashboard.sh # needed for dashboard-config-string()
 
 github-notify() {
     local state="$1"
@@ -106,7 +106,7 @@ github-export-vars() {
     set -$options
 
     if [ -n "$platform" ]; then    
-        export GITHUB_CONTEXT="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
+        export GITHUB_CONTEXT="$(dashboard-config-string "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
     fi
 
     echo "GitHub env vars:"

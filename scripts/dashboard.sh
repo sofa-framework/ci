@@ -34,9 +34,7 @@ dashboard-init() {
     dashboard-notify-explicit "sha=$DASH_COMMIT_HASH" "comment=$DASH_COMMIT_SUBJECT" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=$DASH_COMMIT_BRANCH"
 }
 
-dashboard-get-config() {
-    echo "Calling ${FUNCNAME[0]}"
-    
+dashboard-config-string() {
     local platform="$1"
     local compiler="$2"
     local architecture="$3"
@@ -128,7 +126,7 @@ dashboard-export-vars() {
     fi
 
     if [ -n "$platform" ]; then
-        export DASH_CONFIG="$(dashboard-get-config "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
+        export DASH_CONFIG="$(dashboard-config-string "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
     fi
 
     echo "Dashboard env vars:"
