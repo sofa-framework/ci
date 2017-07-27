@@ -188,13 +188,10 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_BUILD_ARTRACK=ON"
     add-cmake-option "-DSOFA_BUILD_MINIFLOWVR=ON"
 
-    if [ -d "$VM_BULLET_PATH" ]; then
-        add-cmake-option "-DBullet_DIR=$VM_BULLET_PATH"
-    fi
-
     ### Plugins
     add-cmake-option "-DPLUGIN_ARTRACK=ON"
     if [ -d "$VM_BULLET_PATH" ]; then
+        add-cmake-option "-DBullet_DIR=$VM_BULLET_PATH"
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
