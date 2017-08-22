@@ -136,9 +136,8 @@ else
             cxx_compiler="${COMPILER}++"
         ;;
     esac
-    version="$(get-compiler-version "$COMPILER")"
-    add-cmake-option "-DCMAKE_C_COMPILER=${c_compiler}-${version}"
-    add-cmake-option "-DCMAKE_CXX_COMPILER=${cxx_compiler}-${version}"
+    add-cmake-option "-DCMAKE_C_COMPILER=$c_compiler"
+    add-cmake-option "-DCMAKE_CXX_COMPILER=$cxx_compiler"
 
     # Cache
     if [ -x "$(command -v ccache)" ]; then
