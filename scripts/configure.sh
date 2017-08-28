@@ -146,7 +146,7 @@ else
 fi
 
 # Options common to all configurations
-add-cmake-option "-DCMAKE_BUILD_TYPE=${BUILD_TYPE^}"
+add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TYPE:0:1})${BUILD_TYPE:1}"
 add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
 add-cmake-option "-DSOFA_BUILD_TUTORIALS=OFF"
 add-cmake-option "-DSOFA_BUILD_TESTS=ON"
@@ -173,7 +173,7 @@ if [ -d "$VM_QT_PATH" ]; then
 fi
 if [ -d "$VM_BOOST_PATH" ] && vm-is-windows; then # VM_BOOST_PATH is effective on Windows only
     add-cmake-option "-DBOOST_ROOT=$VM_BOOST_PATH"
-    add-cmake-option "-DBOOST_LIBRARYDIR=$VM_BOOST_PATH/${boost_lib}"
+    #add-cmake-option "-DBOOST_LIBRARYDIR=$VM_BOOST_PATH/${boost_lib}" # useless?
 fi
 if [ -d "$VM_PYTHON_PATH" ] && vm-is-windows; then # VM_PYTHON_PATH is effective on Windows only
     add-cmake-option "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
