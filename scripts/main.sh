@@ -58,6 +58,12 @@ dashboard-notify "status=build"
 if vm-is-windows && [ -e "$SCRIPT_DIR/env/default-windows" ]; then
     echo "ENV VARS: load $SCRIPT_DIR/env/default-windows"
     . "$SCRIPT_DIR/env/default-windows"
+elif vm-is-macos && [ -e "$SCRIPT_DIR/env/default-macos" ]; then
+    echo "ENV VARS: load $SCRIPT_DIR/env/default-macos"
+    . "$SCRIPT_DIR/env/default-macos"
+elif vm-is-centos && [ -e "$SCRIPT_DIR/env/default-centos" ]; then
+    echo "ENV VARS: load $SCRIPT_DIR/env/default-centos"
+    . "$SCRIPT_DIR/env/default-centos"
 elif [ -e "$SCRIPT_DIR/env/default-unix" ]; then
     echo "ENV VARS: load $SCRIPT_DIR/env/default-unix"
     . "$SCRIPT_DIR/env/default-unix"

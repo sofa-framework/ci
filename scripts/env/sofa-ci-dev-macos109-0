@@ -9,4 +9,4 @@ export VM_HAS_ASSIMP="true"
 
 export VM_HAS_CGAL="true"
 
-export VM_HAS_CUDA="true"
+export VM_HAS_OPENCASCADE="true"

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+export VM_HAS_REQUIRED_LIBS="true"

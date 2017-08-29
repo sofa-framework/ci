@@ -170,6 +170,10 @@ else
     qt_lib="${qt_compiler}/lib"
     boost_lib="lib32-${boost_compiler}"
 fi
+if [[ "$VM_HAS_REQUIRED_LIBS" != "true" ]]; then
+   echo "Please make sure to have all required libs installed."
+   exit 1
+fi
 if [ -d "$VM_QT_PATH" ]; then
     add-cmake-option "-DQt5_DIR=$VM_QT_PATH/${qt_lib}/cmake/Qt5"
 fi
@@ -191,13 +195,14 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
 
     ### Plugins
     add-cmake-option "-DPLUGIN_ARTRACK=ON"
-    if [ -d "$VM_BULLET_PATH" ]; then
-        add-cmake-option "-DBullet_DIR=$VM_BULLET_PATH"
+    if [[ "$VM_HAS_BULLET" == "true" ]]; then
+        if [ -d "$VM_BULLET_PATH" ]; then
+            add-cmake-option "-DBullet_DIR=$VM_BULLET_PATH"
+        fi
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
     fi
-    # Missing CGAL library
     if [[ "$VM_HAS_CGAL" == "true" ]]; then
         add-cmake-option "-DPLUGIN_CGALPLUGIN=ON"
     else
@@ -212,8 +217,6 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_COMPLIANT=ON"
     add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
     add-cmake-option "-DPLUGIN_FLEXIBLE=ON"
-    # Requires specific libraries.
-    add-cmake-option "-DPLUGIN_HAPTION=OFF"
     add-cmake-option "-DPLUGIN_IMAGE=ON"
     add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON"
     add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
@@ -225,30 +228,26 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     fi
     add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
     add-cmake-option "-DPLUGIN_OPTITRACKNATNET=ON"
-    # Does not compile, but it just needs to be updated.
-    add-cmake-option "-DPLUGIN_PERSISTENTCONTACT=OFF"
     add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON"
     add-cmake-option "-DPLUGIN_REGISTRATION=ON"
-    # Requires OpenHaptics libraries.
-    add-cmake-option "-DPLUGIN_SENSABLE=OFF"
     add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
-
-    # Requires Sixense libraries.
-    add-cmake-option "-DPLUGIN_SIXENSEHYDRA=OFF"
-    add-cmake-option "-DPLUGIN_SOFACARVING=ON"
+    add-cmake-option "-DPLUGIN_SOFACARVING=ON"    
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
         add-cmake-option "-DPLUGIN_SOFACUDA=ON"
     else
         add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
     fi
-    # Requires HAPI libraries.
-    add-cmake-option "-DPLUGIN_SOFAHAPI=OFF"
-    # Not sure if worth maintaining
-    add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON"
+    add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
     add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON"
-    # Requires XiRobot library.
-    add-cmake-option "-DPLUGIN_XITACT=OFF"
     add-cmake-option "-DPLUGIN_RIGIDSCALE=ON"
+    
+    # Always disabled
+    add-cmake-option "-DPLUGIN_HAPTION=OFF" # Requires specific libraries.
+    add-cmake-option "-DPLUGIN_PERSISTENTCONTACT=OFF" # Does not compile, but it just needs to be updated.    
+    add-cmake-option "-DPLUGIN_SENSABLE=OFF" # Requires OpenHaptics libraries.    
+    add-cmake-option "-DPLUGIN_SIXENSEHYDRA=OFF" # Requires Sixense libraries.    
+    add-cmake-option "-DPLUGIN_SOFAHAPI=OFF" # Requires HAPI libraries.
+    add-cmake-option "-DPLUGIN_XITACT=OFF" # Requires XiRobot library.
 fi
 
 # Options passed via the environnement
@@ -285,8 +284,14 @@ call-cmake() {
 }
 
 cd "$BUILD_DIR"
+
 echo "Calling cmake with the following options:"
-echo "$cmake_options" | tr -s ' ' '\n'
+echo "$cmake_options" | tr -s ' ' '\n' | grep -v "PLUGIN" | sort
+echo "Enabled plugins:"
+echo "$cmake_options" | tr -s ' ' '\n' | grep "=ON" | sort
+echo "Disabled plugins:"
+echo "$cmake_options" | tr -s ' ' '\n' | grep "=OFF" | sort
+
 if [ -e "full-build" ]; then
     call-cmake -G"$(generator)" $cmake_options "$SRC_DIR"
 else

@@ -1,8 +1,29 @@
 #!/bin/bash
 set -o errexit # Exit on error
 
+vm-is-macos() {
+    if [[ "$(uname)" == "Darwin" ]]; then
+        return 0 # true
+    else
+        return 1 # false
+    fi
+}
 vm-is-windows() {
     if [[ "$(uname)" != "Darwin" && "$(uname)" != "Linux" ]]; then
+        return 0 # true
+    else
+        return 1 # false
+    fi
+}
+vm-is-centos() {
+    if [[ "$(uname)" != "Darwin" && "$(uname)" == "Linux" ]] && [ -x "$(command -v yum)" ]; then
+        return 0 # true
+    else
+        return 1 # false
+    fi
+}
+vm-is-ubuntu() {
+    if [[ "$(uname)" != "Darwin" && "$(uname)" == "Linux" ]] && [ -x "$(command -v apt)" ]; then
         return 0 # true
     else
         return 1 # false

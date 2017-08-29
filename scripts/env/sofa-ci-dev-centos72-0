@@ -1,0 +1,8 @@
+#!/bin/bash
+
+export VM_HAS_REQUIRED_LIBS="true"
+
+
+export VM_HAS_BULLET="true"
+
+export VM_HAS_ASSIMP="true"
