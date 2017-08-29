@@ -141,7 +141,9 @@ else
 
     # Cache
     if [ -x "$(command -v ccache)" ]; then
-        export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
+        # export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
+        export CC="ccache $c_compiler -Qunused-arguments -Wno-deprecated-declarations"
+        export CXX="ccache $cxx_compiler -Qunused-arguments -Wno-deprecated-declarations"
     fi
 fi
 
