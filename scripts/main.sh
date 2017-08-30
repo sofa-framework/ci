@@ -64,9 +64,9 @@ elif vm-is-macos && [ -e "$SCRIPT_DIR/env/default-macos" ]; then
 elif vm-is-centos && [ -e "$SCRIPT_DIR/env/default-centos" ]; then
     echo "ENV VARS: load $SCRIPT_DIR/env/default-centos"
     . "$SCRIPT_DIR/env/default-centos"
-elif [ -e "$SCRIPT_DIR/env/default-unix" ]; then
-    echo "ENV VARS: load $SCRIPT_DIR/env/default-unix"
-    . "$SCRIPT_DIR/env/default-unix"
+elif [ -e "$SCRIPT_DIR/env/default-ubuntu" ]; then
+    echo "ENV VARS: load $SCRIPT_DIR/env/default-ubuntu"
+    . "$SCRIPT_DIR/env/default-ubuntu"
 fi
 if [ -n "$NODE_NAME" ] && [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
     echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"

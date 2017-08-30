@@ -6,7 +6,7 @@
 
 # Required libs:
 #   Make: sudo apt install cmake ninja-build clang ccache
-#   Qt: sudo apt install qt5-default qt5tools-dev-tools libqt5opengl5-dev
+#   Qt: sudo apt install qt5-default qttools5-dev-tools libqt5opengl5-dev
 #   Boost: sudo apt install libboost-atomic-dev libboost-chrono-dev libboost-date-time-dev libboost-filesystem-dev libboost-locale-dev libboost-regex-dev libboost-system-dev libboost-thread-dev
 #   Python: sudo apt install python2.7-dev python-numpy python-scipy
 #   Other: sudo apt install libpng-dev zlib1g-dev libglew-dev freeglut3-dev
