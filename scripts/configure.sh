@@ -288,9 +288,9 @@ cd "$BUILD_DIR"
 echo "Calling cmake with the following options:"
 echo "$cmake_options" | tr -s ' ' '\n' | grep -v "PLUGIN" | sort
 echo "Enabled plugins:"
-echo "$cmake_options" | tr -s ' ' '\n' | grep "=ON" | sort
+echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN" | grep "=ON" | sort
 echo "Disabled plugins:"
-echo "$cmake_options" | tr -s ' ' '\n' | grep "=OFF" | sort
+echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN" | grep "=OFF" | sort
 
 if [ -e "full-build" ]; then
     call-cmake -G"$(generator)" $cmake_options "$SRC_DIR"
