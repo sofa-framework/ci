@@ -10,9 +10,9 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 sofa_dir="$(cd "$1" && pwd)"; shift
 doxyfile="$(realpath "$1")"; shift
 
-script_dir="$(echo $script_dir | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')"
-sofa_dir="$(echo $sofa_dir | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')"
-doxyfile="$(echo $doxyfile | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')"
+script_dir="$(echo $script_dir | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')" # /c/windows/path -> c:/windows/path
+sofa_dir="$(echo $sofa_dir | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')" # /c/windows/path -> c:/windows/path
+doxyfile="$(echo $doxyfile | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')" # /c/windows/path -> c:/windows/path
 doxyfile_name="${doxyfile%.*}"
 
 if [ ! -d "$sofa_dir/applications" ] ||
@@ -21,12 +21,13 @@ if [ ! -d "$sofa_dir/applications" ] ||
 fi
 
 cd "$script_dir"
-rm -rf "logs"
-rm -rf "tags"
-rm -rf "doc"
+# rm -rf "logs"
+# rm -rf "tags"
+# rm -rf "doc"
 mkdir -p "logs/plugins"
 mkdir -p "tags/plugins"
 mkdir -p "doc/plugins"
+mkdir -p "doc/sofa"
 
 generate_plugin_tags () {
     plugin_dir="$1"
@@ -38,7 +39,7 @@ generate_plugin_tags () {
         cp "$doxyfile" "$doxyfile_tmp"
         echo "Executing doxygen on $plugin"
         # ./doxygen.sh "$doxyfile_tmp" "INPUT=${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=$output_dir" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" > "logs/${plugin}.txt" 2>&1
-        ./doxygen.sh "$doxyfile_tmp" "INPUT=${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=$output_dir" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" "GENERATE_TAGFILE=tags/plugins/${plugin}.tag" > "logs/${plugin}.txt" 2>&1
+        ./doxygen.sh "$doxyfile_tmp" "INPUT=${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=$output_dir" "PROJECT_NAME=${plugin}" "GENERATE_TAGFILE=tags/plugins/${plugin}.tag" > "logs/${plugin}.txt" 2>&1
         rm "$doxyfile_tmp"
     fi
 }
@@ -48,27 +49,28 @@ done
 wait
 echo "Plugins doc generated."
 
-echo "Executing doxygen on modules"
-doxyfile_tmp="${doxyfile_name}_modules.dox"
-cp "$doxyfile" "$doxyfile_tmp"
-mkdir -p "doc/modules"
-# ./doxygen.sh "$doxyfile" "INPUT=${sofa_dir}/modules" "OUTPUT_DIRECTORY=${script_dir}/doc/modules" "PROJECT_NAME=\"SOFA modules\"" > "logs/modules.txt" 2>&1 &
-./doxygen.sh "$doxyfile" "INPUT=${sofa_dir}/modules" "OUTPUT_DIRECTORY=${script_dir}/doc/modules" "PROJECT_NAME=\"SOFA modules\"" "GENERATE_TAGFILE=tags/modules.tag" > "logs/modules.tag.txt" 2>&1
-rm "$doxyfile_tmp"
+# echo "Executing doxygen on modules"
+# doxyfile_tmp="${doxyfile_name}_modules.dox"
+# cp "$doxyfile" "$doxyfile_tmp"
+# mkdir -p "doc/modules"
+# ./doxygen.sh "$doxyfile_tmp" "INPUT=${sofa_dir}/modules" "OUTPUT_DIRECTORY=${script_dir}/doc/modules" "PROJECT_NAME=SOFA_modules" "GENERATE_TAGFILE=tags/modules.tag" > "logs/modules.tag.txt" 2>&1
+# rm "$doxyfile_tmp"
 
-echo "Executing doxygen on kernel"
-doxyfile_tmp="${doxyfile_name}kernel.dox"
+echo "Executing doxygen on SOFA"
+doxyfile_tmp="${doxyfile_name}_kernel.dox"
 cp "$doxyfile" "$doxyfile_tmp"
-plugin_tags=""
-for tag_file in $script_dir/tags/plugins/*; do
+
+for tag_path in $script_dir/tags/plugins/*; do
+    tag_file="${tag_path##*/}"
     tag="${tag_file%.*}"
-    plugin_tags="$plugin_tags ${tag_file}=${script_dir}/doc/plugins/${tag}/html"
+    if [ -d "${script_dir}/doc/plugins/${tag}/html" ]; then
+        tagfiles="$(printf "$tagfiles \\ \n${tag_path}=../../plugins/${tag}/html")"
+    fi
 done
-echo "TAGFILES=$plugin_tags tags/modules.tag"
-exit
-./doxygen.sh "$doxyfile" "INPUT=${sofa_dir}/SofaKernel" "OUTPUT_DIRECTORY=${script_dir}/doc/sofa" "PROJECT_NAME=\"SOFA API\"" "TAGFILES=$plugin_tags ${script_dir}/tags/modules.tag=${script_dir}/doc/modules/html" > "logs/kernel.txt" 2>&1 &
-rm "$doxyfile_tmp"
+# echo "TAGFILES=$tagfiles"
 
-wait
+./doxygen.sh "$doxyfile_tmp" "INPUT=${sofa_dir}/modules ${sofa_dir}/SofaKernel" "OUTPUT_DIRECTORY=${script_dir}/doc/sofa" "PROJECT_NAME=SOFA_API" "TAGFILES=$tagfiles"
+
+# rm "$doxyfile_tmp"
 echo "Modules and Kernel doc generated."
 

@@ -20,12 +20,13 @@ fi
 cat "$doxyfile" > "$doxyfile.tmp"
 echo "" >> "$doxyfile.tmp" # force newline
 
-for arg in $*; do
+for arg in "$@"; do
     if [[ "$arg" == *"="* ]]; then
+        echo "" >> "$doxyfile.tmp"
         echo "$arg" >> "$doxyfile.tmp"
     fi
 done
 
 doxygen "$doxyfile.tmp"
 
-rm -f "$doxyfile.tmp"
+# rm -f "$doxyfile.tmp"
