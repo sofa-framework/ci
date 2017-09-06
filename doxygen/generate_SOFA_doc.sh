@@ -43,7 +43,7 @@ generate_plugin_tags () {
         doxyfile_copy="${output_dir}/${doxyfile_name}_${plugin}.dox"
         cp "$doxyfile" "$doxyfile_copy"
         echo "Executing doxygen on $plugin"
-        ./doxygen.sh "$doxyfile_copy" "INPUT=${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
+        $script_dir/doxygen.sh "$doxyfile_copy" "INPUT=${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
     fi
 }
 for plugin_dir in $sofa_dir/applications/plugins/*; do
@@ -71,7 +71,7 @@ for tag in $output_dir/tags/plugins/*; do
     fi
 done
 
-./doxygen.sh "$doxyfile_copy" "INPUT=${sofa_dir}/modules ${sofa_dir}/SofaKernel" "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" "PROJECT_NAME=\"SOFA API\"" "TAGFILES=$tagfiles"
+$script_dir/doxygen.sh "$doxyfile_copy" "INPUT=${sofa_dir}/modules ${sofa_dir}/SofaKernel" "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" "PROJECT_NAME=\"SOFA API\"" "TAGFILES=$tagfiles"
 
 echo "Modules and Kernel doc generated."
 
