@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit # Exit on error
 
 usage() {
     echo "Usage: doxygen.sh <doxyfile> <modifiers>"
@@ -17,16 +18,11 @@ if [ ! -e "$doxyfile" ]; then
     echo "Error: $doxyfile: file not found."
 fi
 
-cat "$doxyfile" > "$doxyfile.tmp"
-echo "" >> "$doxyfile.tmp" # force newline
-
 for arg in "$@"; do
     if [[ "$arg" == *"="* ]]; then
-        echo "" >> "$doxyfile.tmp"
-        echo "$arg" >> "$doxyfile.tmp"
+        echo "" >> "$doxyfile"
+        echo "$arg" >> "$doxyfile"
     fi
 done
 
-doxygen "$doxyfile.tmp"
-
-# rm -f "$doxyfile.tmp"
+doxygen "$doxyfile"
