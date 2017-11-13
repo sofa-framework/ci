@@ -671,7 +671,7 @@ SHOW_FILES             = YES
 # Folder Tree View (if specified).
 # The default value is: YES.
 
-SHOW_NAMESPACES        = YES
+SHOW_NAMESPACES        = NO
 
 # The FILE_VERSION_FILTER tag can be used to specify a program or script that
 # doxygen should invoke to get the current version for each file (typically from
@@ -863,7 +863,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = 
+EXCLUDE                = applications/plugins/RigidScale
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -879,12 +879,61 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       = */*_test/* \
+EXCLUDE_PATTERNS       = .git/* \
+                         .github/* \
+                         */*_test/* \
                          */cmake/* \
                          */extlibs/* \
-                         .git/* \
-                         .github/* \
-                         */ps3/*
+                         */ps3/* \
+                         */ps3*.* \
+                         */BaseCollision.* \
+                         */BaseLinearSolver.* \
+                         */BaseMechanics.* \
+                         */BaseTopology.* \
+                         */BoundaryCondition.* \
+                         */Constraint.* \
+                         */Deformable.* \
+                         */DenseSolver.* \
+                         */Eigen2Solver.* \
+                         */Engine.* \
+                         */ExplicitOdeSolver.* \
+                         */Exporter.* \
+                         */GeneralAnimationLoop.* \
+                         */GeneralDeformable.* \
+                         */GeneralEngine.* \
+                         */GeneralExplicitOdeSolver.* \
+                         */GeneralImplicitOdeSolver.* \
+                         */GeneralLinearSolver.* \
+                         */GeneralLoader.* \
+                         */GeneralMeshCollision.* \
+                         */GeneralObjectInteraction.* \
+                         */GeneralRigid.* \
+                         */GeneralSimpleFem.* \
+                         */GeneralTopology.* \
+                         */GLUquadric.* \
+                         */GraphComponent.* \
+                         */Haptics.* \
+                         */ImmediateModeState.* \
+                         */ImplicitOdeSolver.* \
+                         */Loader.* \
+                         */MeshCollision.* \
+                         */MiscEngine.* \
+                         */MiscFem.* \
+                         */MiscForceField.* \
+                         */MiscMapping.* \
+                         */Misc.* \
+                         */MiscSolver.* \
+                         */MiscTopology.* \
+                         */NonUniformFem.* \
+                         */ObjectInteraction.* \
+                         */OpenglVisual.* \
+                         */Preconditioner.* \
+                         */Rigid.* \
+                         */SimpleFem.* \
+                         */SparseSolver.* \
+                         */TopologyMapping.* \
+                         */UserInteraction.* \
+                         */Validation.*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -895,10 +944,7 @@ EXCLUDE_PATTERNS       = */*_test/* \
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories use the pattern */test/*
 
-EXCLUDE_SYMBOLS        = Eigen::* \
-                         std::* \
-                         sofa::core::Plugin \
-                         *_*_
+EXCLUDE_SYMBOLS        = *_*_
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include
