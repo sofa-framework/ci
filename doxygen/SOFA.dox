@@ -863,7 +863,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = applications/plugins/RigidScale
+EXCLUDE                = 
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -886,6 +886,13 @@ EXCLUDE_PATTERNS       = .git/* \
                          */extlibs/* \
                          */ps3/* \
                          */ps3*.* \
+                         */EigenBaseSparseMatrix_MT.h \
+                         */sofa/helper/deque.h \
+                         */sofa/helper/hash.h \
+                         */sofa/helper/list.h \
+                         */sofa/helper/map.h \
+                         */sofa/helper/pair.h \
+                         */sofa/helper/set.h \
                          */BaseCollision.* \
                          */BaseLinearSolver.* \
                          */BaseMechanics.* \
@@ -1649,7 +1656,7 @@ SEARCHENGINE           = YES
 # The default value is: NO.
 # This tag requires that the tag SEARCHENGINE is set to YES.
 
-SERVER_BASED_SEARCH    = NO
+SERVER_BASED_SEARCH    = YES
 
 # When EXTERNAL_SEARCH tag is enabled doxygen will no longer generate the PHP
 # script for searching. Instead the search results are written to an XML file
@@ -2195,7 +2202,7 @@ GENERATE_TAGFILE       =
 # listed.
 # The default value is: NO.
 
-ALLEXTERNALS           = NO
+ALLEXTERNALS           = YES
 
 # If the EXTERNAL_GROUPS tag is set to YES, all external groups will be listed
 # in the modules index. If set to NO, only the current project's groups will be

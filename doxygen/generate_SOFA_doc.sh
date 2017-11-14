@@ -16,6 +16,7 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 sofa_dir="$(cd "$1" && pwd)"; shift
 output_dir="$(mkdir -p "$1" && cd "$1" && pwd)"; shift
 doxyfile="$(realpath "$1")"; shift
+# $@ now contains only the modifiers
 
 # Normalize Windows paths: /c/windows/path -> c:/windows/path
 script_dir="$(echo $script_dir | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')" 
@@ -37,17 +38,19 @@ mkdir -p "${output_dir}/doc/plugins"
 mkdir -p "${output_dir}/doc/sofa"
 
 generate_plugin_tags () {
-    plugin_dir="$1"
+    plugin_dir="$1"; shift
+    # $@ now contains only the modifiers
+
     if [ -d "$plugin_dir" ] && [[ ! "$plugin_dir" == *"DEPRECATED"* ]]; then
         plugin="${plugin_dir##*/}"
         doxyfile_copy="${output_dir}/${doxyfile_name}_${plugin}.dox"
         cp "$doxyfile" "$doxyfile_copy"
         echo "Executing doxygen on $plugin"
-        $script_dir/doxygen.sh "$doxyfile_copy" "INPUT=${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
+        $script_dir/doxygen.sh "$doxyfile_copy" "$@" "INPUT=${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
     fi
 }
 for plugin_dir in $sofa_dir/applications/plugins/*; do
-    generate_plugin_tags "$plugin_dir" &
+    generate_plugin_tags "$plugin_dir" "$@" &
 done
 wait
 echo "Plugins doc generated."
@@ -71,7 +74,7 @@ for tag in $output_dir/tags/plugins/*; do
     fi
 done
 
-$script_dir/doxygen.sh "$doxyfile_copy" "INPUT=${sofa_dir}/modules ${sofa_dir}/SofaKernel" "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" "PROJECT_NAME=\"SOFA API\"" "TAGFILES=$tagfiles"
+$script_dir/doxygen.sh "$doxyfile_copy" "$@" "INPUT=${sofa_dir}/modules ${sofa_dir}/SofaKernel" "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" "PROJECT_NAME=\"SOFA API\"" "TAGFILES=$tagfiles"
 
 echo "Modules and Kernel doc generated."
 
