@@ -2202,7 +2202,7 @@ GENERATE_TAGFILE       =
 # listed.
 # The default value is: NO.
 
-ALLEXTERNALS           = YES
+ALLEXTERNALS           = NO
 
 # If the EXTERNAL_GROUPS tag is set to YES, all external groups will be listed
 # in the modules index. If set to NO, only the current project's groups will be
