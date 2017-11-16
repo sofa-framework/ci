@@ -893,6 +893,7 @@ EXCLUDE_PATTERNS       = .git/* \
                          */sofa/helper/map.h \
                          */sofa/helper/pair.h \
                          */sofa/helper/set.h \
+                         */sofa/defaulttype/Vec.h \
                          */BaseCollision.* \
                          */BaseLinearSolver.* \
                          */BaseMechanics.* \
