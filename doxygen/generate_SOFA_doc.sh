@@ -85,6 +85,9 @@ echo "
     </ul>
 */" >> $sofa_dir/plugins.dox
 
+# Add main page
+cp -f $script_dir/mainpage.dox $sofa_dir/mainpage.dox
+
 $script_dir/doxygen.sh "$doxyfile_copy" "$@" "INPUT=${sofa_dir}/modules ${sofa_dir}/SofaKernel" "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" "PROJECT_NAME=\"SOFA API\"" "HTML_HEADER=${script_dir}/custom_header.html" "TAGFILES=$tagfiles"
 
 echo "Modules and Kernel doc generated."
