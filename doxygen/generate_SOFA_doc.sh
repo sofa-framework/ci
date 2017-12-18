@@ -69,7 +69,7 @@ cp "$doxyfile" "$doxyfile_copy"
 # Process tags and plugins.dox
 echo "
 /**
-    \page plugins \"SOFA Plugins\"
+    \page plugins SOFA Plugins
     <ul>
 " > $script_dir/plugins.dox
 for tag in $output_dir/tags/plugins/*; do
@@ -79,7 +79,7 @@ for tag in $output_dir/tags/plugins/*; do
         tagfiles="$(printf "$tagfiles \\ \n${tag}=../../plugins/${tag_name}/html")"
     fi
 
-    echo "<li><a href=\"plugins/${tag_name}/html/index.html\">${tag_name}</a></li>" >> $script_dir/plugins.dox
+    echo "<li><a href=\"../../plugins/${tag_name}/html/index.html\">${tag_name}</a></li>" >> $script_dir/plugins.dox
 done
 echo "
     </ul>
