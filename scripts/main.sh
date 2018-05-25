@@ -86,7 +86,7 @@ github-notify "success" "SUCCESS (tests ignored)"
 # [Full build] Count Warnings
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     if vm-is-windows; then
-        warning_count=$(grep ' : warning [A-Z]\+[0-9]\+:' "$BUILD_DIR/make-output.txt" | sort | uniq | wc -l)
+        warning_count=$(grep 'warning [A-Z]\+[0-9]\+:' "$BUILD_DIR/make-output.txt" | sort | uniq | wc -l)
     else
         warning_count=$(grep '^[^:]\+:[0-9]\+:[0-9]\+: warning:' "$BUILD_DIR/make-output.txt" | sort -u | wc -l | tr -d ' ')
     fi
@@ -118,18 +118,31 @@ fi
 # Scene tests
 if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     dashboard-notify "scenes_status=running"
+    
+    echo "Preventing SofaCUDA from being loaded in VMs."
+    if vm-is-windows; then
+        plugin_conf="$BUILD_DIR/lib/plugin_list.conf.default"
+    else
+        plugin_conf="$BUILD_DIR/bin/plugin_list.conf.default"
+    fi
+    grep -v "SofaCUDA NO_VERSION" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
     "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
     "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
 
     scenes_total=$("$SCRIPT_DIR/scene-tests.sh" count-tests $BUILD_DIR $SRC_DIR)
+    scenes_successes=$("$SCRIPT_DIR/scene-tests.sh" count-successes $BUILD_DIR $SRC_DIR)
     scenes_errors=$("$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
     scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
 
     dashboard-notify \
         "scenes_total=$scenes_total" \
+        "scenes_successes=$scenes_successes" \
         "scenes_errors=$scenes_errors" \
         "scenes_crashes=$scenes_crashes"
+
+    # Clamping warning file to avoid Jenkins overflow
+    "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
 fi
 
 if in-array "force-full-build" "$BUILD_OPTIONS"; then

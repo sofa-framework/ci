@@ -150,9 +150,13 @@ fi
 # Options common to all configurations
 add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TYPE:0:1})${BUILD_TYPE:1}"
 add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
-add-cmake-option "-DSOFA_BUILD_TUTORIALS=OFF"
+add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
+add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
+add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
 add-cmake-option "-DSOFA_BUILD_TESTS=ON"
+add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
+add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
 
 # Handle custom lib dirs
 if vm-is-windows; then
@@ -192,6 +196,16 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_BUILD_METIS=ON"
     add-cmake-option "-DSOFA_BUILD_ARTRACK=ON"
     add-cmake-option "-DSOFA_BUILD_MINIFLOWVR=ON"
+    
+    # HeadlessRecorder is Linux only for now
+    if [[ "$(uname)" == "Linux" ]]; then
+        id=$(cat /etc/*-release | grep "ID")
+        if [[ $id = *"centos"* ]]; then
+            add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=OFF"
+        else
+            add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=ON"
+        fi
+    fi
 
     ### Plugins
     add-cmake-option "-DPLUGIN_ARTRACK=ON"
@@ -240,6 +254,12 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
     add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON"
     add-cmake-option "-DPLUGIN_RIGIDSCALE=ON"
+    
+    add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
+    add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
+    add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
+    add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
+    
     
     # Always disabled
     add-cmake-option "-DPLUGIN_HAPTION=OFF" # Requires specific libraries.
