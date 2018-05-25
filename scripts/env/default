@@ -1,0 +1,77 @@
+#!/bin/bash
+
+# HOW TO INSTALL LIBS
+
+# UBUNTU
+# Required libs:
+#   Make: sudo apt install cmake ninja-build clang ccache
+#   Qt: sudo apt install qt5-default qttools5-dev-tools libqt5opengl5-dev
+#   Boost: sudo apt install libboost-atomic-dev libboost-chrono-dev libboost-date-time-dev libboost-filesystem-dev libboost-locale-dev libboost-regex-dev libboost-system-dev libboost-thread-dev
+#   Python: sudo apt install python2.7-dev python-numpy python-scipy
+#   Other: sudo apt install libpng-dev zlib1g-dev libglew-dev freeglut3-dev
+# Optional libs:
+#   Bullet: sudo apt install libbullet-dev
+#   Assimp: sudo apt install libassimp-dev
+#   CGAL: sudo apt install libcgal-dev libcgal-qt5-dev
+#   CUDA: sudo apt install nvidia-cuda-toolkit
+#   OpenCascade: sudo apt install liboce-ocaf-dev
+
+# CENTOS
+# Required libs:
+#   Make: sudo yum install cmake3 ninja-build clang ccache
+#   Qt: sudo yum install qt5-qtbase
+#   Boost: must be compiled
+#   Python: sudo yum install python numpy scipy
+#   Other: sudo yum install libpng zlib-devel libglew freeglut-devel curl
+# Optional libs:
+#   Bullet: sudo yum install bullet-devel
+#   Assimp: sudo yum install assimp-devel
+#   CGAL: must be compiled
+#   CUDA: http://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html#redhat-installation
+#   OpenCascade: must be compiled
+
+# MACOS
+# Required libs:
+#   Make: brew install cmake ninja ccache
+#   Qt: must be compiled
+#   Boost: brew install boost
+#   Python: -
+#   Other: brew install glew libpng metis curl
+# Optional libs:
+#   Bullet: brew install bullet
+#   Assimp: brew install assimp
+#   CGAL: brew install cgal --with-qt OR compile it (easy)
+#   CUDA: http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html
+#   OpenCascade: brew install homebrew/science/opencascade
+
+
+########
+# LIBS #
+########
+
+export VM_HAS_REQUIRED_LIBS="false"
+
+export VM_HAS_BULLET="false"
+
+export VM_HAS_ASSIMP="false"
+
+export VM_HAS_CGAL="false"
+
+export VM_HAS_CUDA="false"
+
+export VM_HAS_OPENCASCADE="false"
+
+
+#########
+# PATHS #
+#########
+
+# Empty path means it should be found in $PATH
+
+export VM_BOOST_PATH=""
+
+export VM_QT_PATH=""
+
+export VM_PYTHON_PATH=""
+
+export VM_BULLET_PATH=""

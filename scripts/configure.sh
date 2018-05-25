@@ -211,7 +211,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_ARTRACK=ON"
     if [[ "$VM_HAS_BULLET" == "true" ]]; then
         if [ -d "$VM_BULLET_PATH" ]; then
-            add-cmake-option "-DBullet_DIR=$VM_BULLET_PATH"
+            add-cmake-option "-DBULLET_ROOT=$VM_BULLET_PATH"
         fi
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else

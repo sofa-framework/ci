@@ -55,19 +55,8 @@ dashboard-notify "status=build"
 
 
 # VM environment variables
-if vm-is-windows && [ -e "$SCRIPT_DIR/env/default-windows" ]; then
-    echo "ENV VARS: load $SCRIPT_DIR/env/default-windows"
-    . "$SCRIPT_DIR/env/default-windows"
-elif vm-is-macos && [ -e "$SCRIPT_DIR/env/default-macos" ]; then
-    echo "ENV VARS: load $SCRIPT_DIR/env/default-macos"
-    . "$SCRIPT_DIR/env/default-macos"
-elif vm-is-centos && [ -e "$SCRIPT_DIR/env/default-centos" ]; then
-    echo "ENV VARS: load $SCRIPT_DIR/env/default-centos"
-    . "$SCRIPT_DIR/env/default-centos"
-elif [ -e "$SCRIPT_DIR/env/default-ubuntu" ]; then
-    echo "ENV VARS: load $SCRIPT_DIR/env/default-ubuntu"
-    . "$SCRIPT_DIR/env/default-ubuntu"
-fi
+echo "ENV VARS: load $SCRIPT_DIR/env/default"
+. "$SCRIPT_DIR/env/default"
 if [ -n "$NODE_NAME" ] && [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
     echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"
     . "$SCRIPT_DIR/env/$NODE_NAME"
