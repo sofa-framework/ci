@@ -259,6 +259,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
     add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
     add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
+    add-cmake-option "-DPLUGIN_SOFAVOLUMETRICDATA=ON"
     
     
     # Always disabled
