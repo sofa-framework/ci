@@ -4,7 +4,7 @@
 # LIBS #
 ########
 
-# System libs:
+# Required libs:
 #   Make: brew install cmake ninja ccache
 #   Qt: must be compiled
 #   Boost: brew install boost
@@ -16,7 +16,7 @@ export VM_HAS_BULLET="false" # brew install bullet
 
 export VM_HAS_ASSIMP="false" # brew install assimp
 
-export VM_HAS_CGAL="false" # brew install cgal
+export VM_HAS_CGAL="false" # brew install cgal --with-qt OR compile it (easy)
 
 export VM_HAS_CUDA="false" # http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html
 
