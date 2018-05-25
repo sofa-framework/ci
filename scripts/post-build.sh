@@ -2,7 +2,7 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: post-build.sh <build-dir> <compiler> <architecture> <build-type> <build-options>"
+    echo "Usage: post-build.sh <build-dir> <platform> <compiler> <architecture> <build-type> <build-options>"
 }
 
 if [ "$#" -ge 4 ]; then
@@ -10,10 +10,11 @@ if [ "$#" -ge 4 ]; then
     . "$SCRIPT_DIR"/utils.sh
 
     BUILD_DIR="$(cd "$1" && pwd)"
-    COMPILER="$2"
-    ARCHITECTURE="$3"
-    BUILD_TYPE="$4"
-    BUILD_OPTIONS="${*:5}"
+    PLATFORM="$2"
+    COMPILER="$3"
+    ARCHITECTURE="$4"
+    BUILD_TYPE="$5"
+    BUILD_OPTIONS="${*:6}"
     if [ -z "$BUILD_OPTIONS" ]; then
         BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi
@@ -24,8 +25,8 @@ fi
 . "$SCRIPT_DIR"/dashboard.sh
 . "$SCRIPT_DIR"/github.sh
 
-github-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-dashboard-export-vars "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 
 
 on-failure() {
