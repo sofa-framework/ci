@@ -114,9 +114,14 @@ if vm-is-windows; then
     # see comntools usage in call-cmake() for compiler selection on Windows
 
     # Cache
-    if [ -n "$VM_CLCACHE_PATH" ]; then
-        add-cmake-option "-DCMAKE_C_COMPILER=$VM_CLCACHE_PATH/bin/clcache.bat"
-        add-cmake-option "-DCMAKE_CXX_COMPILER=$VM_CLCACHE_PATH/bin/clcache.bat"
+    if [ -x "$(command -v clcache)" ]; then
+        export CLCACHE_DIR="J:/clcache"
+        export CLCACHE_BASEDIR="$(cd "$BUILD_DIR/.." && pwd)"
+        #export CLCACHE_HARDLINK=1 # this may cause cache corruption. see https://github.com/frerich/clcache/issues/282
+        export CLCACHE_OBJECT_CACHE_TIMEOUT_MS=3600000
+        
+        add-cmake-option "-DCMAKE_C_COMPILER=clcache"
+        add-cmake-option "-DCMAKE_CXX_COMPILER=clcache"
     fi
 else
     # Compiler
