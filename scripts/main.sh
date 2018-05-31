@@ -27,6 +27,13 @@ else
     usage; exit 1
 fi
 
+# Jenkins: create shortcut for Windows jobs (too long path problem)
+if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_ARCH" ] && [ -n "$CI_TYPE" ]; then
+    BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W)"
+    cmd //c "mklink /D j:\\${BUILD_ID}-\${CI_ARCH}-\${CI_TYPE} \$BUILD_DIR_WINDOWS"
+    BUILD_DIR="/j/${BUILD_ID}-${CI_ARCH}-${CI_TYPE}"
+fi
+
 cd "$SRC_DIR"
 
 
@@ -87,6 +94,9 @@ if in-array "force-full-build" "$BUILD_OPTIONS"; then
     echo "Counted $warning_count compiler warnings."
     dashboard-notify "warnings=$warning_count"
 fi
+
+# Reset BUILD_DIR for tests (Windows too long path problem)
+BUILD_DIR="$(cd "$1" && pwd)"
 
 # Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then

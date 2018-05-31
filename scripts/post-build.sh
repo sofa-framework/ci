@@ -66,3 +66,10 @@ case "$BUILD_RESULT" in
     ERROR) on-error;;
     ABORTED) on-aborted;;
 esac
+
+
+# Jenkins: remove shortcut for Windows jobs (too long path problem)
+if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_ARCH" ] && [ -n "$CI_TYPE" ]; then
+    cmd //c "rmdir j:\${BUILD_ID}-${CI_ARCH}-${CI_TYPE}"
+fi
+

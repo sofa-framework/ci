@@ -53,6 +53,7 @@ call-make() {
             echo "Using ninja as build system"
 	        toolname="ninja"
         fi
+        echo "Calling $toolname $VM_MAKE_OPTIONS"
         $toolname $VM_MAKE_OPTIONS
     fi
 }
