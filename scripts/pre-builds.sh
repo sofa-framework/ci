@@ -50,3 +50,19 @@ for config in "${configs[@]}"; do
 
     sleep 1 # ensure we are not flooding APIs
 done
+
+
+if [[ "$BUILD_CAUSE_GITHUBPULLREQUESTCOMMENTCAUSE" == "true" ]] && [[ "$GIT_BRANCH" == "PR-"* ]]; then
+    # Get latest [ci-build] comment in PR
+    pr_id="${GIT_BRANCH#*-}"
+    latest_build_comment="$(github-get-latest-build-comment "$pr_id")"
+    if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
+        touch "$WORKSPACE/enable-scene-tests"
+    else
+        echo "[with-scene-tests] NOT detected"
+        # compute diff size
+        # if big diff: scene tests should be triggered
+        # else: scene tests ignored
+    fi
+fi
+

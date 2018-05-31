@@ -81,7 +81,9 @@ github-export-vars() {
         fi
     fi
 
-    if [[ "$GIT_BRANCH" == *"/PR-"* ]]; then # this is a PR
+    if [ -n "$GIT_COMMIT" ]; then
+        export GITHUB_COMMIT_HASH="$GIT_COMMIT"
+    elif [[ "$GIT_BRANCH" == *"/PR-"* ]]; then # this is a PR
         local pr_id="${GIT_BRANCH#*-}"
         local options="$-"
         set +x # Private stuff here: echo disabled
@@ -96,8 +98,6 @@ github-export-vars() {
             fi
         fi
         set -$options
-    elif [ -n "$GIT_COMMIT" ]; then
-        export GITHUB_COMMIT_HASH="$GIT_COMMIT"
     else # This should not happen with Jenkins
         export GITHUB_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
         echo "Trying to guess GITHUB_COMMIT_HASH: $GITHUB_COMMIT_HASH"
@@ -128,3 +128,22 @@ github-export-vars() {
     env | grep "^GITHUB_"
     echo "---------------------"
 }
+
+github-get-latest-build-comment() {
+    local pr_id="$1"
+    local options="$-"
+    set +x # Private stuff here: echo disabled
+    if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
+       [ -n "$GITHUB_REPOSITORY" ]; then
+        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$pr_id/comments")"
+        if [ -n "$response" ]; then
+            local prev_pwd="$(pwd)"
+            cd "$SCRIPT_DIR"
+            latest_build_comment="$( echo "$response" | python -c "import sys,githubJsonParser; githubJsonParser.get_latest_build_comment(sys.stdin)" )"
+            cd "$prev_pwd"
+        fi
+    fi
+    set -$options
+    echo "$latest_build_comment"
+}
+
