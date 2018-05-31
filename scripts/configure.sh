@@ -167,10 +167,10 @@ add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
 if vm-is-windows; then
     msvc_year="$(get-msvc-year $COMPILER)"
     msvc_version="$(get-compiler-version $COMPILER)"
-    qt_compiler="msvc-${msvc_year}"
+    qt_compiler="msvc${msvc_year}"
     boost_compiler="msvc-${msvc_version}"
 else
-    qt_compiler="$(cut -d "-" -f 1 <<< "$COMPILER")" # gcc-4.8 -> gcc
+    qt_compiler="${COMPILER%-*}" # gcc-4.8 -> gcc
 fi
 if [[ "$ARCHITECTURE" == "amd64" ]]; then
     qt_lib="${qt_compiler}_64/lib"
