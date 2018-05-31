@@ -49,8 +49,8 @@ fi
 rm -f "$BUILD_DIR/make-output*.txt"
 rm -rf "$BUILD_DIR/unit-tests/reports"
 rm -rf "$BUILD_DIR/scene-tests/reports"
-# rm -rf "$BUILD_DIR/bin"
-# rm -rf "$BUILD_DIR/lib"
+rm -rf "$BUILD_DIR/bin"
+rm -rf "$BUILD_DIR/lib"
 
 
 # CI environment variables + init
