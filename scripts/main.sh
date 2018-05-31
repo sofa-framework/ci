@@ -29,8 +29,8 @@ fi
 
 # Jenkins: create shortcut for Windows jobs (too long path problem)
 if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_ARCH" ] && [ -n "$CI_TYPE" ]; then
-    BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W)"
-    cmd //c "mklink /D j:\\${BUILD_ID}-\${CI_ARCH}-\${CI_TYPE} \$BUILD_DIR_WINDOWS"
+    export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
+    cmd //c "mklink /D j:\%BUILD_ID%-%CI_ARCH%-%CI_TYPE% %BUILD_DIR_WINDOWS%"
     BUILD_DIR="/j/${BUILD_ID}-${CI_ARCH}-${CI_TYPE}"
 fi
 

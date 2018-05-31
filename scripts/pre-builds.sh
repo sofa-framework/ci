@@ -30,7 +30,6 @@ if [[ "$BUILD_CAUSE_GITHUBPULLREQUESTCOMMENTCAUSE" == "true" ]] && [[ "$GIT_BRAN
     # Get latest [ci-build] comment in PR
     pr_id="${GIT_BRANCH#*-}"
     latest_build_comment="$(github-get-latest-build-comment "$pr_id")"
-    echo "latest_build_comment : $latest_build_comment"
     if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
         touch "$WORKSPACE/enable-scene-tests"
     else
