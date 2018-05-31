@@ -28,10 +28,10 @@ else
 fi
 
 # Jenkins: create shortcut for Windows jobs (too long path problem)
-if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_ARCH" ] && [ -n "$CI_TYPE" ]; then
+if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_PLUGINS" ] && [ -n "$CI_TYPE" ] && [ -n "$CI_ARCH" ]; then
     export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
-    cmd //c "mklink /D j:\%BUILD_ID%-%CI_PLUGINS%-%CI_TYPE%-%CI_ARCH% %BUILD_DIR_WINDOWS%"
-    BUILD_DIR="/j/${BUILD_ID}-_${CI_PLUGINS}_${CI_TYPE}_${CI_ARCH}"
+    cmd //c "mklink /D j:\%BUILD_ID%-%CI_PLUGINS%_%CI_TYPE%_%CI_ARCH% %BUILD_DIR_WINDOWS%"
+    BUILD_DIR="/j/${BUILD_ID}-${CI_PLUGINS}_${CI_TYPE}_${CI_ARCH}"
 fi
 
 cd "$SRC_DIR"
