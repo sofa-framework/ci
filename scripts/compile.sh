@@ -7,7 +7,7 @@ set -o errexit # Exit on error
 ## Significant environnement variables:
 # - VM_MAKE_OPTIONS       # additional arguments to pass to make
 # - ARCHITECTURE               # x86|amd64  (32-bit or 64-bit build - Windows-specific)
-# - COMPILER           # important for Visual Studio (VS-2012, VS-2013 or VS-2015)
+# - COMPILER           # important for Visual Studio (vs-2012, vs-2013 or vs-2015)
 
 
 ### Checks

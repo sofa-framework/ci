@@ -37,22 +37,23 @@ package-is-installed() {
 
 get-msvc-year() {
     if vm-is-windows; then
-        case "$1" in
-            VS-2012) echo "2012" ;;
-            VS-2013) echo "2013" ;;
-            VS-2015) echo "2015" ;;
-            VS-2017) echo "2017" ;;
+        local compiler="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+        case "$compiler" in
+            vs-2012) echo "2012" ;;
+            vs-2013) echo "2013" ;;
+            vs-2015) echo "2015" ;;
+            vs-2017) echo "2017" ;;
         esac
     fi
 }
 
 get-compiler-version() {
-    local compiler="$1"
+    local compiler="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
     case "$compiler" in
-        VS-2012) echo "11.0" ;;
-        VS-2013) echo "12.0" ;;
-        VS-2015) echo "14.0" ;;
-        VS-2017) echo "14.1" ;;
+        vs-2012) echo "11.0" ;;
+        vs-2013) echo "12.0" ;;
+        vs-2015) echo "14.0" ;;
+        vs-2017) echo "14.1" ;;
         gcc-*)   echo "${compiler#*-}" ;;
         clang-*) echo "${compiler#*-}" ;;
     esac
@@ -60,11 +61,12 @@ get-compiler-version() {
 
 get-msvc-comntools() {
     if vm-is-windows; then
-        case "$1" in
-            VS-2012) echo "VS110COMNTOOLS" ;;
-            VS-2013) echo "VS120COMNTOOLS" ;;
-            VS-2015) echo "VS140COMNTOOLS" ;;
-            VS-2017) echo "VS141COMNTOOLS" ;;
+        local compiler="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
+        case "$compiler" in
+            vs-2012) echo "VS110COMNTOOLS" ;;
+            vs-2013) echo "VS120COMNTOOLS" ;;
+            vs-2015) echo "VS140COMNTOOLS" ;;
+            vs-2017) echo "VS141COMNTOOLS" ;;
         esac
     fi
 }

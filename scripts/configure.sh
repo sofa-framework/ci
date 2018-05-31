@@ -12,7 +12,7 @@ set -o errexit # Exit on error
 # - ARCHITECTURE = x86 | amd64     (for Windows builds)
 # - BUILD_TYPE             Debug|Release
 # - CC and CXX
-# - COMPILER               # important for Visual Studio paths (VS-2012, VS-2013 or VS-2015)
+# - COMPILER               # important for Visual Studio paths (vs-2012, vs-2013 or vs-2015)
 
 
 ## Checks
