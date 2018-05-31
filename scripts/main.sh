@@ -57,9 +57,14 @@ dashboard-notify "status=build"
 # VM environment variables
 echo "ENV VARS: load $SCRIPT_DIR/env/default"
 . "$SCRIPT_DIR/env/default"
-if [ -n "$NODE_NAME" ] && [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
-    echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"
-    . "$SCRIPT_DIR/env/$NODE_NAME"
+if [ -n "$NODE_NAME" ]; then
+    if [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
+        echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"
+        . "$SCRIPT_DIR/env/$NODE_NAME"
+    else
+        echo "ERROR: No config file found for node $NODE_NAME."
+        exit 1
+    fi
 fi
 
 
