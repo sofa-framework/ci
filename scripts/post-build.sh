@@ -41,17 +41,17 @@ dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BU
 
 on-failure() {
     dashboard-notify "status=fail"
-    github-notify "failure" "FAILURE"
+    github-notify "failure" "Build failed."
 }
 
 on-error() {
     dashboard-notify "status=fail"
-    github-notify "error" "ERROR"
+    github-notify "error" "Unexpected error, see log for details."
 }
 
 on-aborted() {
     dashboard-notify "status=cancel"
-    github-notify "failure" "ABORTED"
+    github-notify "failure" "Build canceled."
 }
 
 # Get build result from Groovy script output (Jenkins)

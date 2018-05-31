@@ -50,7 +50,7 @@ rm -rf "$BUILD_DIR/scene-tests/reports"
 github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 
-github-notify "pending" "Build started."
+github-notify "pending" "Building..."
 dashboard-notify "status=build"
 
 
@@ -97,6 +97,7 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
 
     dashboard-notify \
+        "tests_status=success" \
         "tests_suites=$tests_suites" \
         "tests_total=$tests_total" \
         "tests_disabled=$tests_disabled" \
@@ -125,6 +126,7 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
 
     dashboard-notify \
+        "scenes_status=success" \
         "scenes_total=$scenes_total" \
         "scenes_successes=$scenes_successes" \
         "scenes_errors=$scenes_errors" \
