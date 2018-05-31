@@ -81,9 +81,7 @@ github-export-vars() {
         fi
     fi
 
-    if [ -n "$GIT_COMMIT" ]; then
-        export GITHUB_COMMIT_HASH="$GIT_COMMIT"
-    elif [[ "$GIT_BRANCH" == *"/PR-"* ]]; then # this is a PR
+    if [[ "$GIT_BRANCH" == *"/PR-"* ]]; then # this is a PR
         local pr_id="${GIT_BRANCH#*-}"
         local options="$-"
         set +x # Private stuff here: echo disabled
@@ -98,6 +96,8 @@ github-export-vars() {
             fi
         fi
         set -$options
+    elif [ -n "$GIT_COMMIT" ]; then
+        export GITHUB_COMMIT_HASH="$GIT_COMMIT"
     else # This should not happen with Jenkins
         export GITHUB_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
         echo "Trying to guess GITHUB_COMMIT_HASH: $GITHUB_COMMIT_HASH"
