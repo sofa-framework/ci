@@ -135,7 +135,7 @@ github-get-latest-build-comment() {
     set +x # Private stuff here: echo disabled
     if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
        [ -n "$GITHUB_REPOSITORY" ]; then
-        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$pr_id/comments")"
+        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$pr_id/comments")"
         if [ -n "$response" ]; then
             local prev_pwd="$(pwd)"
             cd "$SCRIPT_DIR"
