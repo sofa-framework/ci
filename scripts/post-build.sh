@@ -75,15 +75,16 @@ fi
 
 
 # Jenkins: create links for Warnings parser
-if [ -n "$WORKSPACE" ] && [ -n "$CI_BUILD_DIRNAME" ]; then
+if [ -n "$WORKSPACE" ]; then
     if vm-is-windows; then
         export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
-        export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
-        cmd //c "mklink /D %WORKSPACE_WINDOWS%\%CI_BUILD_DIRNAME% %BUILD_DIR_WINDOWS%"
+        export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
+        cmd //c "mklink /D %WORKSPACE_WINDOWS%\parent %WORKSPACE_PARENT_WINDOWS%"
     else
-        ln -sf "$BUILD_DIR" "$WORKSPACE/$CI_BUILD_DIRNAME"
+        WORKSPACE_PARENT="$(cd "$WORKSPACE/.." && pwd | sed 's#/#\\#g')"
+        ln -sf "$WORKSPACE_PARENT" "$WORKSPACE/parent"
     fi
-    echo "Created link $WORKSPACE/$CI_BUILD_DIRNAME -> $BUILD_DIR"
+    echo "Created link $WORKSPACE/parent -> $WORKSPACE_PARENT"
 fi
 
 

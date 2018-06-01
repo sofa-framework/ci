@@ -38,14 +38,14 @@ if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_PLUGINS" ] && [ -n "$CI_TYPE
 fi
 
 cd "$SRC_DIR"
+
 # Jenkins: clean Warnings parser links
-if [ -n "$WORKSPACE" ] && [ -n "$CI_BUILD_DIRNAME" ]; then
+if [ -n "$WORKSPACE" ]; then
     if vm-is-windows; then
         export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
-        export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
-        cmd //c "rmdir %WORKSPACE_WINDOWS%\%CI_BUILD_DIRNAME%"
+        cmd //c "rmdir %WORKSPACE_WINDOWS%\parent"
     else
-        rm -f "$CI_BUILD_DIRNAME"
+        rm -f "parent"
     fi
 fi
 
