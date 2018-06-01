@@ -68,7 +68,7 @@ case "$BUILD_RESULT" in
 esac
 
 
-# Jenkins: remove shortcut for Windows jobs (too long path problem)
+# Jenkins: remove link for Windows jobs (too long path problem)
 if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_PLUGINS" ] && [ -n "$CI_TYPE" ] && [ -n "$CI_ARCH" ]; then
     cmd //c "rmdir j:\%BUILD_ID%-%CI_PLUGINS%_%CI_TYPE%_%CI_ARCH%"
 fi

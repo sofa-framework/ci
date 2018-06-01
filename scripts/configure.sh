@@ -84,12 +84,7 @@ fi
 
 if [ -n "$full_build" ]; then
     echo "Starting a full build. ($full_build)"
-    # '|| true' is an ugly workaround, because rm sometimes fails to remove the
-    # build directory on the Windows slaves, for reasons unknown yet.
-    rm -rf "$BUILD_DIR" || true
-    mkdir -p "$BUILD_DIR"
-    # Flag. E.g. we check this before counting compiler warnings,
-    # which is not relevant after an incremental build.
+    rm -rf "$BUILD_DIR/*" # WARNING: do not remove $BUILD_DIR itself, it is a link on Windows
     touch "$BUILD_DIR/full-build"
     echo "$sha" > "$BUILD_DIR/last-commit-built.txt"
 else

@@ -11,7 +11,10 @@ if [ "$#" -ge 6 ]; then
     . "$SCRIPT_DIR"/dashboard.sh
     . "$SCRIPT_DIR"/github.sh
 
-    if [[ ! -d "$1" ]]; then mkdir -p "$1"; fi
+    if [ ! -d "$1" ]; then
+        mkdir -p "$1";
+    fi
+    
     BUILD_DIR="$(cd "$1" && pwd)"
     SRC_DIR="$(cd "$2" && pwd)"
 
@@ -27,7 +30,7 @@ else
     usage; exit 1
 fi
 
-# Jenkins: create shortcut for Windows jobs (too long path problem)
+# Jenkins: create link for Windows jobs (too long path problem)
 if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_PLUGINS" ] && [ -n "$CI_TYPE" ] && [ -n "$CI_ARCH" ]; then
     export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
     cmd //c "mklink /D j:\%BUILD_ID%-%CI_PLUGINS%_%CI_TYPE%_%CI_ARCH% %BUILD_DIR_WINDOWS%"
