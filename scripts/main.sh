@@ -43,7 +43,7 @@ cd "$SRC_DIR"
 if [ -n "$WORKSPACE" ]; then
     if vm-is-windows; then
         export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
-        cmd //c "rmdir %WORKSPACE_WINDOWS%\parent"
+        cmd //c "if exist %WORKSPACE_WINDOWS%\parent rmdir %WORKSPACE_WINDOWS%\parent"
     else
         rm -f "parent"
     fi
