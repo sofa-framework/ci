@@ -155,5 +155,5 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
 fi
 
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
-    mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-$COMPILER.txt"
+    mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-fullbuild-$COMPILER.txt"
 fi
