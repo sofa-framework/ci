@@ -38,7 +38,16 @@ if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_PLUGINS" ] && [ -n "$CI_TYPE
 fi
 
 cd "$SRC_DIR"
-
+# Jenkins: clean Warnings parser links
+if [ -n "$WORKSPACE" ] && [ -n "$CI_BUILD_DIRNAME" ]; then
+    if vm-is-windows; then
+        export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
+        export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
+        cmd //c "rmdir %WORKSPACE_WINDOWS%\%CI_BUILD_DIRNAME%"
+    else
+        rm -f "$CI_BUILD_DIRNAME"
+    fi
+fi
 
 # Check [ci-ignore] flag in commit message
 commit_message_full="$(git log --pretty=%B -1)"
@@ -54,6 +63,7 @@ rm -rf "$BUILD_DIR/unit-tests/reports"
 rm -rf "$BUILD_DIR/scene-tests/reports"
 rm -rf "$BUILD_DIR/bin"
 rm -rf "$BUILD_DIR/lib"
+
 
 
 # CI environment variables + init

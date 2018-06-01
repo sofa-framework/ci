@@ -73,3 +73,16 @@ if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_PLUGINS" ] && [ -n "$CI_TYPE
     cmd //c "rmdir j:\%BUILD_ID%-%CI_PLUGINS%_%CI_TYPE%_%CI_ARCH%"
 fi
 
+
+# Jenkins: create links for Warnings parser
+if [ -n "$WORKSPACE" ] && [ -n "$CI_BUILD_DIRNAME" ]; then
+    if vm-is-windows; then
+        export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
+        export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
+        cmd //c "mklink /D %WORKSPACE_WINDOWS%\%CI_BUILD_DIRNAME% %BUILD_DIR_WINDOWS%"
+    else
+        ln -sf "$BUILD_DIR" "$WORKSPACE/$CI_BUILD_DIRNAME"
+    fi
+fi
+
+
