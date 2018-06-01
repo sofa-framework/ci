@@ -129,9 +129,9 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     
     echo "Preventing SofaCUDA from being loaded in VMs."
     if vm-is-windows; then
-        plugin_conf="$BUILD_DIR/lib/plugin_list.conf.default"
-    else
         plugin_conf="$BUILD_DIR/bin/plugin_list.conf.default"
+    else
+        plugin_conf="$BUILD_DIR/lib/plugin_list.conf.default"
     fi
     grep -v "SofaCUDA NO_VERSION" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
