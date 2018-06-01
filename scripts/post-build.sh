@@ -81,7 +81,7 @@ if [ -n "$WORKSPACE" ]; then
         export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
         cmd //c "mklink /D %WORKSPACE_WINDOWS%\parent %WORKSPACE_PARENT_WINDOWS%"
     else
-        WORKSPACE_PARENT="$(cd "$WORKSPACE/.." && pwd | sed 's#/#\\#g')"
+        WORKSPACE_PARENT="$(cd "$WORKSPACE/.." && pwd)"
         ln -sf "$WORKSPACE_PARENT" "$WORKSPACE/parent"
     fi
     echo "Created link $WORKSPACE/parent -> $WORKSPACE_PARENT"
