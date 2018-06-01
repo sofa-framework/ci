@@ -111,7 +111,11 @@ if vm-is-windows; then
     # Cache
     if [ -x "$(command -v clcache)" ]; then
         export CLCACHE_DIR="J:/clcache"
-        export CLCACHE_BASEDIR="$(cd "$BUILD_DIR/.." && pwd)"
+        if [ -n "$WORKSPACE" ]; then
+            export CLCACHE_BASEDIR="$(cd "$WORKSPACE/../builds" && pwd)"
+        else
+            export CLCACHE_BASEDIR="$(cd "$BUILD_DIR/.." && pwd)"
+        fi
         #export CLCACHE_HARDLINK=1 # this may cause cache corruption. see https://github.com/frerich/clcache/issues/282
         export CLCACHE_OBJECT_CACHE_TIMEOUT_MS=3600000
         

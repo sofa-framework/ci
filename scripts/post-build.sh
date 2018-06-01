@@ -69,8 +69,8 @@ esac
 
 
 # Jenkins: remove link for Windows jobs (too long path problem)
-if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_PLUGINS" ] && [ -n "$CI_TYPE" ] && [ -n "$CI_ARCH" ]; then
-    cmd //c "if exist j:\%BUILD_ID%-%CI_PLUGINS%_%CI_TYPE%_%CI_ARCH% rmdir j:\%BUILD_ID%-%CI_PLUGINS%_%CI_TYPE%_%CI_ARCH%"
+if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
+    cmd //c "if exist j:\build%EXECUTOR_NUMBER% rmdir j:\build%EXECUTOR_NUMBER%"
 fi
 
 

@@ -31,10 +31,10 @@ else
 fi
 
 # Jenkins: create link for Windows jobs (too long path problem)
-if vm-is-windows && [ -n "$BUILD_ID" ] && [ -n "$CI_PLUGINS" ] && [ -n "$CI_TYPE" ] && [ -n "$CI_ARCH" ]; then
+if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
-    cmd //c "mklink /D j:\%BUILD_ID%-%CI_PLUGINS%_%CI_TYPE%_%CI_ARCH% %BUILD_DIR_WINDOWS%"
-    BUILD_DIR="/j/${BUILD_ID}-${CI_PLUGINS}_${CI_TYPE}_${CI_ARCH}"
+    cmd //c "mklink /D j:\build%EXECUTOR_NUMBER% %BUILD_DIR_WINDOWS%"
+    BUILD_DIR="/j/build$EXECUTOR_NUMBER"
 fi
 
 cd "$SRC_DIR"
