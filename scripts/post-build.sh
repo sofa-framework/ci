@@ -83,6 +83,7 @@ if [ -n "$WORKSPACE" ] && [ -n "$CI_BUILD_DIRNAME" ]; then
     else
         ln -sf "$BUILD_DIR" "$WORKSPACE/$CI_BUILD_DIRNAME"
     fi
+    echo "Created link $WORKSPACE/$CI_BUILD_DIRNAME -> $BUILD_DIR"
 fi
 
 
