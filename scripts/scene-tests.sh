@@ -26,11 +26,13 @@ if [ "$#" -ge 3 ]; then
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
-    output_dir="$build_dir/scene-tests"
+    output_dir="scene-tests"
     crash_dump_delimiter="### END OF OUTPUT ###"
 else
     usage; exit 1
 fi
+
+cd "$build_dir"
 
 if [[ ! -d "$build_dir/lib/" ]]; then
     echo "Error: '$build_dir' does not look like a Sofa build."
@@ -336,8 +338,6 @@ ignore-scenes-with-missing-plugins() {
 initialize-scene-tests() {
     echo "Initializing scene testing."
     rm -rf "$output_dir"
-    rm -rf "$output_dir/reports"
-    mkdir -p "$output_dir"
     mkdir -p "$output_dir/reports"
 
     runSofa="$(ls "$build_dir/bin/runSofa"{,d,_d} 2> /dev/null || true)"

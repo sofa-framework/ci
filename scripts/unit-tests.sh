@@ -18,10 +18,12 @@ if [[ "$#" = 3 ]]; then
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
-    output_dir="$build_dir/unit-tests"
+    output_dir="unit-tests"
 else
     usage; exit 1
 fi
+
+cd "$build_dir"
 
 if [[ ! -d "$build_dir/lib/" ]]; then
     echo "Error: '$build_dir' does not look like a Sofa build."
@@ -49,8 +51,6 @@ list-tests() {
 initialize-unit-tests() {
     echo "Initializing unit testing."
     rm -rf "$output_dir"
-    rm -rf "$output_dir/reports"
-    mkdir -p "$output_dir"
     mkdir -p "$output_dir/reports"
     list-tests | while read test; do
         echo "$test"
