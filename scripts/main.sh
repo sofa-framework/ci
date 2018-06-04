@@ -16,6 +16,7 @@ if [ "$#" -ge 6 ]; then
     fi
     
     BUILD_DIR="$(cd "$1" && pwd)"
+    BUILD_DIR_RESET="$BUILD_DIR"
     SRC_DIR="$(cd "$2" && pwd)"
 
     PLATFORM="$3"
@@ -109,7 +110,7 @@ if in-array "force-full-build" "$BUILD_OPTIONS"; then
 fi
 
 # Reset BUILD_DIR for tests (Windows too long path problem)
-BUILD_DIR="$(cd "$1" && pwd)"
+BUILD_DIR="$BUILD_DIR_RESET"
 
 # Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
