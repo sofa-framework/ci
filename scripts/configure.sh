@@ -120,7 +120,7 @@ if vm-is-windows; then
         fi
         #export CLCACHE_HARDLINK=1 # this may cause cache corruption. see https://github.com/frerich/clcache/issues/282
         export CLCACHE_OBJECT_CACHE_TIMEOUT_MS=3600000
-        clcache -M 8589934592 # Set cache size to 1024*1024*1024*8 = 8 GB
+        clcache -M 12884901888 # Set cache size to 1024*1024*1024*12 = 12 GB
         
         add-cmake-option "-DCMAKE_C_COMPILER=clcache"
         add-cmake-option "-DCMAKE_CXX_COMPILER=clcache"
@@ -151,6 +151,7 @@ else
     # Cache
     if [ -x "$(command -v ccache)" ]; then
         export CCACHE_BASEDIR="$(cd "$BUILD_DIR/.." && pwd)"
+        export CCACHE_MAXSIZE="12G"
         # export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
         export CC="ccache $c_compiler -Qunused-arguments -Wno-deprecated-declarations"
         export CXX="ccache $cxx_compiler -Qunused-arguments -Wno-deprecated-declarations"
