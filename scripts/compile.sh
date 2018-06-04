@@ -33,7 +33,8 @@ if [[ ! -e "$BUILD_DIR/CMakeCache.txt" ]]; then
 fi
 
 cd "$BUILD_DIR"
-
+echo "compile.sh: pwd = $(pwd)"
+echo "compile.sh: BUILD_DIR = $BUILD_DIR"
 
 call-make() {
     if vm-is-windows; then

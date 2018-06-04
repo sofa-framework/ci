@@ -39,6 +39,8 @@ if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
 fi
 
 cd "$SRC_DIR"
+echo "main.sh: pwd = $(pwd)"
+echo "main.sh: BUILD_DIR = $BUILD_DIR"
 
 # Jenkins: clean Warnings parser links
 if [ -n "$WORKSPACE" ]; then

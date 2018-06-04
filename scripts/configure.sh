@@ -46,6 +46,8 @@ if [[ ! -d "$SRC_DIR/applications/plugins" ]]; then
 fi
 
 cd "$SRC_DIR"
+echo "configure.sh: pwd = $(pwd)"
+echo "configure.sh: BUILD_DIR = $BUILD_DIR"
 
 
 
