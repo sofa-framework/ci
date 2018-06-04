@@ -141,6 +141,8 @@ else
             cxx_compiler="${COMPILER}++"
         ;;
     esac
+    export CC="$c_compiler" # needed by CUDA
+    export CXX="$cxx_compiler" # needed by CUDA
     add-cmake-option "-DCMAKE_C_COMPILER=$c_compiler"
     add-cmake-option "-DCMAKE_CXX_COMPILER=$cxx_compiler"
 
