@@ -98,7 +98,9 @@ fi
 # Compile
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$COMPILER" "$ARCHITECTURE"
 dashboard-notify "status=success"
-github-notify "success" "SUCCESS (tests ignored)"
+github_status="success"
+github_message="Build OK"
+github-notify "$github_status" "$github_message"
 
 # [Full build] Count Warnings
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
@@ -126,6 +128,12 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     tests_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR)
     tests_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures $BUILD_DIR $SRC_DIR)
     tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
+
+    tests_problems=$((tests_failures+tests_errors))
+    github_message="${github_message}, $tests_problems unit-test problems"
+    if [ $tests_problems -gt 0 ]; then
+        github_status="success" # do not fail on tests failure
+    fi
 
     dashboard-notify \
         "tests_status=success" \
@@ -156,6 +164,12 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     scenes_errors=$("$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
     scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
 
+    scenes_problems=$((scenes_errors+scenes_crashes))
+    github_message="${github_message}, $scenes_problems scene-test problems"
+    if [ $scenes_problems -gt 0 ]; then
+        github_status="success" # do not fail on tests failure
+    fi
+    
     dashboard-notify \
         "scenes_status=success" \
         "scenes_total=$scenes_total" \
@@ -166,6 +180,9 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     # Clamping warning file to avoid Jenkins overflow
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
 fi
+
+# Update GitHub message with test results
+github-notify "$github_status" "$github_message"
 
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-fullbuild-$COMPILER.txt"
