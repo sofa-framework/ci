@@ -170,19 +170,18 @@ add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
 
 # Handle custom lib dirs
 if vm-is-windows; then
+    add-cmake-option "-DAPPLICATION_MODELER=OFF" # waiting to fix path length problem
+
     msvc_year="$(get-msvc-year $COMPILER)"
     msvc_version="$(get-compiler-version $COMPILER)"
     qt_compiler="msvc${msvc_year}"
-    boost_compiler="msvc-${msvc_version}"
 else
     qt_compiler="${COMPILER%-*}" # gcc-4.8 -> gcc
 fi
 if [[ "$ARCHITECTURE" == "amd64" ]]; then
     qt_lib="${qt_compiler}_64/lib"
-    boost_lib="lib64-${boost_compiler}"
 else
     qt_lib="${qt_compiler}/lib"
-    boost_lib="lib32-${boost_compiler}"
 fi
 if [[ "$VM_HAS_REQUIRED_LIBS" != "true" ]]; then
     echo "ERROR: VM_HAS_REQUIRED_LIBS is not true. Please make sure to have all required libs installed."
