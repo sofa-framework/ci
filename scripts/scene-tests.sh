@@ -24,8 +24,8 @@ usage() {
 
 if [ "$#" -ge 3 ]; then
     command="$1"
-    build_dir="$2"
-    src_dir="$3"
+    build_dir="$(cd $2 && pwd)"
+    src_dir="$(cd $3 && pwd)"
     output_dir="$build_dir/scene-tests"
     crash_dump_delimiter="### END OF OUTPUT ###"
 else

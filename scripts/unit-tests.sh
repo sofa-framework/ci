@@ -16,8 +16,8 @@ usage() {
 
 if [[ "$#" = 3 ]]; then
     command="$1"
-    build_dir="$2"
-    src_dir="$3"
+    build_dir="$(cd $2 && pwd)"
+    src_dir="$(cd $3 && pwd)"
     output_dir="$build_dir/unit-tests"
 else
     usage; exit 1
