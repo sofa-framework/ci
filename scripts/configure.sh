@@ -183,19 +183,20 @@ else
     boost_lib="lib32-${boost_compiler}"
 fi
 if [[ "$VM_HAS_REQUIRED_LIBS" != "true" ]]; then
-   echo "Please make sure to have all required libs installed."
-   exit 1
+    echo "ERROR: VM_HAS_REQUIRED_LIBS is not true. Please make sure to have all required libs installed."
+    exit 1
 fi
 if [ -d "$VM_QT_PATH" ]; then
     add-cmake-option "-DQt5_DIR=$VM_QT_PATH/${qt_lib}/cmake/Qt5"
 fi
-if [ -d "$VM_BOOST_PATH" ] && vm-is-windows; then # VM_BOOST_PATH is effective on Windows only
-    add-cmake-option "-DBOOST_ROOT=$VM_BOOST_PATH"
-    #add-cmake-option "-DBOOST_LIBRARYDIR=$VM_BOOST_PATH/${boost_lib}" # useless?
-fi
-if [ -d "$VM_PYTHON_PATH" ] && vm-is-windows; then # VM_PYTHON_PATH is effective on Windows only
-    add-cmake-option "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
-    add-cmake-option "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
+if vm-is-windows; then # Finding libs on Windows
+    if [ -d "$VM_BOOST_PATH" ]; then
+        add-cmake-option "-DBOOST_ROOT=$VM_BOOST_PATH"
+    fi
+    if [ -d "$VM_PYTHON_PATH" ]; then
+        add-cmake-option "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
+        add-cmake-option "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
+    fi
 fi
 
 # "build-all-plugins" specific options
@@ -253,8 +254,8 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON"
     add-cmake-option "-DPLUGIN_REGISTRATION=ON"
     add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
-    add-cmake-option "-DPLUGIN_SOFACARVING=ON"    
-    if [[ "$VM_HAS_CUDA" == "true" ]]; then
+    add-cmake-option "-DPLUGIN_SOFACARVING=ON"
+    if [[ "$VM_HAS_CUDA" == "true" ]] && [[ "$COMPILER" != "clang"* ]]; then
         add-cmake-option "-DPLUGIN_SOFACUDA=ON"
     else
         add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
