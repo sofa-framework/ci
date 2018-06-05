@@ -42,16 +42,6 @@ cd "$SRC_DIR"
 echo "main.sh: pwd = $(pwd)"
 echo "main.sh: BUILD_DIR = $BUILD_DIR"
 
-# Jenkins: clean Warnings parser links
-if [ -n "$WORKSPACE" ]; then
-    if vm-is-windows; then
-        export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
-        cmd //c "if exist %WORKSPACE_WINDOWS%\parent rmdir %WORKSPACE_WINDOWS%\parent"
-    else
-        rm -f "parent"
-    fi
-fi
-
 # Check [ci-ignore] flag in commit message
 commit_message_full="$(git log --pretty=%B -1)"
 if [[ "$commit_message_full" == *"[ci-ignore]"* ]]; then
