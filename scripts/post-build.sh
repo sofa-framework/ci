@@ -18,11 +18,11 @@ if [ "$#" -ge 4 ]; then
     if [ -z "$BUILD_OPTIONS" ]; then
         BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi
-elif [ -n "$BUILD_ID" ]; then # script called by Jenkins build
+elif [ -n "$BUILD_ID" ]; then # Jenkins
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
     
-    BUILD_DIR="$WORKSPACE/../builds/${CI_COMPILER}_${CI_PLUGINS}_${CI_TYPE}_${CI_ARCH}"
+    BUILD_DIR="$WORKSPACE/build"
     PLATFORM="${CI_COMPILER%_*}"
     COMPILER="${CI_COMPILER#*_}"
     ARCHITECTURE="$CI_ARCH"
