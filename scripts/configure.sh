@@ -66,31 +66,15 @@ fi
 
 # Choose between incremental build and full build
 full_build=""
-sha=$(git --git-dir="$SRC_DIR/.git" rev-parse HEAD)
-
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     full_build="Full build forced."
 elif [ ! -e "$BUILD_DIR/CMakeCache.txt" ]; then
     full_build="No previous build detected."
-elif [ ! -e "$BUILD_DIR/last-commit-built.txt" ]; then
-    full_build="Last build's commit not found."
-else
-    # Sometimes, a change in a cmake script can cause an incremental
-    # build to fail, so let's be extra cautious and make a full build
-    # each time a .cmake file changes.
-    last_commit_build="$(cat "$BUILD_DIR/last-commit-built.txt")"
-    if git --git-dir="$SRC_DIR/.git" diff --name-only "$last_commit_build" "$sha" | grep 'cmake/.*\.cmake' ; then
-        full_build="Detected changes in a CMake script file."
-    fi
 fi
 
 if [ -n "$full_build" ]; then
     echo "Starting a full build. ($full_build)"
-    rm -rf "$BUILD_DIR/*" # WARNING: do not remove $BUILD_DIR itself, it is a link on Windows
-    touch "$BUILD_DIR/full-build"
-    echo "$sha" > "$BUILD_DIR/last-commit-built.txt"
 else
-    rm -f "$BUILD_DIR/full-build"
     echo "Starting an incremental build"
 fi
 
