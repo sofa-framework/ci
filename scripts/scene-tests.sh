@@ -27,7 +27,6 @@ if [ "$#" -ge 3 ]; then
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
     output_dir="scene-tests"
-    crash_dump_delimiter="### END OF OUTPUT ###"
 else
     usage; exit 1
 fi
@@ -408,10 +407,6 @@ extract-crashes() {
             local status="$(cat "$output_dir/$scene/status.txt")"
             if [[ "$status" != 0 ]]; then
                 echo "$scene: error: $status"
-                if [[ -e "$output_dir/$scene/output.txt" ]]; then
-                    cat "$output_dir/$scene/output.txt"
-                fi
-                echo "$crash_dump_delimiter"
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
@@ -447,7 +442,7 @@ count-errors() {
 }
 
 count-crashes() {
-    grep "$crash_dump_delimiter" "$output_dir/reports/crashes.txt" | wc -l | tr -d '   '
+    wc -l < "$output_dir/reports/crashes.txt" | tr -d ' 	'
 }
 
 clamp-warnings() {
