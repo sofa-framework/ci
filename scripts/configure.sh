@@ -312,7 +312,7 @@ echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN" | grep "=ON" | sort
 echo "Disabled plugins:"
 echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN" | grep "=OFF" | sort
 
-if [ -e "full-build" ]; then
+if [ -n "$full_build" ]; then
     call-cmake -G"$(generator)" $cmake_options "$SRC_DIR"
 else
     call-cmake $cmake_options .
