@@ -51,12 +51,15 @@ if [[ "$commit_message_full" == *"[ci-ignore]"* ]]; then
 fi
 
 # Clean build dir
-rm -f "$BUILD_DIR/make-output*.txt"
-rm -rf "$BUILD_DIR/unit-tests/reports"
-rm -rf "$BUILD_DIR/scene-tests/reports"
-rm -rf "$BUILD_DIR/bin"
-rm -rf "$BUILD_DIR/lib"
-
+if in-array "force-full-build" "$BUILD_OPTIONS"; then
+    rm -rf "$BUILD_DIR/*"
+else
+    rm -f "$BUILD_DIR/make-output*.txt"
+    rm -rf "$BUILD_DIR/unit-tests"
+    rm -rf "$BUILD_DIR/scene-tests"
+    rm -rf "$BUILD_DIR/bin"
+    rm -rf "$BUILD_DIR/lib"
+fi
 
 
 # CI environment variables + init
