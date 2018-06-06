@@ -140,7 +140,7 @@ run-single-test-subtests() {
 run-single-test() {
     local test=$1
     local output_file="$output_dir/$test/report.xml"
-    local test_cmd="$build_dir/bin/$test --gtest_output=xml:$output_file > $output_dir/$test/output.txt 2>&1"
+    local test_cmd="$build_dir/bin/$test --gtest_output=xml:$output_file 2>&1"
     # local timeout=900
 
     echo "$test_cmd" > "$output_dir/$test/command.txt"
@@ -148,8 +148,7 @@ run-single-test() {
     printf "\n\nRunning $test\n"
     rm -f report.xml
     # "$src_dir/scripts/ci/timeout.sh" test "$test_cmd" $timeout | tee $output_dir/$test/output.txt
-    # bash -c "$test_cmd" | tee $output_dir/$test/output.txt
-    bash -c "$test_cmd"
+    bash -c "$test_cmd" | tee $output_dir/$test/output.txt
     status="${PIPESTATUS[0]}"
     echo "$status" > "$output_dir/$test/status.txt"
     # if [[ -e test.timeout ]]; then
