@@ -17,8 +17,7 @@ dashboard-notify-explicit() {
     fi
 
     if [[ "$DASH_NOTIFY" == "true" ]] && [ -n "$DASH_DASHBOARD_URL" ]; then
-        # wget --no-check-certificate --no-verbose --output-document=/dev/null --post-data="$message" "$DASH_DASHBOARD_URL"
-        # curl --request POST "$DASH_DASHBOARD_URL" --data="$message"
+        curl --request POST "$DASH_DASHBOARD_URL" --data="$message"
         notify="sent"
     fi
 
