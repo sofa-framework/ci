@@ -119,6 +119,8 @@ dashboard-export-vars() {
         export DASH_COMMIT_BRANCH="$CI_BRANCH"
     elif [ -n "$GIT_BRANCH" ]; then # Check Jenkins env var first
         export DASH_COMMIT_BRANCH="$GIT_BRANCH"
+    elif [ -n "$BRANCH_NAME" ]; then # Check Jenkins env var first
+        export DASH_COMMIT_BRANCH="$BRANCH_NAME"
     else # fallback: try to get the branch manually
         export DASH_COMMIT_BRANCH="$(git branch | grep \* | cut -d ' ' -f2)"
         echo "Trying to guess DASH_COMMIT_BRANCH: $DASH_COMMIT_BRANCH"
