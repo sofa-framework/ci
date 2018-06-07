@@ -100,11 +100,7 @@ if vm-is-windows; then
     # Cache
     if [ -x "$(command -v clcache)" ]; then
         export CLCACHE_DIR="J:/clcache"
-        if [ -n "$WORKSPACE" ]; then # Jenkins
-            export CLCACHE_BASEDIR="$(cd "$WORKSPACE/.." && pwd -W)" # e.g. windows_vs-2015_default_release_amd64
-        else
-            export CLCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd -W)"
-        fi
+        export CLCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd -W)"
         #export CLCACHE_HARDLINK=1 # this may cause cache corruption. see https://github.com/frerich/clcache/issues/282
         export CLCACHE_OBJECT_CACHE_TIMEOUT_MS=3600000
         clcache -M 12884901888 # Set cache size to 1024*1024*1024*12 = 12 GB
@@ -137,11 +133,7 @@ else
 
     # Cache
     if [ -x "$(command -v ccache)" ]; then
-        if [ -n "$WORKSPACE" ]; then # Jenkins
-            export CCACHE_BASEDIR="$(cd "$WORKSPACE/.." && pwd)" # e.g. ubuntu_clang-3.8_default_release_amd64
-        else
-            export CCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd)"
-        fi
+        export CCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd)"
         export CCACHE_MAXSIZE="12G"
         # export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
         export CC="ccache $c_compiler -Qunused-arguments -Wno-deprecated-declarations"
