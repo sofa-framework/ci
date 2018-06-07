@@ -87,7 +87,7 @@ github-export-vars() {
     elif [ -n "$GIT_BRANCH" ]; then # Check Jenkins env var first
         branch="$GIT_BRANCH"
     elif [ -n "$BRANCH_NAME" ]; then # Check Jenkins env var first
-        branch="$BRANCH_NAME"
+        branch="origin/$BRANCH_NAME"
     fi
     
     if [[ "$branch" == *"/PR-"* ]]; then # this is a PR
