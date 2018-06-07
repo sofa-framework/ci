@@ -2,14 +2,14 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: pre-builds.sh <matrix-configs-string> <build-options>"
+    echo "Usage: pre-builds.sh <matrix-combinations-string> <build-options>"
 }
 
 if [ "$#" -ge 1 ]; then
     script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$script_dir"/utils.sh
 
-    matrix_configs_string="$1"
+    matrix_combinations_string="$1"
     build_options="${*:2}"
     if [ -z "$build_options" ]; then
         build_options="$(get-build-options)" # use env vars (Jenkins)
@@ -40,23 +40,23 @@ if [[ "$BUILD_CAUSE_GITHUBPULLREQUESTCOMMENTCAUSE" == "true" ]] && [[ "$GIT_BRAN
     fi
 fi
 
-# WARNING: Matrix configs string must be explicit using only '()' and/or '==' and/or '&&' and/or '||'
+# WARNING: Matrix combinations string must be explicit using only '()' and/or '==' and/or '&&' and/or '||'
 # Example: (CI_CONFIG=='ubuntu_gcc-5.4' && CI_PLUGINS=='options' && CI_TYPE=='release') || (CI_CONFIG=='windows7_VS-2015_amd64' && CI_PLUGINS=='options' && CI_TYPE=='release')
-IFS='||' read -ra matrix_configs <<< "$matrix_configs_string"
-for matrix_config in "${matrix_configs[@]}"; do
-    if [[ "$matrix_config" != *"=="* ]]; then
+IFS='||' read -ra matrix_combinations <<< "$matrix_combinations_string"
+for matrix_combination in "${matrix_combinations[@]}"; do
+    if [[ "$matrix_combination" != *"=="* ]]; then
         continue
     fi
 
     # WARNING: Matrix Axis names may change (Jenkins)
-    config="$(echo "$matrix_config" | sed "s/.*CI_CONFIG *== *'\([^']*\)'.*/\1/g" )"
+    config="$(echo "$matrix_combination" | sed "s/.*CI_CONFIG *== *'\([^']*\)'.*/\1/g" )"
     platform="$(get-platform-from-config "$config")"
     compiler="$(get-compiler-from-config "$config")"
     architecture="$(get-architecture-from-config "$config")"
-    build_type="$(echo "$matrix_config" | sed "s/.*CI_TYPE *== *'\([^']*\)'.*/\1/g" )"
-    plugins="$(echo "$matrix_config" | sed "s/.*CI_PLUGINS *== *'\([^']*\)'.*/\1/g" )"
+    build_type="$(echo "$matrix_combination" | sed "s/.*CI_TYPE *== *'\([^']*\)'.*/\1/g" )"
+    plugins="$(echo "$matrix_combination" | sed "s/.*CI_PLUGINS *== *'\([^']*\)'.*/\1/g" )"
 
-    # Update DASH_CONFIG and GITHUB_CONTEXT upon matrix_config parsing
+    # Update DASH_CONFIG and GITHUB_CONTEXT upon matrix_combination parsing
     build_options="$(get-build-options "$plugins")"
     export DASH_CONFIG="$(dashboard-config-string "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
     export GITHUB_CONTEXT="$DASH_CONFIG"
