@@ -128,9 +128,9 @@ get-compiler-from-config() {
     fi
     
     # substitute eventually 2 times to handle "windows_vs-2015_x32" case
-    subconfig="${config%_*}" # take first part
+    subconfig="${config#*_}" # take last part
     if [[ "$subconfig" == *"_"* ]]; then
-        echo "${subconfig#*_}" # take last part
+        echo "${subconfig%_*}" # take fist part
     else
         echo "$subconfig"
     fi
@@ -148,7 +148,7 @@ get-architecture-from-config() {
     if [[ "$subconfig" == *"_"* ]]; then
         echo "${subconfig#*_}" # take last part
     else
-        echo "$subconfig"
+        echo "amd64" # default architecture
     fi
 }
 
