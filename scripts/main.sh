@@ -2,10 +2,10 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: main.sh <build-dir> <src-dir> <platform> <compiler> <architecture> <build-type> <build-options>"
+    echo "Usage: main.sh <build-dir> <src-dir> <config> <build-type> <build-options>"
 }
 
-if [ "$#" -ge 6 ]; then
+if [ "$#" -ge 4 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
     . "$SCRIPT_DIR"/dashboard.sh
@@ -19,11 +19,11 @@ if [ "$#" -ge 6 ]; then
     BUILD_DIR_RESET="$BUILD_DIR"
     SRC_DIR="$(cd "$2" && pwd)"
 
-    PLATFORM="$3"
-    COMPILER="$4"
-    ARCHITECTURE="$5"
-    BUILD_TYPE="$6"
-    BUILD_OPTIONS="${*:7}"
+    PLATFORM="$(get-platform-from-config "$3")"
+    COMPILER="$(get-compiler-from-config "$3")"
+    ARCHITECTURE="$(get-architecture-from-config "$3")"
+    BUILD_TYPE="$4"
+    BUILD_OPTIONS="${*:5}"
     if [ -z "$BUILD_OPTIONS" ]; then
         BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi

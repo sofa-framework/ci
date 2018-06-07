@@ -2,19 +2,19 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: post-build.sh <build-dir> <platform> <compiler> <architecture> <build-type> <build-options>"
+    echo "Usage: post-build.sh <build-dir> <config> <build-type> <build-options>"
 }
 
-if [ "$#" -ge 4 ]; then
+if [ "$#" -ge 3 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
 
     BUILD_DIR="$(cd "$1" && pwd)"
-    PLATFORM="$2"
-    COMPILER="$3"
-    ARCHITECTURE="$4"
-    BUILD_TYPE="$5"
-    BUILD_OPTIONS="${*:6}"
+    PLATFORM="$(get-platform-from-config "$2")"
+    COMPILER="$(get-compiler-from-config "$2")"
+    ARCHITECTURE="$(get-architecture-from-config "$2")"
+    BUILD_TYPE="$3"
+    BUILD_OPTIONS="${*:4}"
     if [ -z "$BUILD_OPTIONS" ]; then
         BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi
@@ -23,9 +23,9 @@ elif [ -n "$BUILD_ID" ]; then # Jenkins
     . "$SCRIPT_DIR"/utils.sh
     
     BUILD_DIR="$WORKSPACE/build"
-    PLATFORM="${CI_COMPILER%_*}"
-    COMPILER="${CI_COMPILER#*_}"
-    ARCHITECTURE="$CI_ARCH"
+    PLATFORM="$(get-platform-from-config "$CI_CONFIG")"
+    COMPILER="$(get-compiler-from-config "$CI_CONFIG")"
+    ARCHITECTURE="$(get-architecture-from-config "$CI_CONFIG")"
     BUILD_TYPE="$CI_TYPE"
     BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
 else

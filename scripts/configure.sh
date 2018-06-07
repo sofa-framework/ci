@@ -18,10 +18,10 @@ set -o errexit # Exit on error
 ## Checks
 
 usage() {
-    echo "Usage: configure.sh <build-dir> <src-dir> <compiler> <architecture> <build-type> <build-options>"
+    echo "Usage: configure.sh <build-dir> <src-dir> <config> <build-type> <build-options>"
 }
 
-if [ "$#" -eq 6 ]; then
+if [ "$#" -ge 4 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
 
@@ -32,10 +32,13 @@ if [ "$#" -eq 6 ]; then
     else
         SRC_DIR="$(cd "$2" && pwd)"
     fi
-    COMPILER="$3"
-    ARCHITECTURE="$4"
-    BUILD_TYPE="$5"
-    BUILD_OPTIONS="$6"
+    COMPILER="$(get-compiler-from-config "$3")"
+    ARCHITECTURE="$(get-architecture-from-config "$3")"
+    BUILD_TYPE="$4"
+    BUILD_OPTIONS="${*:5}"
+    if [ -z "$BUILD_OPTIONS" ]; then
+        BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
+    fi
 else
     usage; exit 1
 fi

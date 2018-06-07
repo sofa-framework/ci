@@ -103,3 +103,53 @@ get-build-options() {
     fi
     echo "$build_options"
 }
+
+get-platform-from-config() {
+    if [ "$#" -eq 1 ]; then
+        config="$1"
+    elif [ -n "$CI_CONFIG" ]; then
+        config="$CI_CONFIG"
+    fi
+    
+    # substitute eventually 2 times to handle "windows_vs-2015_x32" case
+    subconfig="${config%_*}" # take first part
+    if [[ "$subconfig" == *"_"* ]]; then
+        echo "${subconfig%_*}" # take first part
+    else
+        echo "$subconfig"
+    fi
+}
+
+get-compiler-from-config() {
+    if [ "$#" -eq 1 ]; then
+        config="$1"
+    elif [ -n "$CI_CONFIG" ]; then
+        config="$CI_CONFIG"
+    fi
+    
+    # substitute eventually 2 times to handle "windows_vs-2015_x32" case
+    subconfig="${config%_*}" # take first part
+    if [[ "$subconfig" == *"_"* ]]; then
+        echo "${subconfig#*_}" # take last part
+    else
+        echo "$subconfig"
+    fi
+}
+
+get-architecture-from-config() {
+    if [ "$#" -eq 1 ]; then
+        config="$1"
+    elif [ -n "$CI_CONFIG" ]; then
+        config="$CI_CONFIG"
+    fi
+    
+    # substitute eventually 2 times to handle "windows_vs-2015_x32" case
+    subconfig="${config#*_}" # take last part
+    if [[ "$subconfig" == *"_"* ]]; then
+        echo "${subconfig#*_}" # take last part
+    else
+        echo "$subconfig"
+    fi
+}
+
+

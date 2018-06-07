@@ -13,16 +13,16 @@ set -o errexit # Exit on error
 ### Checks
 
 usage() {
-    echo "Usage: compile.sh <build-dir> <compiler> <architecture>"
+    echo "Usage: compile.sh <build-dir> <config>"
 }
 
-if [ "$#" -eq 3 ]; then
+if [ "$#" -eq 2 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
 
     BUILD_DIR="$(cd "$1" && pwd)"
-    COMPILER="$2"
-    ARCHITECTURE="$3"
+    COMPILER="$(get-compiler-from-config "$2")"
+    ARCHITECTURE="$(get-architecture-from-config "$2")"
 else
     usage; exit 1
 fi
