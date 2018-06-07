@@ -19,9 +19,10 @@ if [ "$#" -ge 4 ]; then
     BUILD_DIR_RESET="$BUILD_DIR"
     SRC_DIR="$(cd "$2" && pwd)"
 
-    PLATFORM="$(get-platform-from-config "$3")"
-    COMPILER="$(get-compiler-from-config "$3")"
-    ARCHITECTURE="$(get-architecture-from-config "$3")"
+    CONFIG="$3"
+    PLATFORM="$(get-platform-from-config "$CONFIG")"
+    COMPILER="$(get-compiler-from-config "$CONFIG")"
+    ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
     BUILD_TYPE="$4"
     BUILD_OPTIONS="${*:5}"
     if [ -z "$BUILD_OPTIONS" ]; then
@@ -85,11 +86,11 @@ fi
 
 
 # Configure
-. "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+. "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CONFIG" "$BUILD_TYPE" "$BUILD_OPTIONS"
 
 
 # Compile
-"$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$COMPILER" "$ARCHITECTURE"
+"$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$CONFIG"
 dashboard-notify "status=success"
 github_status="success"
 github_message="Build OK"
