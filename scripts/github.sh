@@ -81,8 +81,17 @@ github-export-vars() {
         fi
     fi
 
-    if [[ "$GIT_BRANCH" == *"/PR-"* ]]; then # this is a PR
-        local pr_id="${GIT_BRANCH#*-}"
+    branch=""
+    if [ -n "$CI_BRANCH" ]; then # Check Jenkins env var first
+        branch="$CI_BRANCH"
+    elif [ -n "$GIT_BRANCH" ]; then # Check Jenkins env var first
+        branch="$GIT_BRANCH"
+    elif [ -n "$BRANCH_NAME" ]; then # Check Jenkins env var first
+        branch="$BRANCH_NAME"
+    fi
+    
+    if [[ "$branch" == *"/PR-"* ]]; then # this is a PR
+        local pr_id="${branch#*-}"
         local options="$-"
         set +x # Private stuff here: echo disabled
         if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
