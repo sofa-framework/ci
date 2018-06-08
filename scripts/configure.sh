@@ -188,6 +188,9 @@ if vm-is-windows; then # Finding libs on Windows
         add-cmake-option "-DBOOST_ROOT=$VM_BOOST_PATH"
     fi
     if [ -d "$VM_PYTHON_PATH" ]; then
+        if [[ "$ARCHITECTURE" == "x86" ]]; then
+            export VM_PYTHON_PATH="${VM_PYTHON_PATH}_x86"
+        fi
         add-cmake-option "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
     fi
