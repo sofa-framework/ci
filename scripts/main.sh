@@ -32,13 +32,6 @@ else
     usage; exit 1
 fi
 
-# Jenkins: create link for Windows jobs (too long path problem)
-if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
-    export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
-    cmd //c "mklink /D j:\build%EXECUTOR_NUMBER% %BUILD_DIR_WINDOWS%"
-    BUILD_DIR="/j/build$EXECUTOR_NUMBER"
-fi
-
 cd "$SRC_DIR"
 
 echo "--------------- main.sh vars ---------------"
@@ -64,13 +57,21 @@ fi
 # Clean build dir
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     echo "Force full build ON - cleaning build dir."
-    rm -rf "$BUILD_DIR/*" # WARNING: do not remove $BUILD_DIR itself, it is a link on Windows
+    rm -rf "$BUILD_DIR"
+    mkdir "$BUILD_DIR"
 else
     rm -f "$BUILD_DIR/make-output*.txt"
     rm -rf "$BUILD_DIR/unit-tests"
     rm -rf "$BUILD_DIR/scene-tests"
     rm -rf "$BUILD_DIR/bin"
     rm -rf "$BUILD_DIR/lib"
+fi
+
+# Jenkins: create link for Windows jobs (too long path problem)
+if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
+    export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
+    cmd //c "mklink /D j:\build%EXECUTOR_NUMBER% %BUILD_DIR_WINDOWS%"
+    BUILD_DIR="/j/build$EXECUTOR_NUMBER"
 fi
 
 
