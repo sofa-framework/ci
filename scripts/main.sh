@@ -63,6 +63,7 @@ fi
 
 # Clean build dir
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
+    echo "Force full build ON - cleaning build dir."
     rm -rf "$BUILD_DIR/*" # WARNING: do not remove $BUILD_DIR itself, it is a link on Windows
 else
     rm -f "$BUILD_DIR/make-output*.txt"

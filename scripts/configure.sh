@@ -302,9 +302,10 @@ call-cmake() {
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
         vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        echo "Calling $COMSPEC /c \"$vcvarsall & cmake $*\""
+        echo "Calling: $COMSPEC /c \"$vcvarsall & cmake $*\""
         $COMSPEC /c "$vcvarsall & cmake $*"
     else
+        echo "Calling: cmake $@"
         cmake "$@"
     fi
 }
