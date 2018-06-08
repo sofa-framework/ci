@@ -174,16 +174,14 @@ else
     qt_compiler="${COMPILER%-*}" # gcc-4.8 -> gcc
 fi
 if [[ "$ARCHITECTURE" == "amd64" ]]; then
-    qt_lib="${qt_compiler}_64/lib"
-else
-    qt_lib="${qt_compiler}/lib"
+    qt_compiler="${qt_compiler}_64"
 fi
 if [[ "$VM_HAS_REQUIRED_LIBS" != "true" ]]; then
     echo "ERROR: VM_HAS_REQUIRED_LIBS is not true. Please make sure to have all required libs installed."
     exit 1
 fi
 if [ -d "$VM_QT_PATH" ]; then
-    add-cmake-option "-DQt5_DIR=$VM_QT_PATH/${qt_lib}/cmake/Qt5"
+    add-cmake-option "-DCMAKE_PREFIX_PATH=$VM_QT_PATH/${qt_compiler}"
 fi
 if vm-is-windows; then # Finding libs on Windows
     if [ -d "$VM_BOOST_PATH" ]; then
