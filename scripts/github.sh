@@ -52,6 +52,15 @@ github-export-vars() {
         local build_options="$1"
     fi
 
+    local python_exe="python"
+    if [ ! -x "$(command -v "$python_exe")" ]; then
+        if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
+            python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"
+        else
+            echo "ERROR: Python executable not found. Try setting VM_PYTHON_PATH variable."
+        fi
+    fi
+
     if in-array "report-to-github" "$build_options"; then
         export GITHUB_NOTIFY="true"
     else
@@ -100,7 +109,7 @@ github-export-vars() {
             if [ -n "$response" ]; then
                 local prev_pwd="$(pwd)"
                 cd "$SCRIPT_DIR"
-                export GITHUB_COMMIT_HASH="$( echo "$response" | python -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
+                export GITHUB_COMMIT_HASH="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
                 cd "$prev_pwd"
             fi
         fi
@@ -121,9 +130,9 @@ github-export-vars() {
         if [ -n "$response" ]; then
             local prev_pwd="$(pwd)"
             cd "$SCRIPT_DIR"
-            export GITHUB_COMMIT_MESSAGE="$( echo "$response" | python -c "import sys,githubJsonParser; githubJsonParser.get_commit_message(sys.stdin)" )"
-            export GITHUB_COMMIT_AUTHOR="$( echo "$response" | python -c "import sys,githubJsonParser; githubJsonParser.get_commit_author(sys.stdin)" )"
-            export GITHUB_COMMIT_DATE="$( echo "$response" | python -c "import sys,githubJsonParser; githubJsonParser.get_commit_date(sys.stdin)" )"
+            export GITHUB_COMMIT_MESSAGE="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_commit_message(sys.stdin)" )"
+            export GITHUB_COMMIT_AUTHOR="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_commit_author(sys.stdin)" )"
+            export GITHUB_COMMIT_DATE="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_commit_date(sys.stdin)" )"
             cd "$prev_pwd"
         fi
     fi
@@ -139,7 +148,15 @@ github-export-vars() {
 }
 
 github-get-latest-build-comment() {
-    local pr_id="$1"
+    local pr_id="$1"    
+    local python_exe="python"
+    if [ ! -x "$(command -v "$python_exe")" ]; then
+        if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
+            python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"
+        else
+            echo "ERROR: Python executable not found. Try setting VM_PYTHON_PATH variable."
+        fi
+    fi
     local options="$-"
     set +x # Private stuff here: echo disabled
     if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
@@ -148,7 +165,7 @@ github-get-latest-build-comment() {
         if [ -n "$response" ]; then
             local prev_pwd="$(pwd)"
             cd "$SCRIPT_DIR"
-            latest_build_comment="$( echo "$response" | python -c "import sys,githubJsonParser; githubJsonParser.get_latest_build_comment(sys.stdin)" )"
+            latest_build_comment="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_latest_build_comment(sys.stdin)" )"
             cd "$prev_pwd"
         fi
     fi
