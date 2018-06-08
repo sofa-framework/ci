@@ -40,8 +40,18 @@ if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
 fi
 
 cd "$SRC_DIR"
-echo "main.sh: pwd = $(pwd)"
-echo "main.sh: BUILD_DIR = $BUILD_DIR"
+
+echo "--------------- main.sh vars ---------------"
+echo "BUILD_DIR = $BUILD_DIR"
+echo "BUILD_DIR_RESET = $BUILD_DIR_RESET"
+echo "SRC_DIR = $SRC_DIR"
+echo "CONFIG = $CONFIG"
+echo "PLATFORM = $PLATFORM"
+echo "COMPILER = $COMPILER"
+echo "ARCHITECTURE = $ARCHITECTURE"
+echo "BUILD_TYPE = $BUILD_TYPE"
+echo "BUILD_OPTIONS = $BUILD_OPTIONS"
+echo "--------------------------------------------"
 
 # Check [ci-ignore] flag in commit message
 commit_message_full="$(git log --pretty=%B -1)"

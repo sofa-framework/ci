@@ -10,9 +10,10 @@ if [ "$#" -ge 3 ]; then
     . "$SCRIPT_DIR"/utils.sh
 
     BUILD_DIR="$(cd "$1" && pwd)"
-    PLATFORM="$(get-platform-from-config "$2")"
-    COMPILER="$(get-compiler-from-config "$2")"
-    ARCHITECTURE="$(get-architecture-from-config "$2")"
+    CONFIG="$2"
+    PLATFORM="$(get-platform-from-config "$CONFIG")"
+    COMPILER="$(get-compiler-from-config "$CONFIG")"
+    ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
     BUILD_TYPE="$3"
     BUILD_OPTIONS="${*:4}"
     if [ -z "$BUILD_OPTIONS" ]; then
@@ -23,14 +24,25 @@ elif [ -n "$BUILD_ID" ]; then # Jenkins
     . "$SCRIPT_DIR"/utils.sh
     
     BUILD_DIR="$WORKSPACE/build"
-    PLATFORM="$(get-platform-from-config "$CI_CONFIG")"
-    COMPILER="$(get-compiler-from-config "$CI_CONFIG")"
-    ARCHITECTURE="$(get-architecture-from-config "$CI_CONFIG")"
+    CONFIG="$CI_CONFIG"
+    PLATFORM="$(get-platform-from-config "$CONFIG")"
+    COMPILER="$(get-compiler-from-config "$CONFIG")"
+    ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
     BUILD_TYPE="$CI_TYPE"
     BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
 else
     usage; exit 1
 fi
+
+echo "--------------- post-build.sh vars ---------------"
+echo "BUILD_DIR = $BUILD_DIR"
+echo "CONFIG = $CONFIG"
+echo "PLATFORM = $PLATFORM"
+echo "COMPILER = $COMPILER"
+echo "ARCHITECTURE = $ARCHITECTURE"
+echo "BUILD_TYPE = $BUILD_TYPE"
+echo "BUILD_OPTIONS = $BUILD_OPTIONS"
+echo "--------------------------------------------------"
 
 . "$SCRIPT_DIR"/dashboard.sh
 . "$SCRIPT_DIR"/github.sh

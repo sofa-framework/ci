@@ -32,8 +32,10 @@ if [ "$#" -ge 4 ]; then
     else
         SRC_DIR="$(cd "$2" && pwd)"
     fi
-    COMPILER="$(get-compiler-from-config "$3")"
-    ARCHITECTURE="$(get-architecture-from-config "$3")"
+    CONFIG="$3"
+    PLATFORM="$(get-platform-from-config "$CONFIG")"
+    COMPILER="$(get-compiler-from-config "$CONFIG")"
+    ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
     BUILD_TYPE="$4"
     BUILD_OPTIONS="${*:5}"
     if [ -z "$BUILD_OPTIONS" ]; then
@@ -49,8 +51,17 @@ if [[ ! -d "$SRC_DIR/applications/plugins" ]]; then
 fi
 
 cd "$SRC_DIR"
-echo "configure.sh: pwd = $(pwd)"
-echo "configure.sh: BUILD_DIR = $BUILD_DIR"
+
+echo "--------------- configure.sh vars ---------------"
+echo "BUILD_DIR = $BUILD_DIR"
+echo "SRC_DIR = $SRC_DIR"
+echo "CONFIG = $CONFIG"
+echo "PLATFORM = $PLATFORM"
+echo "COMPILER = $COMPILER"
+echo "ARCHITECTURE = $ARCHITECTURE"
+echo "BUILD_TYPE = $BUILD_TYPE"
+echo "BUILD_OPTIONS = $BUILD_OPTIONS"
+echo "-------------------------------------------------"
 
 
 

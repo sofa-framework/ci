@@ -21,8 +21,10 @@ if [ "$#" -eq 2 ]; then
     . "$SCRIPT_DIR"/utils.sh
 
     BUILD_DIR="$(cd "$1" && pwd)"
-    COMPILER="$(get-compiler-from-config "$2")"
-    ARCHITECTURE="$(get-architecture-from-config "$2")"
+    CONFIG="$2"
+    PLATFORM="$(get-platform-from-config "$CONFIG")"
+    COMPILER="$(get-compiler-from-config "$CONFIG")"
+    ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
 else
     usage; exit 1
 fi
@@ -33,8 +35,14 @@ if [[ ! -e "$BUILD_DIR/CMakeCache.txt" ]]; then
 fi
 
 cd "$BUILD_DIR"
-echo "compile.sh: pwd = $(pwd)"
-echo "compile.sh: BUILD_DIR = $BUILD_DIR"
+
+echo "--------------- compile.sh vars ---------------"
+echo "BUILD_DIR = $BUILD_DIR"
+echo "CONFIG = $CONFIG"
+echo "PLATFORM = $PLATFORM"
+echo "COMPILER = $COMPILER"
+echo "ARCHITECTURE = $ARCHITECTURE"
+echo "-----------------------------------------------"
 
 call-make() {
     if vm-is-windows; then
