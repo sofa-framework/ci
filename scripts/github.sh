@@ -148,7 +148,7 @@ github-export-vars() {
 }
 
 github-get-latest-build-comment() {
-    local pr_id="$1"    
+    local pr_id="$1"
     local python_exe="python"
     if [ ! -x "$(command -v "$python_exe")" ]; then
         if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
