@@ -18,6 +18,6 @@ export VM_BOOST_PATH="C:/dev/boost/1.64.0"
 
 export VM_QT_PATH="C:/dev/Qt/5.9.1"
 
-export VM_PYTHON_PATH="C:/dev/Python/2.7"
+export VM_PYTHON_PATH="C:/dev/python/2.7"
 
 export VM_BULLET_PATH=""
