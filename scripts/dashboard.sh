@@ -95,7 +95,7 @@ dashboard-export-vars() {
     fi    
 
     if [ -n "$GITHUB_BASECOMMIT_HASH" ]; then
-        export DASH_BASECOMMIT_HASH="$GITHUB_COMMIT_HASH"
+        export DASH_BASECOMMIT_HASH="$GITHUB_BASECOMMIT_HASH"
     fi
 
     if [ -n "$GITHUB_COMMIT_AUTHOR" ]; then
