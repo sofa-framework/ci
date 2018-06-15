@@ -147,7 +147,7 @@ github-export-vars() {
     echo "---------------------"
 }
 
-github-get-latest-build-comment() {
+github-get-pr-latest-build-comment() {
     local pr_id="$1"
     local python_exe="python"
     if [ ! -x "$(command -v "$python_exe")" ]; then
@@ -171,5 +171,17 @@ github-get-latest-build-comment() {
     fi
     set -$options
     echo "$latest_build_comment"
+}
+
+github-get-pr-diff() {
+    local pr_id="$1"
+    local options="$-"
+    set +x # Private stuff here: echo disabled
+    if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
+       [ -n "$GITHUB_REPOSITORY" ]; then
+        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://github.com/$GITHUB_REPOSITORY/pull/${pr_id}.diff")"
+    fi
+    set -$options
+    echo "$response"
 }
 

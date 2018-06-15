@@ -25,19 +25,39 @@ github-export-vars "$build_options"
 dashboard-export-vars "$build_options"
 dashboard-init
 
+# Set Dashboard line on GitHub
+GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
+GITHUB_TARGET_URL_OLD="$GITHUB_TARGET_URL"
+export GITHUB_CONTEXT="Dashboard"
+export GITHUB_TARGET_URL="https://www.sofa-framework.org/dash?branch=Jk2/$DASH_COMMIT_BRANCH"
+github-notify "pending" "Builds triggered."
+export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
+export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
+
 
 if [[ "$BUILD_CAUSE_GITHUBPULLREQUESTCOMMENTCAUSE" == "true" ]] && [[ "$GIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
     pr_id="${GIT_BRANCH#*-}"
-    latest_build_comment="$(github-get-latest-build-comment "$pr_id")"
+    latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
+    GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
+    export GITHUB_CONTEXT="Scene tests"
     if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
         touch "$WORKSPACE/enable-scene-tests"
+        github-notify "success" "Triggered in latest build."
     else
         echo "[with-scene-tests] NOT detected"
         # compute diff size
         # if big diff: scene tests should be triggered
         # else: scene tests ignored
+        diffLineCount=999
+        diffLineCount="$(github-get-pr-diff "$pr_id" | wc -l)"
+        if [ "$diffLineCount" -lt 200 ]; then
+            github-notify "success" "Ignored. Use [ci-build][with-scene-tests] to trigger."
+        else
+            github-notify "failure" "Missing. Use [ci-build][with-scene-tests] to trigger."
+        fi
     fi
+    export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 fi
 
 # WARNING: Matrix combinations string must be explicit using only '()' and/or '==' and/or '&&' and/or '||'
