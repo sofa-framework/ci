@@ -83,6 +83,7 @@ fi
 # Jenkins: create link for Windows jobs (too long path problem)
 if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
+    cmd //c "if exist j:\build%EXECUTOR_NUMBER% rmdir j:\build%EXECUTOR_NUMBER%"
     cmd //c "mklink /D j:\build%EXECUTOR_NUMBER% %BUILD_DIR_WINDOWS%"
     BUILD_DIR="/j/build$EXECUTOR_NUMBER"
 fi
