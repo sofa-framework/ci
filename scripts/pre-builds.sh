@@ -34,29 +34,31 @@ github-notify "success" "Builds triggered."
 export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
 
-
-if [[ "$BUILD_CAUSE_GITHUBPULLREQUESTCOMMENTCAUSE" == "true" ]] && [[ "$GIT_BRANCH" == *"/PR-"* ]]; then
+# Set "Scene test" GitHub status check
+if [[ "$GIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
     pr_id="${GIT_BRANCH#*-}"
-    latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
+    
     GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
     export GITHUB_CONTEXT="Scene tests"
-    if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
-        touch "$WORKSPACE/enable-scene-tests"
+
+    latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
+    if [[ "$BUILD_CAUSE_GITHUBPULLREQUESTCOMMENTCAUSE" == "true" ]] && [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
+        echo "Scene tests forced."
+        touch "$WORKSPACE/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
         github-notify "success" "Triggered in latest build."
     else
-        echo "[with-scene-tests] NOT detected"
-        # compute diff size
-        # if big diff: scene tests should be triggered
-        # else: scene tests ignored
+        echo "Scene tests NOT forced."
         diffLineCount=999
         diffLineCount="$(github-get-pr-diff "$pr_id" | wc -l)"
+        
         if [ "$diffLineCount" -lt 200 ]; then
             github-notify "success" "Ignored. Use [ci-build][with-scene-tests] to trigger."
         else
             github-notify "failure" "Missing. Use [ci-build][with-scene-tests] to trigger."
         fi
     fi
+    
     export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 fi
 
