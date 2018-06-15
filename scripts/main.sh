@@ -104,7 +104,7 @@ dashboard-notify "status=build"
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$CONFIG"
 dashboard-notify "status=success"
 github_status="success"
-github_message="Build OK"
+github_message="Build OK."
 github-notify "$github_status" "$github_message"
 
 # [Full build] Count Warnings
@@ -134,6 +134,10 @@ if vm-is-windows && [ -n "$VM_BOOST_PATH" ] && [ -n "$VM_QT_PATH" ] ; then
     fi
 fi
 
+if in-array "run-unit-tests" "$BUILD_OPTIONS" || in-array "run-scene-tests" "$BUILD_OPTIONS"; then
+    github_message="${github_message} FIXME:"
+fi
+
 # Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     dashboard-notify "tests_status=running"
@@ -148,10 +152,11 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
 
     tests_problems=$((tests_failures+tests_errors))
-    github_message="${github_message}, $tests_problems unit-test problems"
+    github_message="${github_message} $tests_problems unit tests"
     if [ $tests_problems -gt 0 ]; then
         github_status="success" # do not fail on tests failure
     fi
+    github-notify "$github_status" "$github_message"
 
     dashboard-notify \
         "tests_status=success" \
@@ -183,10 +188,11 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
 
     scenes_problems=$((scenes_errors+scenes_crashes))
-    github_message="${github_message}, $scenes_problems scene-test problems"
+    github_message="${github_message}, $scenes_problems scene tests"
     if [ $scenes_problems -gt 0 ]; then
         github_status="success" # do not fail on tests failure
     fi
+    github-notify "$github_status" "$github_message"
     
     dashboard-notify \
         "scenes_status=success" \
@@ -198,9 +204,6 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     # Clamping warning file to avoid Jenkins overflow
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
 fi
-
-# Update GitHub message with test results
-github-notify "$github_status" "$github_message"
 
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-fullbuild-$COMPILER.txt"
