@@ -34,9 +34,9 @@ github-notify() {
     set -$options
 
     echo "Notify GitHub ($notify): [$state] $GITHUB_CONTEXT - $message"
-    if [ -n "$response" ]; then
-        echo "GitHub reponse: $response"
-    fi
+    # if [ -n "$response" ]; then
+        # echo "GitHub reponse: $response"
+    # fi
 }
 
 github-export-vars() {
