@@ -17,7 +17,7 @@ dashboard-notify-explicit() {
     fi
 
     if [[ "$DASH_NOTIFY" == "true" ]] && [ -n "$DASH_DASHBOARD_URL" ]; then
-        curl --data "$message" -X POST "$DASH_DASHBOARD_URL"
+        curl --silent --data "$message" -X POST "$DASH_DASHBOARD_URL"
         notify="sent"
     fi
 
