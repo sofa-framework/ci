@@ -114,7 +114,7 @@ if vm-is-windows; then
         export CLCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd -W)"
         #export CLCACHE_HARDLINK=1 # this may cause cache corruption. see https://github.com/frerich/clcache/issues/282
         export CLCACHE_OBJECT_CACHE_TIMEOUT_MS=3600000
-        clcache -M 12884901888 # Set cache size to 1024*1024*1024*12 = 12 GB
+        clcache -M 17179869184 # Set cache size to 1024*1024*1024*16 = 16 GB
         
         add-cmake-option "-DCMAKE_C_COMPILER=clcache"
         add-cmake-option "-DCMAKE_CXX_COMPILER=clcache"
