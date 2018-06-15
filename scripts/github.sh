@@ -110,6 +110,7 @@ github-export-vars() {
                 local prev_pwd="$(pwd)"
                 cd "$SCRIPT_DIR"
                 export GITHUB_COMMIT_HASH="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
+                export GITHUB_BASECOMMIT_HASH="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_base_sha(sys.stdin)" )"
                 cd "$prev_pwd"
             fi
         fi
