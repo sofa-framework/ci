@@ -158,7 +158,7 @@ save-env-vars() {
     fi
     prefix="$1"
     output_dir="$2"
-    env | grep "^${prefix}_" > "${output_dir}/${prefix}_vars.txt"
+    env | grep "^${prefix}_" | grep -v "TOKEN" > "${output_dir}/${prefix}_vars.txt"
 }
 
 load-env-vars() {
