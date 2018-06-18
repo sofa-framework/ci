@@ -59,14 +59,6 @@ echo "BUILD_TYPE = $BUILD_TYPE"
 echo "BUILD_OPTIONS = $BUILD_OPTIONS"
 echo "--------------------------------------------"
 
-# Check [ci-ignore] flag in commit message
-commit_message_full="$(git log --pretty=%B -1)"
-if [[ "$commit_message_full" == *"[ci-ignore]"* ]]; then
-    # Ignore this build
-    echo "WARNING: [ci-ignore] detected in commit message, build aborted."
-    exit
-fi
-
 # Clean build dir
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     echo "Force full build ON - cleaning build dir."

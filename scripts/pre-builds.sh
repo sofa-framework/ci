@@ -23,6 +23,16 @@ fi
 
 github-export-vars "$build_options"
 dashboard-export-vars "$build_options"
+
+# Check [ci-ignore] flag in commit message
+if [ -n "$GITHUB_COMMIT_MESSAGE" ] && [[ "$GITHUB_COMMIT_MESSAGE" == *"[ci-ignore]"* ]]; then
+    # Ignore this build
+    touch "abort-this-build"
+    echo "WARNING: [ci-ignore] detected in commit message, build aborted."
+    exit 0
+fi
+
+
 dashboard-init
 
 # Set Dashboard line on GitHub
