@@ -60,9 +60,15 @@ echo "--------------------------------------------------"
 . "$SCRIPT_DIR"/dashboard.sh
 . "$SCRIPT_DIR"/github.sh
 
-github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+load-env-vars "GITHUB" "$BUILD_DIR" # Retrieve GITHUB env vars used during build
+load-env-vars "DASH" "$BUILD_DIR" # Retrieve DASH env vars used during build
 
+echo "Dashboard env vars:"
+env | grep "^DASH_"
+echo "---------------------"
+echo "GitHub env vars:"
+env | grep "^GITHUB_"
+echo "---------------------"
 
 on-failure() {
     dashboard-notify "status=fail"

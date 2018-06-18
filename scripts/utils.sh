@@ -152,4 +152,26 @@ get-architecture-from-config() {
     fi
 }
 
+save-env-vars() {
+    if [ ! "$#" -eq 2 ]; then
+        exit 1
+    fi
+    prefix="$1"
+    output_dir="$2"
+    env | grep "^${prefix}_" > "${output_dir}/${prefix}_vars.txt"
+}
+
+load-env-vars() {
+    if [ ! "$#" -eq 2 ]; then
+        exit 1
+    fi
+    prefix="$1"
+    input_dir="$2"
+    while IFS='' read -r line || [[ -n "$line" ]]; do
+        key="${line%=*}"
+        value="${line#*=}"
+        export "${key}=${value}"
+    done < "${input_dir}/${prefix}_vars.txt"
+}
+
 
