@@ -9,6 +9,10 @@ def get_head_sha(json_string):
 def get_base_sha(json_string):
     obj=json.load(json_string)
     print obj['base']['sha']
+    
+def get_state(json_string):
+    obj=json.load(json_string)
+    print obj['state']
 
 def get_commit_message(json_string):
     obj=json.load(json_string)

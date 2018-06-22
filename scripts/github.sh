@@ -186,3 +186,24 @@ github-get-pr-diff() {
     echo "$response"
 }
 
+github-get-pr-state() {
+    local pr_id="$1"
+    if [ -n "$GITHUB_REPOSITORY" ]; then
+        export GITHUB_REPOSITORY="sofa-framework/sofa"
+    fi
+    local options="$-"
+    set +x # Private stuff here: echo disabled
+    if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
+       [ -n "$GITHUB_REPOSITORY" ]; then
+        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$pr_id")"
+        if [ -n "$response" ]; then
+            local prev_pwd="$(pwd)"
+            cd "$SCRIPT_DIR"
+            state="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_state(sys.stdin)" )"
+            cd "$prev_pwd"
+        fi
+    fi
+    set -$options
+    echo "$state"
+}
+
