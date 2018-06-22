@@ -15,6 +15,8 @@ else
     usage; exit 1
 fi
 
+load-vm-env
+
 cd "$BASE_DIR"
 
 for dir in *; do
@@ -28,7 +30,6 @@ for dir in *; do
         # check if this PR is closed
         pr_id="${dir#*-}"
         pr_state="$(github-get-pr-state "$pr_id")"
-        echo "PR $pr_id state = $pr_state"
         if [[ "$pr_state" == "closed" ]]; then
             status="removed"
         fi

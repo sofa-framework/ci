@@ -188,7 +188,15 @@ github-get-pr-diff() {
 
 github-get-pr-state() {
     local pr_id="$1"
-    if [ -n "$GITHUB_REPOSITORY" ]; then
+    local python_exe="python"
+    if [ ! -x "$(command -v "$python_exe")" ]; then
+        if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
+            python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"
+        else
+            echo "ERROR: Python executable not found. Try setting VM_PYTHON_PATH variable."
+        fi
+    fi
+    if [ -z "$GITHUB_REPOSITORY" ]; then
         export GITHUB_REPOSITORY="sofa-framework/sofa"
     fi
     local options="$-"
