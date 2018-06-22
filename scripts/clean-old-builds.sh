@@ -27,7 +27,9 @@ for dir in *; do
     if [[ "$dir" == "PR-"* ]]; then # PR dir
         # check if this PR is closed
         pr_id="${dir#*-}"
-        if [[ "$(github-get-pr-state "$pr_id")" == "closed" ]]; then
+        pr_state="$(github-get-pr-state "$pr_id")"
+        echo "PR $pr_id state = $pr_state"
+        if [[ "$pr_state" == "closed" ]]; then
             status="removed"
         fi
     elif [ -d "SofaKernel" ] && [[ "$dir" != "master" ]]; then # branch dir (except master)
