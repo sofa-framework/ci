@@ -12,4 +12,3 @@ export VM_HAS_CGAL="true"
 export VM_HAS_CUDA="true"
 
 export VM_HAS_OPENCASCADE="false"
-
