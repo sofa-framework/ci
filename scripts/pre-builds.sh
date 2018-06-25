@@ -29,7 +29,7 @@ if [ -n "$GITHUB_COMMIT_MESSAGE" ] && [[ "$GITHUB_COMMIT_MESSAGE" == *"[ci-ignor
     # Ignore this build
     touch "abort-this-build"
     echo "WARNING: [ci-ignore] detected in commit message, build aborted."
-    exit 0
+    exit 1
 fi
 
 

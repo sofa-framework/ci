@@ -8,7 +8,7 @@
 #   Qt: sudo apt install qt5-default qttools5-dev-tools libqt5opengl5-dev
 #   Boost: sudo apt install libboost-atomic-dev libboost-chrono-dev libboost-date-time-dev libboost-filesystem-dev libboost-locale-dev libboost-regex-dev libboost-system-dev libboost-thread-dev
 #   Python: sudo apt install python2.7-dev python-numpy python-scipy
-#   Other: sudo apt install libpng-dev zlib1g-dev libglew-dev freeglut3-dev
+#   Other: sudo apt install libpng-dev libjpeg-dev libtiff-dev zlib1g-dev libglew-dev freeglut3-dev
 # Optional libs:
 #   Bullet: sudo apt install libbullet-dev
 #   Assimp: sudo apt install libassimp-dev
@@ -22,7 +22,7 @@
 #   Qt: sudo yum install qt5-qtbase
 #   Boost: must be compiled
 #   Python: sudo yum install python numpy scipy
-#   Other: sudo yum install libpng zlib-devel libglew freeglut-devel curl
+#   Other: sudo yum install libpng-devel libjpeg-devel libtiff-devel zlib-devel libglew freeglut-devel curl
 # Optional libs:
 #   Bullet: sudo yum install bullet-devel
 #   Assimp: sudo yum install assimp-devel
@@ -36,7 +36,7 @@
 #   Qt: must be compiled
 #   Boost: brew install boost
 #   Python: -
-#   Other: brew install glew libpng metis curl
+#   Other: brew install glew libpng ligjpeg libtiff metis curl
 # Optional libs:
 #   Bullet: brew install bullet
 #   Assimp: brew install assimp
