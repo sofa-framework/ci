@@ -23,6 +23,7 @@ usage() {
 }
 
 if [ "$#" -ge 3 ]; then
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
@@ -167,7 +168,7 @@ create-directories() {
         list-scenes "$src_dir/$path" > "$output_dir/$path/scenes.txt"
         while read scene; do
             mkdir -p "$output_dir/$path/$scene"
-            if [[ "$CI_BUILD_TYPE" == "Debug" ]]; then
+            if [[ "$CI_TYPE" == "Debug" ]]; then
                 echo 60 > "$output_dir/$path/$scene/timeout.txt" # Default debug timeout, in seconds
             else
                 echo 30 > "$output_dir/$path/$scene/timeout.txt" # Default release timeout, in seconds
@@ -200,7 +201,7 @@ parse-options-files() {
                                 scene="$(get-arg "$args" 1)"
                                 echo $scene >> "$output_dir/$path/add-patterns.txt"
                                 mkdir -p "$output_dir/$path/$scene"
-                                if [[ "$CI_BUILD_TYPE" == "Debug" ]]; then
+                                if [[ "$CI_TYPE" == "Debug" ]]; then
                                     echo 60 > "$output_dir/$path/$scene/timeout.txt" # Default debug timeout, in seconds
                                 else
                                     echo 30 > "$output_dir/$path/$scene/timeout.txt" # Default release timeout, in seconds
@@ -364,7 +365,7 @@ test-all-scenes() {
         local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
         local timeout=$(cat "$output_dir/$scene/timeout.txt")
         echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
-        "$src_dir/scripts/ci/timeout.sh" runSofa "$runSofa_cmd" $timeout
+        "$SCRIPT_DIR/timeout.sh" runSofa "$runSofa_cmd" $timeout
         local status=-1
         if [[ -e runSofa.timeout ]]; then
             echo 'Timeout!'
