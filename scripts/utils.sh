@@ -183,9 +183,7 @@ load-env-vars() {
     prefix="$1"
     input_dir="$2"
     while IFS='' read -r line || [[ -n "$line" ]]; do
-        key="${line%=*}"
-        value="${line#*=}"
-        export "${key}=${value}"
+        export "$line"
     done < "${input_dir}/${prefix}_vars.txt"
 }
 
