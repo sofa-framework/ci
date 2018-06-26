@@ -53,7 +53,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     export GITHUB_CONTEXT="Scene tests"
 
     latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
-    if [[ "$BUILD_CAUSE_GITHUBPULLREQUESTCOMMENTCAUSE" == "true" ]] && [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
+    if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
         echo "Scene tests: forced."
         touch "$WORKSPACE/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
         github-notify "success" "Triggered in latest build."
