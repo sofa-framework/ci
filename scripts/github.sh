@@ -190,7 +190,7 @@ github-get-pr-diff() {
     set +x # Private stuff here: echo disabled
     if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
        [ -n "$GITHUB_REPOSITORY" ]; then
-        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://github.com/$GITHUB_REPOSITORY/pull/${pr_id}.diff")"
+        response="$(curl -L --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://github.com/$GITHUB_REPOSITORY/pull/${pr_id}.diff")"
     fi
     set -$options
     echo "$response"

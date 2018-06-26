@@ -45,22 +45,23 @@ export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
 
 # Set "Scene test" GitHub status check
-if [[ "$GIT_BRANCH" == *"/PR-"* ]]; then
+if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
-    pr_id="${GIT_BRANCH#*-}"
+    pr_id="${DASH_COMMIT_BRANCH#*-}"
     
     GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
     export GITHUB_CONTEXT="Scene tests"
 
     latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
     if [[ "$BUILD_CAUSE_GITHUBPULLREQUESTCOMMENTCAUSE" == "true" ]] && [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
-        echo "Scene tests forced."
+        echo "Scene tests: forced."
         touch "$WORKSPACE/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
         github-notify "success" "Triggered in latest build."
     else
-        echo "Scene tests NOT forced."
+        echo "Scene tests: NOT forced."
         diffLineCount=999
         diffLineCount="$(github-get-pr-diff "$pr_id" | wc -l)"
+        echo "Scene tests: diffLineCount = $diffLineCount"
         
         if [ "$diffLineCount" -lt 200 ]; then
             github-notify "success" "Ignored. Use [ci-build][with-scene-tests] to trigger."
