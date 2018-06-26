@@ -118,7 +118,17 @@ github-export-vars() {
     elif [ -n "$GIT_COMMIT" ]; then
         export GITHUB_COMMIT_HASH="$GIT_COMMIT"
     else # This should not happen with Jenkins
-        export GITHUB_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
+        if [[ "$branch" == "origin/"* ]]; then
+            local branch_name="${branch#*/}"
+            refs="refs/heads/$branch_name"
+        elif [[ "$branch" == *"/PR-"* ]]; then
+            local pr_id="${branch#*-}"
+            refs="refs/pull/$pr_id/head"
+        else
+            refs="$branch" # should not happen
+        fi
+        export GITHUB_COMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep "$refs" | cut -f 1)"
+        # export GITHUB_COMMIT_HASH="$(git log -n 1 $branch --pretty=format:"%H")"
         echo "Trying to guess GITHUB_COMMIT_HASH: $GITHUB_COMMIT_HASH"
     fi
 
