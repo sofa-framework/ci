@@ -88,6 +88,8 @@ dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BU
 save-env-vars "GITHUB" "$BUILD_DIR"
 save-env-vars "DASH" "$BUILD_DIR"
 
+dashboard-init # Ensure Dashboard line is OK
+
 github-notify "pending" "Building..."
 dashboard-notify "status=build"
 
