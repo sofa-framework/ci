@@ -115,9 +115,9 @@ github-export-vars() {
             fi
         fi
         set -$options
-    elif [ -n "$GIT_COMMIT" ]; then
-        export GITHUB_COMMIT_HASH="$GIT_COMMIT"
-    else # This should not happen with Jenkins
+    # elif [ -n "$GIT_COMMIT" ]; then # This seems BROKEN since GIT_COMMIT is often wrong
+        # export GITHUB_COMMIT_HASH="$GIT_COMMIT"
+    else
         if [[ "$branch" == "origin/"* ]]; then
             local branch_name="${branch#*/}"
             refs="refs/heads/$branch_name"
