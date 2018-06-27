@@ -75,6 +75,9 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     fi
     
     export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
+elif [[ "$DASH_COMMIT_BRANCH" == "origin/master" ]]; then
+    # Always scene tests for master builds
+    echo "true" > "enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
 fi
 
 # WARNING: Matrix combinations string must be explicit using only '()' and/or '==' and/or '&&' and/or '||'
