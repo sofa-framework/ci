@@ -100,7 +100,7 @@ for matrix_combination in "${matrix_combinations[@]}"; do
 
     # Notify GitHub and Dashboard
     github-notify "pending" "Build queued."
-    dashboard-notify "status="
+    dashboard-notify "tests_status=todo" "scenes_status=todo" "status="
 
     sleep 1 # ensure we are not flooding APIs
 done
