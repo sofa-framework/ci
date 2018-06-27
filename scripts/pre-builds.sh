@@ -2,21 +2,24 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: pre-builds.sh <matrix-combinations-string> <build-options>"
+    echo "Usage: pre-builds.sh <matrix-combinations-string> <output_dir> <build-options>"
 }
 
-if [ "$#" -ge 1 ]; then
+if [ "$#" -ge 2 ]; then
     script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$script_dir"/utils.sh
 
     matrix_combinations_string="$1"
-    build_options="${*:2}"
+    output_dir="$( cd "$2" && pwd )"
+    build_options="${*:3}"
     if [ -z "$build_options" ]; then
         build_options="$(get-build-options)" # use env vars (Jenkins)
     fi
 else
     usage; exit 1
 fi
+
+cd "$output_dir"
 
 . "$script_dir"/dashboard.sh
 . "$script_dir"/github.sh
@@ -45,7 +48,7 @@ export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
 
 # Set "Scene test" GitHub status check
-rm -f "$WORKSPACE/enable-scene-tests"
+rm -f "enable-scene-tests"
 if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
     pr_id="${DASH_COMMIT_BRANCH#*-}"
@@ -56,7 +59,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
     if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
         echo "Scene tests: forced."
-        echo "true" > "$WORKSPACE/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
+        echo "true" > "enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
         github-notify "success" "Triggered in latest build."
     else
         echo "Scene tests: NOT forced."
