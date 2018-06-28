@@ -1,0 +1,23 @@
+#!/bin/bash
+
+
+export VM_HAS_REQUIRED_LIBS="true"
+
+export VM_HAS_BULLET="false"
+
+export VM_HAS_ASSIMP="true" # Windows dll included in SOFA
+
+export VM_HAS_CGAL="false"
+
+export VM_HAS_CUDA="false"
+
+export VM_HAS_OPENCASCADE="false"
+
+
+export VM_BOOST_PATH="C:/dev/boost/1.64.0"
+
+export VM_QT_PATH="C:/dev/Qt/5.9.1"
+
+export VM_PYTHON_PATH="C:/dev/python/2.7"
+
+export VM_BULLET_PATH=""
