@@ -19,8 +19,6 @@ else
     usage; exit 1
 fi
 
-cd "$output_dir"
-
 . "$script_dir"/dashboard.sh
 . "$script_dir"/github.sh
 
@@ -48,7 +46,7 @@ export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
 
 # Set "Scene test" GitHub status check
-rm -f "enable-scene-tests"
+rm -f "$output_dir/enable-scene-tests"
 if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
     pr_id="${DASH_COMMIT_BRANCH#*-}"
@@ -59,7 +57,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
     if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
         echo "Scene tests: forced."
-        echo "true" > "enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
+        echo "true" > "$output_dir/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
         github-notify "success" "Triggered in latest build."
     else
         echo "Scene tests: NOT forced."
@@ -77,7 +75,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 elif [[ "$DASH_COMMIT_BRANCH" == "origin/master" ]]; then
     # Always scene tests for master builds
-    echo "true" > "enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
+    echo "true" > "$output_dir/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
 fi
 
 # WARNING: Matrix combinations string must be explicit using only '()' and/or '==' and/or '&&' and/or '||'
