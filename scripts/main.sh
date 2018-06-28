@@ -199,8 +199,9 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
         "scenes_errors=$scenes_errors" \
         "scenes_crashes=$scenes_crashes"
 
-    # Clamping warning file to avoid Jenkins overflow
+    # Clamping warning and error files to avoid Jenkins overflow
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
+    "$SCRIPT_DIR/scene-tests.sh" clamp-errors "$BUILD_DIR" "$SRC_DIR" 5000
 fi
 
 if in-array "force-full-build" "$BUILD_OPTIONS"; then

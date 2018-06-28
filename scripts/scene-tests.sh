@@ -461,7 +461,27 @@ clamp-warnings() {
 
             echo "$output_dir/reports/warnings.txt: [ERROR]   [JENKINS] TOO MANY SCENE-TEST WARNINGS (>$clamp_limit), CLAMPING FILE TO $clamp_limit" >> "$output_dir/reports/errors.txt"
         else
-            echo "INFO: clamping not needed ($warnings_lines < $clamp_limit)"
+            echo "INFO: warnings clamping not needed ($warnings_lines < $clamp_limit)"
+        fi
+    fi
+}
+
+clamp-errors() {
+    clamp_limit=$1
+    echo "INFO: scene-test errors limited to $clamp_limit"
+    if [ -e  "$output_dir/reports/errors.txt" ]; then
+        error_lines="$(count-errors)"
+        if [ $errors_lines -gt $clamp_limit ]; then
+            echo "-------------------------------------------------------------"
+            echo "ALERT: TOO MANY SCENE-TEST ERRORS ($error_lines > $clamp_limit), CLAMPING TO $clamp_limit"
+            echo "-------------------------------------------------------------"
+            cat "$output_dir/reports/errors.txt" > "$output_dir/reports/errors.tmp"
+            head -n$clamp_limit "$output_dir/reports/errors.tmp" > "$output_dir/reports/errors.txt"
+            rm -f "$output_dir/reports/errors.tmp"
+
+            echo "$output_dir/reports/errors.txt: [ERROR]   [JENKINS] TOO MANY SCENE-TEST ERRORS (>$clamp_limit), CLAMPING FILE TO $clamp_limit" >> "$output_dir/reports/errors.txt"
+        else
+            echo "INFO: errors clamping not needed ($error_lines < $clamp_limit)"
         fi
     fi
 }
@@ -532,6 +552,8 @@ elif [[ "$command" = count-crashes ]]; then
     count-crashes
 elif [[ "$command" = clamp-warnings ]]; then
     clamp-warnings $4
+elif [[ "$command" = clamp-errors ]]; then
+    clamp-errors $4
 else
     echo "Unknown command: $command"
 fi
