@@ -127,7 +127,7 @@ github-export-vars() {
         else
             refs="$branch" # should not happen
         fi
-        export GITHUB_COMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep "$refs" | cut -f 1)"
+        export GITHUB_COMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep "$refs" | grep -v "refs/original" | cut -f 1)"
         # export GITHUB_COMMIT_HASH="$(git log -n 1 $branch --pretty=format:"%H")"
         echo "Trying to guess GITHUB_COMMIT_HASH: $GITHUB_COMMIT_HASH"
     fi
