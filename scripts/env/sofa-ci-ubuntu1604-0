@@ -14,4 +14,4 @@ export VM_HAS_CUDA="true"
 export VM_HAS_OPENCASCADE="false"
 
 
-export VM_MAKE_OPTIONS="-j8"
+export VM_MAKE_OPTIONS="-j6"
