@@ -21,3 +21,6 @@ export VM_QT_PATH="C:/dev/Qt/5.9.1"
 export VM_PYTHON_PATH="C:/dev/python/2.7"
 
 export VM_BULLET_PATH=""
+
+
+export VM_MAKE_OPTIONS="-j4"
