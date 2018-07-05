@@ -106,7 +106,9 @@ if [ -n "$EXECUTOR_NUMBER" ]; then
         export BUILD_DIR_PARENT_WINDOWS="$(cd "$BUILD_DIR/.." && pwd -W | sed 's#/#\\#g')"
         cmd //c "if exist j:\build%EXECUTOR_NUMBER% rmdir j:\build%EXECUTOR_NUMBER%"
         
-        cmd //c "if not exist %BUILD_DIR_WINDOWS%\parent_dir mklink /D %BUILD_DIR_PARENT_WINDOWS% %BUILD_DIR_WINDOWS%\parent_dir"
+        if [ ! -d "$BUILD_DIR/parent_dir" ]; then
+            cmd //c "mklink /D %BUILD_DIR_PARENT_WINDOWS% %BUILD_DIR_WINDOWS%\parent_dir"
+        fi
     else
         ln -sf "$(cd $BUILD_DIR/.. && pwd)" "$BUILD_DIR/parent_dir"
     fi
