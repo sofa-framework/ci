@@ -23,7 +23,7 @@ elif [ -n "$BUILD_ID" ]; then # Jenkins
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
     
-    BUILD_DIR="$WORKSPACE/../build"
+    BUILD_DIR="$(cd "$WORKSPACE/../build" && pwd)"
     CONFIG="$CI_CONFIG"
     PLATFORM="$(get-platform-from-config "$CONFIG")"
     COMPILER="$(get-compiler-from-config "$CONFIG")"
