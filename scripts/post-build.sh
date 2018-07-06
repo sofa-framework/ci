@@ -102,12 +102,13 @@ esac
 # Jenkins: remove link for Windows jobs (too long path problem)
 if [ -n "$EXECUTOR_NUMBER" ]; then
     if vm-is-windows; then
-        export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
-        export BUILD_DIR_PARENT_WINDOWS="$(cd "$BUILD_DIR/.." && pwd -W | sed 's#/#\\#g')"
         cmd //c "if exist j:\build%EXECUTOR_NUMBER% rmdir j:\build%EXECUTOR_NUMBER%"
-        cmd //c "if not exist %BUILD_DIR_WINDOWS%\parent_dir mklink /D %BUILD_DIR_WINDOWS%\parent_dir %BUILD_DIR_PARENT_WINDOWS%"
+        
+        export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
+        export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
+        cmd //c "if not exist %WORKSPACE_WINDOWS%\parent_dir mklink /D %WORKSPACE_WINDOWS%\parent_dir %WORKSPACE_PARENT_WINDOWS%"
     else
-        ln -sf "$(cd $BUILD_DIR/.. && pwd)" "$BUILD_DIR/parent_dir"
+        ln -sf "$(cd $WORKSPACE/.. && pwd)" "$WORKSPACE/parent_dir"
     fi
 fi
 
