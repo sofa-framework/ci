@@ -18,6 +18,7 @@ if [ "$#" -ge 4 ]; then
     BUILD_DIR="$(cd "$1" && pwd)"
     BUILD_DIR_RESET="$BUILD_DIR"
     SRC_DIR="$(cd "$2" && pwd)"
+    SRC_DIR_RESET="$SRC_DIR"
 
     CONFIG="$3"
     PLATFORM="$(get-platform-from-config "$CONFIG")"
@@ -74,10 +75,15 @@ fi
 
 # Jenkins: create link for Windows jobs (too long path problem)
 if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
-    export BUILD_DIR_WINDOWS="$(cd "$BUILD_DIR" && pwd -W | sed 's#/#\\#g')"
-    cmd //c "if exist j:\build%EXECUTOR_NUMBER% rmdir j:\build%EXECUTOR_NUMBER%"
-    cmd //c "mklink /D j:\build%EXECUTOR_NUMBER% %BUILD_DIR_WINDOWS%"
-    BUILD_DIR="/j/build$EXECUTOR_NUMBER"
+    export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
+    cmd //c "if exist j:\%EXECUTOR_NUMBER% rmdir j:\%EXECUTOR_NUMBER%"
+    cmd //c "mklink /D j:\%EXECUTOR_NUMBER% %WORKSPACE_PARENT_WINDOWS%"
+    export EXECUTOR_LINK_WINDOWS="j:\\$EXECUTOR_NUMBER"
+    export EXECUTOR_LINK_WINDOWS_SRC="j:\\$EXECUTOR_NUMBER\src"
+    export EXECUTOR_LINK_WINDOWS_BUILD="j:\\$EXECUTOR_NUMBER\build"
+    
+    SRC_DIR="/j/$EXECUTOR_NUMBER/src"
+    BUILD_DIR="/j/$EXECUTOR_NUMBER/build"
 fi
 
 
@@ -116,8 +122,9 @@ if in-array "force-full-build" "$BUILD_OPTIONS"; then
     dashboard-notify "warnings=$warning_count"
 fi
 
-# Reset BUILD_DIR for tests (Windows too long path problem)
+# Reset BUILD_DIR and SRC_DIR for tests (Windows too long path problem)
 BUILD_DIR="$BUILD_DIR_RESET"
+SRC_DIR="$SRC_DIR_RESET"
 
 # Prepare BUILD_DIR for tests
 if vm-is-windows && [ -n "$VM_BOOST_PATH" ] && [ -n "$VM_QT_PATH" ] ; then

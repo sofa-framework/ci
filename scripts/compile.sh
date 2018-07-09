@@ -34,8 +34,6 @@ if [[ ! -e "$BUILD_DIR/CMakeCache.txt" ]]; then
     usage; exit 1
 fi
 
-cd "$BUILD_DIR"
-
 echo "--------------- compile.sh vars ---------------"
 echo "BUILD_DIR = $BUILD_DIR"
 echo "CONFIG = $CONFIG"
@@ -45,6 +43,10 @@ echo "ARCHITECTURE = $ARCHITECTURE"
 echo "-----------------------------------------------"
 
 call-make() {
+    local build_dir="$(cd "$1" && pwd)"
+    local build_dir_windows="$(cd "$1" && pwd -W | sed 's#/#\\#g')"
+    shift # Remove first arg
+    
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
@@ -54,8 +56,11 @@ call-make() {
         	echo "Using ninja as build system"
             toolname="ninja"
         fi
-        echo "Calling: $COMSPEC /c \"$vcvarsall & $toolname $VM_MAKE_OPTIONS\""
-        $COMSPEC /c "$vcvarsall & $toolname $VM_MAKE_OPTIONS"
+        if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
+            build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
+        fi
+        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $VM_MAKE_OPTIONS\""
+        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $VM_MAKE_OPTIONS"
     else
     	toolname="make" # default
         if [ -x "$(command -v ninja)" ]; then
@@ -63,7 +68,7 @@ call-make() {
 	        toolname="ninja"
         fi
         echo "Calling: $toolname $VM_MAKE_OPTIONS"
-        $toolname $VM_MAKE_OPTIONS
+        cd $build_dir && $toolname $VM_MAKE_OPTIONS
     fi
 }
 
@@ -71,7 +76,7 @@ call-make() {
 # is inside a pipe, errors will go undetected, thus we create a file
 # 'make-failed' when make fails, to check for errors.
 rm -f make-failed
-( call-make 2>&1 || touch make-failed ) | tee make-output.txt
+( call-make "$BUILD_DIR" 2>&1 || touch make-failed ) | tee make-output.txt
 
 if [ -e make-failed ]; then
     exit 1

@@ -26,12 +26,7 @@ if [ "$#" -ge 4 ]; then
     . "$SCRIPT_DIR"/utils.sh
 
     BUILD_DIR="$(cd "$1" && pwd)"
-    if vm-is-windows; then
-        # pwd with a Windows format (c:/ instead of /c/)
-        SRC_DIR="$(cd "$2" && pwd -W)"
-    else
-        SRC_DIR="$(cd "$2" && pwd)"
-    fi
+    SRC_DIR="$(cd "$2" && pwd)"
     CONFIG="$3"
     PLATFORM="$(get-platform-from-config "$CONFIG")"
     COMPILER="$(get-compiler-from-config "$CONFIG")"
@@ -50,7 +45,6 @@ if [[ ! -d "$SRC_DIR/applications/plugins" ]]; then
     usage; exit 1
 fi
 
-cd "$SRC_DIR"
 
 echo "--------------- configure.sh vars ---------------"
 echo "BUILD_DIR = $BUILD_DIR"
@@ -71,11 +65,14 @@ echo "-------------------------------------------------"
 
 # Get Windows dependency pack
 if vm-is-windows && [ ! -d "$SRC_DIR/lib" ]; then
+    (
+    cd "$SRC_DIR"
     echo "Copying dependency pack in the source tree."
     curl -L "https://www.sofa-framework.org/download/WinDepPack/$COMPILER/latest" --output dependencies_tmp.zip
     unzip dependencies_tmp.zip -d dependencies_tmp > /dev/null
     cp -rf dependencies_tmp/*/* "$SRC_DIR"
     rm -rf dependencies_tmp*
+    )
 fi
 
 # Choose between incremental build and full build
@@ -111,7 +108,11 @@ if vm-is-windows; then
     # Cache
     if [ -x "$(command -v clcache)" ]; then
         export CLCACHE_DIR="J:/clcache"
-        export CLCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd -W)"
+        if [ -n "$EXECUTOR_LINK_WINDOWS" ]; then
+            export CLCACHE_BASEDIR="$EXECUTOR_LINK_WINDOWS"
+        else
+            export CLCACHE_BASEDIR="$BUILD_DIR"
+        fi
         #export CLCACHE_HARDLINK=1 # this may cause cache corruption. see https://github.com/frerich/clcache/issues/282
         export CLCACHE_OBJECT_CACHE_TIMEOUT_MS=3600000
         clcache -M 17179869184 # Set cache size to 1024*1024*1024*16 = 16 GB
@@ -300,19 +301,24 @@ generator() {
 }
 
 call-cmake() {
+    local build_dir="$(cd "$1" && pwd)"
+    local build_dir_windows="$(cd "$1" && pwd -W | sed 's#/#\\#g')"
+    shift # Remove first arg
+    
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
         vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        echo "Calling: $COMSPEC /c \"$vcvarsall & cmake $*\""
-        $COMSPEC /c "$vcvarsall & cmake $*"
+        if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
+            build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
+        fi
+        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & cmake $*\""
+        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & cmake $*"
     else
         echo "Calling: cmake $@"
-        cmake "$@"
+        cd $build_dir && cmake "$@"
     fi
 }
-
-cd "$BUILD_DIR"
 
 echo "Calling cmake with the following options:"
 echo "$cmake_options" | tr -s ' ' '\n' | grep -v "PLUGIN" | sort
@@ -322,7 +328,8 @@ echo "Disabled plugins:"
 echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN" | grep "=OFF" | sort
 
 if [ -n "$full_build" ]; then
-    call-cmake -G"$(generator)" $cmake_options "$SRC_DIR"
+    relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
+    call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
 else
-    call-cmake $cmake_options .
+    call-cmake "$BUILD_DIR" $cmake_options .
 fi
