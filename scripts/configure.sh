@@ -164,11 +164,10 @@ add-cmake-option "-DSOFA_BUILD_TESTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
+add-cmake-option "-DAPPLICATION_MODELER=ON"
 
 # Handle custom lib dirs
 if vm-is-windows; then
-    add-cmake-option "-DAPPLICATION_MODELER=OFF" # waiting to fix path length problem
-
     msvc_year="$(get-msvc-year $COMPILER)"
     msvc_version="$(get-compiler-version $COMPILER)"
     qt_compiler="msvc${msvc_year}"
