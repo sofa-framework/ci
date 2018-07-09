@@ -108,8 +108,8 @@ if vm-is-windows; then
     # Cache
     if [ -x "$(command -v clcache)" ]; then
         export CLCACHE_DIR="J:/clcache"
-        if [ -n "$EXECUTOR_LINK_WINDOWS" ]; then
-            export CLCACHE_BASEDIR="$EXECUTOR_LINK_WINDOWS"
+        if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
+            export CLCACHE_BASEDIR="$EXECUTOR_LINK_WINDOWS_BUILD"
         else
             export CLCACHE_BASEDIR="$BUILD_DIR"
         fi
@@ -300,14 +300,14 @@ generator() {
 }
 
 call-cmake() {
-    local build_dir="$(cd "$1" && pwd)"
-    local build_dir_windows="$(cd "$1" && pwd -W | sed 's#/#\\#g')"
+    build_dir="$(cd "$1" && pwd)"
     shift # Remove first arg
     
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
         vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        build_dir_windows="$(cd "$build_dir" && pwd -W | sed 's#/#\\#g')"
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi

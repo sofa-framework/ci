@@ -43,8 +43,7 @@ echo "ARCHITECTURE = $ARCHITECTURE"
 echo "-----------------------------------------------"
 
 call-make() {
-    local build_dir="$(cd "$1" && pwd)"
-    local build_dir_windows="$(cd "$1" && pwd -W | sed 's#/#\\#g')"
+    build_dir="$(cd "$1" && pwd)"
     shift # Remove first arg
     
     if vm-is-windows; then
@@ -56,6 +55,7 @@ call-make() {
         	echo "Using ninja as build system"
             toolname="ninja"
         fi
+        build_dir_windows="$(cd "$build_dir" && pwd -W | sed 's#/#\\#g')"
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
