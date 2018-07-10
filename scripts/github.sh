@@ -103,18 +103,21 @@ github-export-vars() {
         local pr_id="${branch#*-}"
         local options="$-"
         set +x # Private stuff here: echo disabled
-        if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
-           [ -n "$GITHUB_REPOSITORY" ]; then
+        if [ -n "$GITHUB_SOFABOT_TOKEN" ]; then
             response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$pr_id")"
             if [ -n "$response" ]; then
                 local prev_pwd="$(pwd)"
                 cd "$SCRIPT_DIR"
                 export GITHUB_COMMIT_HASH="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
-                export GITHUB_BASECOMMIT_HASH="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_base_sha(sys.stdin)" )"
                 cd "$prev_pwd"
             fi
         fi
         set -$options
+        refs="refs/heads/origin/master"
+        if [ -n "$CHANGE_TARGET" ]; then
+            refs="refs/heads/origin/$CHANGE_TARGET"
+        fi
+        export GITHUB_BASECOMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep "$refs" | grep -v "refs/original" | cut -f 1)"
     # elif [ -n "$GIT_COMMIT" ]; then # This seems BROKEN since GIT_COMMIT is often wrong
         # export GITHUB_COMMIT_HASH="$GIT_COMMIT"
     else
