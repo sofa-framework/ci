@@ -12,3 +12,6 @@ export VM_HAS_CGAL="false"
 export VM_HAS_CUDA="false"
 
 export VM_HAS_OPENCASCADE="true"
+
+
+export PATH="/usr/local/opt/ccache/libexec:$PATH"

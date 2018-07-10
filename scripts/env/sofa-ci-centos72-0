@@ -13,5 +13,5 @@ export VM_HAS_CUDA="false"
 
 export VM_HAS_OPENCASCADE="false"
 
-export PATH=$PATH:/lib:/lib64:/bin
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/lib:/lib64:/bin
+export PATH="/lib:/lib64:/bin:$PATH"
+export LD_LIBRARY_PATH="/lib:/lib64:/bin:$LD_LIBRARY_PATH"
