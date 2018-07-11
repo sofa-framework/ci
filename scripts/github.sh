@@ -113,9 +113,9 @@ github-export-vars() {
             fi
         fi
         set -$options
-        refs="refs/heads/origin/master"
+        refs="refs/heads/master"
         if [ -n "$CHANGE_TARGET" ]; then
-            refs="refs/heads/origin/$CHANGE_TARGET"
+            refs="refs/heads/$CHANGE_TARGET"
         fi
         export GITHUB_BASECOMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep "$refs" | grep -v "refs/original" | cut -f 1)"
     # elif [ -n "$GIT_COMMIT" ]; then # This seems BROKEN since GIT_COMMIT is often wrong
