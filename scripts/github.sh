@@ -109,13 +109,17 @@ github-export-vars() {
                 local prev_pwd="$(pwd)"
                 cd "$SCRIPT_DIR"
                 export GITHUB_COMMIT_HASH="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
+                export GITHUB_BASE_REF="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_base_ref(sys.stdin)" )"
                 cd "$prev_pwd"
             fi
         fi
         set -$options
-        refs="refs/heads/master"
         if [ -n "$CHANGE_TARGET" ]; then
             refs="refs/heads/$CHANGE_TARGET"
+        elif [ -n "$GITHUB_BASE_REF" ]; then
+            refs="refs/heads/$GITHUB_BASE_REF"
+        else
+            refs="refs/heads/master" # should not happen
         fi
         export GITHUB_BASECOMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep "$refs" | grep -v "refs/original" | cut -f 1)"
     # elif [ -n "$GIT_COMMIT" ]; then # This seems BROKEN since GIT_COMMIT is often wrong

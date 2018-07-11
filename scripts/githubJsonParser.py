@@ -10,6 +10,10 @@ def get_base_sha(json_string):
     obj=json.load(json_string)
     print obj['base']['sha']
     
+def get_base_ref(json_string):
+    obj=json.load(json_string)
+    print obj['base']['ref']
+    
 def get_state(json_string):
     obj=json.load(json_string)
     print obj['state']
