@@ -75,9 +75,9 @@ call-make() {
 # The output of make is saved to a file, to check for warnings later. Since make
 # is inside a pipe, errors will go undetected, thus we create a file
 # 'make-failed' when make fails, to check for errors.
-rm -f make-failed
-( call-make "$BUILD_DIR" 2>&1 || touch make-failed ) | tee make-output.txt
+rm -f "$BUILD_DIR/make-failed"
+( call-make "$BUILD_DIR" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee "$BUILD_DIR/make-output.txt"
 
-if [ -e make-failed ]; then
+if [ -e "$BUILD_DIR/make-failed" ]; then
     exit 1
 fi
