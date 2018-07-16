@@ -126,12 +126,10 @@ else
         gcc*)
             c_compiler="gcc"
             cxx_compiler="g++"
-            add-cmake-option "-DCMAKE_CXX_FLAGS=-fdiagnostics-color=always" # Colored output
         ;;
         clang*)
             c_compiler="clang"
             cxx_compiler="clang++"
-            add-cmake-option "-DCMAKE_CXX_FLAGS=-fcolor-diagnostics" # Colored output
         ;;
         *) # other
             echo "Unknown compiler: $COMPILER"
@@ -157,6 +155,7 @@ fi
 
 # Options common to all configurations
 add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TYPE:0:1})${BUILD_TYPE:1}"
+add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
 add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
