@@ -160,6 +160,7 @@ add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
 add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
 add-cmake-option "-DSOFA_BUILD_TESTS=ON"
+add-cmake-option "-DSOFA_BUILD_METIS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
@@ -199,7 +200,6 @@ fi
 # "build-all-plugins" specific options
 if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     # Build with as many options enabled as possible
-    add-cmake-option "-DSOFA_BUILD_METIS=ON"
     add-cmake-option "-DSOFA_BUILD_ARTRACK=ON"
     add-cmake-option "-DSOFA_BUILD_MINIFLOWVR=ON"
     
