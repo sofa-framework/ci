@@ -10,7 +10,12 @@ if [ "$#" -ge 2 ]; then
     . "$script_dir"/utils.sh
 
     matrix_combinations_string="$1"
+
+    if [ ! -d "$2" ]; then
+        mkdir -p "$2";
+    fi
     output_dir="$( cd "$2" && pwd )"
+
     build_options="${*:3}"
     if [ -z "$build_options" ]; then
         build_options="$(get-build-options)" # use env vars (Jenkins)
