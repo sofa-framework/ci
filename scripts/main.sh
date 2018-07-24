@@ -102,13 +102,14 @@ dashboard-notify "status=build"
 
 # Merge PR with target branch
 # Fail build if conflict
-if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB_BASECOMMIT_HASH" ] &&
+if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB_REPOSITORY" ] && [ -n "$GITHUB_BASE_REF" ] && [ -n "$GITHUB_BASECOMMIT_HASH" ] &&
    [ -x "$(command -v git)" ] && [[ "$(git log -n 1 --pretty=format:"%H")" == "$GITHUB_COMMIT_HASH" ]] &&
    [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     echo "--------------------------------------------"
     echo "Merging $DASH_COMMIT_BRANCH with latest commit on $GITHUB_BASE_REF: $GITHUB_BASECOMMIT_HASH"
     git config user.email "consortium@sofa-framework.org"
     git config user.name "SOFA Bot"
+    git fetch --no-tags --progress "https://github.com/$GITHUB_REPOSITORY.git" "+refs/heads/$GITHUB_BASE_REF:refs/remotes/origin/$GITHUB_BASE_REF"
     git merge "$GITHUB_BASECOMMIT_HASH" > /dev/null || (git merge --abort; exit 1)
     git log -n 1 --pretty=short
     echo "Merge done."
