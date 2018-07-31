@@ -83,7 +83,9 @@ elif [ ! -e "$BUILD_DIR/CMakeCache.txt" ]; then
     full_build="No previous build detected."
 fi
 
+rm -f "$BUILD_DIR/full-build"
 if [ -n "$full_build" ]; then
+    echo "true" > "$BUILD_DIR/full-build"
     echo "Starting a full build. ($full_build)"
 else
     echo "Starting an incremental build"

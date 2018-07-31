@@ -129,7 +129,7 @@ github_message="Build OK."
 github-notify "$github_status" "$github_message"
 
 # [Full build] Count Warnings
-if in-array "force-full-build" "$BUILD_OPTIONS"; then
+if in-array "force-full-build" "$BUILD_OPTIONS" || [ -e "$BUILD_DIR/full-build" ]; then
     if vm-is-windows; then
         warning_count=$(grep 'warning [A-Z]\+[0-9]\+:' "$BUILD_DIR/make-output.txt" | sort | uniq | wc -l)
     else
