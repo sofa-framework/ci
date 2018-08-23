@@ -60,10 +60,24 @@ echo "BUILD_TYPE = $BUILD_TYPE"
 echo "BUILD_OPTIONS = $BUILD_OPTIONS"
 echo "--------------------------------------------"
 
+
+# CI environment variables + init
+github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+
+save-env-vars "GITHUB" "$BUILD_DIR"
+save-env-vars "DASH" "$BUILD_DIR"
+
+dashboard-init # Ensure Dashboard line is OK
+
+github-notify "pending" "Building..."
+dashboard-notify "status=build"
+
+
 # Clean build dir
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     echo "Force full build ON - cleaning build dir."
-    rm -rf "$BUILD_DIR"
+    rm -rf "$BUILD_DIR" || exit 1  # build dir cannot be deleted for some reason on a Windows VM, to be fixed.
     mkdir "$BUILD_DIR"
 else
     rm -f "$BUILD_DIR/make-output*.txt"
@@ -72,6 +86,7 @@ else
     rm -rf "$BUILD_DIR/bin"
     rm -rf "$BUILD_DIR/lib"
 fi
+
 
 # Jenkins: create link for Windows jobs (too long path problem)
 if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
@@ -85,19 +100,6 @@ if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     SRC_DIR="/j/$EXECUTOR_NUMBER/src"
     BUILD_DIR="/j/$EXECUTOR_NUMBER/build"
 fi
-
-
-# CI environment variables + init
-github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-
-save-env-vars "GITHUB" "$BUILD_DIR"
-save-env-vars "DASH" "$BUILD_DIR"
-
-dashboard-init # Ensure Dashboard line is OK
-
-github-notify "pending" "Building..."
-dashboard-notify "status=build"
 
 
 # Merge PR with target branch
