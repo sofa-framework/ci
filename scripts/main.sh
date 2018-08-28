@@ -77,8 +77,8 @@ dashboard-notify "status=build"
 # Clean build dir
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     echo "Force full build ON - cleaning build dir."
-    rm -rf "$BUILD_DIR" || exit 1  # build dir cannot be deleted for some reason on a Windows VM, to be fixed.
-    mkdir "$BUILD_DIR"
+    rm -rf "$BUILD_DIR/*" || exit 1  # build dir cannot be deleted for some reason on a Windows VM, to be fixed.
+    # mkdir "$BUILD_DIR"
 else
     rm -f "$BUILD_DIR/make-output*.txt"
     rm -rf "$BUILD_DIR/unit-tests"
