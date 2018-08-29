@@ -253,6 +253,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON"
     add-cmake-option "-DPLUGIN_REGISTRATION=ON"
     add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
+    add-cmake-option "-DPLUGIN_SOFAASSIMP=ON"
     add-cmake-option "-DPLUGIN_SOFACARVING=ON"
     if [[ "$VM_HAS_CUDA" == "true" ]] && [[ "$COMPILER" != "clang"* ]]; then
         add-cmake-option "-DPLUGIN_SOFACUDA=ON"
