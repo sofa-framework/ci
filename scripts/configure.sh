@@ -230,11 +230,16 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     else
         add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF"
     fi
-    if [[ "$VM_HAS_ASSIMP" == "true" ]] || vm-is-windows; then
-        # INFO: ColladaSceneLoader contains assimp for Windows (but that does not mean that VM has Assimp)
+    if [[ "$VM_HAS_ASSIMP" == "true" ]]; then
+        if [ -n "$VM_ASSIMP_PATH" ]; then
+            add-cmake-option "-DASSIMP_ROOT_DIR=$VM_ASSIMP_PATH"
+        fi
+        # INFO: ColladaSceneLoader contains assimp for Windows
         add-cmake-option "-DPLUGIN_COLLADASCENELOADER=ON"
+        add-cmake-option "-DPLUGIN_SOFAASSIMP=ON"
     else
         add-cmake-option "-DPLUGIN_COLLADASCENELOADER=OFF"
+        add-cmake-option "-DPLUGIN_SOFAASSIMP=OFF"
     fi
     add-cmake-option "-DPLUGIN_COMPLIANT=ON"
     add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
@@ -253,7 +258,6 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON"
     add-cmake-option "-DPLUGIN_REGISTRATION=ON"
     add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
-    add-cmake-option "-DPLUGIN_SOFAASSIMP=ON"
     add-cmake-option "-DPLUGIN_SOFACARVING=ON"
     if [[ "$VM_HAS_CUDA" == "true" ]] && [[ "$COMPILER" != "clang"* ]]; then
         add-cmake-option "-DPLUGIN_SOFACUDA=ON"
