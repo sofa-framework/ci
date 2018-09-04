@@ -60,6 +60,9 @@ echo "BUILD_TYPE = $BUILD_TYPE"
 echo "BUILD_OPTIONS = $BUILD_OPTIONS"
 echo "--------------------------------------------"
 
+# Git config (needed by CMake ExternalProject)
+git config --global user.name 'SOFA Bot'
+git config --global user.email '<>'
 
 # CI environment variables + init
 github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
