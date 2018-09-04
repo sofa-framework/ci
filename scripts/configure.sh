@@ -214,6 +214,9 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
             add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=ON"
         fi
     fi
+    
+    ### Modules
+    add-cmake-option "-DMODULE_SOFACOMBINATORIALMAPS=ON"
 
     ### Plugins
     add-cmake-option "-DPLUGIN_ARTRACK=ON"
