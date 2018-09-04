@@ -217,6 +217,7 @@ if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
     
     ### Modules
     add-cmake-option "-DMODULE_SOFACOMBINATORIALMAPS=ON"
+    add-cmake-option "-DMODULE_SOFACOMBINATORIALMAPS_FETCH_CGOGN=ON"
 
     ### Plugins
     add-cmake-option "-DPLUGIN_ARTRACK=ON"
