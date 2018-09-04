@@ -22,7 +22,7 @@ export VM_PYTHON_PATH="C:/dev/python/2.7"
 
 export VM_BULLET_PATH=""
 
-export VM_ASSIMP_PATH="C:/dev/Assimp/3.3.1"
+export VM_ASSIMP_PATH="C:/dev/Assimp/4.1.0"
 
 
 export VM_MAKE_OPTIONS="-j4"
