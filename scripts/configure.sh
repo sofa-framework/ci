@@ -159,14 +159,23 @@ fi
 add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TYPE:0:1})${BUILD_TYPE:1}"
 add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
-add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
-add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
-add-cmake-option "-DSOFA_BUILD_TESTS=ON"
-add-cmake-option "-DSOFA_BUILD_METIS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
-add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
-add-cmake-option "-DAPPLICATION_MODELER=ON"
+if in-array "build-release-package" "$BUILD_OPTIONS"; then
+    add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=OFF"
+    add-cmake-option "-DSOFA_BUILD_TUTORIALS=OFF"
+    add-cmake-option "-DSOFA_BUILD_TESTS=OFF"
+    add-cmake-option "-DSOFA_BUILD_METIS=OFF"
+    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=OFF"
+    add-cmake-option "-DAPPLICATION_MODELER=OFF"
+else
+    add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
+    add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
+    add-cmake-option "-DSOFA_BUILD_TESTS=ON"
+    add-cmake-option "-DSOFA_BUILD_METIS=ON"
+    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
+    add-cmake-option "-DAPPLICATION_MODELER=ON"
+fi
 
 # Handle custom lib dirs
 if vm-is-windows; then
@@ -199,8 +208,28 @@ if vm-is-windows; then # Finding libs on Windows
     fi
 fi
 
-# "build-all-plugins" specific options
-if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
+
+if in-array "build-release-package" "$BUILD_OPTIONS"; then
+    add-cmake-option "-DSOFA_BUILD_RELEASE_PACKAGE=ON"
+    if [ -d "$VM_QT_PATH/Tools/QtInstallerFramework" ]; then
+        for dir in "$VM_QT_PATH/Tools/QtInstallerFramework/"*; do
+            if [ -d "$dir" ]; then
+                export QTIFWDIR="$dir" # used for packaging on Linux
+                break
+            fi
+        done
+    fi
+    if vm-is-windows; then
+        add-cmake-option "-DCPACK_GENERATOR=NSIS"
+        add-cmake-option "-DCPACK_BINARY_NSIS=ON"
+    elif vm-is-macos; then
+        add-cmake-option "-DCPACK_GENERATOR=DMG"
+        add-cmake-option "-DCPACK_BINARY_DMG=ON"
+    else
+        add-cmake-option "-DCPACK_GENERATOR=IFW"
+        add-cmake-option "-DCPACK_BINARY_IFW=ON"
+    fi
+elif in-array "build-all-plugins" "$BUILD_OPTIONS"; then 
     # Build with as many options enabled as possible
     add-cmake-option "-DSOFA_BUILD_ARTRACK=ON"
     add-cmake-option "-DSOFA_BUILD_MINIFLOWVR=ON"

@@ -13,7 +13,7 @@ set -o errexit # Exit on error
 ### Checks
 
 usage() {
-    echo "Usage: compile.sh <build-dir> <config>"
+    echo "Usage: compile.sh <build-dir> <config> <build-options>"
 }
 
 if [ "$#" -eq 2 ]; then
@@ -25,6 +25,10 @@ if [ "$#" -eq 2 ]; then
     PLATFORM="$(get-platform-from-config "$CONFIG")"
     COMPILER="$(get-compiler-from-config "$CONFIG")"
     ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
+    BUILD_OPTIONS="${*:3}"
+    if [ -z "$BUILD_OPTIONS" ]; then
+        BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
+    fi
 else
     usage; exit 1
 fi
@@ -68,7 +72,11 @@ call-make() {
 	        toolname="ninja"
         fi
         echo "Calling: $toolname $VM_MAKE_OPTIONS"
-        cd $build_dir && $toolname $VM_MAKE_OPTIONS
+        target="default"        
+        if in-array "build-release-package" "$BUILD_OPTIONS"; then
+            target="package"
+        fi
+        cd $build_dir && $toolname $target $VM_MAKE_OPTIONS
     fi
 }
 

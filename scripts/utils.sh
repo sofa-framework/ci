@@ -97,6 +97,7 @@ in-array() {
 }
 
 get-build-options() {
+    # Check env vars for build options (also check args)
     build_options=""
     if [[ "$1" == "options" ]] || [[ "$CI_PLUGINS" == "options" ]]; then
         build_options="build-all-plugins $build_options"
@@ -115,6 +116,9 @@ get-build-options() {
     fi
     if [[ "$6" == "true" ]] || [[ "$CI_RUN_SCENE_TESTS" == "true" ]]; then
         build_options="run-scene-tests $build_options"
+    fi
+    if [[ "$7" == "true" ]] || [[ "$CI_PLUGINS" == "package" ]]; then
+        build_options="build-release-package $build_options"
     fi
     echo "$build_options"
 }
