@@ -49,7 +49,12 @@ echo "-----------------------------------------------"
 call-make() {
     build_dir="$(cd "$1" && pwd)"
     shift # Remove first arg
-    
+
+    target="default"        
+    if in-array "build-release-package" "$BUILD_OPTIONS"; then
+        target="package"
+    fi
+
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
@@ -63,19 +68,15 @@ call-make() {
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
-        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $VM_MAKE_OPTIONS\""
-        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $VM_MAKE_OPTIONS"
+        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS\""
+        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS"
     else
     	toolname="make" # default
         if [ -x "$(command -v ninja)" ]; then
             echo "Using ninja as build system"
 	        toolname="ninja"
         fi
-        echo "Calling: $toolname $VM_MAKE_OPTIONS"
-        target="default"        
-        if in-array "build-release-package" "$BUILD_OPTIONS"; then
-            target="package"
-        fi
+        echo "Calling: $toolname $target $VM_MAKE_OPTIONS"
         cd $build_dir && $toolname $target $VM_MAKE_OPTIONS
     fi
 }
