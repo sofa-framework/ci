@@ -155,28 +155,6 @@ else
     fi
 fi
 
-# Options common to all configurations
-add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TYPE:0:1})${BUILD_TYPE:1}"
-add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
-add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
-add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
-add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
-if in-array "build-release-package" "$BUILD_OPTIONS"; then
-    add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=OFF"
-    add-cmake-option "-DSOFA_BUILD_TUTORIALS=OFF"
-    add-cmake-option "-DSOFA_BUILD_TESTS=OFF"
-    add-cmake-option "-DSOFA_BUILD_METIS=OFF"
-    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=OFF"
-    add-cmake-option "-DAPPLICATION_MODELER=OFF"
-else
-    add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
-    add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
-    add-cmake-option "-DSOFA_BUILD_TESTS=ON"
-    add-cmake-option "-DSOFA_BUILD_METIS=ON"
-    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
-    add-cmake-option "-DAPPLICATION_MODELER=ON"
-fi
-
 # Handle custom lib dirs
 if vm-is-windows; then
     msvc_year="$(get-msvc-year $COMPILER)"
@@ -208,9 +186,22 @@ if vm-is-windows; then # Finding libs on Windows
     fi
 fi
 
+# Options common to all configurations
+add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TYPE:0:1})${BUILD_TYPE:1}"
+add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
+add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
+add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
+add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_BUILD_RELEASE_PACKAGE=ON"
+    add-cmake-option "-DSOFA_BUILD_TUTORIALS=OFF"
+    add-cmake-option "-DSOFA_BUILD_TESTS=OFF"
+    add-cmake-option "-DSOFA_BUILD_METIS=OFF"
+    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=OFF"
+    add-cmake-option "-DAPPLICATION_MODELER=OFF"
+    add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=OFF"
+
     if [ -d "$VM_QT_PATH/Tools/QtInstallerFramework" ]; then
         for dir in "$VM_QT_PATH/Tools/QtInstallerFramework/"*; do
             if [ -d "$dir" ]; then
@@ -229,92 +220,101 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
         add-cmake-option "-DCPACK_GENERATOR=IFW"
         add-cmake-option "-DCPACK_BINARY_IFW=ON"
     fi
-elif in-array "build-all-plugins" "$BUILD_OPTIONS"; then 
-    # Build with as many options enabled as possible
-    add-cmake-option "-DSOFA_BUILD_ARTRACK=ON"
-    add-cmake-option "-DSOFA_BUILD_MINIFLOWVR=ON"
-    
-    # HeadlessRecorder is Linux only for now
-    if [[ "$(uname)" == "Linux" ]]; then
-        id=$(cat /etc/*-release | grep "ID")
-        if [[ $id = *"centos"* ]]; then
-            add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=OFF"
-        else
-            add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=ON"
-        fi
-    fi
-    
-    ### Modules
-    add-cmake-option "-DMODULE_SOFACOMBINATORIALMAPS=ON"
-    add-cmake-option "-DMODULE_SOFACOMBINATORIALMAPS_FETCH_CGOGN=ON"
+else # This is not a "package" build
+    add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
+    add-cmake-option "-DSOFA_BUILD_TESTS=ON"
+    add-cmake-option "-DSOFA_BUILD_METIS=ON"
+    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
+    add-cmake-option "-DAPPLICATION_MODELER=ON"
+    add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
 
-    ### Plugins
-    add-cmake-option "-DPLUGIN_ARTRACK=ON"
-    if [[ "$VM_HAS_BULLET" == "true" ]]; then
-        if [ -d "$VM_BULLET_PATH" ]; then
-            add-cmake-option "-DBULLET_ROOT=$VM_BULLET_PATH"
+    if in-array "build-all-plugins" "$BUILD_OPTIONS"; then 
+        # Build with as many options enabled as possible
+        add-cmake-option "-DSOFA_BUILD_ARTRACK=ON"
+        add-cmake-option "-DSOFA_BUILD_MINIFLOWVR=ON"
+        
+        # HeadlessRecorder is Linux only for now
+        if [[ "$(uname)" == "Linux" ]]; then
+            id=$(cat /etc/*-release | grep "ID")
+            if [[ $id = *"centos"* ]]; then
+                add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=OFF"
+            else
+                add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=ON"
+            fi
         fi
-        add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
-    else
-        add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
-    fi
-    if [[ "$VM_HAS_CGAL" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_CGALPLUGIN=ON"
-    else
-        add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF"
-    fi
-    if [[ "$VM_HAS_ASSIMP" == "true" ]]; then
-        if [ -n "$VM_ASSIMP_PATH" ]; then
-            add-cmake-option "-DASSIMP_ROOT_DIR=$VM_ASSIMP_PATH"
+        
+        ### Modules
+        add-cmake-option "-DMODULE_SOFACOMBINATORIALMAPS=ON"
+        add-cmake-option "-DMODULE_SOFACOMBINATORIALMAPS_FETCH_CGOGN=ON"
+
+        ### Plugins
+        add-cmake-option "-DPLUGIN_ARTRACK=ON"
+        if [[ "$VM_HAS_BULLET" == "true" ]]; then
+            if [ -d "$VM_BULLET_PATH" ]; then
+                add-cmake-option "-DBULLET_ROOT=$VM_BULLET_PATH"
+            fi
+            add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
+        else
+            add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
         fi
-        # INFO: ColladaSceneLoader contains assimp for Windows
-        add-cmake-option "-DPLUGIN_COLLADASCENELOADER=ON"
-        add-cmake-option "-DPLUGIN_SOFAASSIMP=ON"
-    else
-        add-cmake-option "-DPLUGIN_COLLADASCENELOADER=OFF"
-        add-cmake-option "-DPLUGIN_SOFAASSIMP=OFF"
+        if [[ "$VM_HAS_CGAL" == "true" ]]; then
+            add-cmake-option "-DPLUGIN_CGALPLUGIN=ON"
+        else
+            add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF"
+        fi
+        if [[ "$VM_HAS_ASSIMP" == "true" ]]; then
+            if [ -n "$VM_ASSIMP_PATH" ]; then
+                add-cmake-option "-DASSIMP_ROOT_DIR=$VM_ASSIMP_PATH"
+            fi
+            # INFO: ColladaSceneLoader contains assimp for Windows
+            add-cmake-option "-DPLUGIN_COLLADASCENELOADER=ON"
+            add-cmake-option "-DPLUGIN_SOFAASSIMP=ON"
+        else
+            add-cmake-option "-DPLUGIN_COLLADASCENELOADER=OFF"
+            add-cmake-option "-DPLUGIN_SOFAASSIMP=OFF"
+        fi
+        add-cmake-option "-DPLUGIN_COMPLIANT=ON"
+        add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
+        add-cmake-option "-DPLUGIN_FLEXIBLE=ON"
+        add-cmake-option "-DPLUGIN_IMAGE=ON"
+        add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON"
+        add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
+        add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
+        if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
+            add-cmake-option "-DPLUGIN_MESHSTEPLOADER=ON"
+        else
+            add-cmake-option "-DPLUGIN_MESHSTEPLOADER=OFF"
+        fi
+        add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
+        add-cmake-option "-DPLUGIN_OPTITRACKNATNET=ON"
+        add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON"
+        add-cmake-option "-DPLUGIN_REGISTRATION=ON"
+        add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
+        add-cmake-option "-DPLUGIN_SOFACARVING=ON"
+        if [[ "$VM_HAS_CUDA" == "true" ]] && [[ "$COMPILER" != "clang"* ]]; then
+            add-cmake-option "-DPLUGIN_SOFACUDA=ON"
+        else
+            add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
+        fi
+        add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
+        add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON"
+        add-cmake-option "-DPLUGIN_RIGIDSCALE=ON"
+        
+        add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
+        add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
+        add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
+        add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
+        add-cmake-option "-DPLUGIN_SOFAVOLUMETRICDATA=ON"
+        
+        
+        # Always disabled
+        add-cmake-option "-DPLUGIN_HAPTION=OFF" # Requires specific libraries.
+        add-cmake-option "-DPLUGIN_PERSISTENTCONTACT=OFF" # Does not compile, but it just needs to be updated.    
+        add-cmake-option "-DPLUGIN_SENSABLE=OFF" # Requires OpenHaptics libraries.    
+        add-cmake-option "-DPLUGIN_SIXENSEHYDRA=OFF" # Requires Sixense libraries.    
+        add-cmake-option "-DPLUGIN_SOFAHAPI=OFF" # Requires HAPI libraries.
+        add-cmake-option "-DPLUGIN_XITACT=OFF" # Requires XiRobot library.
     fi
-    add-cmake-option "-DPLUGIN_COMPLIANT=ON"
-    add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
-    add-cmake-option "-DPLUGIN_FLEXIBLE=ON"
-    add-cmake-option "-DPLUGIN_IMAGE=ON"
-    add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON"
-    add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
-    add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
-    if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_MESHSTEPLOADER=ON"
-    else
-        add-cmake-option "-DPLUGIN_MESHSTEPLOADER=OFF"
-    fi
-    add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
-    add-cmake-option "-DPLUGIN_OPTITRACKNATNET=ON"
-    add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON"
-    add-cmake-option "-DPLUGIN_REGISTRATION=ON"
-    add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
-    add-cmake-option "-DPLUGIN_SOFACARVING=ON"
-    if [[ "$VM_HAS_CUDA" == "true" ]] && [[ "$COMPILER" != "clang"* ]]; then
-        add-cmake-option "-DPLUGIN_SOFACUDA=ON"
-    else
-        add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
-    fi
-    add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
-    add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON"
-    add-cmake-option "-DPLUGIN_RIGIDSCALE=ON"
-    
-    add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
-    add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
-    add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
-    add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
-    add-cmake-option "-DPLUGIN_SOFAVOLUMETRICDATA=ON"
-    
-    
-    # Always disabled
-    add-cmake-option "-DPLUGIN_HAPTION=OFF" # Requires specific libraries.
-    add-cmake-option "-DPLUGIN_PERSISTENTCONTACT=OFF" # Does not compile, but it just needs to be updated.    
-    add-cmake-option "-DPLUGIN_SENSABLE=OFF" # Requires OpenHaptics libraries.    
-    add-cmake-option "-DPLUGIN_SIXENSEHYDRA=OFF" # Requires Sixense libraries.    
-    add-cmake-option "-DPLUGIN_SOFAHAPI=OFF" # Requires HAPI libraries.
-    add-cmake-option "-DPLUGIN_XITACT=OFF" # Requires XiRobot library.
 fi
 
 # Options passed via the environnement
