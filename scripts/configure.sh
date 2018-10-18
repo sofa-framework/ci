@@ -223,8 +223,8 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
         add-cmake-option "-DCPACK_GENERATOR=NSIS"
         add-cmake-option "-DCPACK_BINARY_NSIS=ON"
     elif vm-is-macos; then
-        add-cmake-option "-DCPACK_GENERATOR=DMG"
-        add-cmake-option "-DCPACK_BINARY_DMG=ON"
+        add-cmake-option "-DCPACK_GENERATOR=DragNDrop"
+        add-cmake-option "-DCPACK_BINARY_DRAGNDROP=ON"
     else
         add-cmake-option "-DCPACK_GENERATOR=IFW"
         add-cmake-option "-DCPACK_BINARY_IFW=ON"
