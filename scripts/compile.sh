@@ -50,7 +50,7 @@ call-make() {
     build_dir="$(cd "$1" && pwd)"
     shift # Remove first arg
 
-    target="default"        
+    target="all"        
     if in-array "build-release-package" "$BUILD_OPTIONS"; then
         target="package"
     fi
