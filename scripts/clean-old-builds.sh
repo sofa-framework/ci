@@ -26,7 +26,7 @@ for dir in *; do
     
     status="not removed"
     
-    echo "$dir: scanning..."
+    echo "$dir:"
     if [[ "$dir" == "PR-"* ]]; then # PR dir
         # check if this PR is closed
         pr_id="${dir#*-}"
@@ -69,7 +69,7 @@ for dir in *; do
     if [[ "$status" == "removed" ]]; then
         rm -rf "$dir"
     fi
-    echo "$dir: $status"
+    echo "  -> $status"
 done
 
 
