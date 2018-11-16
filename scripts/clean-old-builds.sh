@@ -35,10 +35,11 @@ for dir in *; do
             echo "  PR $pr_id is closed"
             status="removed"
         fi
-    elif [ -d "SofaKernel" ] && [[ "$dir" != "master" ]]; then # branch dir (except master)
+    fi
+    if [[ "$dir" != "master" ]]; then # branch or PR dir except master
         cd "$dir"
         for config in *; do
-            if [ ! -d "$config" ] || [[ "$config" == *"tmp" ]]; then
+            if [ ! -d "$config" ] || [[ "$config" == *"tmp" ]] || [ ! -d "$config/src/SofaKernel" ]; then
                 break
             fi
             if [ -d "$config/build" ]; then
@@ -51,7 +52,7 @@ for dir in *; do
                 fi
                 delta=$(( now_epoch - lastedit_epoch )) # in seconds
                 echo "  last build on $config was $delta seconds ago"
-                if [ "$delta" -gt 604800 ]; then # 3600*24*7 = 7 days
+                if [ "$delta" -gt 1209600 ]; then # 3600*24*14 = 14 days
                     status="removed"
                 else
                     # remove only if ALL configs are old
