@@ -34,10 +34,9 @@ for dir in *; do
         if [[ "$pr_state" == "closed" ]]; then
             echo "  PR $pr_id is closed"
             status="removed"
-            break
         fi
     fi
-    if [[ "$dir" != "master" ]]; then # branch or PR dir except master
+    if [[ "$dir" != "master" ]] && [[ "$status" == "not removed" ]]; then # branch or PR dir except master
         cd "$dir"
         for config in *; do
             if [ ! -d "$config" ] || [[ "$config" == *"tmp" ]] || [ ! -d "$config/src/SofaKernel" ]; then
