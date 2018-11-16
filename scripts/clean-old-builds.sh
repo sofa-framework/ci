@@ -34,6 +34,7 @@ for dir in *; do
         if [[ "$pr_state" == "closed" ]]; then
             echo "  PR $pr_id is closed"
             status="removed"
+            break
         fi
     fi
     if [[ "$dir" != "master" ]]; then # branch or PR dir except master
@@ -46,16 +47,20 @@ for dir in *; do
                 # check last build date
                 now_epoch="$(date +%s)"
                 if vm-is-macos; then
+                    lastedit_date="$(stat -f "%Sm" $config/build)"
                     lastedit_epoch="$(stat -f "%m" $config/build)"
                 else
+                    lastedit_date="$(date -r $config/build)"
                     lastedit_epoch="$(date +%s -r $config/build)"
                 fi
                 delta=$(( now_epoch - lastedit_epoch )) # in seconds
-                echo "  last build on $config was $delta seconds ago"
+                lastedit_message="  last build for $config was on $lastedit_date"
                 if [ "$delta" -gt 1209600 ]; then # 3600*24*14 = 14 days
+                    echo "$lastedit_message (more than 14 days ago)"
                     status="removed"
                 else
                     # remove only if ALL configs are old
+                    echo "$lastedit_message"
                     status="not removed"
                     break
                 fi
