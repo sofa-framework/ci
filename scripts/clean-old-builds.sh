@@ -26,11 +26,13 @@ for dir in *; do
     
     status="not removed"
     
+    echo "$dir: scanning..."
     if [[ "$dir" == "PR-"* ]]; then # PR dir
         # check if this PR is closed
         pr_id="${dir#*-}"
         pr_state="$(github-get-pr-state "$pr_id")"
         if [[ "$pr_state" == "closed" ]]; then
+            echo "  PR $pr_id is closed"
             status="removed"
         fi
     elif [ -d "SofaKernel" ] && [[ "$dir" != "master" ]]; then # branch dir (except master)
@@ -42,9 +44,14 @@ for dir in *; do
             if [ -d "$config/build" ]; then
                 # check last build date
                 now_epoch="$(date +%s)"
-                lastedit_epoch="$(date +%s -r $config/build)"
+                if vm-is-macos; then
+                    lastedit_epoch="$(stat -f "%m" $config/build)"
+                else
+                    lastedit_epoch="$(date +%s -r $config/build)"
+                fi
                 delta=$(( now_epoch - lastedit_epoch )) # in seconds
-                if [ "$delta" -gt 1209600 ]; then # 3600*24*14 = 14 days
+                echo "  last build on $config was $delta seconds ago"
+                if [ "$delta" -gt 604800 ]; then # 3600*24*7 = 7 days
                     status="removed"
                 else
                     # remove only if ALL configs are old
