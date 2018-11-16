@@ -192,11 +192,9 @@ add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
-if [ -d "$WORKSPACE/../regression" ]; then # Jenkins
-    regression_dir="$(cd $WORKSPACE/../regression && pwd)"
-    add-cmake-option "-DSOFA_EXTERNAL_DIRECTORIES=$regression_dir/Regression_test"
-elif [ -n "$CI_REGRESSION_DIR" ]; then
-    add-cmake-option "-DSOFA_EXTERNAL_DIRECTORIES=$CI_REGRESSION_DIR/Regression_test"
+
+if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ]; then
+    add-cmake-option "-DSOFA_EXTERNAL_DIRECTORIES=$REGRESSION_DIR/Regression_test"
 fi
 
 if in-array "build-release-package" "$BUILD_OPTIONS"; then

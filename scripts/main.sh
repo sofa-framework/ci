@@ -104,6 +104,19 @@ if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     BUILD_DIR="/j/$EXECUTOR_NUMBER/build"
 fi
 
+# Regression dir
+if in-array "run-regression-tests" "$BUILD_OPTIONS"; then # Jenkins
+    if [ -n "$WORKSPACE" ] && [ -d "$WORKSPACE/../regression" ]; then
+        if vm-is-windows; then
+            export REGRESSION_DIR="$(cd "$SRC_DIR/../regression" && pwd -W)"
+        else
+            export REGRESSION_DIR="$(cd "$SRC_DIR/../regression" && pwd)"
+        fi
+    elif [ -z "$REGRESSION_DIR" ]; then # not Jenkins and no REGRESSION_DIR
+        echo "WARNING: run-regression-tests option needs REGRESSION_DIR env var, regression tests will NOT be performed."
+    fi
+fi
+
 
 # Merge PR with target branch
 # Fail build if conflict
@@ -234,17 +247,10 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
 fi
 
 # Regression tests
-if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
+if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ]; then
     dashboard-notify "regressions_status=running"
     
-    references_dir="unknown"
-    if [ -d "$WORKSPACE/../regression" ]; then # Jenkins
-        references_dir="$(cd $WORKSPACE/../regression/references && pwd)"
-    elif [ -n "$CI_REGRESSION_DIR" ]; then
-        references_dir="$CI_REGRESSION_DIR/references"
-    else
-        echo "WARNING: running regression tests with unknown references dir, it will surely fail."
-    fi
+    references_dir="$REGRESSION_DIR/references"
     
     "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR" "$references_dir"
     "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" "$references_dir"
