@@ -50,16 +50,16 @@ github-notify "success" "Builds triggered."
 export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
 
-# Set "Scene test" GitHub status check
-rm -f "$output_dir/enable-scene-tests"
+# Handle scene tests and regression tests
+rm -f "$output_dir/enable-*-tests"
 if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
     pr_id="${DASH_COMMIT_BRANCH#*-}"
+    latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
     
     GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
-    export GITHUB_CONTEXT="Scene tests"
-
-    latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
+    export GITHUB_CONTEXT="[with-scene-tests]"
+    
     if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
         echo "Scene tests: forced."
         echo "true" > "$output_dir/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
@@ -71,16 +71,37 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         echo "Scene tests: diffLineCount = $diffLineCount"
         
         if [ "$diffLineCount" -lt 200 ]; then
-            github-notify "success" "Ignored. Use [ci-build][with-scene-tests] to trigger."
+            github-notify "success" "Ignored."
         else
-            github-notify "failure" "Missing. Use [ci-build][with-scene-tests] to trigger."
+            github-notify "failure" "Missing."
+        fi
+    fi
+    
+    export GITHUB_CONTEXT="[with-regression-tests]"
+    
+    if [[ "$latest_build_comment" == *"[with-regression-tests]"* ]]; then
+        echo "Regression tests: forced."
+        echo "true" > "$output_dir/enable-regression-tests" # will be searched by Groovy script on launcher to set CI_RUN_REGRESSION_TESTS
+        github-notify "success" "Triggered in latest build."
+    else
+        echo "Regression tests: NOT forced."
+        diffLineCount=999
+        diffLineCount="$(github-get-pr-diff "$pr_id" | wc -l)"
+        echo "Regression tests: diffLineCount = $diffLineCount"
+        
+        if [ "$diffLineCount" -lt 200 ]; then
+            github-notify "success" "Ignored."
+        else
+            github-notify "failure" "Missing."
         fi
     fi
     
     export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 elif [[ "$DASH_COMMIT_BRANCH" == "origin/master" ]]; then
     # Always scene tests for master builds
-    echo "true" > "$output_dir/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
+    echo "true" > "$output_dir/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS    
+    # Always regression tests for master builds
+    echo "true" > "$output_dir/enable-regression-tests" # will be searched by Groovy script on launcher to set CI_RUN_REGRESSION_TESTS
 fi
 
 # WARNING: Matrix combinations string must be explicit using only '()' and/or '==' and/or '&&' and/or '||'

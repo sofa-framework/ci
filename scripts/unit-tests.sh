@@ -11,14 +11,20 @@ export GTEST_COLOR=no
 export SOFA_COLOR_TERMINAL=no
 
 usage() {
-    echo "Usage: unit-tests.sh (run|print-summary) <build-dir> <src-dir>"
+    echo "Usage: unit-tests.sh (run|print-summary) <build-dir> <src-dir> [references-dir]"
 }
 
-if [[ "$#" = 3 ]]; then
+if [ "$#" -ge 3 ]; then
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
-    output_dir="unit-tests"
+    test_type="unit-tests"
+    if [ -n "$4" ]; then
+        test_type="regression-tests"
+        references_dir="$4"
+        export REGRESSION_REFERENCES_DIR="$references_dir"
+    fi
+    output_dir="$test_type"
 else
     usage; exit 1
 fi
@@ -33,18 +39,28 @@ elif [[ ! -d "$src_dir/applications/plugins" ]]; then
     usage; exit 1
 fi
 
-
-export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
+# export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
+export REGRESSION_SCENES_DIR="$src_dir"
+export SOFA_ROOT="$build_dir"
 
 list-tests() {
     pushd "$build_dir/bin" > /dev/null
-    for file in *; do
-        case "$file" in
-            *_test|*_testd|*_test.exe|*_testd.exe)
-                echo $file
-                ;;
-        esac
-    done
+    if [[ "$test_type" == "regression-tests" ]]; then
+        for file in `find . -name 'Regression_test*' -type f`; do
+            echo $file
+        done
+    else
+        for file in *; do
+            case "$file" in
+                *Regression_test*)
+                    continue # ignore Regression_test
+                    ;;
+                *_test|*_testd|*_test.exe|*_testd.exe)
+                    echo $file
+                    ;;
+            esac
+        done
+    fi
     popd > /dev/null
 }
 
@@ -55,7 +71,7 @@ initialize-unit-tests() {
     list-tests | while read test; do
         echo "$test"
         mkdir -p "$output_dir/$test"
-    done > "$output_dir/unit-tests.txt"
+    done > "$output_dir/$test_type.txt"
 }
 
 fix-test-report() {
@@ -177,7 +193,7 @@ run-single-test() {
 run-all-tests() {
     while read test; do
         run-single-test "$test"
-    done < "$output_dir/unit-tests.txt"
+    done < "$output_dir/$test_type.txt"
 }
 
 
@@ -245,7 +261,7 @@ print-summary() {
                         ;;
                 esac
             fi
-        done < "$output_dir/unit-tests.txt"
+        done < "$output_dir/$test_type.txt"
     fi
 }
 

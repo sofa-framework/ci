@@ -233,6 +233,44 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     "$SCRIPT_DIR/scene-tests.sh" clamp-errors "$BUILD_DIR" "$SRC_DIR" 5000
 fi
 
+# Regression tests
+if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
+    dashboard-notify "regressions_status=running"
+    
+    references_dir="unknown"
+    if [ -d "$WORKSPACE/../regression" ]; then # Jenkins
+        references_dir="$(cd $WORKSPACE/../regression/references && pwd)"
+    elif [ -n "$CI_REGRESSION_DIR" ]; then
+        references_dir="$CI_REGRESSION_DIR/references"
+    else
+        echo "WARNING: running regression tests with unknown references dir, it will surely fail."
+    fi
+    
+    "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR" "$references_dir"
+    "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" "$references_dir"
+
+    regressions_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR $references_dir)
+
+    regressions_problems=$((regressions_failures+regressions_errors))
+    github_message="${github_message} $regressions_problems regressions"
+    if [ $regressions_problems -gt 0 ]; then
+        github_status="success" # do not fail on tests failure
+    fi
+    github-notify "$github_status" "$github_message"
+
+    dashboard-notify \
+        "regressions_status=success" \
+        "regressions_suites=$regressions_suites" \
+        "regressions_total=$regressions_total" \
+        "regressions_disabled=$regressions_disabled" \
+        "regressions_failures=$regressions_failures" \
+        "regressions_errors=$regressions_errors"
+fi
+
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
     mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-fullbuild-$COMPILER.txt"
 fi
