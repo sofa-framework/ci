@@ -167,6 +167,7 @@ add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
 add-cmake-option "-DAPPLICATION_MODELER=ON"
+add-cmake-option "-DSOFA_EXTERNAL_DIRECTORIES=''" # clean eventual cached value
 
 # Handle custom lib dirs
 if vm-is-windows; then
