@@ -46,8 +46,12 @@ export SOFA_ROOT="$build_dir"
 list-tests() {
     pushd "$build_dir/bin" > /dev/null
     if [[ "$test_type" == "regression-tests" ]]; then
-        for file in `find . -name 'Regression_test*' -type f`; do
-            echo $file
+        for file in *; do
+            case "$file" in
+                *Regression_test|*Regression_testd|*Regression_test.exe|*Regression_testd.exe)
+                    echo $file
+                    ;;
+            esac
         done
     else
         for file in *; do
