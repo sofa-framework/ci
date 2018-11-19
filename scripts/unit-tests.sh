@@ -22,7 +22,6 @@ if [ "$#" -ge 3 ]; then
     if [ -n "$4" ]; then
         test_type="regression-tests"
         references_dir="$4"
-        export REGRESSION_REFERENCES_DIR="$references_dir"
     fi
     output_dir="$test_type"
 else
@@ -40,8 +39,11 @@ elif [[ ! -d "$src_dir/applications/plugins" ]]; then
 fi
 
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
-export REGRESSION_SCENES_DIR="$src_dir"
 export SOFA_ROOT="$build_dir"
+if [[ "$test_type" == "regression-tests" ]]; then
+    export REGRESSION_REFERENCES_DIR="$references_dir/examples"
+    export REGRESSION_SCENES_DIR="$src_dir/examples"
+fi
 
 list-tests() {
     pushd "$build_dir/bin" > /dev/null
