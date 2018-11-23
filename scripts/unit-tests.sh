@@ -4,7 +4,7 @@
 # to be the executables in bin/ that match *_test, and saves the results in XML
 # files, that can be understood by Jenkins.
 
-set -o errexit
+# set -o errexit
 
 # Disable colored output to avoid dirtying the log
 export GTEST_COLOR=no

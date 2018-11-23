@@ -269,7 +269,7 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
     github-notify "$github_status" "$github_message"
 
     dashboard-notify \
-        "regressions_status=success" \
+        "regressions_status=done" \
         "regressions_suites=$regressions_suites" \
         "regressions_total=$regressions_total" \
         "regressions_disabled=$regressions_disabled" \

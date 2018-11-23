@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o errexit # Exit on error
+# set -o errexit # Exit on error
 
 vm-is-macos() {
     if [[ "$(uname)" == "Darwin" ]]; then
