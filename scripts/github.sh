@@ -138,6 +138,12 @@ github-export-vars() {
         # export GITHUB_COMMIT_HASH="$(git log -n 1 $branch --pretty=format:"%H")"
         echo "Trying to guess GITHUB_COMMIT_HASH: $GITHUB_COMMIT_HASH"
     fi
+    
+    echo "Debug info for GitHub env vars export:"
+    echo "  python_exe = $python_exe"
+    echo "  git_url = $git_url"
+    echo "  refs = $refs"
+    echo "  branch = $branch"
 
     local options="$-"
     set +x # Private stuff here: echo disabled
