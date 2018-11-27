@@ -85,7 +85,7 @@ if in-array "force-full-build" "$BUILD_OPTIONS"; then
 else
     rm -f "$BUILD_DIR/make-output*.txt"
     rm -rf "$BUILD_DIR/unit-tests" "$BUILD_DIR/scene-tests"
-    rm -rf "$BUILD_DIR/bin" "$BUILD_DIR/lib"
+    rm -rf "$BUILD_DIR/bin" "$BUILD_DIR/lib" "$BUILD_DIR/external_directories"
     rm -rf "$BUILD_DIR/_CPack_Packages" "$BUILD_DIR/CPackConfig.cmake"
     rm -f "$BUILD_DIR/SOFA_*.exe" "$BUILD_DIR/SOFA_*.run" "$BUILD_DIR/SOFA_*.dmg"
 fi
