@@ -195,6 +195,8 @@ add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 
 if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ]; then
     add-cmake-option "-DSOFA_EXTERNAL_DIRECTORIES=$REGRESSION_DIR/Regression_test"
+else
+    add-cmake-option "-DSOFA_EXTERNAL_DIRECTORIES=''" # clean eventual cached value
 fi
 
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
