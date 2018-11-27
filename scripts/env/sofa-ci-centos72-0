@@ -15,3 +15,14 @@ export VM_HAS_OPENCASCADE="false"
 
 export PATH="/lib:/lib64:/bin:$PATH"
 export LD_LIBRARY_PATH="/lib:/lib64:/bin:$LD_LIBRARY_PATH"
+
+echo "DEBUG PATH = $PATH"
+echo "DEBUG Clang version:"
+clang --version
+echo "source /opt/rh/devtoolset-7/enable"
+source /opt/rh/devtoolset-7/enable
+echo "source /opt/rh/llvm-toolset-7/enable"
+source /opt/rh/llvm-toolset-7/enable
+echo "DEBUG PATH = $PATH"
+echo "DEBUG Clang version:"
+clang --version
