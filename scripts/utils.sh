@@ -16,14 +16,14 @@ vm-is-windows() {
     fi
 }
 vm-is-centos() {
-    if [[ "$(uname)" != "Darwin" && "$(uname)" == "Linux" ]] && [ -x "$(command -v yum)" ]; then
+    if [[ "$(uname)" == "Linux" ]] && [ -x "$(command -v yum)" ]; then
         return 0 # true
     else
         return 1 # false
     fi
 }
 vm-is-ubuntu() {
-    if [[ "$(uname)" != "Darwin" && "$(uname)" == "Linux" ]] && [ -x "$(command -v apt)" ]; then
+    if [[ "$(uname)" == "Linux" ]] && [ -x "$(command -v apt)" ]; then
         return 0 # true
     else
         return 1 # false
