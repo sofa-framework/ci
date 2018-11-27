@@ -15,3 +15,4 @@ export VM_HAS_OPENCASCADE="false"
 
 export PATH="/lib:/lib64:/bin:$PATH"
 export LD_LIBRARY_PATH="/lib:/lib64:/bin:$LD_LIBRARY_PATH"
+export CI_CMAKE_OPTIONS="-DCMAKE_CXX_FLAGS='-stdlib=libc++'"
