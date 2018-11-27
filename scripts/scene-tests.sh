@@ -16,7 +16,7 @@
 # timeout "path/to/file.scn" "number-of-seconds"
 # iterations "path/to/file.scn" "number-of-iterations"
 
-set -o errexit
+# set -o errexit
 
 usage() {
     echo "Usage: scene-tests.sh [run|count-warnings|count-errors|print-summary] <build-dir> <src-dir>"

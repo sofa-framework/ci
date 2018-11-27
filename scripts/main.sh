@@ -104,6 +104,19 @@ if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     BUILD_DIR="/j/$EXECUTOR_NUMBER/build"
 fi
 
+# Regression dir
+if in-array "run-regression-tests" "$BUILD_OPTIONS"; then # Jenkins
+    if [ -n "$WORKSPACE" ] && [ -d "$WORKSPACE/../regression" ]; then
+        if vm-is-windows; then
+            export REGRESSION_DIR="$(cd "$SRC_DIR/../regression" && pwd -W)"
+        else
+            export REGRESSION_DIR="$(cd "$SRC_DIR/../regression" && pwd)"
+        fi
+    elif [ -z "$REGRESSION_DIR" ]; then # not Jenkins and no REGRESSION_DIR
+        echo "WARNING: run-regression-tests option needs REGRESSION_DIR env var, regression tests will NOT be performed."
+    fi
+fi
+
 
 # Merge PR with target branch
 # Fail build if conflict
@@ -231,6 +244,37 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     # Clamping warning and error files to avoid Jenkins overflow
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
     "$SCRIPT_DIR/scene-tests.sh" clamp-errors "$BUILD_DIR" "$SRC_DIR" 5000
+fi
+
+# Regression tests
+if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ]; then
+    dashboard-notify "regressions_status=running"
+    
+    references_dir="$REGRESSION_DIR/references"
+    
+    "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR" "$references_dir"
+    "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" "$references_dir"
+
+    regressions_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR $references_dir)
+
+    regressions_problems=$((regressions_failures+regressions_errors))
+    github_message="${github_message} $regressions_problems regressions"
+    if [ $regressions_problems -gt 0 ]; then
+        github_status="success" # do not fail on tests failure
+    fi
+    github-notify "$github_status" "$github_message"
+
+    dashboard-notify \
+        "regressions_status=done" \
+        "regressions_suites=$regressions_suites" \
+        "regressions_total=$regressions_total" \
+        "regressions_disabled=$regressions_disabled" \
+        "regressions_failures=$regressions_failures" \
+        "regressions_errors=$regressions_errors"
 fi
 
 if in-array "force-full-build" "$BUILD_OPTIONS"; then

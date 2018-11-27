@@ -13,7 +13,7 @@ set -o errexit # Exit on error
 ### Checks
 
 usage() {
-    echo "Usage: compile.sh <build-dir> <config>"
+    echo "Usage: compile.sh <build-dir> <config> <build-options>"
 }
 
 if [ "$#" -eq 2 ]; then
@@ -25,6 +25,10 @@ if [ "$#" -eq 2 ]; then
     PLATFORM="$(get-platform-from-config "$CONFIG")"
     COMPILER="$(get-compiler-from-config "$CONFIG")"
     ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
+    BUILD_OPTIONS="${*:3}"
+    if [ -z "$BUILD_OPTIONS" ]; then
+        BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
+    fi
 else
     usage; exit 1
 fi
@@ -45,7 +49,12 @@ echo "-----------------------------------------------"
 call-make() {
     build_dir="$(cd "$1" && pwd)"
     shift # Remove first arg
-    
+
+    target="all"        
+    if in-array "build-release-package" "$BUILD_OPTIONS"; then
+        target="package"
+    fi
+
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
@@ -59,16 +68,16 @@ call-make() {
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
-        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $VM_MAKE_OPTIONS\""
-        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $VM_MAKE_OPTIONS"
+        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS\""
+        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS"
     else
     	toolname="make" # default
         if [ -x "$(command -v ninja)" ]; then
             echo "Using ninja as build system"
 	        toolname="ninja"
         fi
-        echo "Calling: $toolname $VM_MAKE_OPTIONS"
-        cd $build_dir && $toolname $VM_MAKE_OPTIONS
+        echo "Calling: $toolname $target $VM_MAKE_OPTIONS"
+        cd $build_dir && $toolname $target $VM_MAKE_OPTIONS
     fi
 }
 

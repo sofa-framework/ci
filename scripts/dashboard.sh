@@ -48,6 +48,8 @@ dashboard-config-string() {
     # suffix = [default, options, default-debug, options-debug]
     if in-array "build-all-plugins" "$build_options"; then
         suffix="options"
+    elif in-array "build-release-package" "$build_options"; then
+        suffix="package"
     else
         suffix="default"
     fi
