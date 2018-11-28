@@ -2,7 +2,7 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: pre-builds.sh <matrix-combinations-string> <output_dir> <build-options>"
+    echo "Usage: pre-builds.sh <matrix-combinations-string> <output-dir> <build-options>"
 }
 
 if [ "$#" -ge 2 ]; then
@@ -60,7 +60,8 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
     export GITHUB_CONTEXT="[with-scene-tests]"
     
-    if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]]; then
+    if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]] || 
+       [[ "$latest_build_comment" == *"[with-all-tests]"* ]]; then
         echo "Scene tests: forced."
         echo "true" > "$output_dir/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
         github-notify "success" "Triggered in latest build."
@@ -79,7 +80,8 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     
     export GITHUB_CONTEXT="[with-regression-tests]"
     
-    if [[ "$latest_build_comment" == *"[with-regression-tests]"* ]]; then
+    if [[ "$latest_build_comment" == *"[with-regression-tests]"* ]] || 
+       [[ "$latest_build_comment" == *"[with-all-tests]"* ]]; then
         echo "Regression tests: forced."
         echo "true" > "$output_dir/enable-regression-tests" # will be searched by Groovy script on launcher to set CI_RUN_REGRESSION_TESTS
         github-notify "success" "Triggered in latest build."
