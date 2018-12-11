@@ -14,6 +14,8 @@ dashboard-notify-explicit() {
 
     if [[ "$DASH_FULLBUILD" == "true" ]]; then
         message="fullbuild=true&$message"
+    else
+        message="fullbuild=false&$message"
     fi
 
     if [[ "$DASH_NOTIFY" == "true" ]] && [ -n "$DASH_DASHBOARD_URL" ]; then

@@ -70,13 +70,32 @@ echo "GitHub env vars:"
 env | grep "^GITHUB_"
 echo "---------------------"
 
+# Make sure all status are on Dashboard
+tests_status="failure"
+scenes_status="failure"
+regressions_status="failure"
+if [ -e "$BUILD_DIR/unit-tests.status" ]; then
+    tests_status="$(cat $BUILD_DIR/unit-tests.status)"
+fi
+if [ -e "$BUILD_DIR/scene-tests.status" ]; then
+    scenes_status="$(cat $BUILD_DIR/scene-tests.status)"
+fi
+if [ -e "$BUILD_DIR/regression-tests.status" ]; then
+    regressions_status="$(cat $BUILD_DIR/regression-tests.status)"
+fi
+dashboard-notify \
+    "tests_status=$tests_status" \
+    "scenes_status=$scenes_status" \
+    "regressions_status=$regressions_status"
+
+
 on-failure() {
-    dashboard-notify "status=fail"
+    dashboard-notify "status=failure"
     github-notify "failure" "Build failed."
 }
 
 on-error() {
-    dashboard-notify "status=fail"
+    dashboard-notify "status=failure"
     github-notify "error" "Unexpected error, see log for details."
 }
 

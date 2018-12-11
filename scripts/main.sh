@@ -71,7 +71,7 @@ dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BU
 save-env-vars "GITHUB" "$BUILD_DIR"
 save-env-vars "DASH" "$BUILD_DIR"
 
-dashboard-init # Ensure Dashboard line is OK
+# dashboard-init # Ensure Dashboard line is OK
 
 github-notify "pending" "Building..."
 dashboard-notify "status=build"
@@ -84,7 +84,7 @@ if in-array "force-full-build" "$BUILD_OPTIONS"; then
     mkdir "$BUILD_DIR"
 else
     rm -f "$BUILD_DIR/make-output*.txt"
-    rm -rf "$BUILD_DIR/unit-tests" "$BUILD_DIR/scene-tests"
+    rm -rf "$BUILD_DIR/unit-tests" "$BUILD_DIR/scene-tests" "$BUILD_DIR/*.status"
     rm -rf "$BUILD_DIR/bin" "$BUILD_DIR/lib" "$BUILD_DIR/external_directories"
     rm -rf "$BUILD_DIR/_CPack_Packages" "$BUILD_DIR/CPackConfig.cmake"
     rm -f "$BUILD_DIR/SOFA_*.exe" "$BUILD_DIR/SOFA_*.run" "$BUILD_DIR/SOFA_*.dmg"
@@ -180,9 +180,16 @@ fi
 
 # Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
-    dashboard-notify "tests_status=running"
-
+    tests_status="running"
+    dashboard-notify "tests_status=$tests_status"
+    echo "$tests_status" > "$BUILD_DIR/unit-tests.status"    
     "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
+    if [ $? -eq 0 ]; then
+        tests_status="success"
+    else
+        tests_status="failure"
+    fi
+    echo "$tests_status" > "$BUILD_DIR/unit-tests.status"
     "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
 
     tests_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR)
@@ -192,24 +199,28 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
 
     tests_problems=$((tests_failures+tests_errors))
-    github_message="${github_message} $tests_problems unit tests"
+    github_message="${github_message} $tests_problems unit"
     if [ $tests_problems -gt 0 ]; then
         github_status="success" # do not fail on tests failure
     fi
     github-notify "$github_status" "$github_message"
 
     dashboard-notify \
-        "tests_status=success" \
+        "tests_status=$tests_status" \
         "tests_suites=$tests_suites" \
         "tests_total=$tests_total" \
         "tests_disabled=$tests_disabled" \
         "tests_failures=$tests_failures" \
         "tests_errors=$tests_errors"
+else
+    echo "disabled" > "$BUILD_DIR/unit-tests.status"
 fi
 
 # Scene tests
 if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
-    dashboard-notify "scenes_status=running"
+    scenes_status="running"
+    dashboard-notify "scenes_status=$scenes_status"
+    echo "$scenes_status" > "$BUILD_DIR/scene-tests.status"
     
     echo "Preventing SofaCUDA from being loaded in VMs."
     if vm-is-windows; then
@@ -220,6 +231,12 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     grep -v "SofaCUDA NO_VERSION" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
     "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
+    if [ $? -eq 0 ]; then
+        scenes_status="success"
+    else
+        scenes_status="failure"
+    fi
+    echo "$scenes_status" > "$BUILD_DIR/scene-tests.status"
     "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
 
     scenes_total=$("$SCRIPT_DIR/scene-tests.sh" count-tested-scenes $BUILD_DIR $SRC_DIR)
@@ -228,14 +245,14 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
 
     scenes_problems=$((scenes_errors+scenes_crashes))
-    github_message="${github_message}, $scenes_problems scene tests"
+    github_message="${github_message}, $scenes_problems scene"
     if [ $scenes_problems -gt 0 ]; then
         github_status="success" # do not fail on tests failure
     fi
     github-notify "$github_status" "$github_message"
     
     dashboard-notify \
-        "scenes_status=success" \
+        "scenes_status=$scenes_status" \
         "scenes_total=$scenes_total" \
         "scenes_successes=$scenes_successes" \
         "scenes_errors=$scenes_errors" \
@@ -244,15 +261,25 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     # Clamping warning and error files to avoid Jenkins overflow
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
     "$SCRIPT_DIR/scene-tests.sh" clamp-errors "$BUILD_DIR" "$SRC_DIR" 5000
+else
+    echo "disabled" > "$BUILD_DIR/scene-tests.status"
 fi
 
 # Regression tests
 if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ]; then
-    dashboard-notify "regressions_status=running"
+    regressions_status="running"
+    dashboard-notify "regressions_status=$regressions_status"
+    echo "$regressions_status" > "$BUILD_DIR/regression-tests.status"
     
     references_dir="$REGRESSION_DIR/references"
     
     "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR" "$references_dir"
+    if [ $? -eq 0 ]; then
+        regressions_status="success"
+    else
+        regressions_status="failure"
+    fi
+    echo "$regressions_status" > "$BUILD_DIR/regression-tests.status"
     "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" "$references_dir"
 
     regressions_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR $references_dir)
@@ -262,19 +289,21 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
     regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR $references_dir)
 
     regressions_problems=$((regressions_failures+regressions_errors))
-    github_message="${github_message} $regressions_problems regressions"
+    github_message="${github_message}, $regressions_problems regression"
     if [ $regressions_problems -gt 0 ]; then
         github_status="success" # do not fail on tests failure
     fi
     github-notify "$github_status" "$github_message"
 
     dashboard-notify \
-        "regressions_status=done" \
+        "regressions_status=$regressions_status" \
         "regressions_suites=$regressions_suites" \
         "regressions_total=$regressions_total" \
         "regressions_disabled=$regressions_disabled" \
         "regressions_failures=$regressions_failures" \
         "regressions_errors=$regressions_errors"
+else
+    echo "disabled" > "$BUILD_DIR/regression-tests.status"
 fi
 
 if in-array "force-full-build" "$BUILD_OPTIONS"; then
