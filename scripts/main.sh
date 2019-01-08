@@ -60,6 +60,23 @@ echo "BUILD_TYPE = $BUILD_TYPE"
 echo "BUILD_OPTIONS = $BUILD_OPTIONS"
 echo "--------------------------------------------"
 
+# Wait for git to be available
+if [ `ps -elf | grep -c git` -gt 1 ]; then
+    echo "Waiting for git 10s ..."
+    sleep 10
+fi
+if [ `ps -elf | grep -c git` -gt 1 ]; then
+    echo "Waiting for git 30s ..."
+    sleep 30
+fi
+if [ `ps -elf | grep -c git` -gt 1 ]; then
+    echo "Waiting for git 60s ..."
+    sleep 60
+fi
+if [ `ps -elf | grep -c git` -gt 1 ]; then
+    echo "Still no git available, let's try to run anyway."
+fi
+
 # Git config (needed by CMake ExternalProject)
 git config --global user.name 'SOFA Bot'
 git config --global user.email '<>'
