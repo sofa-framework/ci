@@ -145,8 +145,8 @@ run-single-test-subtests() {
 <![CDATA['"$(cat $output_dir/$test/$subtest/output.txt)"']]>
             </error>
         </testcase>
-    </unit-testsuite>
-</unit-testsuites>' > "$output_file"
+    </testsuite>
+</testsuites>' > "$output_file"
         fi
 
         if [ -f "$output_file" ]; then
