@@ -45,7 +45,7 @@ dashboard-init
 GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
 GITHUB_TARGET_URL_OLD="$GITHUB_TARGET_URL"
 export GITHUB_CONTEXT="Dashboard"
-export GITHUB_TARGET_URL="https://www.sofa-framework.org/dash?branch=Jk2/$DASH_COMMIT_BRANCH"
+export GITHUB_TARGET_URL="https://www.sofa-framework.org/dash?branch=$DASH_COMMIT_BRANCH"
 github-notify "success" "Builds triggered."
 export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"

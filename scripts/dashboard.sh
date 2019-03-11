@@ -30,7 +30,7 @@ dashboard-notify() {
 
 dashboard-init() {
     echo "DASH: Create/update commit line"
-    dashboard-notify-explicit "sha=$DASH_COMMIT_HASH" "base_sha=$DASH_BASECOMMIT_HASH" "comment=$DASH_COMMIT_SUBJECT" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=Jk2/$DASH_COMMIT_BRANCH"
+    dashboard-notify-explicit "sha=$DASH_COMMIT_HASH" "base_sha=$DASH_BASECOMMIT_HASH" "comment=$DASH_COMMIT_SUBJECT" "date=$DASH_COMMIT_DATE" "author=$DASH_COMMIT_AUTHOR" "branch=$DASH_COMMIT_BRANCH"
 }
 
 dashboard-config-string() {

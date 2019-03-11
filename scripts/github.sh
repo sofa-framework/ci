@@ -20,7 +20,7 @@ github-notify() {
        [ -n "$GITHUB_COMMIT_HASH" ] &&
        [ -n "$GITHUB_SOFABOT_TOKEN" ]; then
         local request="{
-            \"context\": \"Jk2/$GITHUB_CONTEXT\",
+            \"context\": \"$GITHUB_CONTEXT\",
             \"state\": \"$state\",
             \"description\": \"$message\",
             \"target_url\": \"$GITHUB_TARGET_URL\"
