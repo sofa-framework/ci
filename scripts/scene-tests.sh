@@ -33,6 +33,8 @@ else
 fi
 
 cd "$build_dir"
+rm -rf "$output_dir/archive"
+mkdir "$output_dir/archive"
 
 if [[ ! -d "$build_dir/lib/" ]]; then
     echo "Error: '$build_dir' does not look like a Sofa build."
@@ -408,6 +410,7 @@ extract-crashes() {
             local status="$(cat "$output_dir/$scene/status.txt")"
             if [[ "$status" != 0 ]]; then
                 echo "$scene: error: $status"
+                cp -R "$output_dir/$scene" "$output_dir/archive" # to be archived for log access
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
