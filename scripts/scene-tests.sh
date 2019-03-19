@@ -454,7 +454,7 @@ clamp-warnings() {
     echo "INFO: scene-test warnings limited to $clamp_limit"
     if [ -e  "$output_dir/reports/warnings.txt" ]; then
         warnings_lines="$(count-warnings)"
-        if [ $warnings_lines -gt $clamp_limit ]; then
+        if [ "$warnings_lines" -gt "$clamp_limit" ]; then
             echo "-------------------------------------------------------------"
             echo "ALERT: TOO MANY SCENE-TEST WARNINGS ($warnings_lines > $clamp_limit), CLAMPING TO $clamp_limit"
             echo "-------------------------------------------------------------"
@@ -474,7 +474,7 @@ clamp-errors() {
     echo "INFO: scene-test errors limited to $clamp_limit"
     if [ -e  "$output_dir/reports/errors.txt" ]; then
         error_lines="$(count-errors)"
-        if [ "$errors_lines" -gt "$clamp_limit" ]; then
+        if [ "$error_lines" -gt "$clamp_limit" ]; then
             echo "-------------------------------------------------------------"
             echo "ALERT: TOO MANY SCENE-TEST ERRORS ($error_lines > $clamp_limit), CLAMPING TO $clamp_limit"
             echo "-------------------------------------------------------------"
