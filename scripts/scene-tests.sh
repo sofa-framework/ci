@@ -33,8 +33,6 @@ else
 fi
 
 cd "$build_dir"
-rm -rf "$output_dir/archive"
-mkdir "$output_dir/archive"
 
 if [[ ! -d "$build_dir/lib/" ]]; then
     echo "Error: '$build_dir' does not look like a Sofa build."
@@ -405,6 +403,8 @@ extract-errors() {
 }
 
 extract-crashes() {
+    rm -rf "$output_dir/archive"
+    mkdir "$output_dir/archive"
     while read scene; do
         if [[ -e "$output_dir/$scene/status.txt" ]]; then
             local status="$(cat "$output_dir/$scene/status.txt")"
