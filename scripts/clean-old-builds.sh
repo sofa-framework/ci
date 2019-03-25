@@ -54,8 +54,8 @@ for dir in *; do
                 fi
                 delta=$(( now_epoch - lastedit_epoch )) # in seconds
                 lastedit_message="  last build for $config was on $lastedit_date"
-                if [ "$delta" -gt 1209600 ]; then # 3600*24*14 = 14 days
-                    echo "$lastedit_message (more than 14 days ago)"
+                if [ "$delta" -gt 864000 ]; then # 3600*24*10 = 10 days
+                    echo "$lastedit_message (more than 10 days ago)"
                     status="removed"
                 else
                     # remove only if ALL configs are old

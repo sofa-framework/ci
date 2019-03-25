@@ -16,7 +16,7 @@
 # timeout "path/to/file.scn" "number-of-seconds"
 # iterations "path/to/file.scn" "number-of-iterations"
 
-set -o errexit
+# set -o errexit
 
 usage() {
     echo "Usage: scene-tests.sh [run|count-warnings|count-errors|print-summary] <build-dir> <src-dir>"
@@ -403,11 +403,17 @@ extract-errors() {
 }
 
 extract-crashes() {
+    rm -rf "$output_dir/archive"
+    mkdir "$output_dir/archive"
     while read scene; do
         if [[ -e "$output_dir/$scene/status.txt" ]]; then
             local status="$(cat "$output_dir/$scene/status.txt")"
             if [[ "$status" != 0 ]]; then
                 echo "$scene: error: $status"
+                if [ ! -d "$output_dir/archive/$scene" ]; then
+                    mkdir -p "$output_dir/archive/$scene"
+                fi
+                cp -R "$output_dir/$scene" "$output_dir/archive/$scene" # to be archived for log access
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
@@ -451,7 +457,7 @@ clamp-warnings() {
     echo "INFO: scene-test warnings limited to $clamp_limit"
     if [ -e  "$output_dir/reports/warnings.txt" ]; then
         warnings_lines="$(count-warnings)"
-        if [[ "$warnings_lines" > "$clamp_limit" ]]; then
+        if [ "$warnings_lines" -gt "$clamp_limit" ]; then
             echo "-------------------------------------------------------------"
             echo "ALERT: TOO MANY SCENE-TEST WARNINGS ($warnings_lines > $clamp_limit), CLAMPING TO $clamp_limit"
             echo "-------------------------------------------------------------"
@@ -471,7 +477,7 @@ clamp-errors() {
     echo "INFO: scene-test errors limited to $clamp_limit"
     if [ -e  "$output_dir/reports/errors.txt" ]; then
         error_lines="$(count-errors)"
-        if [[ "$error_lines" > "$clamp_limit" ]]; then
+        if [ "$error_lines" -gt "$clamp_limit" ]; then
             echo "-------------------------------------------------------------"
             echo "ALERT: TOO MANY SCENE-TEST ERRORS ($error_lines > $clamp_limit), CLAMPING TO $clamp_limit"
             echo "-------------------------------------------------------------"

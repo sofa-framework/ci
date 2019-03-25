@@ -31,12 +31,12 @@ github-export-vars "$build_options"
 dashboard-export-vars "$build_options"
 
 # Check [ci-ignore] flag in commit message
-# if [ -n "$GITHUB_COMMIT_MESSAGE" ] && [[ "$GITHUB_COMMIT_MESSAGE" == *"[ci-ignore]"* ]]; then
-#     # Ignore this build
-#     touch "abort-this-build"
-#     echo "WARNING: [ci-ignore] detected in commit message, build aborted."
-#     exit 1
-# fi
+if [ -n "$GITHUB_COMMIT_MESSAGE" ] && [[ "$GITHUB_COMMIT_MESSAGE" == *"[ci-ignore]"* ]]; then
+    # Ignore this build
+    touch "abort-this-build"
+    echo "WARNING: [ci-ignore] detected in commit message, build aborted."
+    exit 1
+fi
 
 
 dashboard-init
@@ -45,7 +45,7 @@ dashboard-init
 GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
 GITHUB_TARGET_URL_OLD="$GITHUB_TARGET_URL"
 export GITHUB_CONTEXT="Dashboard"
-export GITHUB_TARGET_URL="https://www.sofa-framework.org/dash?branch=Jk2/$DASH_COMMIT_BRANCH"
+export GITHUB_TARGET_URL="https://www.sofa-framework.org/dash?branch=$DASH_COMMIT_BRANCH"
 github-notify "success" "Builds triggered."
 export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"

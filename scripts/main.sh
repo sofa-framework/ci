@@ -199,15 +199,13 @@ fi
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     tests_status="running"
     dashboard-notify "tests_status=$tests_status"
-    echo "$tests_status" > "$BUILD_DIR/unit-tests.status"    
+    echo "$tests_status" > "$BUILD_DIR/unit-tests.status"  
+    
     "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
-    if [ $? -eq 0 ]; then
-        tests_status="success"
-    else
-        tests_status="failure"
-    fi
-    echo "$tests_status" > "$BUILD_DIR/unit-tests.status"
     "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
+    
+    tests_status="done" # TODO: handle script crash
+    echo "$tests_status" > "$BUILD_DIR/unit-tests.status"
 
     tests_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR)
     tests_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests $BUILD_DIR $SRC_DIR)
@@ -248,13 +246,10 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     grep -v "SofaCUDA NO_VERSION" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
     "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
-    if [ $? -eq 0 ]; then
-        scenes_status="success"
-    else
-        scenes_status="failure"
-    fi
-    echo "$scenes_status" > "$BUILD_DIR/scene-tests.status"
     "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
+    
+    scenes_status="done" # TODO: handle script crash
+    echo "$scenes_status" > "$BUILD_DIR/scene-tests.status"
 
     scenes_total=$("$SCRIPT_DIR/scene-tests.sh" count-tested-scenes $BUILD_DIR $SRC_DIR)
     scenes_successes=$("$SCRIPT_DIR/scene-tests.sh" count-successes $BUILD_DIR $SRC_DIR)
@@ -291,13 +286,10 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
     references_dir="$REGRESSION_DIR/references"
     
     "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR" "$references_dir"
-    if [ $? -eq 0 ]; then
-        regressions_status="success"
-    else
-        regressions_status="failure"
-    fi
-    echo "$regressions_status" > "$BUILD_DIR/regression-tests.status"
     "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" "$references_dir"
+    
+    regressions_status="done" # TODO: handle script crash
+    echo "$regressions_status" > "$BUILD_DIR/regression-tests.status"
 
     regressions_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR $references_dir)
     regressions_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests $BUILD_DIR $SRC_DIR $references_dir)
