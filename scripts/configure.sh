@@ -201,12 +201,6 @@ fi
 
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_BUILD_RELEASE_PACKAGE=ON"
-    add-cmake-option "-DSOFA_BUILD_TUTORIALS=OFF"
-    add-cmake-option "-DSOFA_BUILD_TESTS=OFF"
-    add-cmake-option "-DSOFA_BUILD_METIS=OFF"
-    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=OFF"
-    add-cmake-option "-DAPPLICATION_MODELER=OFF"
-    add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=OFF"
 
     if [ -d "$VM_QT_PATH/Tools/QtInstallerFramework" ]; then
         for dir in "$VM_QT_PATH/Tools/QtInstallerFramework/"*; do
@@ -216,13 +210,15 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
             fi
         done
     fi
+    add-cmake-option "-DCPACK_BINARY_ZIP=ON" # always generate a ZIP
     if vm-is-windows; then
         add-cmake-option "-DCPACK_GENERATOR=NSIS"
         add-cmake-option "-DCPACK_BINARY_NSIS=ON"
     elif vm-is-macos; then
         add-cmake-option "-DCPACK_GENERATOR=DragNDrop"
         add-cmake-option "-DCPACK_BINARY_DRAGNDROP=ON"
-    else
+        add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=ON"
+    elif [ -n "$QTIFWDIR" ]; then
         add-cmake-option "-DCPACK_GENERATOR=IFW"
         add-cmake-option "-DCPACK_BINARY_IFW=ON"
     fi
