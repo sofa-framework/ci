@@ -413,7 +413,7 @@ extract-crashes() {
                 if [ ! -d "$output_dir/archive/$scene" ]; then
                     mkdir -p "$output_dir/archive/$scene"
                 fi
-                cp -R "$output_dir/$scene" "$output_dir/archive/$scene" # to be archived for log access
+                cp -R "$output_dir/$scene/*" "$output_dir/archive/$scene" # to be archived for log access
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
