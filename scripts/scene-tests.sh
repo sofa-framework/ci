@@ -410,10 +410,11 @@ extract-crashes() {
             local status="$(cat "$output_dir/$scene/status.txt")"
             if [[ "$status" != 0 ]]; then
                 echo "$scene: error: $status"
-                if [ ! -d "$output_dir/archive/$scene" ]; then
-                    mkdir -p "$output_dir/archive/$scene"
+                scene_path="$(dirname "$scene")"
+                if [ ! -d "$output_dir/archive/$scene_path" ]; then
+                    mkdir -p "$output_dir/archive/$scene_path"
                 fi
-                cp -R "$output_dir/$scene/*" "$output_dir/archive/$scene" # to be archived for log access
+                cp -Rf "$output_dir/$scene" "$output_dir/archive/$scene_path" # to be archived for log access
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
