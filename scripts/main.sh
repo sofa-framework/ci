@@ -214,9 +214,10 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
 
     tests_problems=$((tests_failures+tests_errors))
     github_message="${github_message} $tests_problems unit"
-    if [ $tests_problems -gt 0 ]; then
-        github_status="success" # do not fail on tests failure
+    if [ $tests_problems -gt 1 ]; then
+        github_message="${github_message}s"
     fi
+    github_status="success" # do not fail on tests failure
     github-notify "$github_status" "$github_message"
 
     dashboard-notify \
@@ -257,9 +258,10 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
 
     scenes_problems=$((scenes_errors+scenes_crashes))
     github_message="${github_message}, $scenes_problems scene"
-    if [ $scenes_problems -gt 0 ]; then
-        github_status="success" # do not fail on tests failure
+    if [ $scenes_problems -gt 1 ]; then
+        github_message="${github_message}s"
     fi
+    github_status="success" # do not fail on tests failure
     github-notify "$github_status" "$github_message"
     
     dashboard-notify \
@@ -298,9 +300,10 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
 
     regressions_problems=$((regressions_failures+regressions_errors))
     github_message="${github_message}, $regressions_problems regression"
-    if [ $regressions_problems -gt 0 ]; then
-        github_status="success" # do not fail on tests failure
+    if [ $regressions_problems -gt 1 ]; then
+        github_message="${github_message}s"
     fi
+    github_status="success" # do not fail on tests failure
     github-notify "$github_status" "$github_message"
 
     dashboard-notify \
