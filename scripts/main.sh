@@ -58,6 +58,23 @@ echo "COMPILER = $COMPILER"
 echo "ARCHITECTURE = $ARCHITECTURE"
 echo "BUILD_TYPE = $BUILD_TYPE"
 echo "BUILD_OPTIONS = $BUILD_OPTIONS"
+echo "----------------- VM config -----------------"
+echo "-- CMake"
+cmake --version
+echo "-- Generator"
+if [ -x "$(command -v ninja)" ]; then
+    echo "ninja $(ninja --version)"
+elif vm-is-windows; then
+    cmd //c "nmake /HELP"
+else
+    make --version
+fi
+echo "-- Compiler"
+if vm-is-windows; then
+    echo "MSVC $(get-compiler-version "$COMPILER")"
+else
+    echo "$(${COMPILER%-*} --version)" # gcc-5.8 -> gcc
+fi
 echo "--------------------------------------------"
 
 # Wait for git to be available
