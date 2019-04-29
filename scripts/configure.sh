@@ -276,6 +276,7 @@ else # This is not a "package" build
             add-cmake-option "-DPLUGIN_SOFAASSIMP=OFF"
         fi
         add-cmake-option "-DPLUGIN_COMPLIANT=ON"
+        add-cmake-option "-DPLUGIN_DIFFUSIONSOLVER=ON"
         add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
         add-cmake-option "-DPLUGIN_FLEXIBLE=ON"
         add-cmake-option "-DPLUGIN_IMAGE=ON"
