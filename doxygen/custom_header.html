@@ -14,6 +14,12 @@ $treeview
 $search
 $mathjax
 <link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
+<link href="custom_style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+    $(document).ready(function() {
+        searchBox.OnSelectItem(1); // select "Classes" by default
+    });
+</script>
 $extrastylesheet
 </head>
 <body>
@@ -26,7 +32,7 @@ $extrastylesheet
  <tr style="height: 56px;">
   <!--BEGIN PROJECT_LOGO-->
   <td id="projectlogo">
-    <a href="../../../"> <!-- CUSTOM: link to home -->
+    <a href="https://www.sofa-framework.org"> <!-- CUSTOM: link to home -->
         <img alt="Logo" src="$relpath^$projectlogo"/>
     </a>
   </td>

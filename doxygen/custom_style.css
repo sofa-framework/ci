@@ -1,0 +1,18 @@
+#MSearchBox {
+    width: 315px;
+    transform: scale(1.4);
+    margin-top: 4px;
+    right: 90px;
+}
+
+#MSearchBox .right {
+    right: -5px;
+}
+
+#MSearchField {
+    width: 265px;
+}
+
+#MSearchResultsWindow, #MSearchSelectWindow {
+    transform: scale(1.1) translate(-64px, 13px);
+}
