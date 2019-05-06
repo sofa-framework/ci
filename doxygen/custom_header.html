@@ -21,22 +21,25 @@ $mathjax
         // Add two entries to menu bar
         var pathToRoot = '../..';
         var url = window.location.href;
-        if(url.includes('/plugins/'))
+        var moduleName = "SOFA";
+        if ( url.includes('/plugins/') )
         {
             pathToRoot = '../../..';
+            moduleName = url.match(/\/plugins\/(\w+)\/html/)[1];
         }
-        $('ul.tablist li:eq(0)').before('<li><a href="' + pathToRoot + '/plugins.html"><span>Plugin list</span></a></li>');
-        $('ul.tablist li:eq(0)').before('<li><a href="' + pathToRoot + '/index.html"><span><i class="fas fa-home" style="line-height: inherit;"></i></span></a></li>');
+        $('ul.tablist > li > a > span').text(moduleName + " Classes"); // rename 'Classes'
+        $('ul.tablist li:eq(0)').before('<li><a href="' + pathToRoot + '/sofa/html/plugins.html"><span>Plugin list</span></a></li>');
+        $('ul.tablist li:eq(0)').before('<li><a href="' + pathToRoot + '/sofa/html/index.html"><span><i class="fas fa-home" style="line-height: inherit;"></i></span></a></li>');
 
         // Set 'current' CSS class correctly
-        if(!url.includes('/plugins/'))
+        if ( ! url.includes('/plugins/') )
         {
-            if(url.includes('/index.html'))
+            if ( url.includes('/index.html') )
             {
                 $('ul.tablist li').removeClass("current");
                 $('ul.tablist li:eq(0)').addClass("current");
             }
-            else if(url.includes('/plugins.html'))
+            else if ( url.includes('/plugins.html') )
             {
                 $('ul.tablist li').removeClass("current");
                 $('ul.tablist li:eq(1)').addClass("current");
