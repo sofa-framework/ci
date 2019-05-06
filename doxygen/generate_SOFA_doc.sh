@@ -37,20 +37,6 @@ mkdir -p "${output_dir}/tags/plugins"
 mkdir -p "${output_dir}/doc/plugins"
 mkdir -p "${output_dir}/doc/sofa"
 
-# Generate plugins.dox
-echo "
-/**
-    \page plugins SOFA Plugins
-    <ul>
-" > $output_dir/tags/plugins.dox
-for plugin in $sofa_dir/applications/plugins/*; do
-    plugin_name="$(basename $plugin)"
-    echo "<li><a href=\"../../${plugin_name}/html/index.html\">${plugin_name}</a></li>" >> $output_dir/tags/plugins.dox
-done
-echo "
-    </ul>
-*/" >> $output_dir/tags/plugins.dox
-
 generate_plugin_tags() {
     plugin_dir="$1"; shift
     # $@ now contains only the modifiers
@@ -60,7 +46,7 @@ generate_plugin_tags() {
         doxyfile_copy="${output_dir}/${doxyfile_name}_${plugin}.dox"
         cp "$doxyfile" "$doxyfile_copy"
         echo "Executing doxygen on $plugin"
-        $script_dir/doxygen.sh "$doxyfile_copy" "$@" "INPUT=${output_dir}/tags/plugins.dox ${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" "HTML_HEADER=${script_dir}/custom_header.html" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
+        $script_dir/doxygen.sh "$doxyfile_copy" "$@" "INPUT=${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" "HTML_HEADER=${script_dir}/custom_header.html" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
     fi
 }
 for plugin_dir in $sofa_dir/applications/plugins/*; do

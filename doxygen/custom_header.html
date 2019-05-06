@@ -15,9 +15,36 @@ $search
 $mathjax
 <link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
 <link href="custom_style.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
 <script type="text/javascript">
     $(document).ready(function() {
-        searchBox.OnSelectItem(1); // select "Classes" by default
+        // Add two entries to menu bar
+        var pathToRoot = '../..';
+        var url = window.location.href;
+        if(url.includes('/plugins/'))
+        {
+            pathToRoot = '../../..';
+        }
+        $('ul.tablist li:eq(0)').before('<li><a href="' + pathToRoot + '/plugins.html"><span>Plugin list</span></a></li>');
+        $('ul.tablist li:eq(0)').before('<li><a href="' + pathToRoot + '/index.html"><span><i class="fas fa-home" style="line-height: inherit;"></i></span></a></li>');
+
+        // Set 'current' CSS class correctly
+        if(!url.includes('/plugins/'))
+        {
+            if(url.includes('/index.html'))
+            {
+                $('ul.tablist li').removeClass("current");
+                $('ul.tablist li:eq(0)').addClass("current");
+            }
+            else if(url.includes('/plugins.html'))
+            {
+                $('ul.tablist li').removeClass("current");
+                $('ul.tablist li:eq(1)').addClass("current");
+            }
+        }
+
+        // Searchbox: set default search to "Classes"
+        searchBox.OnSelectItem(1);
     });
 </script>
 $extrastylesheet
