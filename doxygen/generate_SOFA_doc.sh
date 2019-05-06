@@ -14,7 +14,7 @@ fi
 # Read args
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 sofa_dir="$(cd "$1" && pwd)"; shift
-output_dir="$(mkdir -p "$1" && cd "$1" && pwd)"; shift
+output_dir="$(rm -rf "$1" && mkdir -p "$1" && cd "$1" && pwd)"; shift
 doxyfile="$(realpath "$1")"; shift
 # $@ now contains only the modifiers
 
@@ -42,13 +42,14 @@ echo "
 /**
     \page plugins SOFA Plugins
     <ul>
-" > $script_dir/plugins.dox
+" > $output_dir/tags/plugins.dox
 for plugin in $sofa_dir/applications/plugins/*; do
-    echo "<li><a href=\"../../${plugin}/html/index.html\">${plugin}</a></li>" >> $script_dir/plugins.dox
+    plugin_name="$(basename $plugin)"
+    echo "<li><a href=\"../../${plugin_name}/html/index.html\">${plugin_name}</a></li>" >> $output_dir/tags/plugins.dox
 done
 echo "
     </ul>
-*/" >> $script_dir/plugins.dox
+*/" >> $output_dir/tags/plugins.dox
 
 generate_plugin_tags() {
     plugin_dir="$1"; shift
@@ -59,7 +60,7 @@ generate_plugin_tags() {
         doxyfile_copy="${output_dir}/${doxyfile_name}_${plugin}.dox"
         cp "$doxyfile" "$doxyfile_copy"
         echo "Executing doxygen on $plugin"
-        $script_dir/doxygen.sh "$doxyfile_copy" "$@" "INPUT=${script_dir}/plugins.dox ${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" "HTML_HEADER=${script_dir}/custom_header.html" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
+        $script_dir/doxygen.sh "$doxyfile_copy" "$@" "INPUT=${output_dir}/tags/plugins.dox ${sofa_dir}/applications/plugins/${plugin}" "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" "HTML_HEADER=${script_dir}/custom_header.html" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
     fi
 }
 for plugin_dir in $sofa_dir/applications/plugins/*; do
@@ -85,7 +86,7 @@ echo "
 /**
     \page plugins SOFA Plugins
     <ul>
-" > $script_dir/plugins.dox
+" > $output_dir/plugins.dox
 for tag in $output_dir/tags/plugins/*; do
     tag_file="${tag##*/}"
     tag_name="${tag_file%.*}"
@@ -93,13 +94,13 @@ for tag in $output_dir/tags/plugins/*; do
         tagfiles="$(printf "$tagfiles \\ \n${tag}=../../plugins/${tag_name}/html")"
     fi
 
-    echo "<li><a href=\"../../plugins/${tag_name}/html/index.html\">${tag_name}</a></li>" >> $script_dir/plugins.dox
+    echo "<li><a href=\"../../plugins/${tag_name}/html/index.html\">${tag_name}</a></li>" >> $output_dir/plugins.dox
 done
 echo "
     </ul>
-*/" >> $script_dir/plugins.dox
+*/" >> $output_dir/plugins.dox
 
-$script_dir/doxygen.sh "$doxyfile_copy" "$@" "INPUT=${script_dir}/mainpage.dox ${script_dir}/plugins.dox ${sofa_dir}/modules ${sofa_dir}/SofaKernel" "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" "PROJECT_NAME=\"SOFA API\"" "HTML_HEADER=${script_dir}/custom_header.html" "TAGFILES=$tagfiles"
+$script_dir/doxygen.sh "$doxyfile_copy" "$@" "INPUT=${output_dir}/plugins.dox ${script_dir}/mainpage.dox ${sofa_dir}/modules ${sofa_dir}/SofaKernel" "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" "PROJECT_NAME=\"SOFA API\"" "HTML_HEADER=${script_dir}/custom_header.html" "TAGFILES=$tagfiles"
 
 echo "Modules and Kernel doc generated."
 
