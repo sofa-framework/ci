@@ -55,16 +55,6 @@ generate_plugin_doc() {
         "TAGFILES=$tagfiles" \
         > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
 }
-echo "Generating plugins doc..."
-for plugin_dir in $sofa_dir/applications/plugins/*; do
-    # generate all plugin tags in parallel
-    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
-        plugin="${plugin_dir##*/}"
-        generate_plugin_doc "$plugin" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" "$@" &
-    fi
-done
-wait
-echo "Plugins doc generated."
 
 echo "Generating SOFA doc..."
 doxyfile_copy="${output_dir}/${doxyfile_name}_kernel.dox"
@@ -76,15 +66,16 @@ echo "
     \page plugins SOFA Plugins
     <ul>
 " > $output_dir/plugins.dox
-tagfiles=""
-for tag in $output_dir/tags/plugins/*; do
-    tag_file="${tag##*/}"
-    tag_name="${tag_file%.*}"
-    if [ -d "${output_dir}/doc/plugins/${tag_name}/html" ]; then
-        tagfiles="$(printf "$tagfiles \\ \n${tag}=../../plugins/${tag_name}/html")"
-    fi
+# tagfiles=""
+for plugin_dir in $sofa_dir/applications/plugins/*; do
+    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
+        plugin="${plugin_dir##*/}"
+        # if [ -d "${output_dir}/doc/plugins/${tag_name}/html" ]; then
+            # tagfiles="$(printf "$tagfiles \\ \n${output_dir}/tags/plugins/${plugin}.tag=../../plugins/${plugin}/html")"
+        # fi
 
-    echo "<li><a href=\"../../plugins/${tag_name}/html/index.html\">${tag_name}</a></li>" >> $output_dir/plugins.dox
+        echo "<li><a href=\"../../plugins/${plugin}/html/index.html\">${plugin}</a></li>" >> $output_dir/plugins.dox
+    fi
 done
 echo "
     </ul>
@@ -98,7 +89,16 @@ $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
     "HTML_HEADER=${script_dir}/custom_header.html" \
     "HTML_EXTRA_STYLESHEET=${script_dir}/custom_style.css" \
     "LAYOUT_FILE=${script_dir}/custom_layout.xml" \
-    "TAGFILES=$tagfiles" \
     "GENERATE_TAGFILE=${output_dir}/tags/SOFA.tag"
 echo "SOFA doc generated."
 
+echo "Generating plugins doc..."
+for plugin_dir in $sofa_dir/applications/plugins/*; do
+    # generate all plugin tags in parallel
+    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
+        plugin="${plugin_dir##*/}"
+        generate_plugin_doc "$plugin" "$@" &
+    fi
+done
+wait
+echo "Plugins doc generated."
