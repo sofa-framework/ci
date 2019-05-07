@@ -37,40 +37,33 @@ mkdir -p "${output_dir}/tags/plugins"
 mkdir -p "${output_dir}/doc/plugins"
 mkdir -p "${output_dir}/doc/sofa"
 
-generate_plugin_tags() {
-    plugin_dir="$1"; shift
+generate_plugin_doc() {
+    plugin="$1"; shift
     # $@ now contains only the modifiers
 
-    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
-        plugin="${plugin_dir##*/}"
-        doxyfile_copy="${output_dir}/${doxyfile_name}_${plugin}.dox"
-        cp "$doxyfile" "$doxyfile_copy"
-        echo "Executing doxygen on $plugin"
-        $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
-            "INPUT=${sofa_dir}/applications/plugins/${plugin}" \
-            "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" \
-            "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" \
-            "HTML_HEADER=${script_dir}/custom_header.html" \
-            "HTML_EXTRA_STYLESHEET=${script_dir}/custom_style.css" \
-            "LAYOUT_FILE=${script_dir}/custom_layout.xml" \
-            "TAGFILES=\"${output_dir}/tags/SOFA.tag=../../../sofa/html\"" \
-            "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" \
-            > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
-    fi
+    doxyfile_copy="${output_dir}/${doxyfile_name}_${plugin}.dox"
+    cp "$doxyfile" "$doxyfile_copy"
+    echo "Executing doxygen on $plugin"
+    local tagfiles="$(printf " \\ \n${output_dir}/tags/SOFA.tag=../../../sofa/html")"
+    $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
+        "INPUT=${sofa_dir}/applications/plugins/${plugin}" \
+        "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" \
+        "PROJECT_NAME=\"SOFA plugin: ${plugin}\"" \
+        "HTML_HEADER=${script_dir}/custom_header.html" \
+        "HTML_EXTRA_STYLESHEET=${script_dir}/custom_style.css" \
+        "LAYOUT_FILE=${script_dir}/custom_layout.xml" \
+        "TAGFILES=$tagfiles" \
+        > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
 }
 for plugin_dir in $sofa_dir/applications/plugins/*; do
     # generate all plugin tags in parallel
-    generate_plugin_tags "$plugin_dir" "$@" &
+    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
+        plugin="${plugin_dir##*/}"
+        generate_plugin_doc "$plugin" "GENERATE_TAGFILE=${output_dir}/tags/plugins/${plugin}.tag" "$@" &
+    fi
 done
 wait
 echo "Plugins doc generated."
-
-# echo "Executing doxygen on modules"
-# doxyfile_copy="${doxyfile_name}_modules.dox"
-# cp "$doxyfile" "$doxyfile_copy"
-# mkdir -p "doc/modules"
-# ./doxygen.sh "$doxyfile_copy" "INPUT=${sofa_dir}/modules" "OUTPUT_DIRECTORY=${output_dir}/doc/modules" "PROJECT_NAME=SOFA_modules" "GENERATE_TAGFILE=tags/modules.tag" > "logs/modules.tag.txt" 2>&1
-# rm "$doxyfile_copy"
 
 echo "Executing doxygen on SOFA"
 doxyfile_copy="${output_dir}/${doxyfile_name}_kernel.dox"
@@ -82,6 +75,7 @@ echo "
     \page plugins SOFA Plugins
     <ul>
 " > $output_dir/plugins.dox
+tagfiles=""
 for tag in $output_dir/tags/plugins/*; do
     tag_file="${tag##*/}"
     tag_name="${tag_file%.*}"
@@ -95,6 +89,7 @@ echo "
     </ul>
 */" >> $output_dir/plugins.dox
 
+# Generate SOFA doc
 $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
     "INPUT=${output_dir}/plugins.dox ${script_dir}/mainpage.dox ${sofa_dir}/modules ${sofa_dir}/SofaKernel" \
     "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" \
@@ -104,6 +99,15 @@ $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
     "LAYOUT_FILE=${script_dir}/custom_layout.xml" \
     "TAGFILES=$tagfiles" \
     "GENERATE_TAGFILE=${output_dir}/tags/SOFA.tag"
-
 echo "Modules and Kernel doc generated."
 
+# Update plugins doc to link with SOFA doc (SOFA.tag)
+for plugin_dir in $sofa_dir/applications/plugins/*; do
+    # generate all plugin tags in parallel
+    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
+        plugin="${plugin_dir##*/}"
+        generate_plugin_doc "$plugin" "$@" &
+    fi
+done
+wait
+echo "Plugins doc updated."
