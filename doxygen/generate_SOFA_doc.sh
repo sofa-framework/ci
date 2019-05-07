@@ -44,7 +44,7 @@ generate_plugin_doc() {
     doxyfile_copy="${output_dir}/${doxyfile_name}_${plugin}.dox"
     cp "$doxyfile" "$doxyfile_copy"
     echo "Executing doxygen on $plugin"
-    local tagfiles="$(printf " \\ \n${output_dir}/tags/SOFA.tag=../../../sofa/html")"
+    local tagfiles="$(printf " \\ \n${output_dir}/tags/SOFA.tag=")"
     $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
         "INPUT=${sofa_dir}/applications/plugins/${plugin}" \
         "OUTPUT_DIRECTORY=${output_dir}/doc/plugins/${plugin}" \
@@ -55,6 +55,7 @@ generate_plugin_doc() {
         "TAGFILES=$tagfiles" \
         > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
 }
+echo "Generating plugins doc..."
 for plugin_dir in $sofa_dir/applications/plugins/*; do
     # generate all plugin tags in parallel
     if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
@@ -65,7 +66,7 @@ done
 wait
 echo "Plugins doc generated."
 
-echo "Executing doxygen on SOFA"
+echo "Generating SOFA doc..."
 doxyfile_copy="${output_dir}/${doxyfile_name}_kernel.dox"
 cp "$doxyfile" "$doxyfile_copy"
 
@@ -99,15 +100,5 @@ $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
     "LAYOUT_FILE=${script_dir}/custom_layout.xml" \
     "TAGFILES=$tagfiles" \
     "GENERATE_TAGFILE=${output_dir}/tags/SOFA.tag"
-echo "Modules and Kernel doc generated."
+echo "SOFA doc generated."
 
-# Update plugins doc to link with SOFA doc (SOFA.tag)
-for plugin_dir in $sofa_dir/applications/plugins/*; do
-    # generate all plugin tags in parallel
-    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
-        plugin="${plugin_dir##*/}"
-        generate_plugin_doc "$plugin" "$@" &
-    fi
-done
-wait
-echo "Plugins doc updated."
