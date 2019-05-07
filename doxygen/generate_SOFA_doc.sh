@@ -41,10 +41,7 @@ generate_plugin_tags() {
     plugin_dir="$1"; shift
     # $@ now contains only the modifiers
 
-    if [ -d "$plugin_dir" ] 
-    && [[ "$plugin_dir" != *"DEPRECATED"* ]] 
-    && [[ "$plugin_dir" != *"PluginExample"* ]] 
-    && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
+    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
         plugin="${plugin_dir##*/}"
         doxyfile_copy="${output_dir}/${doxyfile_name}_${plugin}.dox"
         cp "$doxyfile" "$doxyfile_copy"
