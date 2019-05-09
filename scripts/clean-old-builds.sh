@@ -5,12 +5,37 @@ usage() {
     echo "Usage: clean-old-builds.sh <base-dir>"
 }
 
+last-edit() {
+    check_dir="$1"
+    mode="$2"
+
+    # check last build date
+    now_epoch="$(date +%s)"
+    if vm-is-macos; then
+        lastedit_date="$(stat -f "%Sm" $check_dir)"
+        lastedit_epoch="$(stat -f "%m" $check_dir)"
+    else
+        lastedit_date="$(date -r $check_dir)"
+        lastedit_epoch="$(date +%s -r $check_dir)"
+    fi
+
+    check_delta=$(( now_epoch - lastedit_epoch )) # in seconds
+
+    if [[ "$mode" == "date" ]]; then
+        echo "$lastedit_date"
+    elif [[ "$mode" == "seconds" ]]; then
+        echo "$check_delta"
+    fi
+}
+
 if [ "$#" -eq 1 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
     . "$SCRIPT_DIR"/github.sh
-    
+
     BASE_DIR="$(cd "$1" && pwd)"
+    MAX_DAYS_SINCE_MODIFIED=10 # = 3600*24*10 = 10 days
+    max_sec_since_modified=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED ))
 else
     usage; exit 1
 fi
@@ -21,59 +46,62 @@ cd "$BASE_DIR"
 
 for dir in *; do
     if [ ! -d "$dir" ]; then
-        break
+        continue
     fi
-    
-    status="not removed"
-    
+
     echo "$dir:"
+
     if [[ "$dir" == "PR-"* ]]; then # PR dir
         # check if this PR is closed
         pr_id="${dir#*-}"
         pr_state="$(github-get-pr-state "$pr_id")"
         if [[ "$pr_state" == "closed" ]]; then
             echo "  PR $pr_id is closed"
-            status="removed"
+            echo "  -> removed"
+            rm -rf "$dir"
+            continue
         fi
     fi
-    if [[ "$dir" != "master" ]] && [[ "$status" == "not removed" ]]; then # branch or PR dir except master
+
+    if [[ "$BASE_DIR" == *"/launcher/"* ]]; then
+        # Launcher has no config/build, only sources
+        echo "Launcher detected."
+        delta="$(last-edit "$dir" "seconds")"
+        lastedit_date="$(last-edit "$dir" "date")"
+        echo -n "  last launch: $lastedit_date"
+        if [ "$delta" -gt $max_sec_since_modified ]; then
+            echo " (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
+            echo "  -> removed"
+            rm -rf "$dir"
+        else
+            echo "" # newline
+            echo "  -> not removed"
+        fi
+    else
         cd "$dir"
         for config in *; do
             if [ ! -d "$config" ] || [[ "$config" == *"tmp" ]] || [ ! -d "$config/src/SofaKernel" ]; then
-                break
+                continue
             fi
+            echo "  $config:"
             if [ -d "$config/build" ]; then
-                # check last build date
-                now_epoch="$(date +%s)"
-                if vm-is-macos; then
-                    lastedit_date="$(stat -f "%Sm" $config/build)"
-                    lastedit_epoch="$(stat -f "%m" $config/build)"
+                delta="$(last-edit "$config/build" "seconds")"
+                lastedit_date="$(last-edit "$config/build" "date")"
+                echo -n "    last build was on $lastedit_date"
+                if [ "$delta" -gt $max_sec_since_modified ]; then
+                    echo " (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
+                    echo "    -> removed"
+                    rm -rf "$config"
                 else
-                    lastedit_date="$(date -r $config/build)"
-                    lastedit_epoch="$(date +%s -r $config/build)"
-                fi
-                delta=$(( now_epoch - lastedit_epoch )) # in seconds
-                lastedit_message="  last build for $config was on $lastedit_date"
-                if [ "$delta" -gt 864000 ]; then # 3600*24*10 = 10 days
-                    echo "$lastedit_message (more than 10 days ago)"
-                    status="removed"
-                else
-                    # remove only if ALL configs are old
-                    echo "$lastedit_message"
-                    status="not removed"
-                    break
+                    echo "" # newline
+                    echo "    -> not removed"
                 fi
             else
-                status="removed"
+                echo "  $config: no build dir"
             fi
         done
         cd ..
     fi
-    
-    if [[ "$status" == "removed" ]]; then
-        rm -rf "$dir"
-    fi
-    echo "  -> $status"
 done
 
 
