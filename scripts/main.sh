@@ -137,7 +137,7 @@ fi
 # Jenkins: create link for Windows jobs (too long path problem)
 if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
-    cmd //c "if exist j:\%EXECUTOR_NUMBER% rmdir j:\%EXECUTOR_NUMBER%"
+    cmd //c "if exist j:\%EXECUTOR_NUMBER% rmdir /S /Q j:\%EXECUTOR_NUMBER%"
     cmd //c "mklink /D j:\%EXECUTOR_NUMBER% %WORKSPACE_PARENT_WINDOWS%"
     export EXECUTOR_LINK_WINDOWS="j:\\$EXECUTOR_NUMBER"
     export EXECUTOR_LINK_WINDOWS_SRC="j:\\$EXECUTOR_NUMBER\src"
