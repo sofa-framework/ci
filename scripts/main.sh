@@ -75,6 +75,15 @@ if vm-is-windows; then
 else
     echo "$(${COMPILER%-*} --version)" # gcc-5.8 -> gcc
 fi
+echo "-- Qt"
+if [ -n "$VM_QT_PATH" ]; then
+    echo -n "Qt "
+    basename "$VM_QT_PATH"
+elif [ -x "$(command -v qmake)" ]; then
+    qmake --version
+else
+    echo "Don't know how to get Qt version."
+fi
 echo "--------------------------------------------"
 
 # Wait for git to be available
