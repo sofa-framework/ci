@@ -14,7 +14,7 @@ fi
 # Read args
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 sofa_dir="$(cd "$1" && pwd)"; shift
-output_dir="$(rm -rf "$1" && mkdir -p "$1" && cd "$1" && pwd)"; shift
+output_dir="$(cd "$1" && pwd)"; shift
 doxyfile="$(realpath "$1")"; shift
 # $@ now contains only the modifiers
 
