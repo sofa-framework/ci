@@ -146,19 +146,6 @@ if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     BUILD_DIR="/j/$EXECUTOR_NUMBER/build"
 fi
 
-# Regression dir
-if in-array "run-regression-tests" "$BUILD_OPTIONS"; then # Jenkins
-    if [ -n "$WORKSPACE" ] && [ -d "$WORKSPACE/../regression" ]; then
-        if vm-is-windows; then
-            export REGRESSION_DIR="$(cd "$SRC_DIR/../regression" && pwd -W)"
-        else
-            export REGRESSION_DIR="$(cd "$SRC_DIR/../regression" && pwd)"
-        fi
-    elif [ -z "$REGRESSION_DIR" ]; then # not Jenkins and no REGRESSION_DIR
-        echo "WARNING: run-regression-tests option needs REGRESSION_DIR env var, regression tests will NOT be performed."
-    fi
-fi
-
 
 # Merge PR with target branch
 # Fail build if conflict
@@ -179,6 +166,21 @@ fi
 
 # Configure
 . "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CONFIG" "$BUILD_TYPE" "$BUILD_OPTIONS"
+
+
+# Regression dir
+# WARNING: source files exist only after configure, they are fetched by CMake
+if in-array "run-regression-tests" "$BUILD_OPTIONS"; then # Jenkins
+    if [ -n "$WORKSPACE" ] && [ -d "$SRC_DIR/applications/projects/Regression" ]; then
+        if vm-is-windows; then
+            export REGRESSION_DIR="$(cd "$SRC_DIR/applications/projects/Regression" && pwd -W)"
+        else
+            export REGRESSION_DIR="$(cd "$SRC_DIR/applications/projects/Regression" && pwd)"
+        fi
+    elif [ -z "$REGRESSION_DIR" ]; then # not Jenkins and no REGRESSION_DIR
+        echo "WARNING: run-regression-tests option needs REGRESSION_DIR env var, regression tests will NOT be performed."
+    fi
+fi
 
 
 # Compile
