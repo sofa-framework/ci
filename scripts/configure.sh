@@ -193,10 +193,13 @@ add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 
-if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ]; then
-    add-cmake-option "-DSOFA_EXTERNAL_DIRECTORIES=$REGRESSION_DIR/Regression_test"
+if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
+    add-cmake-option "-DSOFA_FETCH_REGRESSION=ON"
+    add-cmake-option "-DAPPLICATION_REGRESSION_TEST=ON"
 else
-    add-cmake-option "-DSOFA_EXTERNAL_DIRECTORIES=''" # clean eventual cached value
+    # clean eventual cached value
+    add-cmake-option "-DSOFA_FETCH_REGRESSION=OFF"
+    add-cmake-option "-DAPPLICATION_REGRESSION_TEST=OFF"
 fi
 
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
