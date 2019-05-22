@@ -79,6 +79,7 @@ for dir in *; do
         fi
     else
         cd "$dir"
+        all_configs_removed="true"
         for config in *; do
             if [ ! -d "$config" ] || [[ "$config" == *"tmp" ]] || [ ! -d "$config/src/SofaKernel" ]; then
                 continue
@@ -95,12 +96,18 @@ for dir in *; do
                 else
                     echo "" # newline
                     echo "    -> not removed"
+                    all_configs_removed="false"
                 fi
             else
                 echo "  $config: no build dir"
             fi
         done
         cd ..
+        if [[ "$all_configs_removed" == "true" ]]; then
+            echo "  All valid configs were removed"
+            echo "  -> $dir removed"
+            rm -rf "$dir"
+        fi
     fi
 done
 
