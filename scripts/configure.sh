@@ -213,16 +213,17 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
             fi
         done
     fi
+    add-cmake-option "-DCPACK_GENERATOR=ZIP"
     add-cmake-option "-DCPACK_BINARY_ZIP=ON" # always generate a ZIP
     if vm-is-windows; then
-        add-cmake-option "-DCPACK_GENERATOR=NSIS"
+        add-cmake-option "-DCPACK_GENERATOR=ZIP;NSIS"
         add-cmake-option "-DCPACK_BINARY_NSIS=ON"
     elif vm-is-macos; then
-        add-cmake-option "-DCPACK_GENERATOR=DragNDrop"
+        add-cmake-option "-DCPACK_GENERATOR=ZIP;DragNDrop"
         add-cmake-option "-DCPACK_BINARY_DRAGNDROP=ON"
         add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=ON"
     elif [ -n "$QTIFWDIR" ]; then
-        add-cmake-option "-DCPACK_GENERATOR=IFW"
+        add-cmake-option "-DCPACK_GENERATOR=ZIP;IFW"
         add-cmake-option "-DCPACK_BINARY_IFW=ON"
     fi
 else # This is not a "package" build
