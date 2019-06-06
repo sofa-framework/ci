@@ -48,12 +48,7 @@ echo "-----------------------------------------------"
 
 call-make() {
     build_dir="$(cd "$1" && pwd)"
-    shift # Remove first arg
-
-    target="all"        
-    if in-array "build-release-package" "$BUILD_OPTIONS"; then
-        target="package"
-    fi
+    target="$2"
 
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
@@ -85,7 +80,13 @@ call-make() {
 # is inside a pipe, errors will go undetected, thus we create a file
 # 'make-failed' when make fails, to check for errors.
 rm -f "$BUILD_DIR/make-failed"
-( call-make "$BUILD_DIR" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee "$BUILD_DIR/make-output.txt"
+
+( call-make "$BUILD_DIR" "install" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee "$BUILD_DIR/make-output.txt"
+if in-array "build-release-package" "$BUILD_OPTIONS"; then
+    echo "-------------- Start packaging --------------" | tee -a "$BUILD_DIR/make-output.txt"
+    ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee -a "$BUILD_DIR/make-output.txt"
+    echo "---------------------------------------------" | tee -a "$BUILD_DIR/make-output.txt"
+fi
 
 if [ -e "$BUILD_DIR/make-failed" ]; then
     exit 1
