@@ -46,42 +46,12 @@ echo "COMPILER = $COMPILER"
 echo "ARCHITECTURE = $ARCHITECTURE"
 echo "-----------------------------------------------"
 
-call-make() {
-    build_dir="$(cd "$1" && pwd)"
-    target="$2"
-
-    if vm-is-windows; then
-        msvc_comntools="$(get-msvc-comntools $COMPILER)"
-        # Call vcvarsall.bat first to setup environment
-        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        toolname="nmake" # default
-        if [ -x "$(command -v ninja)" ]; then
-        	echo "Using ninja as build system"
-            toolname="ninja"
-        fi
-        build_dir_windows="$(cd "$build_dir" && pwd -W | sed 's#/#\\#g')"
-        if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
-            build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
-        fi
-        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS\""
-        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS"
-    else
-    	toolname="make" # default
-        if [ -x "$(command -v ninja)" ]; then
-            echo "Using ninja as build system"
-	        toolname="ninja"
-        fi
-        echo "Calling: $toolname $target $VM_MAKE_OPTIONS"
-        cd $build_dir && $toolname $target $VM_MAKE_OPTIONS
-    fi
-}
-
 # The output of make is saved to a file, to check for warnings later. Since make
 # is inside a pipe, errors will go undetected, thus we create a file
 # 'make-failed' when make fails, to check for errors.
 rm -f "$BUILD_DIR/make-failed"
 
-( call-make "$BUILD_DIR" "install" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee "$BUILD_DIR/make-output.txt"
+( call-make "$BUILD_DIR" "all" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee "$BUILD_DIR/make-output.txt"
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
     echo "-------------- Start packaging --------------" | tee -a "$BUILD_DIR/make-output.txt"
     ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee -a "$BUILD_DIR/make-output.txt"
