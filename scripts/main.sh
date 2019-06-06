@@ -193,12 +193,12 @@ github-notify "$github_status" "$github_message"
 # [MacOS] Create a ZIP of install
 # We have to do it manually because CPack (ninja package) uses BundlePack generator (.app)
 # If we add ZIP generator to CPack, it will create a SOFA_*_MacOS-BundlePack.zip	
-if vm-is-macos && in-array "build-release-package" "$BUILD_OPTIONS" && [ -e "$BUILD_DIR/SOFA_"*".dmg" ]; then
-    zipfile="$(basename $(ls $BUILD_DIR/SOFA_*.dmg))"
-    zipfilename="${zipfile%.dmg}"
-    mv "$BUILD_DIR/install" "$BUILD_DIR/$zipfilename"
-    zip -r "$BUILD_DIR/$zipfilename.zip" "$BUILD_DIR/$zipfilename"
-fi
+# if vm-is-macos && in-array "build-release-package" "$BUILD_OPTIONS" && [ -e "$BUILD_DIR/SOFA_"*".dmg" ]; then
+    # zipfile="$(basename $(ls $BUILD_DIR/SOFA_*.dmg))"
+    # zipfilename="${zipfile%.dmg}"
+    # mv "$BUILD_DIR/install" "$BUILD_DIR/$zipfilename"
+    # zip -r "$BUILD_DIR/$zipfilename.zip" "$BUILD_DIR/$zipfilename"
+# fi
 
 # [Full build] Count Warnings
 if in-array "force-full-build" "$BUILD_OPTIONS" || [ -e "$BUILD_DIR/full-build" ]; then

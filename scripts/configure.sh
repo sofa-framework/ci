@@ -191,6 +191,7 @@ add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TY
 add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
+add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 
 if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
@@ -213,18 +214,19 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
             fi
         done
     fi
-    add-cmake-option "-DCPACK_GENERATOR=ZIP"
-    add-cmake-option "-DCPACK_BINARY_ZIP=ON" # always generate a ZIP
     if vm-is-windows; then
         add-cmake-option "-DCPACK_GENERATOR=ZIP;NSIS"
+        add-cmake-option "-DCPACK_BINARY_ZIP=ON"
         add-cmake-option "-DCPACK_BINARY_NSIS=ON"
-    elif vm-is-macos; then
-        add-cmake-option "-DCPACK_GENERATOR=DragNDrop"
-        add-cmake-option "-DCPACK_BINARY_DRAGNDROP=ON"
-        add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=ON"
     elif [ -n "$QTIFWDIR" ]; then
         add-cmake-option "-DCPACK_GENERATOR=ZIP;IFW"
+        add-cmake-option "-DCPACK_BINARY_ZIP=ON"
         add-cmake-option "-DCPACK_BINARY_IFW=ON"
+    else
+        # ZIP only
+        add-cmake-option "-DCPACK_GENERATOR=ZIP"
+        add-cmake-option "-DCPACK_BINARY_ZIP=ON"
+        add-cmake-option "-DCPACK_BINARY_DRAGNDROP=OFF" # MacOS
     fi
 else # This is not a "package" build
     add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"

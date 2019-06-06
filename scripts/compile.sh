@@ -85,6 +85,11 @@ rm -f "$BUILD_DIR/make-failed"
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
     echo "-------------- Start packaging --------------" | tee -a "$BUILD_DIR/make-output.txt"
     ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee -a "$BUILD_DIR/make-output.txt"
+    if vm-is-macos; then
+        # Rerun CMake and CPack in Bundle mode
+        call-cmake "$BUILD_DIR" "-DSOFA_BUILD_APP_BUNDLE=ON -DCPACK_BINARY_DRAGNDROP=ON -DCPACK_GENERATOR=DragNDrop -DCPACK_BINARY_ZIP=OFF" .
+        ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee -a "$BUILD_DIR/make-output.txt"
+    fi
     echo "---------------------------------------------" | tee -a "$BUILD_DIR/make-output.txt"
 fi
 
