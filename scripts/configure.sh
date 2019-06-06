@@ -219,7 +219,7 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
         add-cmake-option "-DCPACK_GENERATOR=ZIP;NSIS"
         add-cmake-option "-DCPACK_BINARY_NSIS=ON"
     elif vm-is-macos; then
-        add-cmake-option "-DCPACK_GENERATOR=ZIP;DragNDrop"
+        add-cmake-option "-DCPACK_GENERATOR=DragNDrop"
         add-cmake-option "-DCPACK_BINARY_DRAGNDROP=ON"
         add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=ON"
     elif [ -n "$QTIFWDIR" ]; then
