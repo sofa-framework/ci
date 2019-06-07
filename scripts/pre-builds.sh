@@ -52,6 +52,8 @@ export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
 
 # Handle scene tests and regression tests
 rm -f "$output_dir/enable-*-tests"
+rm -f "$output_dir/force-full-build"
+
 if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
     pr_id="${DASH_COMMIT_BRANCH#*-}"
