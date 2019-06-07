@@ -57,6 +57,7 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
     ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee -a "$BUILD_DIR/make-output.txt"
     if vm-is-macos; then
         # Rerun CMake and CPack in Bundle mode
+        echo "--- [MacOS] Rerunning with SOFA_BUILD_APP_BUNDLE=ON ---"
         call-cmake "$BUILD_DIR" "-DCPACK_BINARY_ZIP=OFF" "-DCPACK_GENERATOR=DragNDrop" "-DCPACK_BINARY_DRAGNDROP=ON" "-DSOFA_BUILD_APP_BUNDLE=ON" .
         ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee -a "$BUILD_DIR/make-output.txt"
     fi
