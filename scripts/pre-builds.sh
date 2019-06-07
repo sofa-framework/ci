@@ -98,6 +98,11 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         fi
     fi
     
+    if [[ "$latest_build_comment" == *"[force-full-build]"* ]]; then
+        echo "Full build: forced."
+        echo "true" > "$output_dir/force-full-build" # will be searched by Groovy script on launcher to set CI_FORCE_FULL_BUILD
+    fi
+    
     export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 elif [[ "$DASH_COMMIT_BRANCH" == "origin/master" ]]; then
     # Always scene tests for master builds
