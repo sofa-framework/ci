@@ -191,6 +191,7 @@ add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TY
 add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
+add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 
 if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
@@ -204,12 +205,6 @@ fi
 
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_BUILD_RELEASE_PACKAGE=ON"
-    add-cmake-option "-DSOFA_BUILD_TUTORIALS=OFF"
-    add-cmake-option "-DSOFA_BUILD_TESTS=OFF"
-    add-cmake-option "-DSOFA_BUILD_METIS=OFF"
-    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=OFF"
-    add-cmake-option "-DAPPLICATION_MODELER=OFF"
-    add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=OFF"
 
     if [ -d "$VM_QT_PATH/Tools/QtInstallerFramework" ]; then
         for dir in "$VM_QT_PATH/Tools/QtInstallerFramework/"*; do
@@ -220,14 +215,20 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
         done
     fi
     if vm-is-windows; then
-        add-cmake-option "-DCPACK_GENERATOR=NSIS"
+        add-cmake-option "-DCPACK_GENERATOR=ZIP;NSIS"
+        add-cmake-option "-DCPACK_BINARY_ZIP=ON"
         add-cmake-option "-DCPACK_BINARY_NSIS=ON"
-    elif vm-is-macos; then
-        add-cmake-option "-DCPACK_GENERATOR=DragNDrop"
-        add-cmake-option "-DCPACK_BINARY_DRAGNDROP=ON"
-    else
-        add-cmake-option "-DCPACK_GENERATOR=IFW"
+    elif [ -n "$QTIFWDIR" ]; then
+        add-cmake-option "-DCPACK_GENERATOR=ZIP;IFW"
+        add-cmake-option "-DCPACK_BINARY_ZIP=ON"
         add-cmake-option "-DCPACK_BINARY_IFW=ON"
+    else
+        # ZIP only
+        add-cmake-option "-DCPACK_GENERATOR=ZIP"
+        add-cmake-option "-DCPACK_BINARY_ZIP=ON"
+        add-cmake-option "-DCPACK_BINARY_DRAGNDROP=OFF" # MacOS
+        add-cmake-option "-DCPACK_BINARY_STGZ=OFF"
+        add-cmake-option "-DCPACK_BINARY_TGZ=OFF"
     fi
 else # This is not a "package" build
     add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
@@ -337,36 +338,6 @@ fi
 #############
 # Configure #
 #############
-
-generator() {
-    if [ -x "$(command -v ninja)" ]; then
-        echo "Ninja"
-    elif vm-is-windows; then
-        echo "\"NMake Makefiles\""
-    else
-        echo "Unix Makefiles"
-    fi
-}
-
-call-cmake() {
-    build_dir="$(cd "$1" && pwd)"
-    shift # Remove first arg
-    
-    if vm-is-windows; then
-        msvc_comntools="$(get-msvc-comntools $COMPILER)"
-        # Call vcvarsall.bat first to setup environment
-        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
-        build_dir_windows="$(cd "$build_dir" && pwd -W | sed 's#/#\\#g')"
-        if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
-            build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
-        fi
-        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & cmake $*\""
-        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & cmake $*"
-    else
-        echo "Calling: cmake $@"
-        cd $build_dir && cmake "$@"
-    fi
-}
 
 echo "Calling cmake with the following options:"
 echo "$cmake_options" | tr -s ' ' '\n' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort

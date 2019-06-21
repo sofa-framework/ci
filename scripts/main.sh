@@ -125,13 +125,12 @@ if in-array "force-full-build" "$BUILD_OPTIONS"; then
     echo "Force full build ON - cleaning build dir."
     rm -rf "$BUILD_DIR" || exit 1  # build dir cannot be deleted for some reason on a Windows VM, to be fixed.
     mkdir "$BUILD_DIR"
-else
-    rm -f "$BUILD_DIR/make-output*.txt"
-    rm -rf "$BUILD_DIR/unit-tests" "$BUILD_DIR/scene-tests" "$BUILD_DIR/*.status"
-    rm -rf "$BUILD_DIR/bin" "$BUILD_DIR/lib" "$BUILD_DIR/external_directories"
-    rm -rf "$BUILD_DIR/_CPack_Packages" "$BUILD_DIR/CPackConfig.cmake"
-    rm -f "$BUILD_DIR/SOFA_*.exe" "$BUILD_DIR/SOFA_*.run" "$BUILD_DIR/SOFA_*.dmg"
 fi
+rm -f "$BUILD_DIR/make-output*.txt"
+rm -rf "$BUILD_DIR/unit-tests" "$BUILD_DIR/scene-tests" "$BUILD_DIR/*.status"
+rm -rf "$BUILD_DIR/bin" "$BUILD_DIR/lib" "$BUILD_DIR/external_directories"
+rm -rf "$BUILD_DIR/_CPack_Packages" "$BUILD_DIR/CPackConfig.cmake"
+rm -f "$BUILD_DIR/SOFA_*.exe" "$BUILD_DIR/SOFA_*.run" "$BUILD_DIR/SOFA_*.dmg" "$BUILD_DIR/SOFA_*.zip"
 
 
 # Jenkins: create link for Windows jobs (too long path problem)
@@ -190,6 +189,7 @@ dashboard-notify "status=success"
 github_status="success"
 github_message="Build OK."
 github-notify "$github_status" "$github_message"
+
 
 # [Full build] Count Warnings
 if in-array "force-full-build" "$BUILD_OPTIONS" || [ -e "$BUILD_DIR/full-build" ]; then

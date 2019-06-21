@@ -194,4 +194,62 @@ load-env-vars() {
     done < "${input_dir}/${prefix}_vars.txt"
 }
 
+generator() {
+    if [ -x "$(command -v ninja)" ]; then
+        echo "Ninja"
+    elif vm-is-windows; then
+        echo "\"NMake Makefiles\""
+    else
+        echo "Unix Makefiles"
+    fi
+}
 
+call-cmake() {
+    build_dir="$(cd "$1" && pwd)"
+    shift # Remove first arg
+    
+    if vm-is-windows; then
+        msvc_comntools="$(get-msvc-comntools $COMPILER)"
+        # Call vcvarsall.bat first to setup environment
+        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        build_dir_windows="$(cd "$build_dir" && pwd -W | sed 's#/#\\#g')"
+        if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
+            build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
+        fi
+        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & cmake $*\""
+        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & cmake $*"
+    else
+        echo "Calling: cmake $@"
+        cd $build_dir && cmake "$@"
+    fi
+}
+
+call-make() {
+    build_dir="$(cd "$1" && pwd)"
+    target="$2"
+
+    if vm-is-windows; then
+        msvc_comntools="$(get-msvc-comntools $COMPILER)"
+        # Call vcvarsall.bat first to setup environment
+        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        toolname="nmake" # default
+        if [ -x "$(command -v ninja)" ]; then
+        	echo "Using ninja as build system"
+            toolname="ninja"
+        fi
+        build_dir_windows="$(cd "$build_dir" && pwd -W | sed 's#/#\\#g')"
+        if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
+            build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
+        fi
+        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS\""
+        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS"
+    else
+    	toolname="make" # default
+        if [ -x "$(command -v ninja)" ]; then
+            echo "Using ninja as build system"
+	        toolname="ninja"
+        fi
+        echo "Calling: $toolname $target $VM_MAKE_OPTIONS"
+        cd $build_dir && $toolname $target $VM_MAKE_OPTIONS
+    fi
+}
