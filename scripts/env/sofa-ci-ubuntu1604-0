@@ -17,3 +17,5 @@ export VM_HAS_OPENCASCADE="false"
 export VM_MAKE_OPTIONS="-j6"
 
 export QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
+
+source /opt/qt512/bin/qt512-env.sh || true
