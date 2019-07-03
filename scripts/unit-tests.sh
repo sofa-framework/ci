@@ -123,6 +123,7 @@ run-single-test-subtests() {
             date_nanosec_cmd="date +%s%N"
         fi
 
+        printf "\n\nRunning subtest $subtest\n"
         begin_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
         bash -c "$test_cmd" | tee "$output_dir/$test/$subtest/output.txt" ; pipestatus="${PIPESTATUS[0]}"
         end_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
