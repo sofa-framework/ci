@@ -214,6 +214,27 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
             fi
         done
     fi
+    # Default OFF
+    add-cmake-option "-DCPACK_BINARY_BUNDLE=OFF"
+    add-cmake-option "-DCPACK_BINARY_DEB=OFF"
+    add-cmake-option "-DCPACK_BINARY_DRAGNDROP=OFF"
+    add-cmake-option "-DCPACK_BINARY_FREEBSD=OFF"
+    add-cmake-option "-DCPACK_BINARY_IFW=OFF"
+    add-cmake-option "-DCPACK_BINARY_NSIS=OFF"
+    add-cmake-option "-DCPACK_BINARY_OSXX11=OFF"
+    add-cmake-option "-DCPACK_BINARY_PACKAGEMAKER=OFF"
+    add-cmake-option "-DCPACK_BINARY_PRODUCTBUILD=OFF"
+    add-cmake-option "-DCPACK_BINARY_RPM=OFF"
+    add-cmake-option "-DCPACK_BINARY_STGZ=OFF"
+    add-cmake-option "-DCPACK_BINARY_TBZ2=OFF"
+    add-cmake-option "-DCPACK_BINARY_TGZ=OFF"
+    add-cmake-option "-DCPACK_BINARY_TXZ=OFF"
+    add-cmake-option "-DCPACK_BINARY_ZIP=OFF"
+    add-cmake-option "-DCPACK_SOURCE_RPM=OFF"
+    add-cmake-option "-DCPACK_SOURCE_TBZ2=OFF"
+    add-cmake-option "-DCPACK_SOURCE_TGZ=OFF"
+    add-cmake-option "-DCPACK_SOURCE_TXZ=OFF"
+    add-cmake-option "-DCPACK_SOURCE_TZ=OFF"
     if vm-is-windows; then
         add-cmake-option "-DCPACK_GENERATOR=ZIP;NSIS"
         add-cmake-option "-DCPACK_BINARY_ZIP=ON"
@@ -226,9 +247,6 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
         # ZIP only
         add-cmake-option "-DCPACK_GENERATOR=ZIP"
         add-cmake-option "-DCPACK_BINARY_ZIP=ON"
-        add-cmake-option "-DCPACK_BINARY_DRAGNDROP=OFF" # MacOS
-        add-cmake-option "-DCPACK_BINARY_STGZ=OFF"
-        add-cmake-option "-DCPACK_BINARY_TGZ=OFF"
     fi
 else # This is not a "package" build
     add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
