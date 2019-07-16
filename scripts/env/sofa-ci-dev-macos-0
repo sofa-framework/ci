@@ -7,9 +7,13 @@ export VM_HAS_BULLET="false"
 
 export VM_HAS_ASSIMP="true"
 
-export VM_HAS_CGAL="true"
+export VM_HAS_CGAL="false"
 
 export VM_HAS_CUDA="false"
 
 export VM_HAS_OPENCASCADE="true"
+
+
+export VM_MAKE_OPTIONS="-j6"
+
 

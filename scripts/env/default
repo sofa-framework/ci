@@ -40,7 +40,7 @@
 #   Boost: brew install boost
 #   Python: -
 #   Cython: python -m pip install cython
-#   Other: brew install glew libpng ligjpeg libtiff metis curl suite-sparse openblas lapack
+#   Other: brew install glew libpng libjpeg libtiff metis curl suite-sparse openblas lapack
 # Optional libs:
 #   Bullet: brew install bullet
 #   Assimp: brew install assimp
