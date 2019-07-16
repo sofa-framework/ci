@@ -59,6 +59,8 @@ echo "ARCHITECTURE = $ARCHITECTURE"
 echo "BUILD_TYPE = $BUILD_TYPE"
 echo "BUILD_OPTIONS = $BUILD_OPTIONS"
 echo "----------------- VM config -----------------"
+echo "-- PATH"
+echo "$PATH"
 echo "-- CMake"
 cmake --version
 echo "-- Generator"
