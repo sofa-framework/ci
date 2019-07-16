@@ -35,7 +35,7 @@
 
 # MACOS
 # Required libs:
-#   Make: brew install cmake ninja ccache
+#   Make: brew install cmake ninja ccache coreutils
 #   Qt: must be compiled
 #   Boost: brew install boost
 #   Python: -

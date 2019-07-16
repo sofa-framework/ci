@@ -16,4 +16,6 @@ export VM_HAS_OPENCASCADE="true"
 
 export VM_MAKE_OPTIONS="-j6"
 
-
+# Force reset PATH
+. ~/.bashrc
+. ~/.bash_profile
