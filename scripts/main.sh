@@ -33,6 +33,20 @@ else
     usage; exit 1
 fi
 
+
+# Clean build dir
+if in-array "force-full-build" "$BUILD_OPTIONS"; then
+    echo "Force full build ON - cleaning build dir."
+    rm -rf "$BUILD_DIR" || exit 1  # build dir cannot be deleted for some reason on a Windows VM, to be fixed.
+    mkdir "$BUILD_DIR"
+fi
+rm -f "$BUILD_DIR/make-output*.txt"
+rm -rf "$BUILD_DIR/unit-tests" "$BUILD_DIR/scene-tests" "$BUILD_DIR/*.status"
+rm -rf "$BUILD_DIR/bin" "$BUILD_DIR/lib" "$BUILD_DIR/install" "$BUILD_DIR/external_directories"
+rm -rf "$BUILD_DIR/_CPack_Packages" "$BUILD_DIR/CPackConfig.cmake"
+rm -f "$BUILD_DIR/SOFA_*.exe" "$BUILD_DIR/SOFA_*.run" "$BUILD_DIR/SOFA_*.dmg" "$BUILD_DIR/SOFA_*.zip"
+
+
 # VM environment variables
 echo "ENV VARS: load $SCRIPT_DIR/env/default"
 . "$SCRIPT_DIR/env/default"
@@ -46,7 +60,23 @@ if [ -n "$NODE_NAME" ]; then
     fi
 fi
 
+
+# CI environment variables + init
+github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+
+save-env-vars "GITHUB" "$BUILD_DIR"
+save-env-vars "DASH" "$BUILD_DIR"
+
+# dashboard-init # Ensure Dashboard line is OK
+
+github-notify "pending" "Building..."
+dashboard-notify "status=build"
+
+
+# Moving to src dir
 cd "$SRC_DIR"
+
 
 echo "--------------- main.sh vars ---------------"
 echo "BUILD_DIR = $BUILD_DIR"
@@ -88,6 +118,7 @@ else
 fi
 echo "--------------------------------------------"
 
+
 # Wait for git to be available
 if [ `ps -elf | grep -c git` -gt 1 ]; then
     echo "Waiting for git 10s ..."
@@ -105,34 +136,10 @@ if [ `ps -elf | grep -c git` -gt 1 ]; then
     echo "Still no git available, let's try to run anyway."
 fi
 
+
 # Git config (needed by CMake ExternalProject)
 git config --global user.name 'SOFA Bot'
 git config --global user.email '<>'
-
-# CI environment variables + init
-github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-
-save-env-vars "GITHUB" "$BUILD_DIR"
-save-env-vars "DASH" "$BUILD_DIR"
-
-# dashboard-init # Ensure Dashboard line is OK
-
-github-notify "pending" "Building..."
-dashboard-notify "status=build"
-
-
-# Clean build dir
-if in-array "force-full-build" "$BUILD_OPTIONS"; then
-    echo "Force full build ON - cleaning build dir."
-    rm -rf "$BUILD_DIR" || exit 1  # build dir cannot be deleted for some reason on a Windows VM, to be fixed.
-    mkdir "$BUILD_DIR"
-fi
-rm -f "$BUILD_DIR/make-output*.txt"
-rm -rf "$BUILD_DIR/unit-tests" "$BUILD_DIR/scene-tests" "$BUILD_DIR/*.status"
-rm -rf "$BUILD_DIR/bin" "$BUILD_DIR/lib" "$BUILD_DIR/install" "$BUILD_DIR/external_directories"
-rm -rf "$BUILD_DIR/_CPack_Packages" "$BUILD_DIR/CPackConfig.cmake"
-rm -f "$BUILD_DIR/SOFA_*.exe" "$BUILD_DIR/SOFA_*.run" "$BUILD_DIR/SOFA_*.dmg" "$BUILD_DIR/SOFA_*.zip"
 
 
 # Jenkins: create link for Windows jobs (too long path problem)
