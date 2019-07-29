@@ -185,6 +185,13 @@ if vm-is-windows; then # Finding libs on Windows
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
     fi
 fi
+if vm-is-macos; then
+    python_path="$(python-config --prefix)"
+    if [ -e "$python_path/lib/libpython2.7.dylib" ]; then
+        add-cmake-option "-DPYTHON_LIBRARY=$python_path/lib/libpython2.7.dylib"
+        add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
+    fi
+fi
 
 # Options common to all configurations
 add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TYPE:0:1})${BUILD_TYPE:1}"
