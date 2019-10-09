@@ -232,6 +232,15 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS" || in-array "run-scene-tests" "$BU
     github_message="${github_message} FIXME:"
 fi
 
+# Remove SofaCUDA from plugin_list.conf.default
+echo "Preventing SofaCUDA from being loaded in VMs."
+if vm-is-windows; then
+    plugin_conf="$BUILD_DIR/bin/plugin_list.conf.default"
+else
+    plugin_conf="$BUILD_DIR/lib/plugin_list.conf.default"
+fi
+grep -v "SofaCUDA NO_VERSION" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
+
 # Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     tests_status="running"
@@ -274,14 +283,6 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     scenes_status="running"
     dashboard-notify "scenes_status=$scenes_status"
     echo "$scenes_status" > "$BUILD_DIR/scene-tests.status"
-    
-    echo "Preventing SofaCUDA from being loaded in VMs."
-    if vm-is-windows; then
-        plugin_conf="$BUILD_DIR/bin/plugin_list.conf.default"
-    else
-        plugin_conf="$BUILD_DIR/lib/plugin_list.conf.default"
-    fi
-    grep -v "SofaCUDA NO_VERSION" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
     "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
     "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
