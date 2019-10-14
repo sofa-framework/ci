@@ -15,52 +15,8 @@ export VM_HAS_OPENCASCADE="false"
 
 export VM_MAKE_OPTIONS="-j6"
 
-set +e
-if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
-    echo "BEGIN source"
-
-    QT_BASE_DIR=/opt/qt512
-    export QTDIR=$QT_BASE_DIR
-    export PATH=$QT_BASE_DIR/bin:$PATH
-    echo "QTDIR = $QTDIR"
-    echo "PATH = $PATH"
-
-    if [[ $(uname -m) == "x86_64" ]]; then
-      export LD_LIBRARY_PATH=$QT_BASE_DIR/lib/x86_64-linux-gnu:$QT_BASE_DIR/lib:$LD_LIBRARY_PATH
-    else
-      export LD_LIBRARY_PATH=$QT_BASE_DIR/lib/i386-linux-gnu:$QT_BASE_DIR/lib:$LD_LIBRARY_PATH
-    fi
-    echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
-
-    export PKG_CONFIG_PATH=$QT_BASE_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
-    echo "PKG_CONFIG_PATH = $PKG_CONFIG_PATH"
-
-    echo "testing grep"
-    echo "TITI TATA TOTO" | grep "TATA"
-    echo "TUTU TKTK TWTW" | grep "NONO"
-
-    echo "dollar 0 = $0"
-    TEST1="$(echo "$0")"
-    echo "TEST1 = $TEST1"
-    echo "path without grep:"
-    echo "./ci/scripts/main.sh"
-    echo "path with grep:"
-    echo "./ci/scripts/main.sh" | grep "wrapper"
-    TEST2="$(echo "./ci/scripts/main.sh" | grep "wrapper")"
-    echo "TEST2 = $TEST2"
-    echo "dollar 0 without grep:"
-    echo "$0"
-    echo "dollar 0 with grep:"
-    echo "$0" | grep "wrapper"
-    TEST="$(echo "$0" | grep "wrapper")"
-    echo "TEST = $TEST"
-    if [ "$TEST" != "" ]; then
-        echo "dollar * = $*"
-        exec `echo $0 | sed s/-wrapper//` $*
-        echo "exec exit code = $?"
-    fi
-    
-    echo "END source"
-fi
+# Load Qt environment
+SAVED_OPTIONS=$(set +o)
 set -e
-
+source /opt/qt512/bin/qt512-env.sh
+eval "$SAVED_OPTIONS"
