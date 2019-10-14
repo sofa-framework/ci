@@ -35,6 +35,10 @@ if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
     export PKG_CONFIG_PATH=$QT_BASE_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
     echo "PKG_CONFIG_PATH = $PKG_CONFIG_PATH"
 
+    echo "testing grep"
+    echo "TITI TATA TOTO" | grep "TATA"
+    echo "TUTU TKTK TWTW" | grep "NONO"
+
     echo "dollar 0 = $0"
     TEST1="$(echo "$0")"
     echo "TEST1 = $TEST1"
