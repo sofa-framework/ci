@@ -17,7 +17,31 @@ export VM_MAKE_OPTIONS="-j6"
 
 
 if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
-    echo "running source"
-    . /opt/qt512/bin/qt512-env.sh
-    echo "source exit code = $?"
+    echo "BEGIN source"
+
+    QT_BASE_DIR=/opt/qt512
+    export QTDIR=$QT_BASE_DIR
+    export PATH=$QT_BASE_DIR/bin:$PATH
+    echo "QTDIR = $QTDIR"
+    echo "PATH = $PATH"
+
+    if [[ $(uname -m) == "x86_64" ]]; then
+      export LD_LIBRARY_PATH=$QT_BASE_DIR/lib/x86_64-linux-gnu:$QT_BASE_DIR/lib:$LD_LIBRARY_PATH
+    else
+      export LD_LIBRARY_PATH=$QT_BASE_DIR/lib/i386-linux-gnu:$QT_BASE_DIR/lib:$LD_LIBRARY_PATH
+    fi
+    echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
+
+    export PKG_CONFIG_PATH=$QT_BASE_DIR/lib/pkgconfig:$PKG_CONFIG_PATH
+    echo "PKG_CONFIG_PATH = $PKG_CONFIG_PATH"
+
+    TEST=`echo $0 | grep wrapper`
+    echo "TEST = $TEST"
+    if [ "$TEST" != "" ]; then
+        echo "all args = $*"
+        exec `echo $0 | sed s/-wrapper//` $*
+        echo "exec exit code = $?"
+    fi
+    
+    echo "END source"
 fi
