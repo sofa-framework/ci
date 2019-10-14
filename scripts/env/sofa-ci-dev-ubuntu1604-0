@@ -16,6 +16,8 @@ export VM_HAS_OPENCASCADE="false"
 export VM_MAKE_OPTIONS="-j6"
 
 
-echo "running source"
-. /opt/qt512/bin/qt512-env.sh
-echo "source exit code = $?"
+if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
+    echo "running source"
+    . /opt/qt512/bin/qt512-env.sh
+    echo "source exit code = $?"
+fi
