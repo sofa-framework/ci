@@ -36,7 +36,7 @@ if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
     echo "PKG_CONFIG_PATH = $PKG_CONFIG_PATH"
 
     echo "dollar 0 = $0"
-    TEST=`echo "$0" | grep wrapper`
+    TEST="$(echo "$0" | grep wrapper)"
     echo "TEST = $TEST"
     if [ "$TEST" != "" ]; then
         echo "dollar * = $*"
