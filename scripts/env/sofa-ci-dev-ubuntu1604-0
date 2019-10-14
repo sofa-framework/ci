@@ -15,7 +15,7 @@ export VM_HAS_OPENCASCADE="false"
 
 export VM_MAKE_OPTIONS="-j6"
 
-
+set +e
 if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
     echo "BEGIN source"
 
@@ -62,3 +62,5 @@ if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
     
     echo "END source"
 fi
+set -e
+
