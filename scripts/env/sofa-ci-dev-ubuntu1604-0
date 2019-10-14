@@ -1,8 +1,5 @@
 #!/bin/bash
 
-export VM_DOCKER_CONTAINER="guparan/sofaci-ubuntu-1804"
-
-
 export VM_HAS_REQUIRED_LIBS="true"
 
 export VM_HAS_BULLET="false"
