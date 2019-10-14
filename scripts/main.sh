@@ -1,5 +1,5 @@
 #!/bin/bash
-# set -o errexit # Exit on error
+set -o errexit # Exit on error
 
 usage() {
     echo "Usage: main.sh <build-dir> <src-dir> <config> <build-type> <build-options>"
