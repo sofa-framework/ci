@@ -339,6 +339,7 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
         add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
         add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
+        add-cmake-option "-DPLUGIN_SOFASPHFLUID=ON"
         add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
         add-cmake-option "-DPLUGIN_SOFAVOLUMETRICDATA=ON"
         
