@@ -64,6 +64,9 @@ list-tests() {
                 *_test|*_testd|*_test.exe|*_testd.exe)
                     echo $file
                     ;;
+                *_simutest|*_simutestd|*_simutest.exe|*_simutestd.exe)
+                    echo $file
+                    ;;
             esac
         done
     fi
