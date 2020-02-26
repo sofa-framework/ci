@@ -9,6 +9,10 @@ powershell -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((
 set AddToUserPATH="%ALLUSERSPROFILE%\chocolatey\bin"
 
 
+REM Install CI specific dependencies
+choco install -y jre8
+
+
 REM Install SOFA dependencies with Chocolatey
 choco install -y git --version=2.25.1
 REM choco install -y zip
