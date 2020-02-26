@@ -3,11 +3,10 @@
 set WORKDIR=%TEMP%\%~n0
 rmdir /S /Q %WORKDIR%
 mkdir %WORKDIR%
-set AddToUserPATH=""
 
 REM Install Chocolatey (will also install refreshenv command)
 powershell -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
-REM set AddToUserPATH="%AddToUserPATH%;%ALLUSERSPROFILE%\chocolatey\bin"
+set AddToUserPATH="%ALLUSERSPROFILE%\chocolatey\bin"
 
 
 REM Install SOFA dependencies with Chocolatey
@@ -37,7 +36,7 @@ call refreshenv && echo OK
 
 REM Install clcache
 powershell Invoke-WebRequest https://github.com/frerich/clcache/releases/download/v4.2.0/clcache-4.2.0.zip -OutFile %WORKDIR%\clcache.zip
-unzip -q -o "%WORKDIR%\clcache.zip" -d "C:\clcache"
+powershell Expand-Archive %WORKDIR%\clcache.zip -DestinationPath C:\clcache
 REM if not exist "J:\clcache\" mkdir "J:\clcache"
 REM setx CLCACHE_OBJECT_CACHE_TIMEOUT_MS 3600000
 REM setx CLCACHE_DIR J:\clcache
