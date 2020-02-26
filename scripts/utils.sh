@@ -217,14 +217,14 @@ call-cmake() {
         if [[ "$msvc_comntools" == "VS110COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS120COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS140COMNTOOLS" ]]; then
             vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         else
-            vcvarsall="call \"%${msvc_comntools}%\\VsDevCmd\" -host_arch=amd64 -arch=$ARCHITECTURE"
+            vcvarsall="cd %VSINSTALLDIR% && call \"%${msvc_comntools}%\\VsDevCmd\" -host_arch=amd64 -arch=$ARCHITECTURE"
         fi
         build_dir_windows="$(cd "$build_dir" && pwd -W | sed 's#/#\\#g')"
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
-        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & cmake $*\""
-        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & cmake $*"
+        echo "Calling: $COMSPEC /c \"$vcvarsall && cd $build_dir_windows && cmake $*\""
+        $COMSPEC /c "$vcvarsall && cd $build_dir_windows && cmake $*"
     else
         echo "Calling: cmake $@"
         cd $build_dir && cmake "$@"
@@ -248,8 +248,8 @@ call-make() {
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
-        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS\""
-        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS"
+        echo "Calling: $COMSPEC /c \"$vcvarsall && cd $build_dir_windows && $toolname $target $VM_MAKE_OPTIONS\""
+        $COMSPEC /c "$vcvarsall && cd $build_dir_windows && $toolname $target $VM_MAKE_OPTIONS"
     else
     	toolname="make" # default
         if [ -x "$(command -v ninja)" ]; then
