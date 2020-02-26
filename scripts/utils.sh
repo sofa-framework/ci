@@ -214,7 +214,11 @@ call-cmake() {
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
-        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        if [[ "$msvc_comntools" == "VS110COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS120COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS140COMNTOOLS" ]]; then
+            vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        else
+            vcvarsall="call \"%${msvc_comntools}%\\VsDevCmd\" -host_arch=amd64 -arch=$ARCHITECTURE"
+        fi
         build_dir_windows="$(cd "$build_dir" && pwd -W | sed 's#/#\\#g')"
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
