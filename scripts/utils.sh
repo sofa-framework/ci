@@ -58,6 +58,7 @@ get-msvc-year() {
             vs-2013) echo "2013" ;;
             vs-2015) echo "2015" ;;
             vs-2017) echo "2017" ;;
+            vs-2019) echo "2019" ;;
         esac
     fi
 }
@@ -68,7 +69,8 @@ get-compiler-version() {
         vs-2012) echo "11.0" ;;
         vs-2013) echo "12.0" ;;
         vs-2015) echo "14.0" ;;
-        vs-2017) echo "14.1" ;;
+        vs-2017) echo "15.0" ;;
+        vs-2019) echo "16.0" ;;
         gcc-*)   echo "${compiler#*-}" ;;
         clang-*) echo "${compiler#*-}" ;;
     esac
@@ -81,7 +83,8 @@ get-msvc-comntools() {
             vs-2012) echo "VS110COMNTOOLS" ;;
             vs-2013) echo "VS120COMNTOOLS" ;;
             vs-2015) echo "VS140COMNTOOLS" ;;
-            vs-2017) echo "VS141COMNTOOLS" ;;
+            vs-2017) echo "VS150COMNTOOLS" ;;
+            vs-2019) echo "VS160COMNTOOLS" ;;
         esac
     fi
 }
