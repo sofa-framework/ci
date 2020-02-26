@@ -238,7 +238,11 @@ call-make() {
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
-        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        if [[ "$msvc_comntools" == "VS110COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS120COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS140COMNTOOLS" ]]; then
+            vcvarsall="call %${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat $ARCHITECTURE"
+        else
+            vcvarsall="cd %VSINSTALLDIR% && call %${msvc_comntools}%\\VsDevCmd -host_arch=amd64 -arch=$ARCHITECTURE"
+        fi
         toolname="nmake" # default
         if [ -x "$(command -v ninja)" ]; then
         	echo "Using ninja as build system"
