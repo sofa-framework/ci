@@ -6,7 +6,7 @@ mkdir %WORKDIR%
 
 REM Install Chocolatey (will also install refreshenv command)
 powershell -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
-set AddToUserPATH="%ALLUSERSPROFILE%\chocolatey\bin"
+set AddToUserPATH=%ALLUSERSPROFILE%\chocolatey\bin
 
 
 REM Install CI specific dependencies
@@ -50,7 +50,7 @@ REM (
   REM echo "MaximumCacheSize": 34359738368
   REM echo }
 REM ) > J:\clcache\config.txt
-set AddToUserPATH="%AddToUserPATH%;C:\clcache"
+set AddToUserPATH=%AddToUserPATH%;C:\clcache
 
 
 REM Install Visual Studio Build Tools 2017
@@ -109,7 +109,7 @@ setx PYTHONIOENCODING UTF-8
 REM set AddToUserPATH="%AddToUserPATH%;C:\Qt\%QT_VERSION_MAJOR%.%QT_VERSION_MINOR%.%QT_VERSION_PATCH%\msvc2017_64\bin"
 REM set AddToUserPATH="%AddToUserPATH%;C:\boost"
 REM set AddToUserPATH="%AddToUserPATH%;C:\boost\lib64-msvc-14.1"
-set AddToUserPATH="%AddToUserPATH%;C:\Program Files\Git\bin"
+set AddToUserPATH=%AddToUserPATH%;C:\Program Files\Git\bin
 REM set AddToUserPATH="%AddToUserPATH%;C:\Windows\System32\downlevel"
 
 set "UserPATH=" & for /F "skip=2 tokens=1,2*" %N in ('%SystemRoot%\System32\reg.exe query "HKCU\Environment" /v "Path" 2^>nul') do (if /I "%N" == "Path" (set "UserPATH=%P"))
