@@ -158,7 +158,6 @@ fi
 # Handle custom lib dirs
 if vm-is-windows; then
     msvc_year="$(get-msvc-year $COMPILER)"
-    msvc_version="$(get-compiler-version $COMPILER)"
     qt_compiler="msvc${msvc_year}"
 else
     qt_compiler="${COMPILER%-*}" # gcc-4.8 -> gcc

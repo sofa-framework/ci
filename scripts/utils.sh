@@ -63,19 +63,6 @@ get-msvc-year() {
     fi
 }
 
-get-compiler-version() {
-    local compiler="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
-    case "$compiler" in
-        vs-2012) echo "11.0" ;;
-        vs-2013) echo "12.0" ;;
-        vs-2015) echo "14.0" ;;
-        vs-2017) echo "15.0" ;;
-        vs-2019) echo "16.0" ;;
-        gcc-*)   echo "${compiler#*-}" ;;
-        clang-*) echo "${compiler#*-}" ;;
-    esac
-}
-
 get-msvc-comntools() {
     if vm-is-windows; then
         local compiler="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
