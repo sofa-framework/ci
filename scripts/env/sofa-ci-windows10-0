@@ -24,5 +24,7 @@ export VM_BULLET_PATH=""
 
 export VM_ASSIMP_PATH="C:/assimp"
 
+export VM_CGAL_PATH="C:/CGAL"
+
 
 export VM_MAKE_OPTIONS="-j4"

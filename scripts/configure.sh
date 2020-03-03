@@ -292,6 +292,9 @@ else # This is not a "package" build
             add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
         fi
         if [[ "$VM_HAS_CGAL" == "true" ]]; then
+            if [ -n "$VM_CGAL_PATH" ]; then
+                add-cmake-option "-DCGAL_DIR=$VM_CGAL_PATH"
+            fi
             add-cmake-option "-DPLUGIN_CGALPLUGIN=ON"
         else
             add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF"
