@@ -7,7 +7,7 @@ export VM_HAS_BULLET="false"
 
 export VM_HAS_ASSIMP="true"
 
-export VM_HAS_CGAL="true"
+export VM_HAS_CGAL="false" # TODO: Update CGALPlugin to use CGAL in header-only mode (CGAL >= 5.0)
 
 export VM_HAS_CUDA="true"
 

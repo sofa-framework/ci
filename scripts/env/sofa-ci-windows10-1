@@ -7,7 +7,7 @@ export VM_HAS_BULLET="false"
 
 export VM_HAS_ASSIMP="true"
 
-export VM_HAS_CGAL="true"
+export VM_HAS_CGAL="false" # TODO: Update CGALPlugin to use CGAL in header-only mode (CGAL >= 5.0)
 
 export VM_HAS_CUDA="true"
 
@@ -23,6 +23,8 @@ export VM_PYTHON_PATH="C:/Python27"
 export VM_BULLET_PATH=""
 
 export VM_ASSIMP_PATH="C:/assimp"
+
+export VM_CGAL_PATH="C:/CGAL"
 
 
 export VM_MAKE_OPTIONS="-j4"
