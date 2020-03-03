@@ -14,6 +14,7 @@ choco install -y jre8
 
 
 REM Install SOFA dependencies with Chocolatey
+choco install -y notepadplusplus
 choco install -y git --version=2.25.1
 REM choco install -y zip
 REM choco install -y unzip
@@ -36,7 +37,8 @@ call refreshenv && echo OK
 
 
 REM Install clcache
-powershell Invoke-WebRequest https://github.com/frerich/clcache/releases/download/v4.2.0/clcache-4.2.0.zip -OutFile %WORKDIR%\clcache.zip
+if exist C:\clcache goto :clcache_done
+powershell -Command "Invoke-WebRequest https://github.com/frerich/clcache/releases/download/v4.2.0/clcache-4.2.0.zip -OutFile %WORKDIR%\clcache.zip"
 powershell Expand-Archive %WORKDIR%\clcache.zip -DestinationPath C:\clcache
 REM if not exist "J:\clcache\" mkdir "J:\clcache"
 REM setx CLCACHE_OBJECT_CACHE_TIMEOUT_MS 3600000
@@ -48,13 +50,15 @@ REM (
   REM echo }
 REM ) > J:\clcache\config.txt
 set AddToUserPATH=%AddToUserPATH%;C:\clcache
+:clcache_done
 
 
 REM Install Visual Studio Build Tools 2017
+if exist C:\VSBuildTools goto :vs_done
 REM To see component names, run Visual Studio Installer and play with configuration export.
 REM Use --passive instead of --quiet when testing (GUI will appear with progress bar).
-powershell Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat
-powershell Invoke-WebRequest https://aka.ms/vs/15/release/vs_buildtools.exe -OutFile %WORKDIR%\vs_buildtools.exe
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest https://aka.ms/vs/15/release/vs_buildtools.exe -OutFile %WORKDIR%\vs_buildtools.exe"
 %WORKDIR%\vs_buildtools.exe ^
     --wait --quiet --norestart --nocache ^
     --installPath C:\VSBuildTools ^
@@ -72,65 +76,74 @@ powershell Invoke-WebRequest https://aka.ms/vs/15/release/vs_buildtools.exe -Out
 setx VS150COMNTOOLS C:\VSBuildTools\Common7\Tools\
 setx VSINSTALLDIR C:\VSBuildTools\
 call refreshenv && echo OK
-
+:vs_done
 
 REM Install Qt
+if exist C:\Qt goto :qt_done
 set QT_MAJOR=5
 set QT_MINOR=12
 set QT_PATCH=6
 REM setx QTDIR "C:\Qt\%QT_MAJOR%.%QT_MINOR%.%QT_PATCH%\msvc2017_64"
 REM setx QTDIR64 %QTDIR%
 REM setx Qt5_DIR %QTDIR%
-call refreshenv && echo OK
 if not exist "%APPDATA%\Qt\" mkdir %APPDATA%\Qt
-powershell Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/qtaccount.ini -OutFile %APPDATA%\Qt\qtaccount.ini
-powershell Invoke-WebRequest https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe -OutFile %WORKDIR%\qtinstaller.exe
-powershell Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/qtinstaller_controlscript_template.qs -OutFile %WORKDIR%\qtinstaller_controlscript_template.qs
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/qtaccount.ini -OutFile %APPDATA%\Qt\qtaccount.ini"
+powershell -Command "Invoke-WebRequest https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe -OutFile %WORKDIR%\qtinstaller.exe"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/qtinstaller_controlscript_template.qs -OutFile %WORKDIR%\qtinstaller_controlscript_template.qs"
 powershell -Command "(gc %WORKDIR%\qtinstaller_controlscript_template.qs) -replace '_QTVERSION_', %QT_MAJOR%%QT_MINOR%%QT_PATCH% | Out-File -encoding ASCII %WORKDIR%\qtinstaller_controlscript.qs"
 %WORKDIR%\qtinstaller.exe --script %WORKDIR%\qtinstaller_controlscript.qs
+:qt_done
 
 
 REM Install Boost
+if exist C:\boost goto :boost_done
 set BOOST_MAJOR=1
 set BOOST_MINOR=69
 set BOOST_PATCH=0
-call refreshenv && echo OK
-powershell Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat
-powershell Invoke-WebRequest https://boost.teeks99.com/bin/%BOOST_MAJOR%.%BOOST_MINOR%.%BOOST_PATCH%/boost_%BOOST_MAJOR%_%BOOST_MINOR%_%BOOST_PATCH%-msvc-14.1-64.exe -OutFile %WORKDIR%\boostinstaller.exe
-%WORKDIR%\boostinstaller.exe /NORESTART /VERYSILENT /DIR=C:\boost & %WORKDIR%\wait_process_to_end.bat "boostinstaller.exe"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest https://boost.teeks99.com/bin/%BOOST_MAJOR%.%BOOST_MINOR%.%BOOST_PATCH%/boost_%BOOST_MAJOR%_%BOOST_MINOR%_%BOOST_PATCH%-msvc-14.1-64.exe -OutFile %WORKDIR%\boostinstaller.exe"
+%WORKDIR%\boostinstaller.exe /NORESTART /VERYSILENT /DIR=C:\boost
+call %WORKDIR%\wait_process_to_end.bat "boostinstaller.exe"
+:boost_done
 
 
 REM Install Assimp
+if exist C:\assimp goto :assimp_done
 set ASSIMP_MAJOR=4
 set ASSIMP_MINOR=1
 set ASSIMP_PATCH=0
-call refreshenv && echo OK
-powershell Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat
-powershell Invoke-WebRequest https://github.com/assimp/assimp/releases/download/v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%/assimp-sdk-%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%-setup.exe -OutFile %WORKDIR%\assimpinstaller.exe
-%WORKDIR%\assimpinstaller.exe /NORESTART /VERYSILENT /DIR=C:\assimp & %WORKDIR%\wait_process_to_end.bat "assimpinstaller.exe"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest https://github.com/assimp/assimp/releases/download/v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%/assimp-sdk-%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%-setup.exe -OutFile %WORKDIR%\assimpinstaller.exe"
+%WORKDIR%\assimpinstaller.exe /NORESTART /VERYSILENT /DIR=C:\assimp
+call %WORKDIR%\wait_process_to_end.bat "assimpinstaller.exe"
 set AddToUserPATH=%AddToUserPATH%;C:\assimp
+:assimp_done
 
 
 REM Install CGAL
+if exist C:\CGAL goto :cgal_done
 set CGAL_MAJOR=5
 set CGAL_MINOR=0
 set CGAL_PATCH=2
-call refreshenv && echo OK
-powershell Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat
-powershell Invoke-WebRequest https://github.com/CGAL/cgal/releases/download/releases/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%-Setup.exe -OutFile %WORKDIR%\cgalinstaller.exe
-%WORKDIR%\cgalinstaller.exe /S /D=C:\CGAL & %WORKDIR%\wait_process_to_end.bat "cgalinstaller.exe"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest https://github.com/CGAL/cgal/releases/download/releases/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%-Setup.exe -OutFile %WORKDIR%\cgalinstaller.exe"
+%WORKDIR%\cgalinstaller.exe /S /D=C:\CGAL
+call %WORKDIR%\wait_process_to_end.bat "cgalinstaller.exe"
 set AddToUserPATH=%AddToUserPATH%;C:\CGAL
+:cgal_done
 
 
 REM Install OpenCascade
+if exist C:\OpenCascade goto :occ_done
 set OCC_MAJOR=7
 set OCC_MINOR=4
 set OCC_PATCH=0
-call refreshenv && echo OK
-powershell Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat
-powershell Invoke-WebRequest http://transfer.sofa-framework.org/opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%-vc14-64.exe -OutFile %WORKDIR%\occinstaller.exe
-%WORKDIR%\occinstaller.exe /NORESTART /VERYSILENT /DIR=C:\OpenCascade & %WORKDIR%\wait_process_to_end.bat "occinstaller.exe"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/guparan/DockerSofaBuilder/master/sofabuilder_windows_vs2017/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest http://transfer.sofa-framework.org/opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%-vc14-64.exe -OutFile %WORKDIR%\occinstaller.exe"
+%WORKDIR%\occinstaller.exe /NORESTART /VERYSILENT /DIR=C:\OpenCascade
+call %WORKDIR%\wait_process_to_end.bat "occinstaller.exe"
 set AddToUserPATH=%AddToUserPATH%;C:\OpenCascade\opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%
+:occ_done
 
 
 REM Finalize environment
