@@ -319,6 +319,9 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
         add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
         if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
+            if [ -n "$VM_OPENCASCADE_PATH" ]; then
+                add-cmake-option "-DSOFA_OPENCASCADE_ROOT=$VM_OPENCASCADE_PATH" # Needed by MeshSTEPLoader/FindOpenCascade.cmake
+            fi
             add-cmake-option "-DPLUGIN_MESHSTEPLOADER=ON"
         else
             add-cmake-option "-DPLUGIN_MESHSTEPLOADER=OFF"

@@ -11,7 +11,7 @@ export VM_HAS_CGAL="false" # TODO: Update CGALPlugin to use CGAL in header-only 
 
 export VM_HAS_CUDA="true"
 
-export VM_HAS_OPENCASCADE="true"
+export VM_HAS_OPENCASCADE="false" # TODO: Update FindOpenCascade.cmake in MeshSTEPLoader
 
 
 export VM_BOOST_PATH="C:/boost"
@@ -25,6 +25,8 @@ export VM_BULLET_PATH=""
 export VM_ASSIMP_PATH="C:/assimp"
 
 export VM_CGAL_PATH="C:/CGAL"
+
+export VM_OPENCASCADE_PATH="C:/OpenCascade/opencascade-7.4.0"
 
 
 export VM_MAKE_OPTIONS="-j4"
