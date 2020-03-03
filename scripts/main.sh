@@ -103,7 +103,11 @@ else
 fi
 echo "-- Compiler"
 if vm-is-windows; then
-    echo "Visual Studio $(get-msvc-year "$COMPILER")"
+    if [ -x "$(command -v vswhere)" ]; then
+        cmd //c "vswhere -latest -products * -property displayName"
+    else
+        echo "Visual Studio $(get-msvc-year "$COMPILER")"
+    fi
 else
     echo "$(${COMPILER%-*} --version)" # gcc-5.8 -> gcc
 fi
