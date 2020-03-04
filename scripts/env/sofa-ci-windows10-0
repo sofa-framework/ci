@@ -30,3 +30,5 @@ export VM_OPENCASCADE_PATH="C:/OpenCascade/opencascade-7.4.0"
 
 
 export VM_MAKE_OPTIONS="-j4"
+
+export VM_CUDA_ARCH="sm_50"
