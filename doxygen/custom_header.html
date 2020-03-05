@@ -1,0 +1,95 @@
+<!-- HTML header for doxygen 1.8.11-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="generator" content="Doxygen $doxygenversion"/>
+<!--BEGIN PROJECT_NAME--><title>$projectname: $title</title><!--END PROJECT_NAME-->
+<!--BEGIN !PROJECT_NAME--><title>$title</title><!--END !PROJECT_NAME-->
+<link href="$relpath^tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="$relpath^jquery.js"></script>
+<script type="text/javascript" src="$relpath^dynsections.js"></script>
+$treeview
+$search
+$mathjax
+<link href="$relpath^$stylesheet" rel="stylesheet" type="text/css" />
+<link href="custom_style.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+<script type="text/javascript">
+    $(document).ready(function() {
+        // Add two entries to menu bar
+        var pathToRoot = '../..';
+        var url = window.location.href;
+        var moduleName = "SOFA";
+        if ( url.includes('/plugins/') )
+        {
+            pathToRoot = '../../..';
+            moduleName = url.match(/\/plugins\/(\w+)\/html/)[1];
+        }
+        $('ul.tablist > li > a > span').text(moduleName + " Classes"); // rename 'Classes'
+        $('ul.tablist li:eq(0)').before('<li><a href="' + pathToRoot + '/sofa/html/plugins.html"><span>Plugin list</span></a></li>');
+        $('ul.tablist li:eq(0)').before('<li><a href="' + pathToRoot + '/sofa/html/index.html"><span><i class="fas fa-home" style="line-height: inherit;"></i></span></a></li>');
+
+        // Set 'current' CSS class correctly
+        if ( ! url.includes('/plugins/') )
+        {
+            if ( url.includes('/index.html') )
+            {
+                $('ul.tablist li').removeClass("current");
+                $('ul.tablist li:eq(0)').addClass("current");
+            }
+            else if ( url.includes('/plugins.html') )
+            {
+                $('ul.tablist li').removeClass("current");
+                $('ul.tablist li:eq(1)').addClass("current");
+            }
+        }
+
+        // Searchbox: set default search to "Classes"
+        searchBox.OnSelectItem(1);
+    });
+</script>
+$extrastylesheet
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+
+<!--BEGIN TITLEAREA-->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr style="height: 56px;">
+  <!--BEGIN PROJECT_LOGO-->
+  <td id="projectlogo">
+    <a href="https://www.sofa-framework.org"> <!-- CUSTOM: link to sofa-framework -->
+        <img alt="Logo" src="$relpath^$projectlogo"/>
+    </a>
+  </td>
+  <!--END PROJECT_LOGO-->
+  <!--BEGIN PROJECT_NAME-->
+  <td id="projectalign" style="padding-left: 0.5em;">
+   <div id="projectname">$projectname
+   <!--BEGIN PROJECT_NUMBER-->&#160;<span id="projectnumber">$projectnumber</span><!--END PROJECT_NUMBER-->
+   </div>
+   <!--BEGIN PROJECT_BRIEF--><div id="projectbrief">$projectbrief</div><!--END PROJECT_BRIEF-->
+   </td>
+  <!--END PROJECT_NAME-->
+  <!--BEGIN !PROJECT_NAME-->
+   <!--BEGIN PROJECT_BRIEF-->
+    <td style="padding-left: 0.5em;">
+    <div id="projectbrief">$projectbrief</div>
+    </td>
+   <!--END PROJECT_BRIEF-->
+  <!--END !PROJECT_NAME-->
+  <!--BEGIN DISABLE_INDEX-->
+   <!--BEGIN SEARCHENGINE-->
+   <td>$searchbox</td>
+   <!--END SEARCHENGINE-->
+  <!--END DISABLE_INDEX-->
+ </tr>
+ </tbody>
+</table>
+</div>
+<!--END TITLEAREA-->
+<!-- end header part -->
