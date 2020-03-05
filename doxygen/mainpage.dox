@@ -1,0 +1,17 @@
+/**
+
+@mainpage SOFA %API Documentation
+
+You are on the main page of the SOFA %API Documentation.  This is the starting
+point of the documentation of the classes of the framework itself.
+
+A general introduction to SOFA and the user documentation are available on
+https://www.sofa-framework.org/documentation
+
+
+<h4>Plugins</h4>
+
+The doxygen documentations of individual plugins are listed on the <b>@ref plugins "Plugins page"</b>.
+
+
+*/
