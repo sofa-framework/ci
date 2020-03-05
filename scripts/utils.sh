@@ -58,20 +58,9 @@ get-msvc-year() {
             vs-2013) echo "2013" ;;
             vs-2015) echo "2015" ;;
             vs-2017) echo "2017" ;;
+            vs-2019) echo "2019" ;;
         esac
     fi
-}
-
-get-compiler-version() {
-    local compiler="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
-    case "$compiler" in
-        vs-2012) echo "11.0" ;;
-        vs-2013) echo "12.0" ;;
-        vs-2015) echo "14.0" ;;
-        vs-2017) echo "14.1" ;;
-        gcc-*)   echo "${compiler#*-}" ;;
-        clang-*) echo "${compiler#*-}" ;;
-    esac
 }
 
 get-msvc-comntools() {
@@ -81,7 +70,8 @@ get-msvc-comntools() {
             vs-2012) echo "VS110COMNTOOLS" ;;
             vs-2013) echo "VS120COMNTOOLS" ;;
             vs-2015) echo "VS140COMNTOOLS" ;;
-            vs-2017) echo "VS141COMNTOOLS" ;;
+            vs-2017) echo "VS150COMNTOOLS" ;;
+            vs-2019) echo "VS160COMNTOOLS" ;;
         esac
     fi
 }
@@ -210,14 +200,24 @@ call-cmake() {
     
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
+        msvc_year="$(get-msvc-year $COMPILER)"
         # Call vcvarsall.bat first to setup environment
-        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        if [ $msvc_year -le 2015 ]; then
+            vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        else
+            vcvarsall="cd %VSINSTALLDIR% && call %${msvc_comntools}%\\VsDevCmd -host_arch=amd64 -arch=$ARCHITECTURE"
+        fi
         build_dir_windows="$(cd "$build_dir" && pwd -W | sed 's#/#\\#g')"
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
-        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & cmake $*\""
-        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & cmake $*"
+        if [ $msvc_year -le 2015 ]; then
+            echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & cmake $*\""
+            $COMSPEC /c "$vcvarsall & cd $build_dir_windows & cmake $*"
+        else
+            echo "Calling: $COMSPEC //c \"$vcvarsall && cd $build_dir_windows && cmake $*\""
+            $COMSPEC //c "$vcvarsall && cd $build_dir_windows && cmake $*"
+        fi
     else
         echo "Calling: cmake $@"
         cd $build_dir && cmake "$@"
@@ -230,8 +230,13 @@ call-make() {
 
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
+        msvc_year="$(get-msvc-year $COMPILER)"
         # Call vcvarsall.bat first to setup environment
-        vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        if [ $msvc_year -le 2015 ]; then
+            vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
+        else
+            vcvarsall="cd %VSINSTALLDIR% && call %${msvc_comntools}%\\VsDevCmd -host_arch=amd64 -arch=$ARCHITECTURE"
+        fi
         toolname="nmake" # default
         if [ -x "$(command -v ninja)" ]; then
         	echo "Using ninja as build system"
@@ -241,8 +246,13 @@ call-make() {
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
-        echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS\""
-        $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS"
+        if [ $msvc_year -le 2015 ]; then
+            echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS\""
+            $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS"
+        else
+            echo "Calling: $COMSPEC //c \"$vcvarsall && cd $build_dir_windows && $toolname $target $VM_MAKE_OPTIONS\""
+            $COMSPEC //c "$vcvarsall && cd $build_dir_windows && $toolname $target $VM_MAKE_OPTIONS"
+        fi
     else
     	toolname="make" # default
         if [ -x "$(command -v ninja)" ]; then

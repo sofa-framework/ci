@@ -103,7 +103,11 @@ else
 fi
 echo "-- Compiler"
 if vm-is-windows; then
-    echo "MSVC $(get-compiler-version "$COMPILER")"
+    if [ -x "$(command -v vswhere)" ]; then
+        cmd //c "vswhere -latest -products * -property displayName"
+    else
+        echo "Visual Studio $(get-msvc-year "$COMPILER")"
+    fi
 else
     echo "$(${COMPILER%-*} --version)" # gcc-5.8 -> gcc
 fi
@@ -138,21 +142,21 @@ fi
 
 
 # Git config (needed by CMake ExternalProject)
-git config --global user.name 'SOFA Bot'
-git config --global user.email '<>'
+git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
+git config --system user.email '<>' || git config --global user.email '<>'
 
 
 # Jenkins: create link for Windows jobs (too long path problem)
 if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
-    cmd //c "if exist j:\%EXECUTOR_NUMBER% rmdir /S /Q j:\%EXECUTOR_NUMBER%"
-    cmd //c "mklink /D j:\%EXECUTOR_NUMBER% %WORKSPACE_PARENT_WINDOWS%"
-    export EXECUTOR_LINK_WINDOWS="j:\\$EXECUTOR_NUMBER"
-    export EXECUTOR_LINK_WINDOWS_SRC="j:\\$EXECUTOR_NUMBER\src"
-    export EXECUTOR_LINK_WINDOWS_BUILD="j:\\$EXECUTOR_NUMBER\build"
+    cmd //c "if exist J:\%EXECUTOR_NUMBER% rmdir /S /Q J:\%EXECUTOR_NUMBER%"
+    cmd //c "mklink /D J:\%EXECUTOR_NUMBER% %WORKSPACE_PARENT_WINDOWS%"
+    export EXECUTOR_LINK_WINDOWS="J:\\$EXECUTOR_NUMBER"
+    export EXECUTOR_LINK_WINDOWS_SRC="J:\\$EXECUTOR_NUMBER\src"
+    export EXECUTOR_LINK_WINDOWS_BUILD="J:\\$EXECUTOR_NUMBER\build"
     
-    SRC_DIR="/j/$EXECUTOR_NUMBER/src"
-    BUILD_DIR="/j/$EXECUTOR_NUMBER/build"
+    SRC_DIR="/J/$EXECUTOR_NUMBER/src"
+    BUILD_DIR="/J/$EXECUTOR_NUMBER/build"
 fi
 
 

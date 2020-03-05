@@ -143,10 +143,15 @@ list-scene-directories() {
         if [ -n "$lib" ]; then
             echo "Plugin $plugin: built (found $lib)" | log
             if [ -d "$src_dir/applications/plugins/$plugin/examples" ]; then
+                echo "Plugin $plugin: examples/ directory found." | log
                 mkdir -p "$output_dir/applications/plugins/$plugin/examples"
                 echo "applications/plugins/$plugin/examples"
+            elif [ -d "$src_dir/applications/plugins/$plugin/scenes" ]; then
+                echo "Plugin $plugin: scenes/ directory found." | log
+                mkdir -p "$output_dir/applications/plugins/$plugin/scenes"
+                echo "applications/plugins/$plugin/scenes"
             else
-                echo "Plugin $plugin: no examples/ directory" | log
+                echo "Plugin $plugin: no examples/ nor scenes/ directories." | log
             fi
         else
             echo "Plugin $plugin: not built" | log

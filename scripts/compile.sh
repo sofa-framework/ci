@@ -16,7 +16,7 @@ usage() {
     echo "Usage: compile.sh <build-dir> <config> <build-options>"
 }
 
-if [ "$#" -eq 2 ]; then
+if [ "$#" -ge 2 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
 

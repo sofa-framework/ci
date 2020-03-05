@@ -121,7 +121,7 @@ esac
 # Jenkins: remove link for Windows jobs (too long path problem)
 if [ -n "$EXECUTOR_NUMBER" ]; then
     if vm-is-windows; then
-        cmd //c "if exist j:\%EXECUTOR_NUMBER% rmdir /S /Q j:\%EXECUTOR_NUMBER%"
+        cmd //c "if exist J:\%EXECUTOR_NUMBER% rmdir /S /Q J:\%EXECUTOR_NUMBER%"
         
         export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
         export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"

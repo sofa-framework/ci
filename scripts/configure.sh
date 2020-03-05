@@ -158,7 +158,6 @@ fi
 # Handle custom lib dirs
 if vm-is-windows; then
     msvc_year="$(get-msvc-year $COMPILER)"
-    msvc_version="$(get-compiler-version $COMPILER)"
     qt_compiler="msvc${msvc_year}"
 else
     qt_compiler="${COMPILER%-*}" # gcc-4.8 -> gcc
@@ -293,6 +292,9 @@ else # This is not a "package" build
             add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
         fi
         if [[ "$VM_HAS_CGAL" == "true" ]]; then
+            if [ -n "$VM_CGAL_PATH" ]; then
+                add-cmake-option "-DCGAL_DIR=$VM_CGAL_PATH"
+            fi
             add-cmake-option "-DPLUGIN_CGALPLUGIN=ON"
         else
             add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF"
@@ -317,6 +319,9 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
         add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
         if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
+            if [ -n "$VM_OPENCASCADE_PATH" ]; then
+                add-cmake-option "-DSOFA_OPENCASCADE_ROOT=$VM_OPENCASCADE_PATH" # Needed by MeshSTEPLoader/FindOpenCascade.cmake
+            fi
             add-cmake-option "-DPLUGIN_MESHSTEPLOADER=ON"
         else
             add-cmake-option "-DPLUGIN_MESHSTEPLOADER=OFF"
@@ -328,6 +333,9 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
         add-cmake-option "-DPLUGIN_SOFACARVING=ON"
         if [[ "$VM_HAS_CUDA" == "true" ]] && [[ "$COMPILER" != "clang"* ]]; then
+            if [ -n "$VM_CUDA_ARCH" ]; then
+                add-cmake-option "-DSOFACUDA_ARCH=$VM_CUDA_ARCH"
+            fi
             add-cmake-option "-DPLUGIN_SOFACUDA=ON"
         else
             add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
@@ -339,6 +347,7 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
         add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
         add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
+        add-cmake-option "-DPLUGIN_SOFASPHFLUID=ON"
         add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
         add-cmake-option "-DPLUGIN_SOFAVOLUMETRICDATA=ON"
         
