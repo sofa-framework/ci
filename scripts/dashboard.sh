@@ -61,7 +61,7 @@ dashboard-config-string() {
 
     # config building
     config="$platform"_"$compiler"_"$suffix"
-    if [[ "$platform" == *"windows"* ]] && [[ "$architecture" == "x86" ]]; then
+    if [[ "$platform" == *"windows7"* ]]; then
         config="${config}_${architecture}"
     fi
 

@@ -219,6 +219,18 @@ fi
 BUILD_DIR="$BUILD_DIR_RESET"
 SRC_DIR="$SRC_DIR_RESET"
 
+# Prepare BUILD_DIR for tests
+if vm-is-windows && [ -n "$VM_BOOST_PATH" ] && [ -n "$VM_QT_PATH" ] ; then
+    msvc_year="$(get-msvc-year $COMPILER)"
+    qt_compiler="msvc${msvc_year}"
+    if [[ "$ARCHITECTURE" == "x86" ]]; then
+        cp -rf $VM_BOOST_PATH/lib32*/*.dll $BUILD_DIR/bin
+        cp -rf $VM_QT_PATH/${qt_compiler}/bin/Qt*.dll $BUILD_DIR/bin
+    else
+        cp -rf $VM_BOOST_PATH/lib64*/*.dll $BUILD_DIR/bin
+        cp -rf $VM_QT_PATH/${qt_compiler}_64/bin/Qt*.dll $BUILD_DIR/bin
+    fi
+fi
 
 if in-array "run-unit-tests" "$BUILD_OPTIONS" || in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     github_message="${github_message} FIXME:"
