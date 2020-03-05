@@ -200,8 +200,9 @@ call-cmake() {
     
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
+        msvc_year="$(get-msvc-year $COMPILER)"
         # Call vcvarsall.bat first to setup environment
-        if [[ "$msvc_comntools" == "VS110COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS120COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS140COMNTOOLS" ]]; then
+        if [ $msvc_year -le 2015 ]; then
             vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         else
             vcvarsall="cd %VSINSTALLDIR% && call %${msvc_comntools}%\\VsDevCmd -host_arch=amd64 -arch=$ARCHITECTURE"
@@ -210,8 +211,13 @@ call-cmake() {
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
-        echo "Calling: $COMSPEC //c \"$vcvarsall && cd $build_dir_windows && cmake $*\""
-        $COMSPEC //c "$vcvarsall && cd $build_dir_windows && cmake $*"
+        if [ $msvc_year -le 2015 ]; then
+            echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & cmake $*\""
+            $COMSPEC /c "$vcvarsall & cd $build_dir_windows & cmake $*"
+        else
+            echo "Calling: $COMSPEC //c \"$vcvarsall && cd $build_dir_windows && cmake $*\""
+            $COMSPEC //c "$vcvarsall && cd $build_dir_windows && cmake $*"
+        fi
     else
         echo "Calling: cmake $@"
         cd $build_dir && cmake "$@"
@@ -224,8 +230,9 @@ call-make() {
 
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
+        msvc_year="$(get-msvc-year $COMPILER)"
         # Call vcvarsall.bat first to setup environment
-        if [[ "$msvc_comntools" == "VS110COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS120COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS140COMNTOOLS" ]]; then
+        if [ $msvc_year -le 2015 ]; then
             vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         else
             vcvarsall="cd %VSINSTALLDIR% && call %${msvc_comntools}%\\VsDevCmd -host_arch=amd64 -arch=$ARCHITECTURE"
@@ -239,8 +246,13 @@ call-make() {
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
-        echo "Calling: $COMSPEC //c \"$vcvarsall && cd $build_dir_windows && $toolname $target $VM_MAKE_OPTIONS\""
-        $COMSPEC //c "$vcvarsall && cd $build_dir_windows && $toolname $target $VM_MAKE_OPTIONS"
+        if [ $msvc_year -le 2015 ]; then
+            echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS\""
+            $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $toolname $target $VM_MAKE_OPTIONS"
+        else
+            echo "Calling: $COMSPEC //c \"$vcvarsall && cd $build_dir_windows && $toolname $target $VM_MAKE_OPTIONS\""
+            $COMSPEC //c "$vcvarsall && cd $build_dir_windows && $toolname $target $VM_MAKE_OPTIONS"
+        fi
     else
     	toolname="make" # default
         if [ -x "$(command -v ninja)" ]; then
