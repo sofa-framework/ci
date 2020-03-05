@@ -202,7 +202,7 @@ call-cmake() {
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
         if [[ "$msvc_comntools" == "VS110COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS120COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS140COMNTOOLS" ]]; then
-            vcvarsall="call %${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat $ARCHITECTURE"
+            vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         else
             vcvarsall="cd %VSINSTALLDIR% && call %${msvc_comntools}%\\VsDevCmd -host_arch=amd64 -arch=$ARCHITECTURE"
         fi
@@ -226,7 +226,7 @@ call-make() {
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         # Call vcvarsall.bat first to setup environment
         if [[ "$msvc_comntools" == "VS110COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS120COMNTOOLS" ]] || [[ "$msvc_comntools" == "VS140COMNTOOLS" ]]; then
-            vcvarsall="call %${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat $ARCHITECTURE"
+            vcvarsall="call \"%${msvc_comntools}%\\..\\..\\VC\vcvarsall.bat\" $ARCHITECTURE"
         else
             vcvarsall="cd %VSINSTALLDIR% && call %${msvc_comntools}%\\VsDevCmd -host_arch=amd64 -arch=$ARCHITECTURE"
         fi
