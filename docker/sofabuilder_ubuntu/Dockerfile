@@ -63,8 +63,6 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
 
 # Init /builds directory
 ENV HOME /root
-RUN mkdir /builds
-ENV CCACHE_DIR /builds/ccache
 WORKDIR /builds
 
 # Cleanup
