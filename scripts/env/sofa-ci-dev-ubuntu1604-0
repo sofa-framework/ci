@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 export VM_HAS_REQUIRED_LIBS="true"
 
 export VM_HAS_BULLET="false"
@@ -15,3 +14,9 @@ export VM_HAS_OPENCASCADE="false"
 
 
 export VM_MAKE_OPTIONS="-j6"
+
+# Load Qt environment
+# SAVED_OPTIONS=$(set +o)
+# set +o errexit # DISABLE "exit on error"
+# source /opt/qt512/bin/qt512-env.sh
+# eval "$SAVED_OPTIONS"
