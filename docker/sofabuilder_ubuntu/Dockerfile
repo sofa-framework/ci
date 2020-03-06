@@ -40,7 +40,10 @@ RUN /tmp/cmake-3.12.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
 # Install Qt
 RUN add-apt-repository -y ppa:beineri/opt-qt-5.12.6-bionic \
 	&& apt-get -qq update \
-	&& apt-get -qq install -y qt512-meta-full qt512charts-no-lgpl
+	&& apt-get -qq install -y qt512-meta-full qt512charts-no-lgpl \
+    && echo "" >> /root/.bashrc \
+    && echo ". /opt/qt512/bin/qt512-env.sh" >> /root/.bashrc \
+    && echo "" >> /root/.bashrc
 
 # Install Boost
 RUN add-apt-repository -y ppa:mhier/libboost-latest \
@@ -59,8 +62,8 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
 	&& make install
 
 # Init /builds directory
+ENV HOME /root
 RUN mkdir /builds
-ENV HOME /builds
 ENV CCACHE_DIR /builds/ccache
 WORKDIR /builds
 
