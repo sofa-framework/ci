@@ -16,7 +16,7 @@ RUN apt-get -qq install -y \
 	software-properties-common \
 	ninja-build \
 	gcc-7 g++-7 \
-	clang-6.0 \
+	clang \
 	ccache
 
 # Install plugins deps
@@ -63,6 +63,11 @@ RUN mkdir /builds
 ENV HOME /builds
 ENV CCACHE_DIR /builds/ccache
 WORKDIR /builds
+
+# Cleanup
+RUN apt-get -qq clean -y \
+	&& apt-get -qq autoremove -y \
+	&& rm -rf /tmp/*
 
 # Define default command.
 CMD ["bash"]
