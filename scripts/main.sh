@@ -142,8 +142,8 @@ fi
 
 
 # Git config (needed by CMake ExternalProject)
-git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
-git config --system user.email '<>' || git config --global user.email '<>'
+git config --system user.name 'SOFA Bot' > /dev/null 2>&1 || git config --global user.name 'SOFA Bot' > /dev/null 2>&1
+git config --system user.email '<>' > /dev/null 2>&1 || git config --global user.email '<>' > /dev/null 2>&1
 
 
 # Jenkins: create link for Windows jobs (too long path problem)
