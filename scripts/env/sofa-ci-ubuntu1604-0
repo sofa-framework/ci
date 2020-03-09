@@ -18,4 +18,6 @@ export VM_MAKE_OPTIONS="-j6"
 
 export QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
 
-source /opt/qt512/bin/qt512-env.sh || true
+#source /opt/qt512/bin/qt512-env.sh || true
+
+export VM_CUDA_ARCH="sm_50"

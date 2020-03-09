@@ -17,3 +17,5 @@ export VM_HAS_OPENCASCADE="false"
 export VM_MAKE_OPTIONS="-j8"
 
 export QTIFWDIR="/home/sofa/Qt/Tools/QtInstallerFramework/3.0"
+
+export VM_CUDA_ARCH="sm_50"

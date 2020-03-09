@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 export VM_HAS_REQUIRED_LIBS="true"
 
 export VM_HAS_BULLET="false"
@@ -14,6 +15,8 @@ export VM_HAS_OPENCASCADE="false"
 
 
 export VM_MAKE_OPTIONS="-j6"
+
+export VM_CUDA_ARCH="sm_50"
 
 # Load Qt environment
 # SAVED_OPTIONS=$(set +o)
