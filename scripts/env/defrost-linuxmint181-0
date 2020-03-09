@@ -19,3 +19,6 @@ export VM_MAKE_OPTIONS="-j8"
 export QTIFWDIR="/home/sofa/Qt/Tools/QtInstallerFramework/3.0"
 
 export VM_CUDA_ARCH="sm_50"
+
+export VM_CUDA_NVCC_FLAGS="-ccbin gcc-6"
+

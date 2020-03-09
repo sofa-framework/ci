@@ -62,8 +62,12 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
 	&& make install
 
 # Init /builds directory
-ENV HOME /root
 WORKDIR /builds
+
+# Set env vars
+ENV HOME /root
+ENV VM_CUDA_NVCC_FLAGS "-ccbin gcc-6"
+ENV VM_CUDA_ARCH "sm_50"
 
 # Cleanup
 RUN apt-get -qq clean -y \
