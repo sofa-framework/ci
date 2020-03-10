@@ -18,10 +18,8 @@ export VM_MAKE_OPTIONS="-j6"
 
 export VM_CUDA_ARCH="sm_50"
 
-export VM_CUDA_NVCC_FLAGS="-ccbin gcc-6"
+#export VM_CUDA_NVCC_FLAGS="-ccbin gcc-6"
+export CUDAHOSTCXX="gcc-6"
 
 # Load Qt environment
-# SAVED_OPTIONS=$(set +o)
-# set +o errexit # DISABLE "exit on error"
-# source /opt/qt512/bin/qt512-env.sh
-# eval "$SAVED_OPTIONS"
+source /opt/qt512/bin/qt512-env.sh || true
