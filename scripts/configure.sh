@@ -375,13 +375,13 @@ fi
 #############
 
 echo "Calling cmake with the following options:"
-echo "$cmake_options" | tr -s ' ' '\n' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
 echo "Enabled modules and plugins:"
-echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=ON" | sort
-echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=ON" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=ON" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=ON" | sort
 echo "Disabled modules and plugins:"
-echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=OFF" | sort
-echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=OFF" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=OFF" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=OFF" | sort
 
 if [ -n "$full_build" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
