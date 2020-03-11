@@ -18,7 +18,6 @@ export VM_MAKE_OPTIONS="-j6"
 
 export VM_CUDA_ARCH="sm_50"
 
-export VM_CUDA_NVCC_FLAGS='"-ccbin gcc-6"'
 export CUDAHOSTCXX="gcc-6"
 
 # Load Qt environment
