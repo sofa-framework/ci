@@ -339,6 +339,7 @@ else # This is not a "package" build
             fi
             if [ -n "$VM_CUDA_HOST_COMPILER" ]; then
                 add-cmake-option "-DCMAKE_CUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
+                add-cmake-option "-DCUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
             fi
             add-cmake-option "-DPLUGIN_SOFACUDA=ON"
         else
