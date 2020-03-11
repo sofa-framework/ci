@@ -331,6 +331,9 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
         add-cmake-option "-DPLUGIN_SOFACARVING=ON"
         if [[ "$VM_HAS_CUDA" == "true" ]] && [[ "$COMPILER" != "clang"* ]]; then
+            if [ -n "$VM_CUDA_NVCC_FLAGS" ]; then
+                add-cmake-option "-DCUDA_NVCC_FLAGS=$VM_CUDA_NVCC_FLAGS"
+            fi
             if [ -n "$VM_CUDA_ARCH" ]; then
                 add-cmake-option "-DSOFACUDA_ARCH=$VM_CUDA_ARCH"
             fi
