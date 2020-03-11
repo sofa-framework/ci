@@ -334,6 +334,9 @@ else # This is not a "package" build
             if [ -n "$VM_CUDA_ARCH" ]; then
                 add-cmake-option "-DSOFACUDA_ARCH=$VM_CUDA_ARCH"
             fi
+            if [ -n "$VM_CUDA_HOST_COMPILER" ]; then
+                add-cmake-option "-DCMAKE_CUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
+            fi
             add-cmake-option "-DPLUGIN_SOFACUDA=ON"
         else
             add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
