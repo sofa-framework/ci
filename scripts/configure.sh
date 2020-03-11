@@ -140,8 +140,6 @@ else
             cxx_compiler="${COMPILER}++"
         ;;
     esac
-    export CC="$c_compiler" # needed by CUDA
-    export CXX="$cxx_compiler" # needed by CUDA
     add-cmake-option "-DCMAKE_C_COMPILER=$c_compiler"
     add-cmake-option "-DCMAKE_CXX_COMPILER=$cxx_compiler"
 
@@ -332,7 +330,7 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_REGISTRATION=ON"
         add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
         add-cmake-option "-DPLUGIN_SOFACARVING=ON"
-        if [[ "$VM_HAS_CUDA" == "true" ]] && [[ "$COMPILER" != "clang"* ]]; then
+        if [[ "$VM_HAS_CUDA" == "true" ]]; then
             if [ -n "$VM_CUDA_NVCC_FLAGS" ]; then
                 add-cmake-option "-DCUDA_NVCC_FLAGS=$VM_CUDA_NVCC_FLAGS"
             fi
