@@ -140,8 +140,6 @@ else
             cxx_compiler="${COMPILER}++"
         ;;
     esac
-    export CC="$c_compiler" # needed by CUDA
-    export CXX="$cxx_compiler" # needed by CUDA
     add-cmake-option "-DCMAKE_C_COMPILER=$c_compiler"
     add-cmake-option "-DCMAKE_CXX_COMPILER=$cxx_compiler"
 
@@ -332,12 +330,13 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_REGISTRATION=ON"
         add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
         add-cmake-option "-DPLUGIN_SOFACARVING=ON"
-        if [[ "$VM_HAS_CUDA" == "true" ]] && [[ "$COMPILER" != "clang"* ]]; then
-            if [ -n "$VM_CUDA_NVCC_FLAGS" ]; then
-                add-cmake-option "-DCUDA_NVCC_FLAGS=$VM_CUDA_NVCC_FLAGS"
-            fi
+        if [[ "$VM_HAS_CUDA" == "true" ]]; then
             if [ -n "$VM_CUDA_ARCH" ]; then
                 add-cmake-option "-DSOFACUDA_ARCH=$VM_CUDA_ARCH"
+            fi
+            if [ -n "$VM_CUDA_HOST_COMPILER" ]; then
+                add-cmake-option "-DCMAKE_CUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
+                add-cmake-option "-DCUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
             fi
             add-cmake-option "-DPLUGIN_SOFACUDA=ON"
         else
@@ -377,13 +376,13 @@ fi
 #############
 
 echo "Calling cmake with the following options:"
-echo "$cmake_options" | tr -s ' ' '\n' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
 echo "Enabled modules and plugins:"
-echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=ON" | sort
-echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=ON" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=ON" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=ON" | sort
 echo "Disabled modules and plugins:"
-echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=OFF" | sort
-echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=OFF" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=OFF" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=OFF" | sort
 
 if [ -n "$full_build" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"

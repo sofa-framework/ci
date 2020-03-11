@@ -41,11 +41,6 @@ dashboard-config-string() {
     local architecture="$3"
     local build_type="$4"
     local build_options="$5"
-    
-    if [[ "$compiler" == "vs-"* ]]; then
-        # force (vs -> VS) for Dashboard
-        compiler="$(echo "$compiler" | tr '[:lower:]' '[:upper:]')"
-    fi
 
     # suffix = [default, options, default-debug, options-debug]
     if in-array "build-all-plugins" "$build_options"; then
