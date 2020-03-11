@@ -18,7 +18,6 @@ export VM_MAKE_OPTIONS="-j8"
 
 export VM_CUDA_ARCH="sm_50"
 
-export CUDAHOSTCXX="/usr/bin/gcc-6"
 export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
 
 # Load Qt environment

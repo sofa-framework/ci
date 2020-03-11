@@ -66,7 +66,6 @@ WORKDIR /builds
 
 # Set env vars
 ENV HOME="/root"
-ENV CUDAHOSTCXX="/usr/bin/gcc-6"
 ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
 ENV VM_CUDA_ARCH="sm_50"
 ENV QTDIR="/opt/qt512"
