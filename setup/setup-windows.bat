@@ -21,7 +21,8 @@ call refreshenv && echo OK
 
 
 REM Install SOFA dependencies with Chocolatey
-choco install -y git --version=2.25.1 && pathed /USER /APPEND "C:\Program Files\Git\bin"
+choco install -y git --version=2.25.1
+pathed /MACHINE /APPEND "C:\Program Files\Git\bin"
 choco install -y wget --version=1.20.3.20190531
 choco install -y ninja --version=1.10.0
 choco install -y cmake --version=3.16.2 --installargs 'ADD_CMAKE_TO_PATH=System'
@@ -43,15 +44,15 @@ echo Installing Clcache...
 powershell -Command "Invoke-WebRequest https://github.com/frerich/clcache/releases/download/v4.2.0/clcache-4.2.0.zip -OutFile %WORKDIR%\clcache.zip"
 powershell Expand-Archive %WORKDIR%\clcache.zip -DestinationPath C:\clcache
 REM if not exist "J:\clcache\" mkdir "J:\clcache"
-REM setx CLCACHE_OBJECT_CACHE_TIMEOUT_MS 3600000
-REM setx CLCACHE_DIR J:\clcache
-REM setx CLCACHE_BASEDIR J:\workspace
+REM setx /M CLCACHE_OBJECT_CACHE_TIMEOUT_MS 3600000
+REM setx /M CLCACHE_DIR J:\clcache
+REM setx /M CLCACHE_BASEDIR J:\workspace
 REM (
   REM echo {
   REM echo "MaximumCacheSize": 34359738368
   REM echo }
 REM ) > J:\clcache\config.txt
-pathed /USER /APPEND "C:\clcache"
+pathed /MACHINE /APPEND "C:\clcache"
 :clcache_done
 
 
@@ -76,8 +77,8 @@ powershell -Command "Invoke-WebRequest https://aka.ms/vs/15/release/vs_buildtool
    & call %WORKDIR%\wait_process_to_end.bat "vs_buildtools.exe" ^
    & call %WORKDIR%\wait_process_to_end.bat "vs_installer.exe"
 
-setx VS150COMNTOOLS C:\VSBuildTools\Common7\Tools\
-setx VSINSTALLDIR C:\VSBuildTools\
+setx /M VS150COMNTOOLS C:\VSBuildTools\Common7\Tools\
+setx /M VSINSTALLDIR C:\VSBuildTools\
 :vs_done
 
 
@@ -87,9 +88,9 @@ echo Installing Qt...
 set QT_MAJOR=5
 set QT_MINOR=12
 set QT_PATCH=6
-REM setx QTDIR "C:\Qt\%QT_MAJOR%.%QT_MINOR%.%QT_PATCH%\msvc2017_64"
-REM setx QTDIR64 %QTDIR%
-REM setx Qt5_DIR %QTDIR%
+REM setx /M QTDIR "C:\Qt\%QT_MAJOR%.%QT_MINOR%.%QT_PATCH%\msvc2017_64"
+REM setx /M QTDIR64 %QTDIR%
+REM setx /M Qt5_DIR %QTDIR%
 if not exist "%APPDATA%\Qt\" mkdir %APPDATA%\Qt
 powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qtaccount.ini -OutFile %APPDATA%\Qt\qtaccount.ini"
 powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qtinstaller_controlscript_template.qs -OutFile %WORKDIR%\qtinstaller_controlscript_template.qs"
@@ -125,7 +126,7 @@ powershell -Command "Invoke-WebRequest https://github.com/assimp/assimp/releases
 call %WORKDIR%\wait_process_to_start.bat "vc_redist.x64.exe"
 taskkill /F /IM vc_redist.x64.exe
 call %WORKDIR%\wait_process_to_end.bat "assimpinstaller.exe"
-pathed /USER /APPEND "C:\assimp"
+pathed /MACHINE /APPEND "C:\assimp"
 :assimp_done
 
 
@@ -139,7 +140,7 @@ powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-fr
 powershell -Command "Invoke-WebRequest https://github.com/CGAL/cgal/releases/download/releases/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%-Setup.exe -OutFile %WORKDIR%\cgalinstaller.exe"
 %WORKDIR%\cgalinstaller.exe /S /D=C:\CGAL
 call %WORKDIR%\wait_process_to_end.bat "cgalinstaller.exe"
-pathed /USER /APPEND "C:\CGAL"
+pathed /MACHINE /APPEND "C:\CGAL"
 :cgal_done
 
 
@@ -153,15 +154,15 @@ powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-fr
 powershell -Command "Invoke-WebRequest http://transfer.sofa-framework.org/opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%-vc14-64.exe -OutFile %WORKDIR%\occinstaller.exe"
 %WORKDIR%\occinstaller.exe /NORESTART /VERYSILENT /DIR=C:\OpenCascade
 call %WORKDIR%\wait_process_to_end.bat "occinstaller.exe"
-pathed /USER /APPEND "C:\OpenCascade\opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%"
+pathed /MACHINE /APPEND "C:\OpenCascade\opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%"
 :occ_done
 
 
 REM Finalize environment
 echo Finalizing environment...
 call refreshenv && echo OK
-setx PYTHONIOENCODING UTF-8
+setx /M PYTHONIOENCODING UTF-8
 REM Strip duplicate PATH vars
-pathed /USER /SLIM
+pathed /MACHINE /SLIM
 
 echo Done
