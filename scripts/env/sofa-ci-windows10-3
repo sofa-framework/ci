@@ -1,0 +1,34 @@
+#!/bin/bash
+
+
+export VM_HAS_REQUIRED_LIBS="true"
+
+export VM_HAS_BULLET="false"
+
+export VM_HAS_ASSIMP="true"
+
+export VM_HAS_CGAL="false" # TODO: Update CGALPlugin to use CGAL in header-only mode (CGAL >= 5.0)
+
+export VM_HAS_CUDA="true"
+
+export VM_HAS_OPENCASCADE="false" # TODO: Update FindOpenCascade.cmake in MeshSTEPLoader
+
+
+export VM_BOOST_PATH="C:/boost"
+
+export VM_QT_PATH="C:/Qt/5.12.6"
+
+export VM_PYTHON_PATH="C:/Python27"
+
+export VM_BULLET_PATH=""
+
+export VM_ASSIMP_PATH="C:/assimp"
+
+export VM_CGAL_PATH="C:/CGAL"
+
+export VM_OPENCASCADE_PATH="C:/OpenCascade/opencascade-7.4.0"
+
+
+export VM_MAKE_OPTIONS="-j4"
+
+export VM_CUDA_ARCH="sm_50"
