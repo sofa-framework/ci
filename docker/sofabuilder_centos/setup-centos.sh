@@ -9,6 +9,11 @@
 # yum config-manager --set-enabled PowerTools
 yum install -y -q deltarpm 
 yum install -y -q epel-release
+yum install -y -q subscription-manager 
+subscription-manager repos \
+    --enable rhel-7-server-optional-rpms \
+    --enable rhel-server-rhscl-7-rpms \
+    --enable rhel-7-server-devtools-rpms
 yum update -y && yum upgrade -y && yum clean all
 
 # Install tools
@@ -25,13 +30,15 @@ yum install -y -q \
     ccache
 yum install -y -q centos-release-scl && yum update -y -q
 yum install -y -q devtoolset-6
-yum install -y -q devtoolset-7 llvm-toolset-7
+yum install -y -q devtoolset-7 llvm-toolset-6.0
 mkdir -p /root/bin
 (echo '#!/bin/bash' && echo 'scl enable devtoolset-6 "gcc $*"') > /root/bin/gcc-6
 (echo '#!/bin/bash' && echo 'scl enable devtoolset-6 "g++ $*"') > /root/bin/g++-6
 (echo '#!/bin/bash' && echo 'scl enable devtoolset-7 "gcc $*"') > /root/bin/gcc-7
 (echo '#!/bin/bash' && echo 'scl enable devtoolset-7 "g++ $*"') > /root/bin/g++-7
 chmod a+x /root/bin/*
+# Default to GCC-7 and Clang-6
+(echo '' && echo 'source scl_source enable devtoolset-7 llvm-toolset-6.0' && echo '' ) >> /root/.bashrc
 
 # Install plugins deps
 yum install -y -q \
@@ -88,10 +95,9 @@ make install
 # 	&& subscription-manager refresh || true \
 # 	&& subscription-manager repos --enable=rhel-7-workstation-optional-rpms
 yum-config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo
-yum clean all
+yum install -y -q cuda-toolkit-10-2 nvidia-driver-cuda nvidia-kmod
 #    && yum install -y -q nvidia-driver-latest-dkms cuda \
 #    && yum install -y -q cuda-drivers \
-yum install -y -q cuda-toolkit-10-2 nvidia-driver-cuda nvidia-kmod
 
 # Cleanup
 yum clean all
