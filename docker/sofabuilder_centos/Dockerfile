@@ -80,17 +80,18 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
     && make install
 ENV VM_HAS_CGAL="true"
 
-# # Install CUDA
-# RUN yum-config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo \
-#     && yum clean all \
-#     && yum install -y -q cuda-toolkit-10-2 nvidia-driver-cuda nvidia-kmod
-#     #&& yum install -y -q nvidia-driver-latest-dkms cuda \
-#     #&& yum install -y -q cuda-drivers
-# ENV PATH="/usr/local/cuda-10.2/bin:/usr/local/cuda-10.2/NsightCompute-2019.1${PATH:+:${PATH}}"
-# ENV LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-# ENV VM_HAS_CUDA="true"
-# ENV VM_CUDA_HOST_COMPILER="/root/bin/gcc-6"
-# ENV VM_CUDA_ARCH="sm_50"
+# Install CUDA
+RUN yum-config-manager --add-repo \
+    http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo \
+    && yum clean all
+RUN yum install -y -q cuda-toolkit-10-2
+RUN yum install -y -q nvidia-driver-cuda
+RUN yum install -y -q nvidia-kmod
+ENV PATH="/usr/local/cuda-10.2/bin:/usr/local/cuda-10.2/NsightCompute-2019.1${PATH:+:${PATH}}"
+ENV LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+ENV VM_HAS_CUDA="true"
+ENV VM_CUDA_HOST_COMPILER="/root/bin/gcc-6"
+ENV VM_CUDA_ARCH="sm_50"
 
 
 # Init /builds directory
@@ -103,9 +104,10 @@ ENV HOME="/root"
 RUN yum clean all \
     && rm -rf /tmp/*
 
-# Define default command.
-# ENTRYPOINT [ "bash", "-c", "source scl_source enable devtoolset-7 llvm-toolset-7" ]
+# In-process env settings
 COPY docker-entrypoint.sh /
 RUN chmod a+x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
+# Default command to run
+CMD ["/bin/bash"]
