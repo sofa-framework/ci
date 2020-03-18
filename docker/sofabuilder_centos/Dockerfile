@@ -49,9 +49,6 @@ ENV VM_HAS_BULLET="true"
 ENV VM_HAS_OPENCASCADE="true"
 
 # Install Qt
-# RUN yum install -y -q qt5-qtbase-devel \
-#     && ln -s /usr/bin/qmake-qt5 /usr/bin/qmake
-# ENV LD_LIBRARY_PATH="/lib:/lib64:/bin${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 ARG QT_MAJOR=5
 ARG QT_MINOR=12
 ARG QT_PATCH=6
@@ -65,6 +62,7 @@ RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
     && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose
 ENV QTDIR="/opt/Qt/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
 ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
+ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Install Boost
 RUN yum install -y -q boost169-devel
