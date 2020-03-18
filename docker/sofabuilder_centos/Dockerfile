@@ -52,7 +52,6 @@ ENV VM_HAS_OPENCASCADE="true"
 # RUN yum install -y -q qt5-qtbase-devel \
 #     && ln -s /usr/bin/qmake-qt5 /usr/bin/qmake
 # ENV LD_LIBRARY_PATH="/lib:/lib64:/bin${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-
 ARG QT_MAJOR=5
 ARG QT_MINOR=12
 ARG QT_PATCH=6
@@ -61,8 +60,9 @@ ADD https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qtaccount.
 ADD https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qtinstaller_controlscript_template_linux.qs /tmp/qtinstaller_controlscript_template_linux.qs
 RUN sed -i "s/_QTVERSION_/$QT_MAJOR$QT_MINOR$QT_PATCH/g" /tmp/qtinstaller_controlscript_template_linux.qs > /tmp/qtinstaller_controlscript.qs
 ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
+RUN yum install -y -q libxkbcommon-x11
 RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
-    && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal
+    && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose
 ENV QTDIR="/opt/Qt/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
 ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 
