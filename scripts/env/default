@@ -25,7 +25,7 @@
 #   Boost: must be compiled
 #   Python: sudo yum install python numpy scipy
 #   Cython: python -m pip install cython
-#   Other: sudo yum install libpng-devel libjpeg-devel libtiff-devel zlib-devel libglew freeglut-devel curl suitesparse-devel blas-devel lapack-devel
+#   Other: sudo yum install libpng-devel libjpeg-devel libtiff-devel zlib-devel libGLEW freeglut-devel curl suitesparse-devel blas-devel lapack-devel
 # Optional libs:
 #   Bullet: sudo yum install bullet-devel
 #   Assimp: sudo yum install assimp-devel

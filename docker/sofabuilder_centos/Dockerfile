@@ -5,6 +5,7 @@ SHELL ["/bin/bash", "-c"]
 # Install yum repositories
 RUN yum install -y -q deltarpm 
 RUN yum install -y -q epel-release
+RUN yum install -y -q centos-release-scl
 RUN yum update -y && yum upgrade -y && yum clean all
 
 # Install tools
@@ -12,17 +13,18 @@ RUN yum install -y -q \
     git \
     wget \
     curl \
+    vim \
     update-alternatives
 
 # Install build tools
 RUN yum install -y -q \
 	cmake3 \
     ninja-build \
+    devtoolset-6 \
+    devtoolset-7 \
+    llvm-toolset-7 \
     ccache
-RUN yum install -y -q centos-release-scl \
-    && yum update -y -q \
-    && yum install -y -q devtoolset-6 \
-    && yum install -y -q devtoolset-7 llvm-toolset-7
+RUN ln -s /usr/bin/ninja-build /usr/bin/ninja
 RUN mkdir -p /root/bin \
     && (echo '#!/bin/bash' && echo 'scl enable devtoolset-6 "gcc $*"') > /root/bin/gcc-6 \
     && (echo '#!/bin/bash' && echo 'scl enable devtoolset-6 "g++ $*"') > /root/bin/g++-6 \
@@ -31,12 +33,12 @@ RUN mkdir -p /root/bin \
     && chmod a+x /root/bin/*
 ENV PATH="/root/bin${PATH:+:${PATH}}"
 
-# Install plugins deps
+# Install plugin deps
 RUN yum install -y -q \
     python numpy scipy \
     libpng-devel libjpeg-devel libtiff-devel \
     zlib-devel \
-    libglew \
+    libGLEW \
     blas-devel \
     lapack-devel \
     freeglut-devel \
