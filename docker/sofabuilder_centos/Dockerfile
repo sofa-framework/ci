@@ -25,13 +25,6 @@ RUN yum install -y -q \
     llvm-toolset-7 \
     ccache
 RUN ln -s /usr/bin/ninja-build /usr/bin/ninja
-RUN mkdir -p /root/bin \
-    && (echo '#!/bin/bash' && echo 'scl enable devtoolset-6 "gcc $*"') > /root/bin/gcc-6 \
-    && (echo '#!/bin/bash' && echo 'scl enable devtoolset-6 "g++ $*"') > /root/bin/g++-6 \
-    && (echo '#!/bin/bash' && echo 'scl enable devtoolset-7 "gcc $*"') > /root/bin/gcc-7 \
-    && (echo '#!/bin/bash' && echo 'scl enable devtoolset-7 "g++ $*"') > /root/bin/g++-7 \
-    && chmod a+x /root/bin/*
-ENV PATH="/root/bin${PATH:+:${PATH}}"
 
 # Install plugin deps
 RUN yum install -y -q \
@@ -44,10 +37,11 @@ RUN yum install -y -q \
     freeglut-devel \
     suitesparse-devel \
     assimp-devel \
-    bullet-devel \
+    bullet-extras-devel \
     OCE-devel
 ENV VM_HAS_ASSIMP="true"
-ENV VM_HAS_BULLET="true"
+ # BulletColisionDetection is broken
+ENV VM_HAS_BULLET="disabled"
 ENV VM_HAS_OPENCASCADE="true"
 
 # Install Qt
@@ -102,7 +96,7 @@ RUN yum install -y -q nvidia-kmod
 ENV PATH="/usr/local/cuda-10.2/bin:/usr/local/cuda-10.2/NsightCompute-2019.1${PATH:+:${PATH}}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 ENV VM_HAS_CUDA="true"
-ENV VM_CUDA_HOST_COMPILER="/root/bin/gcc-6"
+ENV VM_CUDA_HOST_COMPILER="/opt/rh/devtoolset-6/root/usr/bin/gcc"
 ENV VM_CUDA_ARCH="sm_50"
 
 
