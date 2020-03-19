@@ -74,6 +74,7 @@ RUN update-alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 
     --family cmake
 
 # Install CGAL
+# Due to dependencies on Boost and Qt, we have to build CGAL
 ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-4.14.3/CGAL-4.14.3.tar.xz /tmp
 RUN yum install -y -q gmp-devel mpfr-devel
 RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \

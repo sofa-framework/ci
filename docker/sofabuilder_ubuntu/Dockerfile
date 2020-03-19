@@ -29,11 +29,14 @@ RUN apt-get -qq install -y \
     libxml2-dev \
     freeglut3-dev \
     libsuitesparse-dev \
+    libavcodec-dev libswscale-dev libavutil-dev libavformat-dev \
     libassimp-dev \
     libbullet-dev \
-    nvidia-cuda-toolkit \
-    liboce-ocaf-dev \
-    libavcodec-dev libswscale-dev libavutil-dev libavformat-dev 
+    liboce-ocaf-dev
+ENV VM_HAS_ASSIMP="true"
+ # BulletColisionDetection is broken
+ENV VM_HAS_BULLET="disabled"
+ENV VM_HAS_OPENCASCADE="true"
 
 # Install CMake
 ADD https://github.com/Kitware/CMake/releases/download/v3.12.0/cmake-3.12.0-Linux-x86_64.sh /tmp
@@ -61,21 +64,28 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
     && make install
 
+# Install CUDA
+RUN apt-get -qq install -y nvidia-cuda-toolkit
+ENV VM_HAS_CUDA="true"
+ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
+ENV VM_CUDA_ARCH="sm_50"
+
+
 # Init /builds directory
 WORKDIR /builds
 
 # Set env vars
 ENV HOME="/root"
-ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
-ENV VM_CUDA_ARCH="sm_50"
-ENV QTDIR="/opt/qt512"
-ENV PATH="$QTDIR/bin:$PATH"
-ENV LD_LIBRARY_PATH="$QTDIR/lib/x86_64-linux-gnu:$QTDIR/lib:$LD_LIBRARY_PATH"
 
 # Cleanup
 RUN apt-get -qq clean -y \
     && apt-get -qq autoremove -y \
     && rm -rf /tmp/*
+
+# In-process env settings
+COPY docker-entrypoint.sh /
+RUN chmod a+x /docker-entrypoint.sh
+ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Define default command.
 CMD ["/bin/bash"]
