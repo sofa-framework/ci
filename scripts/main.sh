@@ -60,6 +60,8 @@ if [[ "$HOME" != "/root" ]]; then
             exit 1
         fi
     fi
+else
+    export VM_HAS_REQUIRED_LIBS="true" # assume deps are OK
 fi
 
 
