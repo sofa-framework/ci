@@ -38,7 +38,7 @@ RUN yum install -y -q \
     python numpy scipy \
     libpng-devel libjpeg-devel libtiff-devel \
     zlib-devel \
-    libGLEW \
+    glew-devel \
     blas-devel \
     lapack-devel \
     freeglut-devel \
