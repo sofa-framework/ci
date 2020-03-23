@@ -113,6 +113,13 @@ call %WORKDIR%\wait_process_to_end.bat "boostinstaller.exe"
 :boost_done
 
 
+REM Install Eigen
+if exist C:\eigen\eigen-3.3.7 goto :eigen_done
+powershell -Command "Invoke-WebRequest https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.zip -OutFile %WORKDIR%\eigen.zip"
+powershell Expand-Archive %WORKDIR%\eigen.zip -DestinationPath C:\eigen
+:eigen_done
+
+
 REM Install Assimp
 if exist C:\assimp goto :assimp_done
 echo Installing Assimp...

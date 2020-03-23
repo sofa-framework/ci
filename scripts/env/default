@@ -21,11 +21,11 @@
 # Required libs:
 #   Make: sudo yum install cmake3 ninja-build clang ccache
 #   Clang5 + Gcc7: sudo yum install centos-release-scl && sudo yum update && sudo yum install devtoolset-7 llvm-toolset-7
-#   Qt: sudo yum install qt5-qtbase
+#   Qt: sudo yum install qt5-qtbase-devel
 #   Boost: must be compiled
 #   Python: sudo yum install python numpy scipy
 #   Cython: python -m pip install cython
-#   Other: sudo yum install libpng-devel libjpeg-devel libtiff-devel zlib-devel libglew freeglut-devel curl suitesparse-devel blas-devel lapack-devel
+#   Other: sudo yum install libpng-devel libjpeg-devel libtiff-devel zlib-devel glew-devel freeglut-devel curl suitesparse-devel blas-devel lapack-devel
 # Optional libs:
 #   Bullet: sudo yum install bullet-devel
 #   Assimp: sudo yum install assimp-devel

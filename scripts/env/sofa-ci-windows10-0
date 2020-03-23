@@ -28,6 +28,8 @@ export VM_CGAL_PATH="C:/CGAL"
 
 export VM_OPENCASCADE_PATH="C:/OpenCascade/opencascade-7.4.0"
 
+export VM_EIGEN3_PATH="C:/eigen/eigen-3.3.7"
+
 
 export VM_MAKE_OPTIONS="-j4"
 

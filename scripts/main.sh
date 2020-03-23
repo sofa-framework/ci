@@ -47,17 +47,21 @@ rm -rf "$BUILD_DIR/_CPack_Packages" "$BUILD_DIR/CPackConfig.cmake"
 rm -f "$BUILD_DIR/SOFA_*.exe" "$BUILD_DIR/SOFA_*.run" "$BUILD_DIR/SOFA_*.dmg" "$BUILD_DIR/SOFA_*.zip"
 
 
-# VM environment variables
-echo "ENV VARS: load $SCRIPT_DIR/env/default"
-. "$SCRIPT_DIR/env/default"
-if [ -n "$NODE_NAME" ]; then
-    if [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
-        echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"
-        . "$SCRIPT_DIR/env/$NODE_NAME"
-    else
-        echo "ERROR: No config file found for node $NODE_NAME."
-        exit 1
+# If not in Docker: set VM environment variables
+if [[ "$HOME" != "/root" ]]; then
+    echo "ENV VARS: load $SCRIPT_DIR/env/default"
+    . "$SCRIPT_DIR/env/default"
+    if [ -n "$NODE_NAME" ]; then
+        if [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
+            echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"
+            . "$SCRIPT_DIR/env/$NODE_NAME"
+        else
+            echo "ERROR: No config file found for node $NODE_NAME."
+            exit 1
+        fi
     fi
+else
+    export VM_HAS_REQUIRED_LIBS="true" # assume deps are OK
 fi
 
 

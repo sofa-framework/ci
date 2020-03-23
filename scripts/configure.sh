@@ -181,6 +181,10 @@ if vm-is-windows; then # Finding libs on Windows
         add-cmake-option "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
     fi
+    if [ -d "$VM_EIGEN3_PATH" ]; then
+        export EIGEN3_ROOT_DIR="$VM_EIGEN3_PATH"
+        # add-cmake-option "-DEIGEN3_ROOT=$VM_EIGEN3_PATH"
+    fi
 fi
 if vm-is-macos; then
     python_path="$(python-config --prefix)"
