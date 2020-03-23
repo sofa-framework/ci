@@ -182,6 +182,8 @@ if vm-is-windows; then # Finding libs on Windows
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
     fi
     if [ -d "$VM_EIGEN3_PATH" ]; then
+        # Create EIGEN3_ROOT as env var and CMake var
+        export EIGEN3_ROOT="$VM_EIGEN3_PATH"
         add-cmake-option "-DEIGEN3_ROOT=$VM_EIGEN3_PATH"
     fi
 fi
