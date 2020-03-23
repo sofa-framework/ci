@@ -25,7 +25,7 @@ RUN yum install -y -q \
     devtoolset-7 \
     llvm-toolset-7 \
     ccache
-RUN ln -sf /usr/bin/ninja-build /usr/bin/ninja
+RUN ln -sf /usr/bin/ninja-build /usr/bin/ninja || true
 
 # Install core deps
 RUN yum install -y -q \
