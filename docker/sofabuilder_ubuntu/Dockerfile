@@ -22,14 +22,21 @@ RUN apt-get -qq install -y \
     clang \
     ccache
 
+# Install core deps
+RUN apt-get -qq install -y \
+    libglew-dev \
+    freeglut3-dev \
+    zlib1g-dev \
+    libeigen3-dev
+
 # Install plugins deps
 RUN apt-get -qq install -y \
     python2.7-dev python-pip python-numpy python-scipy \
-    libpng-dev libjpeg-dev libtiff-dev zlib1g-dev libglew-dev libblas-dev liblapack-dev \
-    libxml2-dev \
-    freeglut3-dev \
+    libpng-dev libjpeg-dev libtiff-dev \
+    libblas-dev \
+    liblapack-dev \
     libsuitesparse-dev \
-    libavcodec-dev libswscale-dev libavutil-dev libavformat-dev \
+    libavcodec-dev libavformat-dev libavutil-dev libswscale-dev \
     libassimp-dev \
     libbullet-dev \
     liboce-ocaf-dev

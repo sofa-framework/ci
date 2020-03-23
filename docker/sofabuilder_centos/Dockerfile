@@ -6,6 +6,7 @@ SHELL ["/bin/bash", "-c"]
 RUN yum install -y -q deltarpm 
 RUN yum install -y -q epel-release
 RUN yum install -y -q centos-release-scl
+RUN yum install -y -q http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-1.noarch.rpm
 RUN yum update -y && yum upgrade -y && yum clean all
 
 # Install tools
@@ -26,16 +27,21 @@ RUN yum install -y -q \
     ccache
 RUN ln -s /usr/bin/ninja-build /usr/bin/ninja
 
+# Install core deps
+RUN yum install -y -q \
+    glew-devel \
+    freeglut-devel \
+    zlib-devel \
+    eigen3-devel
+
 # Install plugin deps
 RUN yum install -y -q \
-    python numpy scipy \
+    python-devel numpy scipy \
     libpng-devel libjpeg-devel libtiff-devel \
-    zlib-devel \
-    glew-devel \
     blas-devel \
     lapack-devel \
-    freeglut-devel \
     suitesparse-devel \
+    ffmpeg-devel \
     assimp-devel \
     bullet-extras-devel \
     OCE-devel
