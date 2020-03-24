@@ -71,6 +71,8 @@ RUN yum install -y -q boost169-devel
 ENV BOOST_INCLUDEDIR="/usr/include/boost169"
 ENV BOOST_LIBRARYDIR="/usr/lib64/boost169"
 ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+RUN ln -sf "/usr/include/boost169" "/usr/include/boost" || true
+RUN ln -sf "/usr/lib64/boost169" "/usr/lib64/boost" || true
 
 # Set cmake3 the default CMake
 RUN update-alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 \
