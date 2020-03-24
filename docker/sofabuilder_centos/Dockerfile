@@ -92,6 +92,7 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
     && make install
 ENV VM_HAS_CGAL="true"
+ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
 # Install CUDA
 RUN yum-config-manager --add-repo \

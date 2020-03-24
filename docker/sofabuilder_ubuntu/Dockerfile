@@ -70,6 +70,8 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
     && make install
+ENV VM_HAS_CGAL="true"
+ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 
 # Install CUDA
 RUN apt-get install -y nvidia-cuda-toolkit
