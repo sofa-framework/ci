@@ -198,6 +198,11 @@ call-cmake() {
     build_dir="$(cd "$1" && pwd)"
     shift # Remove first arg
     
+    cmake_command="cmake"
+    if [[ "$CI_DEBUG" == "true" ]]; then
+        cmake_command="cmake --trace"
+    fi
+    
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         msvc_year="$(get-msvc-year $COMPILER)"
@@ -212,15 +217,15 @@ call-cmake() {
             build_dir_windows="$EXECUTOR_LINK_WINDOWS_BUILD"
         fi
         if [ $msvc_year -le 2015 ]; then
-            echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & cmake $*\""
-            $COMSPEC /c "$vcvarsall & cd $build_dir_windows & cmake $*"
+            echo "Calling: $COMSPEC /c \"$vcvarsall & cd $build_dir_windows & $cmake_command $*\""
+            $COMSPEC /c "$vcvarsall & cd $build_dir_windows & $cmake_command $*"
         else
-            echo "Calling: $COMSPEC //c \"$vcvarsall && cd $build_dir_windows && cmake $*\""
-            $COMSPEC //c "$vcvarsall && cd $build_dir_windows && cmake $*"
+            echo "Calling: $COMSPEC //c \"$vcvarsall && cd $build_dir_windows && $cmake_command $*\""
+            $COMSPEC //c "$vcvarsall && cd $build_dir_windows && $cmake_command $*"
         fi
     else
-        echo "Calling: cmake $@"
-        cd $build_dir && cmake "$@"
+        echo "Calling: $cmake_command $@"
+        cd $build_dir && $cmake_command "$@"
     fi
 }
 
