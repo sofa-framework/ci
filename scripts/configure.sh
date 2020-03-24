@@ -295,8 +295,8 @@ else # This is not a "package" build
         fi
         if [[ "$VM_HAS_CGAL" == "true" ]]; then
             if [ -n "$VM_CGAL_PATH" ]; then
+                add-cmake-option "-UCGAL_TEST_RUNS" # Force undef
                 add-cmake-option "-DCGAL_DIR=$VM_CGAL_PATH"
-                export CGAL_DIR="$VM_CGAL_PATH"
             fi
             add-cmake-option "-DPLUGIN_CGALPLUGIN=ON"
         else
