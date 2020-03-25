@@ -297,7 +297,8 @@ else # This is not a "package" build
             if [ -d "$VM_CGAL_PATH" ]; then
                 add-cmake-option "-UCGAL_TEST_RUNS" # Force undef
                 if [ -d "$BOOST_INCLUDEDIR" ]; then
-                    add-cmake-option "-DCMAKE_REQUIRED_INCLUDES=$BOOST_INCLUDEDIR"
+                    add-cmake-option "-DCGAL_3RD_PARTY_INCLUDE_DIRS=$BOOST_INCLUDEDIR"
+                    # add-cmake-option "-DCMAKE_REQUIRED_INCLUDES=$BOOST_INCLUDEDIR"
                 fi
                 add-cmake-option "-DCGAL_DIR=$VM_CGAL_PATH"
             fi
