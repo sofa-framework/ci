@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+#set -e
 
 source /opt/qt512/bin/qt512-env.sh
 

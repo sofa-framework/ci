@@ -25,7 +25,7 @@ RUN yum install -y -q \
     devtoolset-7 \
     llvm-toolset-7 \
     ccache
-RUN ln -sf /usr/bin/ninja-build /usr/bin/ninja
+RUN ln -sf /usr/bin/ninja-build /usr/bin/ninja || true
 
 # Install core deps
 RUN yum install -y -q \
@@ -55,8 +55,8 @@ ARG QT_MAJOR=5
 ARG QT_MINOR=12
 ARG QT_PATCH=6
 RUN mkdir -p /root/.local/share/Qt
-ADD https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qtaccount.ini /root/.local/share/Qt/qtaccount.ini
-ADD https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qtinstaller_controlscript_template_linux.qs /tmp/qtinstaller_controlscript_template_linux.qs
+ADD qtaccount.ini /root/.local/share/Qt/qtaccount.ini
+ADD qtinstaller_controlscript_template_linux.qs /tmp/qtinstaller_controlscript_template_linux.qs
 RUN cat /tmp/qtinstaller_controlscript_template_linux.qs | sed "s/_QTVERSION_/$QT_MAJOR$QT_MINOR$QT_PATCH/g" > /tmp/qtinstaller_controlscript.qs
 ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
 RUN yum install -y -q libxkbcommon-x11
@@ -68,8 +68,10 @@ ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Install Boost
 RUN yum install -y -q boost169-devel
-ENV BOOST_INCLUDEDIR="/usr/include/boost169"
-ENV BOOST_LIBRARYDIR="/usr/lib64/boost169"
+RUN ln -s -f "/usr/include/boost169/boost" "/usr/include/boost" || true
+RUN ln -s -f "/usr/lib64/boost169" "/usr/lib64/boost" || true
+ENV BOOST_INCLUDEDIR="/usr/include"
+ENV BOOST_LIBRARYDIR="/usr/lib64/boost"
 ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Set cmake3 the default CMake
@@ -92,6 +94,7 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
     && make install
 ENV VM_HAS_CGAL="true"
+ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
 # Install CUDA
 RUN yum-config-manager --add-repo \

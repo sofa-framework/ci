@@ -294,7 +294,11 @@ else # This is not a "package" build
             add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
         fi
         if [[ "$VM_HAS_CGAL" == "true" ]]; then
-            if [ -n "$VM_CGAL_PATH" ]; then
+            if [ -d "$VM_CGAL_PATH" ]; then
+                if vm-is-centos; then
+                    # Disable CGAL build test (see FindCGAL.cmake)
+                    add-cmake-option "-DCGAL_TEST_RUNS=TRUE"
+                fi
                 add-cmake-option "-DCGAL_DIR=$VM_CGAL_PATH"
             fi
             add-cmake-option "-DPLUGIN_CGALPLUGIN=ON"

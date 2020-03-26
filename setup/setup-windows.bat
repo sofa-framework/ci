@@ -61,7 +61,7 @@ if exist C:\VSBuildTools goto :vs_done
 echo Installing Visual Studio Build Tools...
 REM To see component names, run Visual Studio Installer and play with configuration export.
 REM Use --passive instead of --quiet when testing (GUI will appear with progress bar).
-powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
 powershell -Command "Invoke-WebRequest https://aka.ms/vs/15/release/vs_buildtools.exe -OutFile %WORKDIR%\vs_buildtools.exe"
 %WORKDIR%\vs_buildtools.exe ^
     --wait --quiet --norestart --nocache ^
@@ -92,8 +92,8 @@ REM setx /M QTDIR "C:\Qt\%QT_MAJOR%.%QT_MINOR%.%QT_PATCH%\msvc2017_64"
 REM setx /M QTDIR64 %QTDIR%
 REM setx /M Qt5_DIR %QTDIR%
 if not exist "%APPDATA%\Qt\" mkdir %APPDATA%\Qt
-powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qtaccount.ini -OutFile %APPDATA%\Qt\qtaccount.ini"
-powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qtinstaller_controlscript_template.qs -OutFile %WORKDIR%\qtinstaller_controlscript_template.qs"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qtaccount.ini -OutFile %APPDATA%\Qt\qtaccount.ini"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qtinstaller_controlscript_template.qs -OutFile %WORKDIR%\qtinstaller_controlscript_template.qs"
 powershell -Command "(gc %WORKDIR%\qtinstaller_controlscript_template.qs) -replace '_QTVERSION_', %QT_MAJOR%%QT_MINOR%%QT_PATCH% | Out-File -encoding ASCII %WORKDIR%\qtinstaller_controlscript.qs"
 powershell -Command "Invoke-WebRequest https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe -OutFile %WORKDIR%\qtinstaller.exe"
 %WORKDIR%\qtinstaller.exe --script %WORKDIR%\qtinstaller_controlscript.qs
@@ -106,7 +106,7 @@ echo Installing Boost...
 set BOOST_MAJOR=1
 set BOOST_MINOR=69
 set BOOST_PATCH=0
-powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
 powershell -Command "Invoke-WebRequest https://boost.teeks99.com/bin/%BOOST_MAJOR%.%BOOST_MINOR%.%BOOST_PATCH%/boost_%BOOST_MAJOR%_%BOOST_MINOR%_%BOOST_PATCH%-msvc-14.1-64.exe -OutFile %WORKDIR%\boostinstaller.exe"
 %WORKDIR%\boostinstaller.exe /NORESTART /VERYSILENT /DIR=C:\boost
 call %WORKDIR%\wait_process_to_end.bat "boostinstaller.exe"
@@ -126,8 +126,8 @@ echo Installing Assimp...
 set ASSIMP_MAJOR=4
 set ASSIMP_MINOR=1
 set ASSIMP_PATCH=0
-powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/wait_process_to_start.bat -OutFile %WORKDIR%\wait_process_to_start.bat"
-powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_start.bat -OutFile %WORKDIR%\wait_process_to_start.bat"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
 powershell -Command "Invoke-WebRequest https://github.com/assimp/assimp/releases/download/v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%/assimp-sdk-%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%-setup.exe -OutFile %WORKDIR%\assimpinstaller.exe"
 %WORKDIR%\assimpinstaller.exe /NORESTART /VERYSILENT /DIR=C:\assimp
 call %WORKDIR%\wait_process_to_start.bat "vc_redist.x64.exe"
@@ -143,7 +143,7 @@ echo Installing CGAL...
 set CGAL_MAJOR=5
 set CGAL_MINOR=0
 set CGAL_PATCH=2
-powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
 powershell -Command "Invoke-WebRequest https://github.com/CGAL/cgal/releases/download/releases/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%-Setup.exe -OutFile %WORKDIR%\cgalinstaller.exe"
 %WORKDIR%\cgalinstaller.exe /S /D=C:\CGAL
 call %WORKDIR%\wait_process_to_end.bat "cgalinstaller.exe"
@@ -157,7 +157,7 @@ echo Installing OpenCascade...
 set OCC_MAJOR=7
 set OCC_MINOR=4
 set OCC_PATCH=0
-powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat -OutFile %WORKDIR%\wait_process_to_end.bat"
 powershell -Command "Invoke-WebRequest http://transfer.sofa-framework.org/opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%-vc14-64.exe -OutFile %WORKDIR%\occinstaller.exe"
 %WORKDIR%\occinstaller.exe /NORESTART /VERYSILENT /DIR=C:\OpenCascade
 call %WORKDIR%\wait_process_to_end.bat "occinstaller.exe"

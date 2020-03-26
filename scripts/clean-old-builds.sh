@@ -111,4 +111,12 @@ for dir in *; do
     fi
 done
 
+# Clean Docker
+if [ -x "$(command -v docker)" ]; then
+    echo ""
+    echo "Cleaning Docker containers and images..."
+    docker container prune --force || true
+    docker image prune --force || true
+fi
+
 
