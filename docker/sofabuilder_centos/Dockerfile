@@ -68,8 +68,8 @@ ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Install Boost
 RUN yum install -y -q boost169-devel
-RUN ln -s -f "/usr/include/boost169/boost" "/usr/include/boost" || true
-RUN ln -s -f "/usr/lib64/boost169" "/usr/lib64/boost" || true
+RUN ln -s -f "boost169/boost" "/usr/include/boost" || true
+RUN ln -s -f "boost169" "/usr/lib64/boost" || true
 ENV BOOST_INCLUDEDIR="/usr/include"
 ENV BOOST_LIBRARYDIR="/usr/lib64/boost"
 ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
