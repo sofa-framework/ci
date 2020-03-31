@@ -160,7 +160,7 @@ if vm-is-windows; then
 else
     qt_compiler="${COMPILER%-*}" # gcc-4.8 -> gcc
 fi
-if [[ "$ARCHITECTURE" == "amd64" ]]; then
+if [[ "$ARCHITECTURE" != "x86" ]]; then
     qt_compiler="${qt_compiler}_64"
 fi
 if [[ "$VM_HAS_REQUIRED_LIBS" != "true" ]]; then
