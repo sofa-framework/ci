@@ -1,0 +1,20 @@
+#!/bin/bash
+
+
+export VM_HAS_REQUIRED_LIBS="true"
+
+export VM_HAS_BULLET="false"
+
+export VM_HAS_ASSIMP="true"
+
+export VM_HAS_CGAL="true"
+
+export VM_HAS_CUDA="false"
+
+export VM_HAS_OPENCASCADE="true"
+
+
+export VM_MAKE_OPTIONS="-j6"
+
+export PATH="/usr/local/opt/ccache/libexec:/usr/local/opt/qt/bin:/usr/local/bin:/usr/local/lib:$PATH"
+
