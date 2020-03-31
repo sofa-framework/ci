@@ -115,7 +115,7 @@ done
 if [ -x "$(command -v docker)" ]; then
     echo ""
     echo "Cleaning Docker containers and images..."
-    docker system prune -a || true
+    docker system prune -a -f || true
 fi
 
 
