@@ -17,7 +17,7 @@ export VM_HAS_OPENCASCADE="true"
 export VM_QT_PATH="/Users/ci/Qt/5.12.6"
 
 
-export VM_MAKE_OPTIONS="-j6"
+export VM_MAKE_OPTIONS="-j2"
 
 export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:/usr/local/opt/coreutils/libexec/gnubin:/usr/local/opt/ccache/libexec:/usr/local/bin:/usr/local/lib:$PATH"
 
