@@ -116,7 +116,7 @@ elif vm-is-macos; then
     echo "AppleClang version: $(clang --version | grep -o clang-[^\)]*)"
     echo "AppleClang install dir: $(clang --version | grep InstalledDir)"
 
-    echo "AppleClang/Clang correspondance: https://en.wikipedia.org/wiki/Xcode#Xcode_7.0_-_11.x_(since_Free_On-Device_Development)"
+    echo "AppleClang/Clang correspondance: https://en.wikipedia.org/wiki/Xcode#Xcode_7.0_-_11.x_%28since_Free_On-Device_Development%29"
     echo "Example: AppleClang 1001.0.46.3 is based on Clang 7.0.0"
 
     if [ -x "$(command -v xcodebuild)" ]; then
