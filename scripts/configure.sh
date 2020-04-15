@@ -75,22 +75,6 @@ if vm-is-windows && [ ! -d "$SRC_DIR/lib" ]; then
     )
 fi
 
-# Choose between incremental build and full build
-full_build=""
-if in-array "force-full-build" "$BUILD_OPTIONS"; then
-    full_build="Full build forced."
-elif [ ! -e "$BUILD_DIR/CMakeCache.txt" ]; then
-    full_build="No previous build detected."
-fi
-
-rm -f "$BUILD_DIR/full-build"
-if [ -n "$full_build" ]; then
-    echo "true" > "$BUILD_DIR/full-build"
-    echo "Starting a full build. ($full_build)"
-else
-    echo "Starting an incremental build"
-fi
-
 
 
 #################
