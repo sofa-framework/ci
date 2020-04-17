@@ -11,7 +11,7 @@ last-edit() {
 
     # check last build date
     now_epoch="$(date +%s)"
-    if vm-is-macos; then
+    if vm-is-macos && stat -f "%Sm" $check_dir; then
         lastedit_date="$(stat -f "%Sm" $check_dir)"
         lastedit_epoch="$(stat -f "%m" $check_dir)"
     else
