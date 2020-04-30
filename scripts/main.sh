@@ -79,18 +79,19 @@ else
 fi
 
 
-# CI environment variables + init
-github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
-dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+if [ -n "$CI_GITHUB_NOTIFY" ] && [ -n "$CI_DASHBOARD_NOTIFY" ]; then
+    # CI environment variables + init
+    github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
+    dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
 
-save-env-vars "GITHUB" "$BUILD_DIR"
-save-env-vars "DASH" "$BUILD_DIR"
+    save-env-vars "GITHUB" "$BUILD_DIR"
+    save-env-vars "DASH" "$BUILD_DIR"
 
-# dashboard-init # Ensure Dashboard line is OK
+    # dashboard-init # Ensure Dashboard line is OK
 
-github-notify "pending" "Building..."
-dashboard-notify "status=build"
-
+    github-notify "pending" "Building..."
+    dashboard-notify "status=build"
+fi
 
 # Moving to src dir
 cd "$SRC_DIR"
