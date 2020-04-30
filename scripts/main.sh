@@ -35,16 +35,30 @@ fi
 
 
 # Clean build dir
-if in-array "force-full-build" "$BUILD_OPTIONS"; then
-    echo "Force full build ON - cleaning build dir."
-    rm -rf "$BUILD_DIR" || exit 1  # build dir cannot be deleted for some reason on a Windows VM, to be fixed.
-    mkdir "$BUILD_DIR"
-fi
 rm -f "$BUILD_DIR/make-output*.txt"
+rm -f "$BUILD_DIR/full-build"
 rm -rf "$BUILD_DIR/unit-tests" "$BUILD_DIR/scene-tests" "$BUILD_DIR/*.status"
 rm -rf "$BUILD_DIR/bin" "$BUILD_DIR/lib" "$BUILD_DIR/install" "$BUILD_DIR/external_directories"
 rm -rf "$BUILD_DIR/_CPack_Packages" "$BUILD_DIR/CPackConfig.cmake"
 rm -f "$BUILD_DIR/SOFA_*.exe" "$BUILD_DIR/SOFA_*.run" "$BUILD_DIR/SOFA_*.dmg" "$BUILD_DIR/SOFA_*.zip"
+
+# Choose between incremental build and full build
+full_build=""
+if in-array "force-full-build" "$BUILD_OPTIONS"; then
+    full_build="Full build forced."
+    echo "Force full build ON - cleaning build dir."
+    rm -rf "$BUILD_DIR" || exit 1  # build dir cannot be deleted for some reason on a Windows VM, to be fixed.
+    mkdir "$BUILD_DIR"
+elif [ ! -e "$BUILD_DIR/CMakeCache.txt" ]; then
+    full_build="No previous build detected."
+    export DASH_FULLBUILD="true" # Force Dashboard fullbuild param
+fi
+if [ -n "$full_build" ]; then
+    echo "true" > "$BUILD_DIR/full-build"
+    echo "Starting a full build. ($full_build)"
+else
+    echo "Starting an incremental build"
+fi
 
 
 # If not in Docker: set VM environment variables
@@ -112,6 +126,19 @@ if vm-is-windows; then
     else
         echo "Visual Studio $(get-msvc-year "$COMPILER")"
     fi
+elif vm-is-macos; then
+    echo "AppleClang version: $(clang --version | grep -o clang-[^\)]*)"
+    echo "AppleClang install dir: $(clang --version | grep InstalledDir)"
+
+    echo "AppleClang/Clang correspondance: https://en.wikipedia.org/wiki/Xcode#Xcode_7.0_-_11.x_%28since_Free_On-Device_Development%29"
+    echo "Example: AppleClang 1001.0.46.3 is based on Clang 7.0.0"
+
+    if [ -x "$(command -v xcodebuild)" ]; then
+        echo "Xcode version: $(xcodebuild -version)"
+    fi
+    if [ -x "$(command -v xcode-select)" ]; then
+        echo "Xcode install dir: $(xcode-select -p)"
+    fi
 else
     echo "$(${COMPILER%-*} --version)" # gcc-5.8 -> gcc
 fi
@@ -171,8 +198,8 @@ if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB
    [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     echo "--------------------------------------------"
     echo "Merging $DASH_COMMIT_BRANCH with latest commit on $GITHUB_BASE_REF: $GITHUB_BASECOMMIT_HASH"
-    git config user.email "consortium@sofa-framework.org"
     git config user.name "SOFA Bot"
+    git config user.email "<>"
     git fetch --no-tags --progress "https://github.com/$GITHUB_REPOSITORY.git" "+refs/heads/$GITHUB_BASE_REF:refs/remotes/origin/$GITHUB_BASE_REF"
     git merge "$GITHUB_BASECOMMIT_HASH" > /dev/null || (git merge --abort; exit 1)
     git log -n 1 --pretty=short
@@ -209,7 +236,7 @@ github-notify "$github_status" "$github_message"
 
 
 # [Full build] Count Warnings
-if in-array "force-full-build" "$BUILD_OPTIONS" || [ -e "$BUILD_DIR/full-build" ]; then
+if [ -e "$BUILD_DIR/full-build" ]; then
     if vm-is-windows; then
         warning_count=$(grep 'warning [A-Z]\+[0-9]\+:' "$BUILD_DIR/make-output.txt" | sort | uniq | wc -l)
     else
@@ -364,6 +391,6 @@ else
     echo "disabled" > "$BUILD_DIR/regression-tests.status"
 fi
 
-if in-array "force-full-build" "$BUILD_OPTIONS"; then
+if [ -e "$BUILD_DIR/full-build" ]; then
     mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-fullbuild-$COMPILER.txt"
 fi

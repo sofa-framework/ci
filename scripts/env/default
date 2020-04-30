@@ -38,6 +38,7 @@
 #   Make: brew install cmake ninja ccache coreutils
 #   Qt: must be compiled
 #   Boost: brew install boost
+#   Eigen: brew install eigen
 #   Python: -
 #   Cython: python -m pip install cython
 #   Other: brew install glew libpng libjpeg libtiff metis curl suite-sparse openblas lapack
@@ -46,7 +47,7 @@
 #   Assimp: brew install assimp
 #   CGAL: brew install cgal --with-qt OR compile it (easy)
 #   CUDA: http://docs.nvidia.com/cuda/cuda-installation-guide-mac-os-x/index.html
-#   OpenCascade: brew install homebrew/science/opencascade
+#   OpenCascade: brew install opencascade
 
 
 ########

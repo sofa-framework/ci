@@ -35,7 +35,6 @@ python -m pip install numpy scipy
 REM Install plugins dependencies
 choco install -y cuda --version=10.2.89.20191206
 REM Bullet: source code to build: https://github.com/bulletphysics/bullet3/releases
-REM Pybind: source code to build: https://github.com/pybind/pybind11/releases
 
 
 REM Install clcache
@@ -93,7 +92,7 @@ REM setx /M QTDIR64 %QTDIR%
 REM setx /M Qt5_DIR %QTDIR%
 if not exist "%APPDATA%\Qt\" mkdir %APPDATA%\Qt
 powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qtaccount.ini -OutFile %APPDATA%\Qt\qtaccount.ini"
-powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qtinstaller_controlscript_template.qs -OutFile %WORKDIR%\qtinstaller_controlscript_template.qs"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qtinstaller_controlscript_template_windows.qs -OutFile %WORKDIR%\qtinstaller_controlscript_template.qs"
 powershell -Command "(gc %WORKDIR%\qtinstaller_controlscript_template.qs) -replace '_QTVERSION_', %QT_MAJOR%%QT_MINOR%%QT_PATCH% | Out-File -encoding ASCII %WORKDIR%\qtinstaller_controlscript.qs"
 powershell -Command "Invoke-WebRequest https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe -OutFile %WORKDIR%\qtinstaller.exe"
 %WORKDIR%\qtinstaller.exe --script %WORKDIR%\qtinstaller_controlscript.qs
@@ -114,8 +113,12 @@ call %WORKDIR%\wait_process_to_end.bat "boostinstaller.exe"
 
 
 REM Install Eigen
-if exist C:\eigen\eigen-3.3.7 goto :eigen_done
-powershell -Command "Invoke-WebRequest https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.zip -OutFile %WORKDIR%\eigen.zip"
+if exist C:\eigen goto :eigen_done
+echo Installing Eigen...
+set EIGEN_MAJOR=3
+set EIGEN_MINOR=3
+set EIGEN_PATCH=7
+powershell -Command "Invoke-WebRequest https://gitlab.com/libeigen/eigen/-/archive/%EIGEN_MAJOR%.%EIGEN_MINOR%.%EIGEN_PATCH%/eigen-%EIGEN_MAJOR%.%EIGEN_MINOR%.%EIGEN_PATCH%.zip -OutFile %WORKDIR%\eigen.zip"
 powershell Expand-Archive %WORKDIR%\eigen.zip -DestinationPath C:\eigen
 :eigen_done
 

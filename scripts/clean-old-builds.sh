@@ -11,7 +11,7 @@ last-edit() {
 
     # check last build date
     now_epoch="$(date +%s)"
-    if vm-is-macos; then
+    if vm-is-macos && stat -f "%Sm" $check_dir > /dev/null 2>&1; then
         lastedit_date="$(stat -f "%Sm" $check_dir)"
         lastedit_epoch="$(stat -f "%m" $check_dir)"
     else
@@ -115,8 +115,7 @@ done
 if [ -x "$(command -v docker)" ]; then
     echo ""
     echo "Cleaning Docker containers and images..."
-    docker container prune --force || true
-    docker image prune --force || true
+    docker system prune -a -f || true
 fi
 
 
