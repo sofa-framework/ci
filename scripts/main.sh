@@ -180,7 +180,11 @@ git config --system user.email '<>' > /dev/null 2>&1 || git config --global user
 
 # Jenkins: create link for Windows jobs (too long path problem)
 if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
-    export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
+    if [[ "$WORKSPACE" == *"/src" ]]; then
+        export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
+    else
+        export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
+    fi
     cmd //c "if exist J:\%EXECUTOR_NUMBER% rmdir /S /Q J:\%EXECUTOR_NUMBER%"
     cmd //c "mklink /D J:\%EXECUTOR_NUMBER% %WORKSPACE_PARENT_WINDOWS%"
     export EXECUTOR_LINK_WINDOWS="J:\\$EXECUTOR_NUMBER"
