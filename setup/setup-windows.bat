@@ -14,6 +14,7 @@ choco install -y jre8
 choco install -y notepadplusplus
 choco install -y vswhere
 Dism /online /Enable-Feature /FeatureName:"NetFx3" && choco install -y pathed
+choco install -y nsis
 REM choco install -y zip
 REM choco install -y unzip
 REM choco install -y curl
