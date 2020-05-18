@@ -79,7 +79,7 @@ else
 fi
 
 
-if [ -n "$CI_GITHUB_NOTIFY" ] && [ -n "$CI_DASHBOARD_NOTIFY" ]; then
+if [ -n "$CI_REPORT_TO_GITHUB" ] && [ -n "$CI_REPORT_TO_DASHBOARD" ]; then
     # CI environment variables + init
     github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
     dashboard-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
