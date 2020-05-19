@@ -21,7 +21,6 @@ RUN yum install -y -q \
 RUN yum install -y -q \
 	cmake3 \
     ninja-build \
-    devtoolset-6 \
     devtoolset-7 \
     llvm-toolset-7 \
     ccache
@@ -106,7 +105,7 @@ RUN yum install -y -q nvidia-kmod
 ENV PATH="/usr/local/cuda-10.2/bin:/usr/local/cuda-10.2/NsightCompute-2019.1${PATH:+:${PATH}}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 ENV VM_HAS_CUDA="true"
-ENV VM_CUDA_HOST_COMPILER="/opt/rh/devtoolset-6/root/usr/bin/gcc"
+ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
 ENV VM_CUDA_ARCH="sm_50"
 
 
