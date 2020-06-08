@@ -194,6 +194,10 @@ generator() {
     fi
 }
 
+count-processes() {
+    echo "$(ps -ef | grep -v grep | grep "$1" | wc -l)"
+}
+
 call-cmake() {
     build_dir="$(cd "$1" && pwd)"
     shift # Remove first arg

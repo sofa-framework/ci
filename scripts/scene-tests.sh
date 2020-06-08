@@ -24,12 +24,18 @@ usage() {
 
 if [ "$#" -ge 3 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    . "$SCRIPT_DIR"/utils.sh
+    
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
     output_dir="scene-tests"
 else
     usage; exit 1
+fi
+
+if [ -z "$MAX_PARALLEL_TESTS" ]; then
+    export MAX_PARALLEL_TESTS=2 # default
 fi
 
 cd "$build_dir"
@@ -363,14 +369,24 @@ initialize-scene-tests() {
 
 test-all-scenes() {
     echo "Scene testing in progress..."
+    local tested_scenes_count="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"
+    current_scene_count=0
     while read scene; do
-        echo "- $scene"
+        current_scene_count=$((current_scene_count+1))
         local iterations=$(cat "$output_dir/$scene/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
         local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
         local timeout=$(cat "$output_dir/$scene/timeout.txt")
         echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
-        "$SCRIPT_DIR/timeout.sh" runSofa "$runSofa_cmd" $timeout
+        local running_tests=$(count-processes runSofa)
+        if [ "$running_tests" -lt "$MAX_PARALLEL_TESTS" ] && [ "$current_scene_count" -lt "$tested_scenes_count" ]; then
+            local thread=$((running_tests + 1))
+            echo "- $scene (scene $current_scene_count/$tested_scenes_count ; thread $thread/$MAX_PARALLEL_TESTS)"
+            "$SCRIPT_DIR/timeout.sh" runSofa "$runSofa_cmd" $timeout &
+        else
+            echo "- $scene (scene $current_scene_count/$tested_scenes_count ; thread $MAX_PARALLEL_TESTS/$MAX_PARALLEL_TESTS)"
+            "$SCRIPT_DIR/timeout.sh" runSofa "$runSofa_cmd" $timeout
+        fi
         local status=-1
         if [[ -e runSofa.timeout ]]; then
             echo 'Timeout!'
