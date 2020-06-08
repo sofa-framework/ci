@@ -25,7 +25,7 @@ usage() {
 if [ "$#" -ge 3 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
-    
+
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
@@ -34,8 +34,8 @@ else
     usage; exit 1
 fi
 
-if [ -z "$MAX_PARALLEL_TESTS" ]; then
-    export MAX_PARALLEL_TESTS=2 # default
+if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
+    export VM_MAX_PARALLEL_TESTS=2 # default
 fi
 
 cd "$build_dir"
@@ -371,24 +371,24 @@ test-all-scenes() {
     echo "Scene testing in progress..."
     local tested_scenes_count="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"
     current_scene_count=0
-    while read scene; do        
+    while read scene; do
         current_scene_count=$((current_scene_count+1))
         local iterations=$(cat "$output_dir/$scene/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
         local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
         local timeout=$(cat "$output_dir/$scene/timeout.txt")
         echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
-        
+
         running_tests=$(count-processes runSofa)
-        while [ "$running_tests" -gt "$MAX_PARALLEL_TESTS" ]; do
+        while [ "$running_tests" -ge "$VM_MAX_PARALLEL_TESTS" ]; do
             # wait for a running test to finish
             sleep 1
             running_tests=$(count-processes runSofa)
         done
         local thread=$((running_tests + 1))
-        echo "- $scene (scene $current_scene_count/$tested_scenes_count ; thread $thread/$MAX_PARALLEL_TESTS)"        
+        echo "- $scene (scene $current_scene_count/$tested_scenes_count ; thread $thread/$VM_MAX_PARALLEL_TESTS)"
         (
-            "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout        
+            "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout
             if [[ -e "$output_dir/$scene/runSofa.timeout" ]]; then
                 echo 'Timeout!'
                 echo timeout > "$output_dir/$scene/status.txt"
@@ -400,7 +400,7 @@ test-all-scenes() {
             rm -f "$output_dir/$scene/runSofa.exit_code"
         ) &
     done < "$output_dir/all-tested-scenes.txt"
-    
+
     running_tests=$(count-processes runSofa)
     while [ "$running_tests" -gt 0 ]; do
         # wait for all running tests to finish
