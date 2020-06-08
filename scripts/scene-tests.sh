@@ -371,33 +371,43 @@ test-all-scenes() {
     echo "Scene testing in progress..."
     local tested_scenes_count="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"
     current_scene_count=0
-    while read scene; do
+    while read scene; do        
         current_scene_count=$((current_scene_count+1))
         local iterations=$(cat "$output_dir/$scene/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
         local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
         local timeout=$(cat "$output_dir/$scene/timeout.txt")
         echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
-        local running_tests=$(count-processes runSofa)
-        if [ "$running_tests" -lt "$MAX_PARALLEL_TESTS" ] && [ "$current_scene_count" -lt "$tested_scenes_count" ]; then
-            local thread=$((running_tests + 1))
-            echo "- $scene (scene $current_scene_count/$tested_scenes_count ; thread $thread/$MAX_PARALLEL_TESTS)"
-            "$SCRIPT_DIR/timeout.sh" runSofa "$runSofa_cmd" $timeout &
-        else
-            echo "- $scene (scene $current_scene_count/$tested_scenes_count ; thread $MAX_PARALLEL_TESTS/$MAX_PARALLEL_TESTS)"
-            "$SCRIPT_DIR/timeout.sh" runSofa "$runSofa_cmd" $timeout
-        fi
-        local status=-1
-        if [[ -e runSofa.timeout ]]; then
-            echo 'Timeout!'
-            echo timeout > "$output_dir/$scene/status.txt"
-            echo -e "\n\nINFO: Abort caused by timeout.\n" >> "$output_dir/$scene/output.txt"
-            rm -f runSofa.timeout
-        else
-            cat runSofa.exit_code > "$output_dir/$scene/status.txt"
-        fi
-        rm -f runSofa.exit_code
+        
+        running_tests=$(count-processes runSofa)
+        while [ "$running_tests" -gt "$MAX_PARALLEL_TESTS" ]; do
+            # wait for a running test to finish
+            sleep 1
+            running_tests=$(count-processes runSofa)
+        done
+        local thread=$((running_tests + 1))
+        echo "- $scene (scene $current_scene_count/$tested_scenes_count ; thread $thread/$MAX_PARALLEL_TESTS)"        
+        (
+            "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout        
+            if [[ -e "$output_dir/$scene/runSofa.timeout" ]]; then
+                echo 'Timeout!'
+                echo timeout > "$output_dir/$scene/status.txt"
+                echo -e "\n\nINFO: Abort caused by timeout.\n" >> "$output_dir/$scene/output.txt"
+                rm -f "$output_dir/$scene/runSofa.timeout"
+            else
+                cat "$output_dir/$scene/runSofa.exit_code" > "$output_dir/$scene/status.txt"
+            fi
+            rm -f "$output_dir/$scene/runSofa.exit_code"
+        ) &
     done < "$output_dir/all-tested-scenes.txt"
+    
+    running_tests=$(count-processes runSofa)
+    while [ "$running_tests" -gt 0 ]; do
+        # wait for all running tests to finish
+        sleep 1
+        running_tests=$(count-processes runSofa)
+    done
+    sleep 5 # make sure last timeout and exit_code files are set
     echo "Done."
 }
 
