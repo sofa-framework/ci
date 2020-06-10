@@ -28,10 +28,6 @@ else
     usage; exit 1
 fi
 
-if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
-    export VM_MAX_PARALLEL_TESTS=2 # default
-fi
-
 cd "$build_dir"
 
 if [[ ! -d "$build_dir/lib/" ]]; then

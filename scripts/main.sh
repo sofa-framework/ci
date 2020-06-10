@@ -77,6 +77,13 @@ if [[ "$HOME" != "/root" ]]; then
 else
     export VM_HAS_REQUIRED_LIBS="true" # assume deps are OK
 fi
+if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
+    if [ -x "$(command -v nproc)" ]; then
+        export VM_MAX_PARALLEL_TESTS=$(nproc)
+    else
+        export VM_MAX_PARALLEL_TESTS=2
+    fi
+fi
 
 
 if [ -n "$CI_REPORT_TO_GITHUB" ] && [ -n "$CI_REPORT_TO_DASHBOARD" ]; then
