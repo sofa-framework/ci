@@ -369,8 +369,7 @@ initialize-scene-tests() {
 
 do-test-all-scenes() {
     local tested_scenes="$1"
-    local thread="$2"
-    local thread_num=$((thread+1)) # humans start counting at 1
+    local thread_num="$2"
     local tested_scenes_count="$(cat "$tested_scenes" | wc -l)"
     current_scene_count=0
     while read scene; do
@@ -400,16 +399,18 @@ test-all-scenes() {
     local total_lines="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"
     local lines_per_thread=$((total_lines/VM_MAX_PARALLEL_TESTS+1))
     split -l $lines_per_thread "$output_dir/all-tested-scenes.txt" "$output_dir/all-tested-scenes_part-"
-    thread=-1
+    thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
-        thread=$((thread+1))
-        do-test-all-scenes "$file" "$thread" &
+        do-test-all-scenes "$file" "$((thread+1))" &
         pids[${thread}]=$!
+        thread=$((thread+1))
     done
     # wait for all pids
-    for i in {$thread..0}; do
-        echo "Waiting for thread $((i+1)) (PID ${pid[$i]}) to finish."
-        wait ${pid[$i]}
+    thread=0
+    for file in "$output_dir/all-tested-scenes_part-"*; do
+        echo "Waiting for thread $((thread+1)) (PID ${pids[$thread]}) to finish."
+        wait ${pids[$thread]}
+        thread=$((thread+1))
     done
     echo "Done."
 }
