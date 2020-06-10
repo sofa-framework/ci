@@ -408,8 +408,9 @@ test-all-scenes() {
     # wait for all pids
     thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
-        echo "Waiting for thread $((thread+1)) (PID ${pids[$thread]}) to finish."
+        echo "Waiting for thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
         wait ${pids[$thread]}
+        echo "Thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
         thread=$((thread+1))
     done
     echo "Done."
