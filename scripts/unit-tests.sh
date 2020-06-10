@@ -200,12 +200,34 @@ run-single-test() {
     fi
 }
 
-run-all-tests() {
+do-run-all-tests() {
+    local file="$1"
     while read test; do
         run-single-test "$test"
-    done < "$output_dir/$test_type.txt"
+    done < "$file"
 }
-
+    
+run-all-tests() {
+    echo "Unit testing in progress..."
+    local total_lines="$(cat "$output_dir/${test_type}.txt" | wc -l)"
+    local lines_per_thread=$((total_lines/VM_MAX_PARALLEL_TESTS+1))
+    split -l $lines_per_thread "$output_dir/${test_type}.txt" "$output_dir/${test_type}_part-"
+    thread=0
+    for file in "$output_dir/${test_type}_part-"*; do
+        do-run-all-tests "$file" &
+        pids[${thread}]=$!
+        thread=$((thread+1))
+    done
+    # wait for all pids
+    thread=0
+    for file in "$output_dir/${test_type}_part-"*; do
+        echo "Waiting for thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
+        wait ${pids[$thread]}
+        echo "Thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
+        thread=$((thread+1))
+    done
+    echo "Done."
+}
 
 count-test-suites() {
     list-tests | wc -w | tr -d ' '
