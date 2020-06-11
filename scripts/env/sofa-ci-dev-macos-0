@@ -16,6 +16,8 @@ export VM_HAS_OPENCASCADE="true"
 
 export VM_MAKE_OPTIONS="-j6"
 
+export VM_MAX_PARALLEL_TESTS="6"
+
 export PATH="\
 /usr/local/opt/gnu-sed/libexec/gnubin:\
 /usr/local/opt/coreutils/libexec/gnubin:\

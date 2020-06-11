@@ -19,6 +19,8 @@ export VM_QT_PATH="/Users/ci/Qt/5.12.6"
 
 export VM_MAKE_OPTIONS="-j2"
 
+export VM_MAX_PARALLEL_TESTS="6"
+
 export PATH="\
 /usr/local/opt/gnu-sed/libexec/gnubin:\
 /usr/local/opt/coreutils/libexec/gnubin:\

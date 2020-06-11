@@ -129,11 +129,24 @@ else
 
     # Cache
     if [ -x "$(command -v ccache)" ]; then
+        if [ -n "$WORKSPACE" ]; then
+            # Useful for docker builds, set CCACHE_DIR at root of mounted volume
+            # WARNING: this is dirty, it relies on "docker run" mount parameter "-v" in Jenkins job configuration
+            workspace_root="$(echo "$WORKSPACE" | sed 's#/workspace/.*#/workspace#g')"
+            export CCACHE_DIR="$workspace_root/.ccache"
+        fi
         export CCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd)"
         export CCACHE_MAXSIZE="12G"
         # export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
         export CC="ccache $c_compiler -Qunused-arguments -Wno-deprecated-declarations"
         export CXX="ccache $cxx_compiler -Qunused-arguments -Wno-deprecated-declarations"
+        echo "----- ccache enabled -----"
+        echo "CCACHE_DIR = $CCACHE_DIR"
+        echo "CCACHE_BASEDIR = $CCACHE_BASEDIR"
+        echo "CCACHE_MAXSIZE = $CCACHE_MAXSIZE"
+        echo "CC = $CC"
+        echo "CXX = $CXX"
+        echo "--------------------------"
     fi
 fi
 
@@ -176,6 +189,29 @@ if vm-is-macos; then
         add-cmake-option "-DPYTHON_LIBRARY=$python_path/lib/libpython2.7.dylib"
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
     fi
+fi
+if [ -n "$VM_ASSIMP_PATH" ]; then
+    add-cmake-option "-DASSIMP_ROOT_DIR=$VM_ASSIMP_PATH"
+fi
+if [ -d "$VM_BULLET_PATH" ]; then
+    add-cmake-option "-DBULLET_ROOT=$VM_BULLET_PATH"
+fi
+if [ -d "$VM_CGAL_PATH" ]; then
+    if vm-is-centos; then
+        # Disable CGAL build test (see FindCGAL.cmake)
+        add-cmake-option "-DCGAL_TEST_RUNS=TRUE"
+    fi
+    add-cmake-option "-DCGAL_DIR=$VM_CGAL_PATH"
+fi
+if [ -n "$VM_OPENCASCADE_PATH" ]; then
+    add-cmake-option "-DSOFA_OPENCASCADE_ROOT=$VM_OPENCASCADE_PATH" # Needed by MeshSTEPLoader/FindOpenCascade.cmake
+fi
+if [ -n "$VM_CUDA_ARCH" ]; then
+    add-cmake-option "-DSOFACUDA_ARCH=$VM_CUDA_ARCH"
+fi
+if [ -n "$VM_CUDA_HOST_COMPILER" ]; then
+    add-cmake-option "-DCMAKE_CUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
+    add-cmake-option "-DCUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
 fi
 
 # Options common to all configurations
@@ -270,29 +306,16 @@ else # This is not a "package" build
         ### Plugins
         add-cmake-option "-DPLUGIN_ARTRACK=ON"
         if [[ "$VM_HAS_BULLET" == "true" ]]; then
-            if [ -d "$VM_BULLET_PATH" ]; then
-                add-cmake-option "-DBULLET_ROOT=$VM_BULLET_PATH"
-            fi
             add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
         else
             add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
         fi
         if [[ "$VM_HAS_CGAL" == "true" ]]; then
-            if [ -d "$VM_CGAL_PATH" ]; then
-                if vm-is-centos; then
-                    # Disable CGAL build test (see FindCGAL.cmake)
-                    add-cmake-option "-DCGAL_TEST_RUNS=TRUE"
-                fi
-                add-cmake-option "-DCGAL_DIR=$VM_CGAL_PATH"
-            fi
             add-cmake-option "-DPLUGIN_CGALPLUGIN=ON"
         else
             add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF"
         fi
         if [[ "$VM_HAS_ASSIMP" == "true" ]]; then
-            if [ -n "$VM_ASSIMP_PATH" ]; then
-                add-cmake-option "-DASSIMP_ROOT_DIR=$VM_ASSIMP_PATH"
-            fi
             # INFO: ColladaSceneLoader contains assimp for Windows
             add-cmake-option "-DPLUGIN_COLLADASCENELOADER=ON"
             add-cmake-option "-DPLUGIN_SOFAASSIMP=ON"
@@ -309,9 +332,6 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
         add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
         if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
-            if [ -n "$VM_OPENCASCADE_PATH" ]; then
-                add-cmake-option "-DSOFA_OPENCASCADE_ROOT=$VM_OPENCASCADE_PATH" # Needed by MeshSTEPLoader/FindOpenCascade.cmake
-            fi
             add-cmake-option "-DPLUGIN_MESHSTEPLOADER=ON"
         else
             add-cmake-option "-DPLUGIN_MESHSTEPLOADER=OFF"
@@ -323,13 +343,6 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
         add-cmake-option "-DPLUGIN_SOFACARVING=ON"
         if [[ "$VM_HAS_CUDA" == "true" ]]; then
-            if [ -n "$VM_CUDA_ARCH" ]; then
-                add-cmake-option "-DSOFACUDA_ARCH=$VM_CUDA_ARCH"
-            fi
-            if [ -n "$VM_CUDA_HOST_COMPILER" ]; then
-                add-cmake-option "-DCMAKE_CUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
-                add-cmake-option "-DCUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
-            fi
             add-cmake-option "-DPLUGIN_SOFACUDA=ON"
         else
             add-cmake-option "-DPLUGIN_SOFACUDA=OFF"

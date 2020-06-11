@@ -24,6 +24,8 @@ usage() {
 
 if [ "$#" -ge 3 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    . "$SCRIPT_DIR"/utils.sh
+
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
@@ -361,27 +363,55 @@ initialize-scene-tests() {
     parse-options-files
 }
 
-test-all-scenes() {
-    echo "Scene testing in progress..."
+do-test-all-scenes() {
+    local tested_scenes="$1"
+    local thread_num="$2"
+    local tested_scenes_count="$(cat "$tested_scenes" | wc -l)"
+    current_scene_count=0
     while read scene; do
-        echo "- $scene"
+        current_scene_count=$((current_scene_count+1))
         local iterations=$(cat "$output_dir/$scene/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
         local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
         local timeout=$(cat "$output_dir/$scene/timeout.txt")
         echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
-        "$SCRIPT_DIR/timeout.sh" runSofa "$runSofa_cmd" $timeout
-        local status=-1
-        if [[ -e runSofa.timeout ]]; then
+
+        echo "- $scene (thread $thread_num/$VM_MAX_PARALLEL_TESTS ; scene $current_scene_count/$tested_scenes_count)"
+        "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout
+        if [[ -e "$output_dir/$scene/runSofa.timeout" ]]; then
             echo 'Timeout!'
             echo timeout > "$output_dir/$scene/status.txt"
             echo -e "\n\nINFO: Abort caused by timeout.\n" >> "$output_dir/$scene/output.txt"
-            rm -f runSofa.timeout
+            rm -f "$output_dir/$scene/runSofa.timeout"
         else
-            cat runSofa.exit_code > "$output_dir/$scene/status.txt"
+            cat "$output_dir/$scene/runSofa.exit_code" > "$output_dir/$scene/status.txt"
         fi
-        rm -f runSofa.exit_code
-    done < "$output_dir/all-tested-scenes.txt"
+        rm -f "$output_dir/$scene/runSofa.exit_code"
+    done < "$tested_scenes"
+}
+
+test-all-scenes() {
+    echo "Scene testing in progress..."
+    if [ -x "$(command -v shuf)" ]; then
+        echo "$(shuf $output_dir/all-tested-scenes.txt)" > "$output_dir/all-tested-scenes.txt"
+    fi
+    local total_lines="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"
+    local lines_per_thread=$((total_lines/VM_MAX_PARALLEL_TESTS+1))
+    split -l $lines_per_thread "$output_dir/all-tested-scenes.txt" "$output_dir/all-tested-scenes_part-"
+    thread=0
+    for file in "$output_dir/all-tested-scenes_part-"*; do
+        do-test-all-scenes "$file" "$((thread+1))" &
+        pids[${thread}]=$!
+        thread=$((thread+1))
+    done
+    # wait for all pids
+    thread=0
+    for file in "$output_dir/all-tested-scenes_part-"*; do
+        echo "Waiting for thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
+        wait ${pids[$thread]}
+        echo "Thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
+        thread=$((thread+1))
+    done
     echo "Done."
 }
 
