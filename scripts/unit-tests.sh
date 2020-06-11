@@ -209,6 +209,9 @@ do-run-all-tests() {
     
 run-all-tests() {
     echo "Unit testing in progress..."
+    if [ -x "$(command -v shuf)" ]; then
+        echo "$(shuf $output_dir/${test_type}.txt)" > "$output_dir/${test_type}.txt"
+    fi
     local total_lines="$(cat "$output_dir/${test_type}.txt" | wc -l)"
     local lines_per_thread=$((total_lines/VM_MAX_PARALLEL_TESTS+1))
     split -l $lines_per_thread "$output_dir/${test_type}.txt" "$output_dir/${test_type}_part-"
