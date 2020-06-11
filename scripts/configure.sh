@@ -129,6 +129,12 @@ else
 
     # Cache
     if [ -x "$(command -v ccache)" ]; then
+        if [ -n "$WORKSPACE" ]; then
+            # Useful for docker builds, set CCACHE_DIR at root of mounted volume
+            # WARNING: this is dirty, it relies on "docker run" mount parameter "-v" in Jenkins job configuration
+            workspace_root="$(echo "$WORKSPACE" | sed 's#/workspace/.*#/workspace#g')"
+            export CCACHE_DIR="$workspace_root/.ccache"
+        fi
         export CCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd)"
         export CCACHE_MAXSIZE="12G"
         # export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
