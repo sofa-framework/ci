@@ -61,27 +61,16 @@ else
 fi
 
 
-# If not in Docker: set VM environment variables
-if [[ "$HOME" != "/root" ]]; then
-    echo "ENV VARS: load $SCRIPT_DIR/env/default"
-    . "$SCRIPT_DIR/env/default"
-    if [ -n "$NODE_NAME" ]; then
-        if [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
-            echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"
-            . "$SCRIPT_DIR/env/$NODE_NAME"
-        else
-            echo "ERROR: No config file found for node $NODE_NAME."
-            exit 1
-        fi
-    fi
-else
-    export VM_HAS_REQUIRED_LIBS="true" # assume deps are OK
-fi
-if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
-    if [ -x "$(command -v nproc)" ]; then
-        export VM_MAX_PARALLEL_TESTS=$(nproc)
+# Set VM environment variables
+echo "ENV VARS: load $SCRIPT_DIR/env/default"
+. "$SCRIPT_DIR/env/default"
+if [ -n "$NODE_NAME" ]; then
+    if [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
+        echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"
+        . "$SCRIPT_DIR/env/$NODE_NAME"
     else
-        export VM_MAX_PARALLEL_TESTS=2
+        echo "ERROR: No config file found for node $NODE_NAME."
+        exit 1
     fi
 fi
 
