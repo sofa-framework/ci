@@ -80,3 +80,10 @@ export VM_QT_PATH=""
 export VM_PYTHON_PATH=""
 
 export VM_BULLET_PATH=""
+
+
+########
+# MISC #
+########
+
+export VM_MAX_PARALLEL_TESTS=2

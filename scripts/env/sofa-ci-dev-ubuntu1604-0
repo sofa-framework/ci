@@ -3,22 +3,26 @@
 
 export VM_HAS_REQUIRED_LIBS="true"
 
-export VM_HAS_BULLET="false"
+if [ ! -f /.dockerenv ]; then # not in Docker
+    export VM_HAS_BULLET="false"
 
-export VM_HAS_ASSIMP="true"
+    export VM_HAS_ASSIMP="true"
 
-export VM_HAS_CGAL="true"
+    export VM_HAS_CGAL="true"
 
-export VM_HAS_CUDA="true"
+    export VM_HAS_CUDA="true"
 
-export VM_HAS_OPENCASCADE="false"
+    export VM_HAS_OPENCASCADE="false"
 
 
-export VM_MAKE_OPTIONS="-j6"
+    export VM_MAKE_OPTIONS="-j6"
 
-export VM_CUDA_ARCH="sm_50"
+    export VM_CUDA_ARCH="sm_50"
 
-export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
+    export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
 
-# Load Qt environment
-source /opt/qt512/bin/qt512-env.sh || true
+    # Load Qt environment
+    source /opt/qt512/bin/qt512-env.sh || true
+fi
+
+export VM_MAX_PARALLEL_TESTS=$(nproc)
