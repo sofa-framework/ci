@@ -140,6 +140,13 @@ else
         # export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
         export CC="ccache $c_compiler -Qunused-arguments -Wno-deprecated-declarations"
         export CXX="ccache $cxx_compiler -Qunused-arguments -Wno-deprecated-declarations"
+        echo "----- ccache enabled -----"
+        echo "CCACHE_DIR = $CCACHE_DIR"
+        echo "CCACHE_BASEDIR = $CCACHE_BASEDIR"
+        echo "CCACHE_MAXSIZE = $CCACHE_MAXSIZE"
+        echo "CC = $CC"
+        echo "CXX = $CXX"
+        echo "--------------------------"
     fi
 fi
 
