@@ -79,7 +79,7 @@ else
 fi
 if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
     if [ -x "$(command -v nproc)" ]; then
-        export VM_MAX_PARALLEL_TESTS=$(nproc)
+        export VM_MAX_PARALLEL_TESTS=$(($(nproc)/2))
     else
         export VM_MAX_PARALLEL_TESTS=2
     fi
