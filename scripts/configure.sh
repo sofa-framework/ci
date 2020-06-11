@@ -138,8 +138,10 @@ else
         export CCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd)"
         export CCACHE_MAXSIZE="12G"
         # export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
-        export CC="ccache $c_compiler -Qunused-arguments -Wno-deprecated-declarations"
-        export CXX="ccache $cxx_compiler -Qunused-arguments -Wno-deprecated-declarations"
+        # export CC="ccache $c_compiler -Qunused-arguments -Wno-deprecated-declarations"
+        # export CXX="ccache $cxx_compiler -Qunused-arguments -Wno-deprecated-declarations"
+        add-cmake-option "-DCMAKE_C_COMPILER_LAUNCHER=ccache"
+        add-cmake-option "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache"
         echo "----- ccache enabled -----"
         echo "CCACHE_DIR = $CCACHE_DIR"
         echo "CCACHE_BASEDIR = $CCACHE_BASEDIR"
