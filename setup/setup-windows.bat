@@ -7,6 +7,7 @@ mkdir %WORKDIR%
 REM Install Chocolatey (will also install refreshenv command)
 powershell -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 set AddToUserPATH=%ALLUSERSPROFILE%\chocolatey\bin
+call refreshenv && echo OK
 
 
 REM Install CI specific dependencies

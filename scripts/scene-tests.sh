@@ -570,6 +570,12 @@ print-summary() {
 
 if [[ "$command" = run ]]; then
     initialize-scene-tests
+    if [ ! -d "$build_dir/config" ]; then
+        mkdir "$build_dir/config"
+    fi
+    if [ ! -d "$build_dir/screenshots" ]; then
+        mkdir "$build_dir/screenshots"
+    fi
     if ! grep -q "SOFA_WITH_DEPRECATED_COMPONENTS:BOOL=ON" "$build_dir/CMakeCache.txt" &&
        grep -q "APPLICATION_GETDEPRECATEDCOMPONENTS:BOOL=ON" "$build_dir/CMakeCache.txt"; then
         ignore-scenes-with-deprecated-components
