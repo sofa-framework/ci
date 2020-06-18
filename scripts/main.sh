@@ -35,12 +35,15 @@ fi
 
 
 # Clean build dir
-rm -f  $BUILD_DIR/make-output*.txt
-rm -f  $BUILD_DIR/full-build
-rm -rf $BUILD_DIR/unit-tests $BUILD_DIR/scene-tests $BUILD_DIR/*.status
+rm -f  $BUILD_DIR/make-output*.txt $BUILD_DIR/build-result $BUILD_DIR/full-build
+rm -rf $BUILD_DIR/unit-tests* $BUILD_DIR/scene-tests* $BUILD_DIR/regression-tests*
 rm -rf $BUILD_DIR/bin $BUILD_DIR/lib $BUILD_DIR/install $BUILD_DIR/external_directories
 rm -rf $BUILD_DIR/_CPack_Packages $BUILD_DIR/CPackConfig.cmake
 rm -f  $BUILD_DIR/SOFA_*.exe $BUILD_DIR/SOFA_*.run $BUILD_DIR/SOFA_*.dmg $BUILD_DIR/SOFA_*.zip
+# TODO: find out why we have these files polluting BUILD_DIR
+rm -rf $BUILD_DIR/cube5x5x5* $BUILD_DIR/energy.txt $BUILD_DIR/*.vtu $BUILD_DIR/exporter1.* \
+       $BUILD_DIR/monitor_* $BUILD_DIR/outfile.* $BUILD_DIR/particleGravity* \
+       $BUILD_DIR/PluginManager_test* $BUILD_DIR/Springtest_positions* $BUILD_DIR/test.*
 
 # Choose between incremental build and full build
 full_build=""
