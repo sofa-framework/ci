@@ -35,12 +35,12 @@ fi
 
 
 # Clean build dir
-rm -f "$BUILD_DIR/make-output*.txt"
-rm -f "$BUILD_DIR/full-build"
-rm -rf "$BUILD_DIR/unit-tests" "$BUILD_DIR/scene-tests" "$BUILD_DIR/*.status"
-rm -rf "$BUILD_DIR/bin" "$BUILD_DIR/lib" "$BUILD_DIR/install" "$BUILD_DIR/external_directories"
-rm -rf "$BUILD_DIR/_CPack_Packages" "$BUILD_DIR/CPackConfig.cmake"
-rm -f "$BUILD_DIR/SOFA_*.exe" "$BUILD_DIR/SOFA_*.run" "$BUILD_DIR/SOFA_*.dmg" "$BUILD_DIR/SOFA_*.zip"
+rm -f  $BUILD_DIR/make-output*.txt
+rm -f  $BUILD_DIR/full-build
+rm -rf $BUILD_DIR/unit-tests $BUILD_DIR/scene-tests $BUILD_DIR/*.status
+rm -rf $BUILD_DIR/bin $BUILD_DIR/lib $BUILD_DIR/install $BUILD_DIR/external_directories
+rm -rf $BUILD_DIR/_CPack_Packages $BUILD_DIR/CPackConfig.cmake
+rm -f  $BUILD_DIR/SOFA_*.exe $BUILD_DIR/SOFA_*.run $BUILD_DIR/SOFA_*.dmg $BUILD_DIR/SOFA_*.zip
 
 # Choose between incremental build and full build
 full_build=""
