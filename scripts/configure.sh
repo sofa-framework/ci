@@ -221,9 +221,9 @@ add-cmake-option "-DCMAKE_BUILD_TYPE=$(tr '[:lower:]' '[:upper:]' <<< ${BUILD_TY
 add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
+add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=OFF"
 add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
-add-cmake-option "-USOFAGUIQT_ENABLE_NODEGRAPH"
 
 if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_FETCH_REGRESSION=ON"
@@ -286,6 +286,11 @@ else # This is not a "package" build
     add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
     add-cmake-option "-DAPPLICATION_MODELER=ON"
     add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
+    if [ -n "$VM_NODEEDITOR_PATH" ]; then
+        add-cmake-option "-DNodeEditor_ROOT=$VM_NODEEDITOR_PATH"
+        add-cmake-option "-DNodeEditor_DIR=$VM_NODEEDITOR_PATH/lib/cmake/NodeEditor"
+        add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=ON"
+    fi
 
     if in-array "build-all-plugins" "$BUILD_OPTIONS"; then 
         # Build with as many options enabled as possible
