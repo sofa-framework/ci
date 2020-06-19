@@ -223,6 +223,7 @@ add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
+add-cmake-option "-USOFAGUIQT_ENABLE_NODEGRAPH"
 
 if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_FETCH_REGRESSION=ON"
