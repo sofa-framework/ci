@@ -223,7 +223,19 @@ add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=OFF"
 add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
+
+add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
+add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
+
+add-cmake-option "-DMODULE_SOFADENSESOLVER=ON"
+add-cmake-option "-DMODULE_SOFAEXPORTER=ON"
+add-cmake-option "-DMODULE_SOFAHAPTICS=ON"
+add-cmake-option "-DMODULE_SOFANONUNIFORMFEM=ON"
+add-cmake-option "-DMODULE_SOFAOPENGLVISUAL=ON"
+add-cmake-option "-DMODULE_SOFAPRECONDITIONER=ON"
+add-cmake-option "-DMODULE_SOFASPARSESOLVER=ON"
+add-cmake-option "-DMODULE_SOFAVALIDATION=ON"
 
 if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_FETCH_REGRESSION=ON"
