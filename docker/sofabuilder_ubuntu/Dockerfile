@@ -11,7 +11,9 @@ RUN apt-get install -y \
     net-tools \
     vim \
     wget \
-    curl
+    curl \
+    zip \
+    unzip
 
 # Install compilers
 RUN apt-get install -y \
@@ -54,6 +56,9 @@ RUN /tmp/cmake-3.12.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
 RUN add-apt-repository -y ppa:beineri/opt-qt-5.12.6-bionic \
     && apt-get update \
     && apt-get install -y qt512-meta-full qt512charts-no-lgpl
+ADD https://www.sofa-framework.org/wp-content/uploads/2020/06/QtInstallerFramework_3.0_Linux.zip /tmp
+RUN unzip /tmp/QtInstallerFramework_3.0_Linux.zip -d /root
+ENV QTIFWDIR="/root/Qt/Tools/QtInstallerFramework/3.0"
 
 # Install Boost
 RUN add-apt-repository -y ppa:mhier/libboost-latest \
