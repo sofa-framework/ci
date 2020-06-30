@@ -61,6 +61,7 @@ RUN add-apt-repository -y ppa:beineri/opt-qt-5.12.6-bionic \
 ADD https://www.sofa-framework.org/wp-content/uploads/2020/06/QtInstallerFramework_3.0_Linux.zip /tmp
 RUN unzip /tmp/QtInstallerFramework_3.0_Linux.zip -d /root
 ENV QTIFWDIR="/root/Qt/Tools/QtInstallerFramework/3.0"
+ENV PATH="${QTIFWDIR}/bin:${PATH}"
 
 # Install Boost
 RUN add-apt-repository -y ppa:mhier/libboost-latest \
