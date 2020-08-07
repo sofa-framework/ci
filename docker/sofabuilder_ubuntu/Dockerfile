@@ -43,7 +43,8 @@ RUN apt-get install -y \
     libavcodec-dev libavformat-dev libavutil-dev libswscale-dev \
     libassimp-dev \
     libbullet-dev \
-    liboce-ocaf-dev
+    liboce-ocaf-dev \
+    libzmq3-dev liboscpack-dev
 ENV VM_HAS_ASSIMP="true"
  # BulletColisionDetection is broken
 ENV VM_HAS_BULLET="disabled"
