@@ -170,6 +170,67 @@ pathed /MACHINE /APPEND "C:\OpenCascade\opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC
 :occ_done
 
 
+REM Install ZeroMQ
+if exist C:\zeromq goto :zmq_done
+echo Installing ZMQ...
+set ZMQ_MAJOR=4
+set ZMQ_MINOR=3
+set ZMQ_PATCH=2
+set ZMQ_ROOT=C:\zeromq\%ZMQ_MAJOR%.%ZMQ_MINOR%.%ZMQ_PATCH%
+powershell -Command "Invoke-WebRequest https://github.com/zeromq/libzmq/releases/download/v%ZMQ_MAJOR%.%ZMQ_MINOR%.%ZMQ_PATCH%/zeromq-%ZMQ_MAJOR%.%ZMQ_MINOR%.%ZMQ_PATCH%.zip -OutFile %WORKDIR%\zmq.zip"
+powershell Expand-Archive %WORKDIR%\zmq.zip -DestinationPath %ZMQ_ROOT%
+move %ZMQ_ROOT%\zeromq-%ZMQ_MAJOR%.%ZMQ_MINOR%.%ZMQ_PATCH% %ZMQ_ROOT%\src
+mkdir %ZMQ_ROOT%\build && cd %ZMQ_ROOT%\build
+%VS150COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%ZMQ_ROOT%\install -DBUILD_STATIC=OFF ..\src ^
+    && ninja install
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq.hpp -OutFile %ZMQ_ROOT%\install\include\zmq.hpp"
+powershell -Command "Invoke-WebRequest https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq_addon.hpp -OutFile %ZMQ_ROOT%\install\include\zmq_addon.hpp"
+pathed /MACHINE /APPEND "%ZMQ_ROOT%\install"
+setx /M ZMQ_ROOT %ZMQ_ROOT%\install
+:zmq_done
+
+
+REM Install VRPN
+if exist C:\vrpn goto :vrpn_done
+echo Installing VRPN...
+set VRPN_MAJOR=07
+set VRPN_MINOR=33
+set VRPN_ROOT=C:\vrpn\%VRPN_MAJOR%.%VRPN_MINOR%
+powershell -Command "Invoke-WebRequest https://github.com/vrpn/vrpn/releases/download/v%VRPN_MAJOR%.%VRPN_MINOR%/vrpn_%VRPN_MAJOR%_%VRPN_MINOR%.zip -OutFile %WORKDIR%\vrpn.zip"
+powershell Expand-Archive %WORKDIR%\vrpn.zip -DestinationPath %VRPN_ROOT%
+move %VRPN_ROOT%\vrpn %VRPN_ROOT%\src
+mkdir %VRPN_ROOT%\build && cd %VRPN_ROOT%\build
+%VS150COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%VRPN_ROOT%\install ..\src ^
+    && ninja install
+pathed /MACHINE /APPEND "%VRPN_ROOT%\install"
+setx /M VRPN_ROOT %VRPN_ROOT%\install
+:vrpn_done
+
+
+REM Install Oscpack
+if exist C:\oscpack goto :oscpack_done
+echo Installing OSC...
+set OSC_MAJOR=1
+set OSC_MINOR=1
+set OSC_PATCH=0
+set OSC_ROOT=C:\oscpack\%OSC_MAJOR%.%OSC_MINOR%.%OSC_PATCH%
+powershell -Command "Invoke-WebRequest https://storage.googleapis.com/google-code-archive-downloads/v2/code.google.com/oscpack/oscpack_%OSC_MAJOR%_%OSC_MINOR%_%OSC_PATCH%.zip -OutFile %WORKDIR%\oscpack.zip"
+powershell Expand-Archive %WORKDIR%\oscpack.zip -DestinationPath %OSC_ROOT%
+move %OSC_ROOT%\oscpack_%OSC_MAJOR%_%OSC_MINOR%_%OSC_PATCH% %OSC_ROOT%\src
+mkdir %OSC_ROOT%\build && cd %OSC_ROOT%\build
+%VS150COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%OSC_ROOT%\install ..\src ^
+    && ninja
+Xcopy /E /I %OSC_ROOT%\src\ip %OSC_ROOT%\install\include\oscpack\ip\
+Xcopy /E /I %OSC_ROOT%\src\osc %OSC_ROOT%\install\include\oscpack\osc\
+Xcopy /E /I %OSC_ROOT%\build\oscpack.lib %OSC_ROOT%\install\lib\
+pathed /MACHINE /APPEND "%OSC_ROOT%\install"
+setx /M Oscpack_ROOT %OSC_ROOT%\install
+:oscpack_done
+
+
 REM Finalize environment
 echo Finalizing environment...
 call refreshenv && echo OK
