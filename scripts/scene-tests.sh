@@ -43,6 +43,9 @@ elif [[ ! -d "$src_dir/applications/plugins" ]]; then
     echo "Error: '$src_dir' does not look like a Sofa source tree."
     usage; exit 1
 fi
+if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
+    VM_MAX_PARALLEL_TESTS=1
+fi
 
 
 ### Utils
@@ -404,7 +407,9 @@ test-all-scenes() {
         pids[${thread}]=$!
         thread=$((thread+1))
     done
-    # wait for all pids
+    # forward stop signals to child processes
+    trap "kill -TERM ${pids[*]}" SIGINT SIGTERM
+    # wait child processes
     thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
         echo "Waiting for thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
