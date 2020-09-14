@@ -221,6 +221,8 @@ run-all-tests() {
         pids[${thread}]=$!
         thread=$((thread+1))
     done
+    # forward stop signals to child processes
+    trap "kill -TERM ${pids[*]}" SIGINT SIGTERM
     # wait for all pids
     thread=0
     for file in "$output_dir/${test_type}_part-"*; do
