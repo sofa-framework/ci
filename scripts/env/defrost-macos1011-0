@@ -13,6 +13,6 @@ export VM_HAS_CUDA="false"
 
 export VM_HAS_OPENCASCADE="true"
 
-export VM_MAX_PARALLEL_TESTS=$(nproc)
+export VM_MAX_PARALLEL_TESTS="2"
 
 export PATH="/usr/local/opt/ccache/libexec:$PATH"

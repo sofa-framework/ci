@@ -21,4 +21,4 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     source /opt/rh/llvm-toolset-7/enable || true
 fi
 
-export VM_MAX_PARALLEL_TESTS=$(nproc)
+export VM_MAX_PARALLEL_TESTS="4"

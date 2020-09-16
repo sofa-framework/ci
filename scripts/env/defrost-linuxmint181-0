@@ -26,4 +26,4 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     export QTIFWDIR="/home/sofa/Qt/Tools/QtInstallerFramework/3.0"
 fi
 
-export VM_MAX_PARALLEL_TESTS=$(($(nproc)/2)) # divide by 2 because we run 2 executors on this machine
+export VM_MAX_PARALLEL_TESTS="4" # warning: 2 executors

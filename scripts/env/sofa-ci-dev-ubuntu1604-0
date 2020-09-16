@@ -25,4 +25,4 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     source /opt/qt512/bin/qt512-env.sh || true
 fi
 
-export VM_MAX_PARALLEL_TESTS=$(nproc)
+export VM_MAX_PARALLEL_TESTS="4"
