@@ -408,7 +408,7 @@ test-all-scenes() {
         thread=$((thread+1))
     done
     # forward stop signals to child processes
-    trap "kill -TERM ${pids[*]}" SIGINT SIGTERM
+    trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
     # wait child processes
     thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
