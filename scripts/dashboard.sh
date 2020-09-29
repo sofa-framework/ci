@@ -27,7 +27,7 @@ dashboard-notify-explicit() {
 }
 
 dashboard-notify() {
-    dashboard-notify-explicit "sha=$DASH_COMMIT_HASH" "config=$DASH_CONFIG" "job_url=$JOB_URL" "build_url=$BUILD_URL" $*
+    dashboard-notify-explicit "sha=$DASH_COMMIT_HASH" "config=$DASH_CONFIG" "node=$NODE_NAME" "job_url=$JOB_URL" "build_url=$BUILD_URL" $*
 }
 
 dashboard-init() {
