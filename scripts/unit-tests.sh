@@ -84,11 +84,18 @@ initialize-unit-tests() {
 }
 
 fix-test-report() {
+    local report_file="$1"
+    local test_name="$2"
+    
     # Little fix: Googletest marks skipped tests with a 'status="notrun"' attribute,
     # but the JUnit XML understood by Jenkins requires a '<skipped/>' element instead.
     # source: http://stackoverflow.com/a/14074664
-    sed -i'.bak' 's:\(<testcase [^>]*status="notrun".*\)/>:\1><skipped/></testcase>:' "$1"
-    rm -f "$1.bak"
+    sed -i'.bak' 's:\(<testcase [^>]*status="notrun".*\)/>:\1><skipped/></testcase>:' "$report_file"
+    rm -f "$report_file.bak"
+
+    # Add a package name by inserting "UnitTest." in front of the classname attribute of each testcase
+    sed -i'.bak' 's:^\(.*<testcase[^>]* classname=\"\)\([^\"]*\".*\)$:\1UnitTests\.'"$test_name"'\.\2:g' "$report_file"
+    rm -f "$report_file.bak"
 }
 
 
@@ -154,7 +161,7 @@ run-single-test-subtests() {
         fi
 
         if [ -f "$output_file" ]; then
-            fix-test-report "$output_file"
+            fix-test-report "$output_file" "$test"
             cp "$output_file" "$output_dir/reports/"$test"_subtest"$(printf "%03d" $i)".xml"
         else
             echo "$0: error: $test subtest $subtest ended with code $(cat $output_dir/$test/$subtest/status.txt)" >&2
@@ -191,7 +198,7 @@ run-single-test() {
             echo "$0: fatal: unexpected crash of $test with code $status" >&2
             exit $status
         fi
-        fix-test-report "$output_file"
+        fix-test-report "$output_file" "$test"
         cp "$output_file" "$output_dir/reports/$test.xml"
     else # no report = some subtest crashed. Let's find out which one.
         echo "$0: error: $test ended with code $status" >&2
