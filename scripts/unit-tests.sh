@@ -93,11 +93,11 @@ fix-test-report() {
     sed -i'.bak' 's:\(<testcase [^>]*status="notrun".*\)/>:\1><skipped/></testcase>:' "$report_file"
     rm -f "$report_file.bak"
     
-    sed -i'.bak' 's:\(<testsuite [^>]*\)>:\1 package="UnitTests">:g' "$report_file"
+    sed -i'.bak' 's:\(<testsuite[^>]* name=\"\)\(.*\)>:\1'"$test_name"'\.\2 package="'"$test_name"'">:g' "$report_file"
     rm -f "$report_file.bak"
 
     # Add a package name by inserting "UnitTest." in front of the classname attribute of each testcase
-    sed -i'.bak' 's:^\(.*<testcase[^>]* classname=\"\)\([^\"]*\".*\)$:\1'"$test_name"'\.\2:g' "$report_file"
+    sed -i'.bak' 's:^\(.*<testcase[^>]* classname=\"\)\([^\"]*\".*\)$:\1UnitTests\.\2:g' "$report_file"
     rm -f "$report_file.bak"
 }
 
