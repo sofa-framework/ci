@@ -358,6 +358,7 @@ initialize-scene-tests() {
         exit 1
     fi
 
+    touch "$output_dir/reports/successes.txt"
     touch "$output_dir/reports/warnings.txt"
     touch "$output_dir/reports/errors.txt"
     touch "$output_dir/reports/crashes.txt"
@@ -380,14 +381,38 @@ do-test-all-scenes() {
         echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
 
         echo "- $scene (thread $thread_num/$VM_MAX_PARALLEL_TESTS ; scene $current_scene_count/$tested_scenes_count)"
+        
+        if [[ $(uname) = Darwin ]]; then
+            if [ -e "/usr/local/bin/gdate" ]; then
+                date_nanosec_cmd="/usr/local/bin/gdate +%s%N"
+            else
+                date_nanosec_cmd="date +%s000000000" # fallback: seconds * 1000000000
+            fi
+        else
+            date_nanosec_cmd="date +%s%N"
+        fi
+        begin_millisec="$(($($date_nanosec_cmd)/1000000))"
+        
         "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout
+        
+        end_millisec="$(($($date_nanosec_cmd)/1000000))"
+        elapsed_millisec="$(($end_millisec - $begin_millisec))"
+        elapsed_sec="$(($elapsed_millisec/1000)).$(printf "%03d" $elapsed_millisec)"
+        
         if [[ -e "$output_dir/$scene/runSofa.timeout" ]]; then
             echo 'Timeout!'
             echo timeout > "$output_dir/$scene/status.txt"
             echo -e "\n\nINFO: Abort caused by timeout.\n" >> "$output_dir/$scene/output.txt"
             rm -f "$output_dir/$scene/runSofa.timeout"
+            cat "$output_dir/$scene/timeout.txt" > "$output_dir/$scene/duration.txt"
         else
             cat "$output_dir/$scene/runSofa.exit_code" > "$output_dir/$scene/status.txt"
+            elapsed_sec_real="$(grep "iterations done in" "$output_dir/$scene/output.txt" | head -n 1 | sed 's#.*done in \([0-9\.]*\) s.*#\1#')"
+            if [ -n "$elapsed_sec_real" ]; then
+                echo "$elapsed_sec_real" > "$output_dir/$scene/duration.txt"
+            else
+                echo "$elapsed_sec" > "$output_dir/$scene/duration.txt"
+            fi
         fi
         rm -f "$output_dir/$scene/runSofa.exit_code"
     done < "$tested_scenes"
@@ -408,6 +433,7 @@ test-all-scenes() {
         thread=$((thread+1))
     done
     # forward stop signals to child processes
+    # trap "kill -TERM ${pids[*]}" SIGINT SIGTERM EXIT
     trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
     # wait child processes
     thread=0
@@ -468,9 +494,9 @@ extract-successes() {
                 grep --silent "\[ERROR\]" "$output_dir/$scene/output.txt" || echo "$scene"
             fi
         fi
-    done < "$output_dir/all-tested-scenes.txt" > "$output_dir/successes.tmp"
-    sort "$output_dir/successes.tmp" | uniq > "$output_dir/successes.txt"
-    rm -f "$output_dir/successes.tmp"
+    done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/successes.tmp"
+    sort "$output_dir/reports/successes.tmp" | uniq > "$output_dir/reports/successes.txt"
+    rm -f "$output_dir/reports/successes.tmp"
 }
 
 count-tested-scenes() {
@@ -478,7 +504,7 @@ count-tested-scenes() {
 }
 
 count-successes() {
-    wc -l < "$output_dir/successes.txt" | tr -d ' 	'
+    wc -l < "$output_dir/reports/successes.txt" | tr -d ' 	'
 }
 
 count-warnings() {
@@ -573,6 +599,61 @@ print-summary() {
     fi
 }
 
+export-to-junit-xml() {
+    local xml_file="$output_dir/reports/junit.xml"
+    
+    # Gather results
+    while read scene; do
+        scene_name="$(basename "$scene")" # scene name
+        scene_name_noext="${scene_name%.*}" # without extension
+        elapsed_sec="$(cat "$output_dir/$scene/duration.txt")"
+        success="true"
+        echo '
+        <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.All.'$scene_name_noext'">'
+        
+        while read crash_msg; do
+            success="false"
+            echo '
+            <error message="'$crash_msg'">
+<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
+            </error>'
+        done < <( grep -o "${scene}.*" "$output_dir/reports/crashes.txt" )
+        
+        while read error_msg; do
+            success="false"
+            echo '
+            <failure message="'$error_msg'">
+<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
+            </failure>'
+        done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )        
+        
+        if [[ "$success" == "true" ]]; then
+            echo '
+            <system-out>
+<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
+            </system-out>'
+        fi
+        echo '
+        </testcase>'
+    done < "$output_dir/all-tested-scenes.txt" > "$xml_file.tmp"
+    
+    # Write XML report
+    test_count="$(grep '<testcase' "$xml_file.tmp" | wc -l)"
+    error_count="$(grep '<error' "$xml_file.tmp" | wc -l)"
+    failure_count="$(grep '<failure' "$xml_file.tmp" | wc -l)"
+    echo '
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Scene Tests" tests="'$test_count'" errors="'$error_count'" failures="'$failure_count'" disabled="0">
+    <testsuite name="All Scenes" tests="'$test_count'" errors="'$error_count'" failures="'$failure_count'" disabled="0">' > "$xml_file"
+    cat "$xml_file.tmp" >> "$xml_file"
+    echo '
+    </testsuite>
+</testsuites>' >> "$xml_file"
+
+    # TODO: uncomment this
+    # rm -f "$xml_file.tmp"
+}
+
 if [[ "$command" = run ]]; then
     initialize-scene-tests
     if [ ! -d "$build_dir/config" ]; then
@@ -591,6 +672,7 @@ if [[ "$command" = run ]]; then
     extract-warnings
     extract-errors
     extract-crashes
+    export-to-junit-xml
 elif [[ "$command" = print-summary ]]; then
     print-summary
 elif [[ "$command" = count-tested-scenes ]]; then
@@ -607,6 +689,13 @@ elif [[ "$command" = clamp-warnings ]]; then
     clamp-warnings $4
 elif [[ "$command" = clamp-errors ]]; then
     clamp-errors $4
+elif [[ "$command" = extract-all ]]; then
+    extract-successes
+    extract-warnings
+    extract-errors
+    extract-crashes
+elif [[ "$command" = export-junit ]]; then
+    export-to-junit-xml
 else
     echo "Unknown command: $command"
 fi
