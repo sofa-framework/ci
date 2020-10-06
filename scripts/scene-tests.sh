@@ -610,7 +610,7 @@ export-to-junit-xml() {
         elapsed_sec="$(cat "$output_dir/$scene/duration.txt")"
         success="true"
         echo '
-        <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.All.'$scene_path'">'
+        <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">'
         
         while read crash_msg; do
             crash_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
