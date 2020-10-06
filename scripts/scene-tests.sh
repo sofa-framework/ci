@@ -604,12 +604,13 @@ export-to-junit-xml() {
     
     # Gather results
     while read scene; do
-        scene_name="$(basename "$scene")" # scene name
-        scene_name_noext="${scene_name%.*}" # without extension
+        scene_path="$(dirname $scene)" # scene path
+        scene_name="$(basename $scene)" # scene name
+        scene_name_noext="${scene_name%.*}" # scene name without extension
         elapsed_sec="$(cat "$output_dir/$scene/duration.txt")"
         success="true"
         echo '
-        <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.All.'$scene_name_noext'">'
+        <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.All.'$scene_path'">'
         
         while read crash_msg; do
             crash_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
@@ -651,8 +652,7 @@ export-to-junit-xml() {
     </testsuite>
 </testsuites>' >> "$xml_file"
 
-    # TODO: uncomment this
-    # rm -f "$xml_file.tmp"
+    rm -f "$xml_file.tmp"
 }
 
 if [[ "$command" = run ]]; then
