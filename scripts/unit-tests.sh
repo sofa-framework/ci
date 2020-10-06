@@ -86,6 +86,10 @@ initialize-unit-tests() {
 fix-test-report() {
     local report_file="$1"
     local test_name="$2"
+    local package="UnitTests"
+    if [[ "$test_type" == "regression-tests" ]]; then
+        package="RegressionTests"
+    fi
     
     # Little fix: Googletest marks skipped tests with a 'status="notrun"' attribute,
     # but the JUnit XML understood by Jenkins requires a '<skipped/>' element instead.
@@ -97,7 +101,7 @@ fix-test-report() {
     rm -f "$report_file.bak"
 
     # Add a package name by inserting "UnitTest." in front of the classname attribute of each testcase
-    sed -i'.bak' 's:^\(.*<testcase[^>]* classname=\"\)\([^\"]*\".*\)$:\1UnitTests\.'"$test_name"'/\2:g' "$report_file"
+    sed -i'.bak' 's:^\(.*<testcase[^>]* classname=\"\)\([^\"]*\".*\)$:\1'"$package"'\.'"$test_name"'/\2:g' "$report_file"
     rm -f "$report_file.bak"
 }
 
