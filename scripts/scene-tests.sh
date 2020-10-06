@@ -612,20 +612,20 @@ export-to-junit-xml() {
         <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.All.'$scene_name_noext'">'
         
         while read crash_msg; do
-            crash_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##')"
+            crash_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
             success="false"
             echo '
             <error message="'$crash_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
+<![CDATA['"$(cat $output_dir/$scene/output.txt | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"']]>
             </error>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/crashes.txt" )
         
         while read error_msg; do
-            error_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##')"
+            error_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
             success="false"
             echo '
             <failure message="'$error_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
+<![CDATA['"$(cat $output_dir/$scene/output.txt | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"']]>
             </failure>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )        
         
@@ -646,7 +646,7 @@ export-to-junit-xml() {
     echo '<?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="Scene Tests" tests="'$test_count'" errors="'$error_count'" failures="'$failure_count'" disabled="0">
     <testsuite name="All Scenes" tests="'$test_count'" errors="'$error_count'" failures="'$failure_count'" disabled="0">' > "$xml_file"
-    cat "$xml_file.tmp" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;' >> "$xml_file"
+    cat "$xml_file.tmp" >> "$xml_file"
     echo '
     </testsuite>
 </testsuites>' >> "$xml_file"
