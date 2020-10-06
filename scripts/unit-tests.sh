@@ -104,6 +104,21 @@ fix-test-report() {
     # Add a package name by inserting "UnitTest." in front of the classname attribute of each testcase
     sed -i'.bak' 's:^\(.*<testcase[^>]* classname=\"\)\([^\"]*\".*\)$:\1'"$package"'\.'"$test_name"'/\2:g' "$report_file"
     rm -f "$report_file.bak"
+    
+    # Transform JUnit report navigation for typed tests into
+    #   - SofaGeneralEngine_test/TransformEngine_test
+    #       > 1/input, 1/rotation, 1/scale, ...
+    #       > 2/input, 2/rotation, 2/scale, ...
+    #       > ...
+    # instead of
+    #   - SofaGeneralEngine_test/TransformEngine_test/1
+    #       > input, rotation, scale, ...
+    #   - SofaGeneralEngine_test/TransformEngine_test/2
+    #       > input, rotation, scale, ...
+    #   - ...
+    #                 |-------------------------| |-------| |------------------------------------|  |--------| |-----|
+    sed -i'.bak' 's:^\(.*<testcase[^>]* name=\"\)\([^\"]*\)\(\"[^>]* classname=\"[^\"/]*/[^\"/]*\)/\([^\"/]*\)\(\".*\)$:\1\4/\2\3\5:g' "$report_file"
+    rm -f "$report_file.bak"
 }
 
 
