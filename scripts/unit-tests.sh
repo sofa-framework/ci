@@ -86,6 +86,7 @@ initialize-unit-tests() {
 fix-test-report() {
     local report_file="$1"
     local test_name="$2"
+    test_name="${test_name%.*}" # remove eventual extension
     local package="UnitTests"
     if [[ "$test_type" == "regression-tests" ]]; then
         package="RegressionTests"

@@ -20,10 +20,6 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     export VM_CUDA_ARCH="sm_50"
 
     export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
-
-    # Load Qt environment
-    source /opt/qt512/bin/qt512-env.sh || true
-    export QTIFWDIR="/home/sofa/Qt/Tools/QtInstallerFramework/3.0"
 fi
 
 export VM_MAX_PARALLEL_TESTS="4" # warning: 2 executors
