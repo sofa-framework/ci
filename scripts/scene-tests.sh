@@ -617,7 +617,7 @@ export-to-junit-xml() {
             success="false"
             echo '
             <error message="'$crash_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"']]>
+<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
             </error>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/crashes.txt" )
         
@@ -626,7 +626,7 @@ export-to-junit-xml() {
             success="false"
             echo '
             <failure message="'$error_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"']]>
+<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
             </failure>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )        
         
