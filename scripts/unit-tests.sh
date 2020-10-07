@@ -296,10 +296,16 @@ tests-get()
         counts=$(sed -ne "s/.*<testcase[^>]* $attribute=\"//" \
                      -e "/^[0-9]/s/\".*//p" "$output_dir/reports/"*.xml)
     fi
+    
+    local python_exe="python"
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    fi
+    
     # sum the values
     total=0
     for value in $counts; do
-        total=$(( $total + $value ))
+        total="$( $python_exe -c "print $total + $value" )"
     done
     echo "$total"
 }

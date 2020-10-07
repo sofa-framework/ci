@@ -77,6 +77,17 @@ if [ -n "$NODE_NAME" ]; then
     fi
 fi
 
+# Find Python
+local python_exe="python"
+if [ ! -x "$(command -v "$python_exe")" ]; then
+    if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
+        python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"
+    else
+        echo "WARNING: Python executable not found. Try setting VM_PYTHON_PATH variable."
+    fi
+fi
+export CI_PYTHON_CMD="$python_exe"
+
 
 if [ -n "$CI_REPORT_TO_GITHUB" ] && [ -n "$CI_REPORT_TO_DASHBOARD" ]; then
     # CI environment variables + init

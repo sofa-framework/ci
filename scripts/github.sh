@@ -53,12 +53,8 @@ github-export-vars() {
     fi
 
     local python_exe="python"
-    if [ ! -x "$(command -v "$python_exe")" ]; then
-        if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
-            python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"
-        else
-            echo "ERROR: Python executable not found. Try setting VM_PYTHON_PATH variable."
-        fi
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
     fi
 
     if in-array "report-to-github" "$build_options"; then

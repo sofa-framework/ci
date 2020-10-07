@@ -504,10 +504,14 @@ count-tested-scenes() {
 }
 
 count-durations() {
+    local python_exe="python"
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    fi
     total=0
     while read scene; do
         duration="$(cat "$output_dir/$scene/duration.txt" 2>/dev/null || echo "0")"
-        total=$(( $total + $duration ))
+        total="$( $python_exe -c "print $total + $duration" )"
     done < "$output_dir/all-tested-scenes.txt"
     echo "$total"
 }
