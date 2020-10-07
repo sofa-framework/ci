@@ -297,6 +297,7 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     tests_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR)
     tests_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures $BUILD_DIR $SRC_DIR)
     tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
+    tests_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations $BUILD_DIR $SRC_DIR)
 
     tests_problems=$((tests_failures+tests_errors))
     github_message="${github_message} $tests_problems unit"
@@ -312,7 +313,8 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
         "tests_total=$tests_total" \
         "tests_disabled=$tests_disabled" \
         "tests_failures=$tests_failures" \
-        "tests_errors=$tests_errors"
+        "tests_errors=$tests_errors" \
+        "tests_duration=$tests_duration"
 else
     echo "disabled" > "$BUILD_DIR/unit-tests.status"
 fi
@@ -333,6 +335,7 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     scenes_successes=$("$SCRIPT_DIR/scene-tests.sh" count-successes $BUILD_DIR $SRC_DIR)
     scenes_errors=$("$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
     scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
+    scenes_duration=$("$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR)
 
     scenes_problems=$((scenes_errors+scenes_crashes))
     github_message="${github_message}, $scenes_problems scene"
@@ -347,7 +350,8 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
         "scenes_total=$scenes_total" \
         "scenes_successes=$scenes_successes" \
         "scenes_errors=$scenes_errors" \
-        "scenes_crashes=$scenes_crashes"
+        "scenes_crashes=$scenes_crashes" \
+        "scenes_duration=$scenes_duration"
 
     # Clamping warning and error files to avoid Jenkins overflow
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
@@ -375,6 +379,7 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
     regressions_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR $references_dir)
     regressions_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures $BUILD_DIR $SRC_DIR $references_dir)
     regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_duration=$("$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR $references_dir)
 
     regressions_problems=$((regressions_failures+regressions_errors))
     github_message="${github_message}, $regressions_problems regression"
@@ -390,7 +395,8 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
         "regressions_total=$regressions_total" \
         "regressions_disabled=$regressions_disabled" \
         "regressions_failures=$regressions_failures" \
-        "regressions_errors=$regressions_errors"
+        "regressions_errors=$regressions_errors" \
+        "regressions_duration=$regressions_duration"
 else
     echo "disabled" > "$BUILD_DIR/regression-tests.status"
 fi

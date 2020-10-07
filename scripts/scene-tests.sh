@@ -503,6 +503,15 @@ count-tested-scenes() {
     wc -l < "$output_dir/all-tested-scenes.txt" | tr -d '   '
 }
 
+count-durations() {
+    total=0
+    while read scene; do
+        duration="$(cat "$output_dir/$scene/duration.txt" 2>/dev/null || echo "0")"
+        total=$(( $total + $duration ))
+    done < "$output_dir/all-tested-scenes.txt"
+    echo "$total"
+}
+
 count-successes() {
     wc -l < "$output_dir/reports/successes.txt" | tr -d ' 	'
 }
@@ -678,6 +687,8 @@ elif [[ "$command" = print-summary ]]; then
     print-summary
 elif [[ "$command" = count-tested-scenes ]]; then
     count-tested-scenes
+elif [[ "$command" = count-durations ]]; then
+    count-durations
 elif [[ "$command" = count-successes ]]; then
     count-successes
 elif [[ "$command" = count-warnings ]]; then

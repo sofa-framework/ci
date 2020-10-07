@@ -291,6 +291,11 @@ tests-get()
     # 'attribute="..."' pattern, and collect the "..." part
     counts=$(sed -ne "s/.*<testsuites[^>]* $attribute=\"//" \
                  -e "/^[0-9]/s/\".*//p" "$output_dir/reports/"*.xml)
+    # if count is empty, retry with testcase
+    if [ -z "$counts" ]; then
+        counts=$(sed -ne "s/.*<testcase[^>]* $attribute=\"//" \
+                     -e "/^[0-9]/s/\".*//p" "$output_dir/reports/"*.xml)
+    fi
     # sum the values
     total=0
     for value in $counts; do
@@ -335,6 +340,8 @@ print-summary() {
 if [[ "$command" = run ]]; then
     initialize-unit-tests
     run-all-tests
+elif [[ "$command" = count-durations ]]; then
+    tests-get time
 elif [[ "$command" = count-tests ]]; then
     tests-get tests
 elif [[ "$command" = count-failures ]]; then
