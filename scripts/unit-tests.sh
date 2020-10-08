@@ -155,11 +155,14 @@ run-single-test-subtests() {
         else
             date_nanosec_cmd="date +%s%N"
         fi
-
-        echo "Running ${test_type::-1} subtest $subtest" > "$output_dir/$test/$subtest/output.txt"
-        echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$test/$subtest/output.txt"
-        echo "------------------------------------------" >> "$output_dir/$test/$subtest/output.txt"
-        echo "" >> "$output_dir/$test/$subtest/output.txt"
+                
+        ( echo "" &&
+          echo "------------------------------------------" && 
+          echo "" &&
+          echo "Running ${test_type::-1} subtest $subtest" &&
+          echo 'Calling: bash -c "'$test_cmd'"' &&
+          echo ""
+        ) > "$output_dir/$test/$subtest/output.txt"
         
         begin_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
         bash -c "$test_cmd" >> "$output_dir/$test/$subtest/output.txt" ; pipestatus="${PIPESTATUS[0]}"
@@ -206,12 +209,17 @@ run-single-test() {
     local test_cmd="$build_dir/bin/$test --gtest_output=xml:$output_file 2>&1"
     rm -f "$output_file"
 
-    echo "$test_cmd" > "$output_dir/$test/command.txt"
-    echo "Running ${test_type::-1} $test" > "$output_dir/$test/output.txt"
-    echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$test/output.txt"
-    echo "------------------------------------------" >> "$output_dir/$test/output.txt"
-    echo "" >> "$output_dir/$test/output.txt"
+    ( echo "" &&
+      echo "------------------------------------------" && 
+      echo "" &&
+      echo "Running ${test_type::-1} $test" &&
+      echo 'Calling: bash -c "'$test_cmd'"' &&
+      echo ""
+    ) > "$output_dir/$test/output.txt"
+    
     bash -c "$test_cmd" >> "$output_dir/$test/output.txt" ; status="${PIPESTATUS[0]}"
+    
+    echo "$test_cmd" > "$output_dir/$test/command.txt"
     echo "$status" > "$output_dir/$test/status.txt"
     
     # Log on stdout

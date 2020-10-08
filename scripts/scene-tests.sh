@@ -391,15 +391,19 @@ do-test-all-scenes() {
         else
             date_nanosec_cmd="date +%s%N"
         fi
+        
+        ( echo "" &&
+          echo "------------------------------------------" && 
+          echo "" &&
+          echo "Running scene-test $scene" &&
+          echo 'Calling: "'$SCRIPT_DIR'/timeout.sh" "'$output_dir'/'$scene'/runSofa" "'$runSofa_cmd'" '$timeout &&
+          echo ""
+        ) > "$output_dir/$scene/output.txt"
+        
         begin_millisec="$(($($date_nanosec_cmd)/1000000))"
-        
-        echo "Running scene-test $scene" > "$output_dir/$scene/output.txt"
-        echo 'Calling: "'$SCRIPT_DIR'/timeout.sh" "'$output_dir'/'$scene'/runSofa" "'$runSofa_cmd'" '$timeout >> "$output_dir/$scene/output.txt"
-        echo "------------------------------------------" >> "$output_dir/$scene/output.txt"
-        echo "" >> "$output_dir/$scene/output.txt"
-        "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout
-        
+        "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout        
         end_millisec="$(($($date_nanosec_cmd)/1000000))"
+        
         elapsed_millisec="$(($end_millisec - $begin_millisec))"
         elapsed_sec="$(($elapsed_millisec/1000)).$(printf "%03d" $elapsed_millisec)"
         
