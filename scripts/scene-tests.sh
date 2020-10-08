@@ -395,7 +395,8 @@ do-test-all-scenes() {
         
         echo "Running scene-test $scene" > "$output_dir/$scene/output.txt"
         echo 'Calling: "'$SCRIPT_DIR'/timeout.sh" "'$output_dir'/'$scene'/runSofa" "'$runSofa_cmd'" '$timeout >> "$output_dir/$scene/output.txt"
-        printf "------------------------------------------\n\n"  >> "$output_dir/$scene/output.txt"
+        echo "------------------------------------------" >> "$output_dir/$scene/output.txt"
+        echo "" >> "$output_dir/$scene/output.txt"
         "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout
         
         end_millisec="$(($($date_nanosec_cmd)/1000000))"

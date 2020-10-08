@@ -158,8 +158,9 @@ run-single-test-subtests() {
 
         printf "\n\n"
         echo "Running ${test_type::-1} subtest $subtest" | tee "$output_dir/$test/$subtest/output.txt"
-        echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$scene/output.txt"
-        printf "------------------------------------------\n\n"  >> "$output_dir/$scene/output.txt"
+        echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$test/$subtest/output.txt"
+        echo "------------------------------------------" >> "$output_dir/$test/$subtest/output.txt"
+        echo "" >> "$output_dir/$test/$subtest/output.txt"
         
         begin_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
         bash -c "$test_cmd" | tee -a "$output_dir/$test/$subtest/output.txt" ; pipestatus="${PIPESTATUS[0]}"
@@ -207,7 +208,8 @@ run-single-test() {
     printf "\n\n"
     echo "Running ${test_type::-1} $test" | tee "$output_dir/$test/output.txt"
     echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$scene/output.txt"
-    printf "------------------------------------------\n\n"  >> "$output_dir/$scene/output.txt"
+    echo "------------------------------------------" >> "$output_dir/$scene/output.txt"
+    echo "" >> "$output_dir/$scene/output.txt"
     rm -f report.xml
     bash -c "$test_cmd" | tee -a "$output_dir/$test/output.txt" ; status="${PIPESTATUS[0]}"
     echo "$status" > "$output_dir/$test/status.txt"
