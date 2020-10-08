@@ -78,7 +78,7 @@ if [ -n "$NODE_NAME" ]; then
 fi
 
 # Find Python
-local python_exe="python"
+python_exe="python"
 if [ ! -x "$(command -v "$python_exe")" ]; then
     if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
         python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"

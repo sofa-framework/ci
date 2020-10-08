@@ -393,6 +393,9 @@ do-test-all-scenes() {
         fi
         begin_millisec="$(($($date_nanosec_cmd)/1000000))"
         
+        echo "Running scene-test $scene" > "$output_dir/$scene/output.txt"
+        echo 'Calling: "'$SCRIPT_DIR'/timeout.sh" "'$output_dir'/'$scene'/runSofa" "'$runSofa_cmd'" '$timeout >> "$output_dir/$scene/output.txt"
+        printf "------------------------------------------\n\n"  >> "$output_dir/$scene/output.txt"
         "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout
         
         end_millisec="$(($($date_nanosec_cmd)/1000000))"
@@ -447,6 +450,7 @@ test-all-scenes() {
 }
 
 extract-warnings() {
+    echo "Extracting warnings..."
     while read scene; do
         if [[ -e "$output_dir/$scene/output.txt" ]]; then
             sed -ne "/^\[WARNING\] [^]]*/s:\([^]]*\):$scene\: \1:p \
@@ -455,9 +459,11 @@ extract-warnings() {
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/warnings.tmp"
     sort "$output_dir/reports/warnings.tmp" | uniq > "$output_dir/reports/warnings.txt"
     rm -f "$output_dir/reports/warnings.tmp"
+    echo "Done."
 }
 
 extract-errors() {
+    echo "Extracting errors..."
     while read scene; do
         if [[ -e "$output_dir/$scene/output.txt" ]]; then
             sed -ne "/^\[ERROR\] [^]]*/s:\([^]]*\):$scene\: \1:p \
@@ -466,9 +472,11 @@ extract-errors() {
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/errors.tmp"
     sort "$output_dir/reports/errors.tmp" | uniq > "$output_dir/reports/errors.txt"
     rm -f "$output_dir/reports/errors.tmp"
+    echo "Done."
 }
 
 extract-crashes() {
+    echo "Extracting crashes..."
     rm -rf "$output_dir/archive"
     mkdir "$output_dir/archive"
     while read scene; do
@@ -484,9 +492,11 @@ extract-crashes() {
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
+    echo "Done."
 }
 
 extract-successes() {
+    echo "Extracting successes..."
     while read scene; do
         if [[ -e "$output_dir/$scene/status.txt" ]]; then
             local status="$(cat "$output_dir/$scene/status.txt")"
@@ -497,6 +507,7 @@ extract-successes() {
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/successes.tmp"
     sort "$output_dir/reports/successes.tmp" | uniq > "$output_dir/reports/successes.txt"
     rm -f "$output_dir/reports/successes.tmp"
+    echo "Done."
 }
 
 count-tested-scenes() {
@@ -613,6 +624,7 @@ print-summary() {
 }
 
 export-to-junit-xml() {
+    echo "Exporting as JUnit XML..."
     local xml_file="$output_dir/reports/junit.xml"
     
     # Gather results
@@ -666,6 +678,7 @@ export-to-junit-xml() {
 </testsuites>' >> "$xml_file"
 
     rm -f "$xml_file.tmp"
+    echo "Done."
 }
 
 if [[ "$command" = run ]]; then

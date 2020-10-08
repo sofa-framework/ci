@@ -156,9 +156,13 @@ run-single-test-subtests() {
             date_nanosec_cmd="date +%s%N"
         fi
 
-        printf "\n\nRunning subtest $subtest\n"
+        printf "\n\n"
+        echo "Running ${test_type::-1} subtest $subtest" | tee "$output_dir/$test/$subtest/output.txt"
+        echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$scene/output.txt"
+        printf "------------------------------------------\n\n"  >> "$output_dir/$scene/output.txt"
+        
         begin_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
-        bash -c "$test_cmd" | tee "$output_dir/$test/$subtest/output.txt" ; pipestatus="${PIPESTATUS[0]}"
+        bash -c "$test_cmd" | tee -a "$output_dir/$test/$subtest/output.txt" ; pipestatus="${PIPESTATUS[0]}"
         end_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
 
         elapsed_millisec="$(($end_millisec - $begin_millisec))"
@@ -200,12 +204,12 @@ run-single-test() {
     # local timeout=900
 
     echo "$test_cmd" > "$output_dir/$test/command.txt"
-    # echo "Running $test with a timeout of $timeout seconds"
-    printf "\n\nRunning $test\n"
+    printf "\n\n"
+    echo "Running ${test_type::-1} $test" | tee "$output_dir/$test/output.txt"
+    echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$scene/output.txt"
+    printf "------------------------------------------\n\n"  >> "$output_dir/$scene/output.txt"
     rm -f report.xml
-    # "$src_dir/scripts/ci/timeout.sh" test "$test_cmd" $timeout | tee $output_dir/$test/output.txt
-    bash -c "$test_cmd" | tee $output_dir/$test/output.txt
-    status="${PIPESTATUS[0]}"
+    bash -c "$test_cmd" | tee -a "$output_dir/$test/output.txt" ; status="${PIPESTATUS[0]}"
     echo "$status" > "$output_dir/$test/status.txt"
     # if [[ -e test.timeout ]]; then
     #     echo 'Timeout!'
