@@ -156,15 +156,17 @@ run-single-test-subtests() {
             date_nanosec_cmd="date +%s%N"
         fi
 
-        printf "\n\n"
-        echo "Running ${test_type::-1} subtest $subtest" | tee "$output_dir/$test/$subtest/output.txt"
+        echo "Running ${test_type::-1} subtest $subtest" > "$output_dir/$test/$subtest/output.txt"
         echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$test/$subtest/output.txt"
         echo "------------------------------------------" >> "$output_dir/$test/$subtest/output.txt"
         echo "" >> "$output_dir/$test/$subtest/output.txt"
         
         begin_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
-        bash -c "$test_cmd" | tee -a "$output_dir/$test/$subtest/output.txt" ; pipestatus="${PIPESTATUS[0]}"
+        bash -c "$test_cmd" >> "$output_dir/$test/$subtest/output.txt" ; pipestatus="${PIPESTATUS[0]}"
         end_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
+        
+        # Log on stdout
+        echo "$( printf "\n\n" && cat "$output_dir/$test/$subtest/output.txt" )"
 
         elapsed_millisec="$(($end_millisec - $begin_millisec))"
         elapsed_sec="$(($elapsed_millisec/1000)).$(printf "%03d" $elapsed_millisec)"
@@ -202,26 +204,19 @@ run-single-test() {
     local test=$1
     local output_file="$output_dir/$test/report.xml"
     local test_cmd="$build_dir/bin/$test --gtest_output=xml:$output_file 2>&1"
-    # local timeout=900
+    rm -f "$output_file"
 
     echo "$test_cmd" > "$output_dir/$test/command.txt"
-    printf "\n\n"
-    echo "Running ${test_type::-1} $test" | tee "$output_dir/$test/output.txt"
-    echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$scene/output.txt"
-    echo "------------------------------------------" >> "$output_dir/$scene/output.txt"
-    echo "" >> "$output_dir/$scene/output.txt"
-    rm -f report.xml
-    bash -c "$test_cmd" | tee -a "$output_dir/$test/output.txt" ; status="${PIPESTATUS[0]}"
+    echo "Running ${test_type::-1} $test" > "$output_dir/$test/output.txt"
+    echo 'Calling: bash -c "'$test_cmd'"' >> "$output_dir/$test/output.txt"
+    echo "------------------------------------------" >> "$output_dir/$test/output.txt"
+    echo "" >> "$output_dir/$test/output.txt"
+    bash -c "$test_cmd" >> "$output_dir/$test/output.txt" ; status="${PIPESTATUS[0]}"
     echo "$status" > "$output_dir/$test/status.txt"
-    # if [[ -e test.timeout ]]; then
-    #     echo 'Timeout!'
-    #     echo timeout > "$output_dir/$test/status.txt"
-    #     rm -f test.timeout
-    # else
-    #     cat test.exit_code > "$output_dir/$test/status.txt"
-    # fi
-    # rm -f test.exit_code
-
+    
+    # Log on stdout
+    echo "$( printf "\n\n" && cat "$output_dir/$test/output.txt" )"
+    
     if [ -f "$output_file" ]; then
         if [ "$status" -gt 1 ]; then # report exists but gtest crashed
             echo "$0: fatal: unexpected crash of $test with code $status" >&2
