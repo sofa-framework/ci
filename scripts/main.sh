@@ -390,7 +390,7 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
     regressions_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR $references_dir)
     regressions_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures $BUILD_DIR $SRC_DIR $references_dir)
     regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR $references_dir)
-    regressions_duration=$("$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations $BUILD_DIR $SRC_DIR $references_dir)
 
     regressions_problems=$((regressions_failures+regressions_errors))
     github_message="${github_message}, $regressions_problems regression"
