@@ -24,14 +24,16 @@ else
     usage; exit 1
 fi
 
+rm -rf "$output_dir/*"
+
 . "$script_dir"/dashboard.sh
 . "$script_dir"/github.sh
 
 github-export-vars "$build_options"
 dashboard-export-vars "$build_options"
 
-save-env-vars "GITHUB" "$output_dir"
-save-env-vars "DASH" "$output_dir"
+echo "$GITHUB_COMMIT_HASH" > "$output_dir/github_commit_hash.txt"
+echo "$GITHUB_BASECOMMIT_HASH" > "$output_dir/github_basecommit_hash.txt"
 
 # Check [ci-ignore] flag in commit message
 if [ -n "$GITHUB_COMMIT_MESSAGE" ] && [[ "$GITHUB_COMMIT_MESSAGE" == *"[ci-ignore]"* ]]; then
@@ -53,9 +55,6 @@ github-notify "success" "Builds triggered."
 export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
 export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
 
-# Handle scene tests and regression tests
-rm -f "$output_dir/enable-*-tests"
-rm -f "$output_dir/force-full-build"
 
 if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
