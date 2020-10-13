@@ -118,7 +118,7 @@ github-export-vars() {
                 cd "$prev_pwd"
             fi
         fi
-        if [ -z "$CI_BASECOMMIT_HASH" ]; then
+        if [ -z "$GITHUB_BASECOMMIT_HASH" ]; then
             set -$options
             if [ -n "$CHANGE_TARGET" ]; then
                 refs="refs/heads/$CHANGE_TARGET"
@@ -129,8 +129,6 @@ github-export-vars() {
             fi
             export GITHUB_BASECOMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep -m1 "${refs}\$" | grep -v "refs/original" | cut -f 1)"
         fi
-    # elif [ -n "$GIT_COMMIT" ]; then # This seems BROKEN since GIT_COMMIT is often wrong
-        # export GITHUB_COMMIT_HASH="$GIT_COMMIT"
     else
         if [[ "$branch" == "origin/"* ]]; then
             local branch_name="${branch#*/}"
@@ -145,8 +143,9 @@ github-export-vars() {
             export GITHUB_COMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep -m1 "${refs}\$" | grep -v "refs/original" | cut -f 1)"
         fi
         # export GITHUB_COMMIT_HASH="$(git log -n 1 $branch --pretty=format:"%H")"
-        # echo "Trying to guess GITHUB_COMMIT_HASH: $GITHUB_COMMIT_HASH"
     fi
+    echo "GITHUB_COMMIT_HASH = $GITHUB_COMMIT_HASH"
+    echo "GITHUB_BASECOMMIT_HASH = $GITHUB_BASECOMMIT_HASH"
     
     if [ -n "$CI_DEBUG" ]; then
         echo "Debug info for GitHub env vars export:"
