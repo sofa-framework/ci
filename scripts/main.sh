@@ -229,7 +229,7 @@ if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB
    [ -x "$(command -v git)" ] && [[ "$(git log -n 1 --pretty=format:"%H")" == "$GITHUB_COMMIT_HASH" ]] &&
    [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     echo "--------------------------------------------"
-    echo "Merging $DASH_COMMIT_BRANCH with latest commit on $GITHUB_BASE_REF: $GITHUB_BASECOMMIT_HASH"
+    echo "Merging $DASH_COMMIT_BRANCH with this commit of base $GITHUB_BASE_REF: $GITHUB_BASECOMMIT_HASH"
     git fetch --no-tags --progress "https://github.com/$GITHUB_REPOSITORY.git" "+refs/heads/$GITHUB_BASE_REF:refs/remotes/origin/$GITHUB_BASE_REF"
     git merge "$GITHUB_BASECOMMIT_HASH" > /dev/null || (git merge --abort; exit 1)
     git log -n 1 --pretty=short
