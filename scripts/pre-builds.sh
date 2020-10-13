@@ -30,6 +30,9 @@ fi
 github-export-vars "$build_options"
 dashboard-export-vars "$build_options"
 
+save-env-vars "GITHUB" "$output_dir"
+save-env-vars "DASH" "$output_dir"
+
 # Check [ci-ignore] flag in commit message
 if [ -n "$GITHUB_COMMIT_MESSAGE" ] && [[ "$GITHUB_COMMIT_MESSAGE" == *"[ci-ignore]"* ]]; then
     # Ignore this build
