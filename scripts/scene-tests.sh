@@ -634,50 +634,64 @@ export-to-junit-xml() {
     
     # Gather results
     while read scene; do
+        echo "--------------"
+        echo "  -> reading scene: $scene"
         scene_path="$(dirname $scene)" # scene path
         scene_name="$(basename $scene)" # scene name
         scene_name_noext="${scene_name%.*}" # scene name without extension
         elapsed_sec="$(cat "$output_dir/$scene/duration.txt")"
         success="true"
         echo '
-        <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">'
+        <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">' > "$xml_file.tmp"
         
         while read crash_msg; do
             crash_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
+            echo "  -> scene has crash: $crash_msg_short"
             success="false"
             echo '
             <error message="'$crash_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
-            </error>'
+<![CDATA[
+'"$(cat $output_dir/$scene/output.txt)"'
+]]>
+            </error>' >> "$xml_file.tmp"
         done < <( grep -o "${scene}.*" "$output_dir/reports/crashes.txt" )
         
         while read error_msg; do
             error_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
+            echo "  -> scene has error: $error_msg_short"
             success="false"
             echo '
             <failure message="'$error_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
-            </failure>'
+<![CDATA[
+'"$(cat $output_dir/$scene/output.txt)"'
+]]>
+            </failure>' >> "$xml_file.tmp"
         done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )        
         
         if [[ "$success" == "true" ]]; then
+            echo "  -> scene is success"
             echo '
             <system-out>
-<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
-            </system-out>'
+<![CDATA[
+'"$(cat $output_dir/$scene/output.txt)"'
+]]>
+            </system-out>' >> "$xml_file.tmp"
         fi
         echo '
-        </testcase>'
-    done < "$output_dir/all-tested-scenes.txt" > "$xml_file.tmp"
+        </testcase>' >> "$xml_file.tmp"
+    done < "$output_dir/all-tested-scenes.txt"
     
     # Write XML report
-    test_count="$(grep '<testcase' "$xml_file.tmp" | wc -l)"
-    error_count="$(grep '<error' "$xml_file.tmp" | wc -l)"
-    failure_count="$(grep '<failure' "$xml_file.tmp" | wc -l)"
+    test_count="$(grep '<testcase' "$xml_file.tmp" | wc -l | tr -d ' 	')"
+    error_count="$(grep '<error' "$xml_file.tmp" | wc -l | tr -d ' 	')"
+    failure_count="$(grep '<failure' "$xml_file.tmp" | wc -l | tr -d ' 	')"
+    echo "  -> results: $test_count tests, $error_count errors, $failure_count failures"
     echo '<?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="Scene Tests" tests="'$test_count'" errors="'$error_count'" failures="'$failure_count'" disabled="0">
     <testsuite name="All Scenes" tests="'$test_count'" errors="'$error_count'" failures="'$failure_count'" disabled="0">' > "$xml_file"
+    echo "  -> before writing xml tmp"
     cat "$xml_file.tmp" >> "$xml_file"
+    echo "  -> after writing xml tmp"
     echo '
     </testsuite>
 </testsuites>' >> "$xml_file"
