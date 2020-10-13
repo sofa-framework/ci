@@ -94,7 +94,14 @@ github-export-vars() {
     elif [ -n "$BRANCH_NAME" ]; then # Check Jenkins env var first
         branch="origin/$BRANCH_NAME"
     fi
-    
+
+    if [ -n "$CI_COMMIT_HASH" ]; then
+        export GITHUB_COMMIT_HASH="$CI_COMMIT_HASH"
+    fi
+    if [ -n "$CI_BASECOMMIT_HASH" ]; then
+        export GITHUB_BASECOMMIT_HASH="$CI_BASECOMMIT_HASH"
+    fi
+
     if [[ "$branch" == *"/PR-"* ]]; then # this is a PR
         local pr_id="${branch#*-}"
         local options="$-"
@@ -104,20 +111,24 @@ github-export-vars() {
             if [ -n "$response" ]; then
                 local prev_pwd="$(pwd)"
                 cd "$SCRIPT_DIR"
-                export GITHUB_COMMIT_HASH="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
+                if [ -z "$GITHUB_COMMIT_HASH" ]; then
+                    export GITHUB_COMMIT_HASH="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
+                fi
                 export GITHUB_BASE_REF="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_base_ref(sys.stdin)" )"
                 cd "$prev_pwd"
             fi
         fi
-        set -$options
-        if [ -n "$CHANGE_TARGET" ]; then
-            refs="refs/heads/$CHANGE_TARGET"
-        elif [ -n "$GITHUB_BASE_REF" ]; then
-            refs="refs/heads/$GITHUB_BASE_REF"
-        else
-            refs="refs/heads/master" # should not happen
+        if [ -z "$CI_BASECOMMIT_HASH" ]; then
+            set -$options
+            if [ -n "$CHANGE_TARGET" ]; then
+                refs="refs/heads/$CHANGE_TARGET"
+            elif [ -n "$GITHUB_BASE_REF" ]; then
+                refs="refs/heads/$GITHUB_BASE_REF"
+            else
+                refs="refs/heads/master" # should not happen
+            fi
+            export GITHUB_BASECOMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep -m1 "${refs}\$" | grep -v "refs/original" | cut -f 1)"
         fi
-        export GITHUB_BASECOMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep -m1 "${refs}\$" | grep -v "refs/original" | cut -f 1)"
     # elif [ -n "$GIT_COMMIT" ]; then # This seems BROKEN since GIT_COMMIT is often wrong
         # export GITHUB_COMMIT_HASH="$GIT_COMMIT"
     else
@@ -130,9 +141,11 @@ github-export-vars() {
         else
             refs="$branch" # should not happen
         fi
-        export GITHUB_COMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep -m1 "${refs}\$" | grep -v "refs/original" | cut -f 1)"
+        if [ -z "$GITHUB_COMMIT_HASH" ]; then
+            export GITHUB_COMMIT_HASH="$(git ls-remote https://github.com/${GITHUB_REPOSITORY}.git | grep -m1 "${refs}\$" | grep -v "refs/original" | cut -f 1)"
+        fi
         # export GITHUB_COMMIT_HASH="$(git log -n 1 $branch --pretty=format:"%H")"
-        echo "Trying to guess GITHUB_COMMIT_HASH: $GITHUB_COMMIT_HASH"
+        # echo "Trying to guess GITHUB_COMMIT_HASH: $GITHUB_COMMIT_HASH"
     fi
     
     if [ -n "$CI_DEBUG" ]; then

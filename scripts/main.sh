@@ -184,8 +184,14 @@ fi
 
 
 # Git config (needed by CMake ExternalProject)
-git config --system user.name 'SOFA Bot' > /dev/null 2>&1 || git config --global user.name 'SOFA Bot' > /dev/null 2>&1 || echo "WARNING: cannot setup git config"
-git config --system user.email '<>' > /dev/null 2>&1 || git config --global user.email '<>' > /dev/null 2>&1 || echo "WARNING: cannot setup git config"
+git config --system user.name 'SOFA Bot' > /dev/null 2>&1 || 
+    git config --global user.name 'SOFA Bot' > /dev/null 2>&1 || 
+    git config user.name 'SOFA Bot' > /dev/null 2>&1 || 
+    echo "WARNING: cannot setup git config"
+git config --system user.email '<>' > /dev/null 2>&1 || 
+    git config --global user.email '<>' > /dev/null 2>&1 || 
+    git config user.email '<>' > /dev/null 2>&1 || 
+    echo "WARNING: cannot setup git config"
 
 
 # Jenkins: create link for Windows jobs (too long path problem)
@@ -206,6 +212,17 @@ if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
 fi
 
 
+# Checkout the right commit
+if [ -n "$GITHUB_COMMIT_HASH" ] && [[ "$GITHUB_COMMIT_HASH" != "$(git log -n 1 --pretty=format:"%H")" ]]; then
+    echo "--------------------------------------------"
+    echo "Checkouting the right commit: $GITHUB_COMMIT_HASH"
+    git fetch --all > /dev/null
+    git checkout --force "$GITHUB_COMMIT_HASH" > /dev/null
+    echo "Checkout done."
+    echo "--------------------------------------------"
+fi
+
+
 # Merge PR with target branch
 # Fail build if conflict
 if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB_REPOSITORY" ] && [ -n "$GITHUB_BASE_REF" ] && [ -n "$GITHUB_BASECOMMIT_HASH" ] &&
@@ -213,8 +230,6 @@ if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB
    [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     echo "--------------------------------------------"
     echo "Merging $DASH_COMMIT_BRANCH with latest commit on $GITHUB_BASE_REF: $GITHUB_BASECOMMIT_HASH"
-    git config user.name "SOFA Bot"
-    git config user.email "<>"
     git fetch --no-tags --progress "https://github.com/$GITHUB_REPOSITORY.git" "+refs/heads/$GITHUB_BASE_REF:refs/remotes/origin/$GITHUB_BASE_REF"
     git merge "$GITHUB_BASECOMMIT_HASH" > /dev/null || (git merge --abort; exit 1)
     git log -n 1 --pretty=short

@@ -32,8 +32,8 @@ rm -rf "$output_dir/*"
 github-export-vars "$build_options"
 dashboard-export-vars "$build_options"
 
-echo "$GITHUB_COMMIT_HASH" > "$output_dir/github_commit_hash.txt"
-echo "$GITHUB_BASECOMMIT_HASH" > "$output_dir/github_basecommit_hash.txt"
+echo "$GITHUB_COMMIT_HASH" > "$output_dir/GITHUB_COMMIT_HASH.txt"
+echo "$GITHUB_BASECOMMIT_HASH" > "$output_dir/GITHUB_BASECOMMIT_HASH.txt"
 
 # Check [ci-ignore] flag in commit message
 if [ -n "$GITHUB_COMMIT_MESSAGE" ] && [[ "$GITHUB_COMMIT_MESSAGE" == *"[ci-ignore]"* ]]; then

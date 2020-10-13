@@ -86,14 +86,18 @@ dashboard-export-vars() {
         export DASH_FULLBUILD="true"
     fi
 
-    if [ -n "$GITHUB_COMMIT_HASH" ]; then
+    if [ -n "$CI_COMMIT_HASH" ]; then
+        export DASH_COMMIT_HASH="$CI_COMMIT_HASH"
+    elif [ -n "$GITHUB_COMMIT_HASH" ]; then
         export DASH_COMMIT_HASH="$GITHUB_COMMIT_HASH"
     else
         export DASH_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
         echo "Trying to guess DASH_COMMIT_HASH: $DASH_COMMIT_HASH"
     fi    
 
-    if [ -n "$GITHUB_BASECOMMIT_HASH" ]; then
+    if [ -n "$CI_BASECOMMIT_HASH" ]; then
+        export DASH_BASECOMMIT_HASH="$CI_BASECOMMIT_HASH"
+    elif [ -n "$GITHUB_BASECOMMIT_HASH" ]; then
         export DASH_BASECOMMIT_HASH="$GITHUB_BASECOMMIT_HASH"
     fi
 
