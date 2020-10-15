@@ -704,7 +704,10 @@ if [[ "$command" = run ]]; then
     extract-warnings
     extract-errors
     extract-crashes
-    export-to-junit-xml
+    if ! vm-is-macos; then 
+        # TODO: fix a blocking call on MacOS when reading scene
+        export-to-junit-xml
+    fi
 elif [[ "$command" = print-summary ]]; then
     print-summary
 elif [[ "$command" = count-tested-scenes ]]; then
