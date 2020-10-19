@@ -159,7 +159,7 @@ run-single-test-subtests() {
         ( echo "" &&
           echo "------------------------------------------" && 
           echo "" &&
-          echo "Running ${test_type::-1} subtest $subtest" &&
+          echo "Running $test_type subtest $subtest" &&
           echo 'Calling: bash -c "'$test_cmd'"' &&
           echo ""
         ) > "$output_dir/$test/$subtest/output.txt"
@@ -212,7 +212,7 @@ run-single-test() {
     ( echo "" &&
       echo "------------------------------------------" && 
       echo "" &&
-      echo "Running ${test_type::-1} $test" &&
+      echo "Running $test_type $test" &&
       echo 'Calling: bash -c "'$test_cmd'"' &&
       echo ""
     ) > "$output_dir/$test/output.txt"
