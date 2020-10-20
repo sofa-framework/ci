@@ -27,7 +27,7 @@ else
     # in Docker (to be put in Dockerfile)
     export PYTHONIOENCODING="UTF-8"
     export PYTHONUSERBASE="/root/pythonuserbase"
-    mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
+    mkdir -p "$PYTHONUSERBASE/lib/python3.7/site-packages" && chmod -R 777 "$PYTHONUSERBASE"
 fi
 
 export VM_MAX_PARALLEL_TESTS="4"
