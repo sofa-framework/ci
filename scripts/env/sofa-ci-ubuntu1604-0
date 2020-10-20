@@ -27,7 +27,7 @@ if [ ! -f /.dockerenv ]; then # not in Docker
 else
     # in Docker (to be put in Dockerfile)
     export PYTHONIOENCODING="UTF-8"
-    export PYTHONUSERBASE="/root/pythonuserbase"
+    export PYTHONUSERBASE="/tmp/pythonuserbase"
     mkdir -p "$PYTHONUSERBASE/lib/python3.7/site-packages" && chmod -R 777 "$PYTHONUSERBASE"
 fi
 
