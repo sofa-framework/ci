@@ -107,7 +107,7 @@ WORKDIR /builds
 # Set env vars
 ENV HOME="/root"
 ENV PYTHONIOENCODING="UTF-8"
-ENV PYTHONUSERBASE="/root/pythonuserbase"
+ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 
 # Cleanup
