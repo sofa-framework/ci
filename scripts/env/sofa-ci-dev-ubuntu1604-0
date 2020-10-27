@@ -28,6 +28,7 @@ else
     export PYTHONIOENCODING="UTF-8"
     export PYTHONUSERBASE="/tmp/pythonuserbase"
     mkdir -p "$PYTHONUSERBASE/lib/python3.7/site-packages" && chmod -R 777 "$PYTHONUSERBASE"
+    export PYTHON3_EXECUTABLE="/usr/bin/python3.7"
 fi
 
 export VM_MAX_PARALLEL_TESTS="4"

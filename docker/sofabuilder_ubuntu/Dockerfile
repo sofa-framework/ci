@@ -109,6 +109,7 @@ ENV HOME="/root"
 ENV PYTHONIOENCODING="UTF-8"
 ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
+ENV PYTHON3_EXECUTABLE="/usr/bin/python3.7"
 
 # Cleanup
 RUN apt-get clean -y \
