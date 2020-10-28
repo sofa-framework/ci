@@ -181,7 +181,7 @@ if vm-is-windows; then # Finding libs on Windows
         if [[ "$ARCHITECTURE" == "x86" ]]; then
             python_path="${python_path}_x86"
         fi
-        add-cmake-option "-DPYTHON_LIBRARY=$(ls $python_path/libs/python*.lib)"
+        add-cmake-option "-DPYTHON_LIBRARY=$(ls $python_path/libs/python*.lib | head -n 1)"
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include"
         add-cmake-option "-DPYTHON_EXECUTABLE=$python_path/python.exe"
     fi
@@ -195,7 +195,7 @@ elif vm-is-macos; then
         add-cmake-option "-DPYTHON_LIBRARY=$python_path/lib/libpython2.7.dylib"
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
     fi
-elif vm-is-linux; then
+else
     if [[ "$CI_PYTHON_VERSION" == "3.x" ]]; then
         add-cmake-option "-DPYTHON_EXECUTABLE=$(ls /usr/bin/python3.* | head -n 1)"
     fi
