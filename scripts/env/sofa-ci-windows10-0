@@ -20,6 +20,8 @@ export VM_QT_PATH="C:/Qt/5.12.6"
 
 export VM_PYTHON_PATH="C:/Python27"
 
+export VM_PYTHON3_PATH="C:/Python37"
+
 export VM_BULLET_PATH=""
 
 export VM_ASSIMP_PATH="C:/assimp"

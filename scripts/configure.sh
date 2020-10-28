@@ -174,22 +174,30 @@ if vm-is-windows; then # Finding libs on Windows
         add-cmake-option "-DBOOST_ROOT=$VM_BOOST_PATH"
     fi
     if [ -d "$VM_PYTHON_PATH" ]; then
-        if [[ "$ARCHITECTURE" == "x86" ]]; then
-            export VM_PYTHON_PATH="${VM_PYTHON_PATH}_x86"
+        python_path="$VM_PYTHON_PATH"
+        if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [ -d "$VM_PYTHON3_PATH" ]; then
+            python_path="$VM_PYTHON3_PATH"
         fi
-        add-cmake-option "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
-        add-cmake-option "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
+        if [[ "$ARCHITECTURE" == "x86" ]]; then
+            python_path="${python_path}_x86"
+        fi
+        add-cmake-option "-DPYTHON_LIBRARY=$(ls $python_path/libs/python*.lib)"
+        add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include"
+        add-cmake-option "-DPYTHON_EXECUTABLE=$python_path/python.exe"
     fi
     if [ -d "$VM_EIGEN3_PATH" ]; then
         export EIGEN3_ROOT_DIR="$VM_EIGEN3_PATH"
         # add-cmake-option "-DEIGEN3_ROOT=$VM_EIGEN3_PATH"
     fi
-fi
-if vm-is-macos; then
+elif vm-is-macos; then
     python_path="$(python-config --prefix)"
     if [ -e "$python_path/lib/libpython2.7.dylib" ]; then
         add-cmake-option "-DPYTHON_LIBRARY=$python_path/lib/libpython2.7.dylib"
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
+    fi
+elif vm-is-linux; then
+    if [[ "$CI_PYTHON_VERSION" == "3.x" ]]; then
+        add-cmake-option "-DPYTHON_EXECUTABLE=$(ls /usr/bin/python3.* | head -n 1)"
     fi
 fi
 if [ -n "$VM_ASSIMP_PATH" ]; then
@@ -401,7 +409,6 @@ fi
 # Configure #
 #############
 
-cmake_options=$(eval echo "$cmake_options" | sed 's:\\:/:g')
 echo "Calling cmake with the following options:"
 echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
 echo "Enabled modules and plugins:"
