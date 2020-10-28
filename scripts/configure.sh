@@ -173,10 +173,10 @@ if vm-is-windows; then # Finding libs on Windows
     if [ -d "$VM_BOOST_PATH" ]; then
         add-cmake-option "-DBOOST_ROOT=$VM_BOOST_PATH"
     fi
-    if [ -d "$VM_PYTHON_PATH" ]; then
-        python_path="$VM_PYTHON_PATH"
-        if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [ -d "$VM_PYTHON3_PATH" ]; then
-            python_path="$VM_PYTHON3_PATH"
+    if [ -e "$VM_PYTHON_EXECUTABLE" ] || [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+        python_path="$(dirname "$VM_PYTHON_EXECUTABLE")"
+        if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+            python_path="$(dirname "$VM_PYTHON3_EXECUTABLE")"
         fi
         if [[ "$ARCHITECTURE" == "x86" ]]; then
             python_path="${python_path}_x86"
@@ -196,8 +196,8 @@ elif vm-is-macos; then
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
     fi
 else
-    if [[ "$CI_PYTHON_VERSION" == "3.x" ]]; then
-        add-cmake-option "-DPYTHON_EXECUTABLE=$(ls /usr/bin/python3.* | head -n 1)"
+    if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+        add-cmake-option "-DPYTHON_EXECUTABLE=$VM_PYTHON3_EXECUTABLE"
     fi
 fi
 if [ -n "$VM_ASSIMP_PATH" ]; then
