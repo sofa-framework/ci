@@ -401,18 +401,19 @@ fi
 # Configure #
 #############
 
+cmake_options=$(eval echo "$cmake_options" | sed 's:\\:/:g')
 echo "Calling cmake with the following options:"
-eval echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
 echo "Enabled modules and plugins:"
-eval echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=ON" | sort
-eval echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=ON" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=ON" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=ON" | sort
 echo "Disabled modules and plugins:"
-eval echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=OFF" | sort
-eval echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=OFF" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=OFF" | sort
+echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=OFF" | sort
 
 if [ -n "$full_build" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
-    call-cmake "$BUILD_DIR" -G"$(generator)" $(eval echo "$cmake_options") "$relative_src"
+    call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
 else
-    call-cmake "$BUILD_DIR" $(eval echo "$cmake_options") .
+    call-cmake "$BUILD_DIR" $cmake_options .
 fi
