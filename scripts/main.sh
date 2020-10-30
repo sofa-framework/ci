@@ -304,7 +304,7 @@ if vm-is-windows; then
 else
     plugin_conf="$BUILD_DIR/lib/plugin_list.conf.default"
 fi
-grep -v "SofaCUDA NO_VERSION" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
+grep -v "SofaCUDA" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
 # Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
