@@ -33,8 +33,14 @@ if [ "$#" -gt 0 ]; then
     . "$SCRIPT_DIR"/utils.sh
     . "$SCRIPT_DIR"/github.sh
 
-    MAX_DAYS_SINCE_MODIFIED=7
-    max_sec_since_modified=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED ))
+    MAX_DAYS_SINCE_MODIFIED_LONG=7
+    max_sec_since_modified_long=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_LONG ))
+    
+    MAX_DAYS_SINCE_MODIFIED_SHORT=2
+    max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORT ))
+    
+    MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
+    max_sec_since_modified="$max_sec_since_modified_long"
 else
     usage; exit 1
 fi
@@ -71,14 +77,14 @@ for build_dir in "$@"; do
             fi
         fi
 
-        if [[ "$build_dir" == *"/launcher/"* ]]; then
+        if [[ "$build_dir/" == *"/launcher/"* ]]; then
             # Launcher has no config/build, only sources
             echo "  Launcher detected."
             delta="$(last-edit "$dir" "seconds")"
             lastedit_date="$(last-edit "$dir" "date")"
             echo -n "    last launch: $lastedit_date"
-            if [ "$delta" -gt $max_sec_since_modified ]; then
-                echo "   (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
+            if [ "$delta" -gt $max_sec_since_modified_long ]; then
+                echo "   (more than $MAX_DAYS_SINCE_MODIFIED_LONG days ago)"
                 echo "    -> removed"
                 rm -rf "$dir"
             else
@@ -87,6 +93,14 @@ for build_dir in "$@"; do
             fi
         else
             cd "$dir"
+
+            MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
+            max_sec_since_modified="$max_sec_since_modified_long"
+            if [[ "$build_dir/" != *"/sofa-framework/"* ]]; then
+                MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_SHORT"
+                max_sec_since_modified="$max_sec_since_modified_short"
+            fi
+
             all_configs_removed="true"
             for config in *; do
                 if [ ! -d "$config" ] || [[ "$config" == *"tmp" ]] || [ ! -d "$config/src/SofaKernel" ]; then
