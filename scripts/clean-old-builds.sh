@@ -34,7 +34,7 @@ if [ "$#" -eq 1 ]; then
     . "$SCRIPT_DIR"/github.sh
 
     BASE_DIR="$(cd "$1" && pwd)"
-    MAX_DAYS_SINCE_MODIFIED=10 # = 3600*24*10 = 10 days
+    MAX_DAYS_SINCE_MODIFIED=7
     max_sec_since_modified=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED ))
 else
     usage; exit 1
