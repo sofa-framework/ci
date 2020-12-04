@@ -47,22 +47,25 @@ for build_dir in "$@"; do
     if [ ! -d "$build_dir" ]; then
         continue
     fi
-    
+
+    echo "" # newline
+    echo "Cleaning in $build_dir"
+
     cd "$build_dir"
     for dir in *; do
         if [ ! -d "$dir" ]; then
             continue
         fi
 
-        echo "$dir:"
+        echo "  $dir:"
 
         if [[ "$dir" == "PR-"* ]]; then # PR dir
             # check if this PR is closed
             pr_id="${dir#*-}"
             pr_state="$(github-get-pr-state "$pr_id")"
             if [[ "$pr_state" == "closed" ]]; then
-                echo "  PR $pr_id is closed"
-                echo "  -> removed"
+                echo "    PR $pr_id is closed"
+                echo "    -> removed"
                 rm -rf "$dir"
                 continue
             fi
@@ -70,17 +73,17 @@ for build_dir in "$@"; do
 
         if [[ "$build_dir" == *"/launcher/"* ]]; then
             # Launcher has no config/build, only sources
-            echo "Launcher detected."
+            echo "  Launcher detected."
             delta="$(last-edit "$dir" "seconds")"
             lastedit_date="$(last-edit "$dir" "date")"
-            echo -n "  last launch: $lastedit_date"
+            echo -n "    last launch: $lastedit_date"
             if [ "$delta" -gt $max_sec_since_modified ]; then
-                echo " (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
-                echo "  -> removed"
+                echo "   (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
+                echo "    -> removed"
                 rm -rf "$dir"
             else
                 echo "" # newline
-                echo "  -> not removed"
+                echo "    -> not removed"
             fi
         else
             cd "$dir"
@@ -89,28 +92,28 @@ for build_dir in "$@"; do
                 if [ ! -d "$config" ] || [[ "$config" == *"tmp" ]] || [ ! -d "$config/src/SofaKernel" ]; then
                     continue
                 fi
-                echo "  $config:"
+                echo "    $config:"
                 if [ -d "$config/build" ]; then
                     delta="$(last-edit "$config/build" "seconds")"
                     lastedit_date="$(last-edit "$config/build" "date")"
-                    echo -n "    last build was on $lastedit_date"
+                    echo -n "      last build was on $lastedit_date"
                     if [ "$delta" -gt $max_sec_since_modified ]; then
-                        echo " (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
-                        echo "    -> removed"
+                        echo "   (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
+                        echo "      -> removed"
                         rm -rf "$config"
                     else
                         echo "" # newline
-                        echo "    -> not removed"
+                        echo "      -> not removed"
                         all_configs_removed="false"
                     fi
                 else
-                    echo "  $config: no build dir"
+                    echo "    $config: no build dir"
                 fi
             done
             cd ..
             if [[ "$all_configs_removed" == "true" ]]; then
-                echo "  All valid configs were removed"
-                echo "  -> $dir removed"
+                echo "    All valid configs were removed"
+                echo "    -> $dir removed"
                 rm -rf "$dir"
             fi
         fi
@@ -119,7 +122,7 @@ done
 
 # Clean Docker
 if [ -x "$(command -v docker)" ]; then
-    echo ""
+    echo "" && echo ""
     echo "Cleaning Docker containers and images..."
     docker system prune -a -f || true
 fi
