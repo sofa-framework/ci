@@ -145,16 +145,6 @@ run-single-test-subtests() {
         local test_cmd="$build_dir/bin/$test --gtest_output=xml:$output_file --gtest_filter=$subtest 2>&1"
         mkdir -p "$output_dir/$test/$subtest"
         echo "$test_cmd" >> "$output_dir/$test/$subtest/command.txt"
-
-        if [[ $(uname) = Darwin ]]; then
-            if [ -e "/usr/local/bin/gdate" ]; then
-                date_nanosec_cmd="/usr/local/bin/gdate +%s%N"
-            else
-                date_nanosec_cmd="date +%s000000000" # fallback: seconds * 1000000000
-            fi
-        else
-            date_nanosec_cmd="date +%s%N"
-        fi
                 
         ( echo "" &&
           echo "------------------------------------------" && 
@@ -164,9 +154,9 @@ run-single-test-subtests() {
           echo ""
         ) > "$output_dir/$test/$subtest/output.txt"
         
-        begin_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
+        begin_millisec="$(time-millisec)"
         bash -c "$test_cmd" >> "$output_dir/$test/$subtest/output.txt" ; pipestatus="${PIPESTATUS[0]}"
-        end_millisec="$(($(bash -c $date_nanosec_cmd)/1000000))"
+        end_millisec="$(time-millisec)"
         
         # Log on stdout
         echo "$( printf "\n\n" && cat "$output_dir/$test/$subtest/output.txt" )"

@@ -381,17 +381,7 @@ do-test-all-scenes() {
         echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
 
         echo "- $scene (thread $thread_num/$VM_MAX_PARALLEL_TESTS ; scene $current_scene_count/$tested_scenes_count)"
-        
-        if [[ $(uname) = Darwin ]]; then
-            if [ -e "/usr/local/bin/gdate" ]; then
-                date_nanosec_cmd="/usr/local/bin/gdate +%s%N"
-            else
-                date_nanosec_cmd="date +%s000000000" # fallback: seconds * 1000000000
-            fi
-        else
-            date_nanosec_cmd="date +%s%N"
-        fi
-        
+
         ( echo "" &&
           echo "------------------------------------------" && 
           echo "" &&
@@ -400,9 +390,9 @@ do-test-all-scenes() {
           echo ""
         ) > "$output_dir/$scene/output.txt"
         
-        begin_millisec="$(($($date_nanosec_cmd)/1000000))"
+        begin_millisec="$(time-millisec)"
         "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout        
-        end_millisec="$(($($date_nanosec_cmd)/1000000))"
+        end_millisec="$(time-millisec)"
         
         elapsed_millisec="$(($end_millisec - $begin_millisec))"
         elapsed_sec="$(($elapsed_millisec/1000)).$(printf "%03d" $elapsed_millisec)"

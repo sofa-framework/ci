@@ -198,6 +198,19 @@ count-processes() {
     echo "$(ps -ef | grep -v grep | grep "$1" | wc -l)"
 }
 
+time-millisec() {
+    if [[ $(uname) = Darwin ]]; then
+        if [ -e "/usr/local/bin/gdate" ]; then
+            date_nanosec_cmd="/usr/local/bin/gdate +%s%N"
+        else
+            date_nanosec_cmd="date +%s000000000" # fallback: seconds * 1000000000
+        fi
+    else
+        date_nanosec_cmd="date +%s%N"
+    fi
+    echo "$(($(bash -c $date_nanosec_cmd)/1000000))"
+}
+
 call-cmake() {
     build_dir="$(cd "$1" && pwd)"
     shift # Remove first arg
