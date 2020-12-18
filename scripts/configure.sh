@@ -175,14 +175,14 @@ if vm-is-windows; then # Finding libs on Windows
     fi
     if [ -e "$VM_PYTHON_EXECUTABLE" ] || [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
         python_path="$(dirname "$VM_PYTHON_EXECUTABLE")"
-        if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
-            python_path="$(dirname "$VM_PYTHON3_EXECUTABLE")"
-        fi
         if [[ "$ARCHITECTURE" == "x86" ]]; then
             python_path="${python_path}_x86"
         fi
         add-cmake-option "-DPYTHON_LIBRARY=$(ls $python_path/libs/python*.lib | head -n 1)"
         add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include"
+        if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+            python_path="$(dirname "$VM_PYTHON3_EXECUTABLE")"
+        fi
         add-cmake-option "-DPYTHON_EXECUTABLE=$python_path/python.exe"
     fi
     if [ -d "$VM_EIGEN3_PATH" ]; then
