@@ -200,7 +200,7 @@ else
             export VM_PYTHON3_EXECUTABLE="python3"
         fi
     fi
-    if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+    if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [[ -e "$VM_PYTHON3_EXECUTABLE" ]]; then
         add-cmake-option "-DPYTHON_EXECUTABLE=$VM_PYTHON3_EXECUTABLE"
     fi
 fi
@@ -414,17 +414,27 @@ fi
 #############
 
 echo "Calling cmake with the following options:"
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
-echo "Enabled modules and plugins:"
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=ON" | sort
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=ON" | sort
-echo "Disabled modules and plugins:"
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=OFF" | sort
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=OFF" | sort
+if vm-is-macos; then
+    echo "$cmake_options" | tr -s ' ' '\n' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
+    echo "Enabled modules and plugins:"
+    echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=ON" | sort
+    echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=ON" | sort
+    echo "Disabled modules and plugins:"
+    echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=OFF" | sort
+    echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=OFF" | sort
+else
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
+    echo "Enabled modules and plugins:"
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=ON" | sort
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=ON" | sort
+    echo "Disabled modules and plugins:"
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=OFF" | sort
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=OFF" | sort    
+fi
 
 if [ -n "$full_build" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
     call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
 else
     call-cmake "$BUILD_DIR" $cmake_options .
-fi
+fi 
