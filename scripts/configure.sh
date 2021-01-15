@@ -196,9 +196,6 @@ else
             add-cmake-option "-DPYTHON_LIBRARY=$python_path/lib/libpython2.7.dylib"
             add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
         fi
-        if [ -x "$(command -v python3)" ]; then
-            export VM_PYTHON3_EXECUTABLE="python3"
-        fi
     fi
     if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [[ -e "$VM_PYTHON3_EXECUTABLE" ]]; then
         add-cmake-option "-DPYTHON_EXECUTABLE=$VM_PYTHON3_EXECUTABLE"
