@@ -15,7 +15,8 @@ RUN apt-get install -y \
     wget \
     curl \
     zip \
-    unzip
+    unzip \
+    patchelf
 
 # Install compilers
 RUN apt-get install -y \
