@@ -37,6 +37,7 @@ RUN apt-get install -y \
 # Install plugins deps
 RUN apt-get install -y \
     python2.7-dev python-pip python-numpy python-scipy \
+    python3.7-dev python3-pip python3-numpy python3-scipy \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
@@ -89,12 +90,27 @@ ENV VM_HAS_CUDA="true"
 ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
 ENV VM_CUDA_ARCH="sm_50"
 
+# Install pybind11 (needed by SofaPython3)
+RUN git clone -b v2.4 --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
+    && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3.7 -DPYBIND11_TEST=OFF ../src \
+    && make && make install
+
+# Install NodeEditor (needed by SofaQtQuick)
+RUN git clone -b 2.1.3 --depth 1 https://github.com/paceholder/nodeeditor.git /tmp/nodeeditor/src \
+    && mkdir /tmp/nodeeditor/build && cd /tmp/nodeeditor/build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../src \
+    && make && make install
 
 # Init /builds directory
 WORKDIR /builds
 
 # Set env vars
 ENV HOME="/root"
+ENV PYTHONIOENCODING="UTF-8"
+ENV PYTHONUSERBASE="/tmp/pythonuserbase"
+RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
+ENV PYTHON3_EXECUTABLE="/usr/bin/python3.7"
 
 # Cleanup
 RUN apt-get clean -y \

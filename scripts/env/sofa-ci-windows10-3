@@ -18,7 +18,8 @@ export VM_BOOST_PATH="C:/boost"
 
 export VM_QT_PATH="C:/Qt/5.12.6"
 
-export VM_PYTHON_PATH="C:/Python27"
+export VM_PYTHON_EXECUTABLE="C:/Python27/python.exe"
+export VM_PYTHON3_EXECUTABLE="C:/Python37/python.exe"
 
 export VM_BULLET_PATH=""
 

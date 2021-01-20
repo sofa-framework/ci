@@ -16,6 +16,8 @@ export VM_HAS_OPENCASCADE="true"
 
 export VM_QT_PATH="/Users/ci/Qt/5.12.6"
 
+export VM_PYTHON3_EXECUTABLE="/usr/local/opt/python@3.7/bin/python3"
+
 
 export VM_MAKE_OPTIONS="-j4"
 

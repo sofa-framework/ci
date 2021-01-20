@@ -173,23 +173,32 @@ if vm-is-windows; then # Finding libs on Windows
     if [ -d "$VM_BOOST_PATH" ]; then
         add-cmake-option "-DBOOST_ROOT=$VM_BOOST_PATH"
     fi
-    if [ -d "$VM_PYTHON_PATH" ]; then
+    if [ -e "$VM_PYTHON_EXECUTABLE" ] || [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+        python_path="$(dirname "$VM_PYTHON_EXECUTABLE")"
         if [[ "$ARCHITECTURE" == "x86" ]]; then
-            export VM_PYTHON_PATH="${VM_PYTHON_PATH}_x86"
+            python_path="${python_path}_x86"
         fi
-        add-cmake-option "-DPYTHON_LIBRARY=$VM_PYTHON_PATH/libs/python27.lib"
-        add-cmake-option "-DPYTHON_INCLUDE_DIR=$VM_PYTHON_PATH/include"
+        add-cmake-option "-DPYTHON_LIBRARY=$(ls $python_path/libs/python*.lib | head -n 1)"
+        add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include"
+        if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+            python_path="$(dirname "$VM_PYTHON3_EXECUTABLE")"
+        fi
+        add-cmake-option "-DPYTHON_EXECUTABLE=$python_path/python.exe"
     fi
     if [ -d "$VM_EIGEN3_PATH" ]; then
         export EIGEN3_ROOT_DIR="$VM_EIGEN3_PATH"
         # add-cmake-option "-DEIGEN3_ROOT=$VM_EIGEN3_PATH"
     fi
-fi
-if vm-is-macos; then
-    python_path="$(python-config --prefix)"
-    if [ -e "$python_path/lib/libpython2.7.dylib" ]; then
-        add-cmake-option "-DPYTHON_LIBRARY=$python_path/lib/libpython2.7.dylib"
-        add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
+else
+    if vm-is-macos; then
+        python_path="$(python-config --prefix)"
+        if [ -e "$python_path/lib/libpython2.7.dylib" ]; then
+            add-cmake-option "-DPYTHON_LIBRARY=$python_path/lib/libpython2.7.dylib"
+            add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
+        fi
+    fi
+    if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [[ -e "$VM_PYTHON3_EXECUTABLE" ]]; then
+        add-cmake-option "-DPYTHON_EXECUTABLE=$VM_PYTHON3_EXECUTABLE"
     fi
 fi
 if [ -n "$VM_ASSIMP_PATH" ]; then
@@ -402,17 +411,27 @@ fi
 #############
 
 echo "Calling cmake with the following options:"
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
-echo "Enabled modules and plugins:"
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=ON" | sort
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=ON" | sort
-echo "Disabled modules and plugins:"
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=OFF" | sort
-echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=OFF" | sort
+if vm-is-macos; then
+    echo "$cmake_options" | tr -s ' ' '\n' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
+    echo "Enabled modules and plugins:"
+    echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=ON" | sort
+    echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=ON" | sort
+    echo "Disabled modules and plugins:"
+    echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=OFF" | sort
+    echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=OFF" | sort
+else
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
+    echo "Enabled modules and plugins:"
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=ON" | sort
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=ON" | sort
+    echo "Disabled modules and plugins:"
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=OFF" | sort
+    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=OFF" | sort    
+fi
 
 if [ -n "$full_build" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
     call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
 else
     call-cmake "$BUILD_DIR" $cmake_options .
-fi
+fi 
