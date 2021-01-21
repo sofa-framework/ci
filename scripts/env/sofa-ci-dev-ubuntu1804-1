@@ -1,0 +1,35 @@
+#!/bin/bash
+
+
+export VM_HAS_REQUIRED_LIBS="true"
+
+if [ ! -f /.dockerenv ]; then # not in Docker
+    export VM_HAS_BULLET="false"
+
+    export VM_HAS_ASSIMP="true"
+
+    export VM_HAS_CGAL="true"
+
+    export VM_HAS_CUDA="true"
+
+    export VM_HAS_OPENCASCADE="false"
+
+
+    export VM_MAKE_OPTIONS="-j6"
+
+    export VM_CUDA_ARCH="sm_50"
+
+    export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
+
+    # Load Qt environment
+    source /opt/qt512/bin/qt512-env.sh || true
+else
+    # in Docker (to be put in Dockerfile)
+    export PYTHONIOENCODING="UTF-8"
+    export PYTHONUSERBASE="/tmp/pythonuserbase"
+    mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
+    export VM_PYTHON_EXECUTABLE="/usr/bin/python"
+    export VM_PYTHON3_EXECUTABLE="/usr/bin/python3.7"
+fi
+
+export VM_MAX_PARALLEL_TESTS="4"
