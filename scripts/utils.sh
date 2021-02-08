@@ -199,16 +199,21 @@ count-processes() {
 }
 
 time-millisec() {
-    if [[ $(uname) = Darwin ]]; then
-        if [ -e "/usr/local/bin/gdate" ]; then
-            date_nanosec_cmd="/usr/local/bin/gdate +%s%N"
-        else
-            date_nanosec_cmd="date +%s000000000" # fallback: seconds * 1000000000
-        fi
+    if [ -x "$(command -v python)" ]; then
+        python -c 'import time; print "%d" % (time.time()*1000)'
     else
-        date_nanosec_cmd="date +%s%N"
-    fi
-    echo "$(($(bash -c $date_nanosec_cmd)/1000000))"
+        if vm-is-macos; then
+            if [ -e "/usr/local/bin/gdate" ]; then
+                date_nanosec_cmd="/usr/local/bin/gdate +%s%N"
+            else
+                date_nanosec_cmd="date +%s000000000" # fallback: seconds * 1000000000
+            fi
+        else
+            date_nanosec_cmd="date +%s%N"
+        fi
+        date_nanosec="$($date_nanosec_cmd)"
+        echo "$(($date_nanosec/1000000))"
+    fi    
 }
 
 call-cmake() {
