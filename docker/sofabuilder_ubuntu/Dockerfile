@@ -36,8 +36,8 @@ RUN apt-get install -y \
 
 # Install plugins deps
 RUN apt-get install -y \
-    python2.7-dev python-pip python-numpy python-scipy \
-    python3.7-dev python3-pip python3-numpy python3-scipy \
+    python2.7-dev python-pip \
+    python3.7-dev python3-pip \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
@@ -47,6 +47,8 @@ RUN apt-get install -y \
     libbullet-dev \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev
+RUN python2.7 -m pip install numpy
+RUN python3.7 -m pip install numpy
 ENV VM_HAS_ASSIMP="true"
  # BulletColisionDetection is broken
 ENV VM_HAS_BULLET="disabled"
