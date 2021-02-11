@@ -235,7 +235,7 @@ add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 
 add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
 add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
-add-cmake-option "-DPLUGIN_SOFAPYTHON=OFF"
+add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 add-cmake-option "-DSOFA_FETCH_SOFAPYTHON3=ON"
 add-cmake-option "-DPLUGIN_SOFAPYTHON3=ON"
 
@@ -358,7 +358,7 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_COMPLIANT=ON"
         add-cmake-option "-DPLUGIN_DIFFUSIONSOLVER=ON"
         add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
-        add-cmake-option "-DPLUGIN_FLEXIBLE=OFF"
+        add-cmake-option "-DPLUGIN_FLEXIBLE=ON"
         add-cmake-option "-DPLUGIN_IMAGE=ON"
         add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON -DSOFA_FETCH_INVERTIBLEFVM=ON"
         add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
