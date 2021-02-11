@@ -108,7 +108,7 @@ for build_dir in "$@"; do
                 fi
                 echo "    $config:"
                 if [ -d "$config/build" ]; then
-                    rm -f "$config/build/core.*" # remove eventual coredump files
+                    rm -f $config/build/core.* # remove eventual coredump files
                     delta="$(last-edit "$config/build" "seconds")"
                     lastedit_date="$(last-edit "$config/build" "date")"
                     echo -n "      last build was on $lastedit_date"
