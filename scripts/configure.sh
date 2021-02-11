@@ -235,7 +235,9 @@ add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 
 add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
 add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
-add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
+add-cmake-option "-DPLUGIN_SOFAPYTHON=OFF"
+add-cmake-option "-DSOFA_FETCH_SOFAPYTHON3=ON"
+add-cmake-option "-DPLUGIN_SOFAPYTHON3=ON"
 
 add-cmake-option "-DMODULE_SOFADENSESOLVER=ON"
 add-cmake-option "-DMODULE_SOFAEXPORTER=ON"

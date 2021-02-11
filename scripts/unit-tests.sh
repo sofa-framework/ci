@@ -67,6 +67,9 @@ list-tests() {
                 *_simutest|*_simutestd|*_simutest.exe|*_simutestd.exe)
                     echo $file
                     ;;
+                *.Tests|*.Testsd|*.Tests.exe|*.Testsd.exe) # SofaPython3 unit tests
+                    echo $file
+                    ;;
             esac
         done
     fi
