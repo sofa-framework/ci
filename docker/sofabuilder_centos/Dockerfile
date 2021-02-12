@@ -46,10 +46,14 @@ RUN yum install -y -q \
     assimp-devel \
     bullet-extras-devel \
     OCE-devel
-RUN source /opt/rh/python27/enable && python2.7 -m pip install numpy
-RUN source /opt/rh/rh-python38/enable && python3.8 -m pip install numpy
+RUN source /opt/rh/python27/enable \
+    && python2.7 -m pip install --upgrade "pip < 21.0" \
+    && python2.7 -m pip install "numpy < 1.17"
+RUN source /opt/rh/rh-python38/enable \
+    && python3.8 -m pip install --upgrade pip \
+    && python3.8 -m pip install numpy
 ENV VM_HAS_ASSIMP="true"
- # BulletColisionDetection is broken
+# BulletColisionDetection is broken
 ENV VM_HAS_BULLET="disabled"
 ENV VM_HAS_OPENCASCADE="true"
 
@@ -112,6 +116,9 @@ ENV VM_HAS_CUDA="true"
 ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
 ENV VM_CUDA_ARCH="sm_50"
 
+
+# Disable core dumps
+RUN printf '\n# Disable core dumps\n* soft core 0\n* hard core 0\n' >> /etc/security/limits.conf
 
 # Init /builds directory
 WORKDIR /builds
