@@ -46,8 +46,8 @@ RUN yum install -y -q \
     assimp-devel \
     bullet-extras-devel \
     OCE-devel
-RUN python2.7 -m pip install numpy
-RUN python3.8 -m pip install numpy
+RUN source /opt/rh/python27/enable && python2.7 -m pip install numpy
+RUN source /opt/rh/rh-python38/enable && python3.8 -m pip install numpy
 ENV VM_HAS_ASSIMP="true"
  # BulletColisionDetection is broken
 ENV VM_HAS_BULLET="disabled"
