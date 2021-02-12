@@ -94,7 +94,13 @@ fix-test-report() {
     if [[ "$test_type" == "regression-tests" ]]; then
         package="RegressionTests"
     fi
-    
+
+    if [[ "$test_name" == "Sofa."* ]]; then
+        test_name=Sofa"${test_name#*.}"
+    elif [[ "$test_name" == "Bindings."* ]]; then
+        test_name=Bindings"${test_name#*.}"
+    fi
+
     # Little fix: Googletest marks skipped tests with a 'status="notrun"' attribute,
     # but the JUnit XML understood by Jenkins requires a '<skipped/>' element instead.
     # source: http://stackoverflow.com/a/14074664
