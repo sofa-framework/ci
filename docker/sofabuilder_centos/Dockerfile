@@ -6,6 +6,7 @@ SHELL ["/bin/bash", "-c"]
 RUN yum install -y -q deltarpm 
 RUN yum install -y -q epel-release
 RUN yum install -y -q centos-release-scl
+RUN yum install -y -q centos-release-scl-rh
 RUN yum install -y -q http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-1.noarch.rpm
 RUN yum update -y && yum upgrade -y && yum clean all
 
@@ -35,7 +36,8 @@ RUN yum install -y -q \
 
 # Install plugin deps
 RUN yum install -y -q \
-    python-devel numpy scipy \
+    python27-python-devel python27-python-pip \
+    rh-python38-python-devel rh-python38-python-pip \
     libpng-devel libjpeg-devel libtiff-devel \
     blas-devel \
     lapack-devel \
@@ -44,6 +46,8 @@ RUN yum install -y -q \
     assimp-devel \
     bullet-extras-devel \
     OCE-devel
+RUN python2.7 -m pip install numpy
+RUN python3.8 -m pip install numpy
 ENV VM_HAS_ASSIMP="true"
  # BulletColisionDetection is broken
 ENV VM_HAS_BULLET="disabled"
