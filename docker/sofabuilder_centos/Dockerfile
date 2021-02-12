@@ -62,7 +62,7 @@ ADD qtaccount.ini /root/.local/share/Qt/qtaccount.ini
 ADD qtinstaller_controlscript_template_linux.qs /tmp/qtinstaller_controlscript_template_linux.qs
 RUN cat /tmp/qtinstaller_controlscript_template_linux.qs | sed "s/_QTVERSION_/$QT_MAJOR$QT_MINOR$QT_PATCH/g" > /tmp/qtinstaller_controlscript.qs
 ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
-RUN yum install -y -q libxkbcommon-x11
+RUN yum install -y -q libxkbcommon-x11 libwayland-cursor
 RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
     && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose
 ENV QTDIR="/opt/Qt/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
