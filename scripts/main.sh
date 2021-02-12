@@ -33,6 +33,7 @@ else
     usage; exit 1
 fi
 
+echo "[BEGIN] Init"
 
 # Clean build dir
 rm -f  $BUILD_DIR/make-output*.txt $BUILD_DIR/build-result $BUILD_DIR/full-build
@@ -103,6 +104,9 @@ if [ -n "$CI_REPORT_TO_GITHUB" ] && [ -n "$CI_REPORT_TO_DASHBOARD" ]; then
     dashboard-notify "status=build"
 fi
 
+echo "[END] Init"
+
+
 # Moving to src dir
 cd "$SRC_DIR"
 
@@ -164,6 +168,7 @@ else
 fi
 echo "--------------------------------------------"
 
+echo "[BEGIN] Git work"
 
 # Wait for git to be available
 if [ `ps -elf | grep -c git` -gt 1 ]; then
@@ -237,9 +242,13 @@ if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB
     echo "--------------------------------------------"
 fi
 
+echo "[END] Git work"
+
 
 # Configure
+echo "[BEGIN] Configure"
 . "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CONFIG" "$BUILD_TYPE" "$BUILD_OPTIONS"
+echo "[END] Configure"
 
 
 # Regression dir
@@ -258,13 +267,16 @@ fi
 
 
 # Compile
+echo "[BEGIN] Build"
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$CONFIG"
 dashboard-notify "status=success"
 github_status="success"
 github_message="Build OK."
 github-notify "$github_status" "$github_message"
+echo "[END] Build"
 
 
+echo "[BEGIN] Post build"
 # [Full build] Count Warnings
 if [ -e "$BUILD_DIR/full-build" ]; then
     if vm-is-windows; then
@@ -306,8 +318,12 @@ else
 fi
 grep -v "SofaCUDA" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
+echo "[END] Post build"
+
 # Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
+    echo "[BEGIN] Unit tests"
+    
     tests_status="running"
     dashboard-notify "tests_status=$tests_status"
     echo "$tests_status" > "$BUILD_DIR/unit-tests.status"  
@@ -341,12 +357,16 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
         "tests_failures=$tests_failures" \
         "tests_errors=$tests_errors" \
         "tests_duration=$tests_duration"
+
+    echo "[END] Unit tests"
 else
     echo "disabled" > "$BUILD_DIR/unit-tests.status"
 fi
 
 # Scene tests
 if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
+    echo "[BEGIN] Scene tests"
+    
     scenes_status="running"
     dashboard-notify "scenes_status=$scenes_status"
     echo "$scenes_status" > "$BUILD_DIR/scene-tests.status"
@@ -382,12 +402,16 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     # Clamping warning and error files to avoid Jenkins overflow
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
     "$SCRIPT_DIR/scene-tests.sh" clamp-errors "$BUILD_DIR" "$SRC_DIR" 5000
+    
+    echo "[END] Scene tests"
 else
     echo "disabled" > "$BUILD_DIR/scene-tests.status"
 fi
 
 # Regression tests
 if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ]; then
+    echo "[BEGIN] Regression tests"
+
     regressions_status="running"
     dashboard-notify "regressions_status=$regressions_status"
     echo "$regressions_status" > "$BUILD_DIR/regression-tests.status"
@@ -423,6 +447,8 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
         "regressions_failures=$regressions_failures" \
         "regressions_errors=$regressions_errors" \
         "regressions_duration=$regressions_duration"
+
+    echo "[END] Regression tests"
 else
     echo "disabled" > "$BUILD_DIR/regression-tests.status"
 fi
