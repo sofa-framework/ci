@@ -341,7 +341,7 @@ ignore-scenes-with-missing-plugins() {
             done < "$output_dir/grep.tmp"
             rm -f "$output_dir/grep.tmp"
         fi
-    done < <(grep "^examples/" "$output_dir/all-tested-scenes.txt")
+    done < "$output_dir/all-tested-scenes.txt"
     echo "Searching for missing plugins: done."
 }
 
