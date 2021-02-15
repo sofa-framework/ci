@@ -45,6 +45,12 @@ rm -f  $BUILD_DIR/SOFA_*.exe $BUILD_DIR/SOFA_*.run $BUILD_DIR/SOFA_*.dmg $BUILD_
 rm -rf $BUILD_DIR/cube5x5x5* $BUILD_DIR/energy.txt $BUILD_DIR/*.vtu $BUILD_DIR/exporter1.* \
        $BUILD_DIR/monitor_* $BUILD_DIR/outfile.* $BUILD_DIR/particleGravity* \
        $BUILD_DIR/PluginManager_test* $BUILD_DIR/Springtest_positions* $BUILD_DIR/test.*
+# TEMPORARY: remove huge core dumps on CentOS and disable them
+# TODO: fix the issue and remove this 
+if vm-is-centos; then
+    rm -f $BUILD_DIR/core.*
+    ulimit -c 0
+fi
 
 # Choose between incremental build and full build
 full_build=""
@@ -455,4 +461,10 @@ fi
 
 if [ -e "$BUILD_DIR/full-build" ]; then
     mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-fullbuild-$COMPILER.txt"
+fi
+
+# TEMPORARY: remove huge core dumps on CentOS
+# TODO: fix the issue and remove this
+if vm-is-centos; then
+    rm -f $BUILD_DIR/core.*
 fi

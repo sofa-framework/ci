@@ -57,6 +57,12 @@ echo "BUILD_TYPE = $BUILD_TYPE"
 echo "BUILD_OPTIONS = $BUILD_OPTIONS"
 echo "--------------------------------------------------"
 
+# TEMPORARY: remove huge core dumps on CentOS
+# TODO: fix the issue and remove this
+if vm-is-centos; then
+    rm -f $BUILD_DIR/core.*
+fi
+
 . "$SCRIPT_DIR"/dashboard.sh
 . "$SCRIPT_DIR"/github.sh
 
