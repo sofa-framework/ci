@@ -232,6 +232,7 @@ add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=OFF"
 add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
+add-cmake-option "-DSOFA_ENABLE_SOFT_DEPS_TO_SOFAPYTHON=OFF"
 
 add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
 add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
