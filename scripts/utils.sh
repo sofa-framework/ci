@@ -212,7 +212,7 @@ time-millisec() {
             date_nanosec_cmd="date +%s%N"
         fi
         date_nanosec="$($date_nanosec_cmd)"
-        echo "$(($date_nanosec/1000000))"
+        echo "$(( date_nanosec / 1000000 ))"
     fi    
 }
 
