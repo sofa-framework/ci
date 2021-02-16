@@ -34,6 +34,8 @@ RUN yum install -y -q \
     zlib-devel \
     eigen3-devel
 
+###################################
+
 # Install plugin deps
 RUN yum install -y -q \
     python27-python-devel python27-python-pip \
@@ -116,6 +118,7 @@ ENV VM_HAS_CUDA="true"
 ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
 ENV VM_CUDA_ARCH="sm_50"
 
+###################################
 
 # Disable core dumps
 RUN printf '\n# Disable core dumps\n* soft core 0\n* hard core 0\n' >> /etc/security/limits.conf

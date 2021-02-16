@@ -54,6 +54,8 @@ ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_BULLET="disabled"
 ENV VM_HAS_OPENCASCADE="true"
 
+###################################
+
 # Install CMake
 ADD https://github.com/Kitware/CMake/releases/download/v3.12.0/cmake-3.12.0-Linux-x86_64.sh /tmp
 RUN chmod a+x /tmp/cmake-3.12.0-Linux-x86_64.sh
@@ -103,6 +105,11 @@ RUN git clone -b 2.1.3 --depth 1 https://github.com/paceholder/nodeeditor.git /t
     && mkdir /tmp/nodeeditor/build && cd /tmp/nodeeditor/build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../src \
     && make && make install
+
+###################################
+
+# Disable core dumps
+RUN printf '\n# Disable core dumps\n* soft core 0\n* hard core 0\n' >> /etc/security/limits.conf
 
 # Init /builds directory
 WORKDIR /builds

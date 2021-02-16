@@ -1,5 +1,7 @@
 #!/bin/bash
-set -e
+#set -e
+
+ulimit -c 0 # disable core dumps
 
 source /opt/rh/devtoolset-7/enable
 source /opt/rh/llvm-toolset-7/enable
