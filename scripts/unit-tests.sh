@@ -170,8 +170,8 @@ run-single-test-subtests() {
         # Log on stdout
         echo "$( printf "\n\n" && cat "$output_dir/$test/$subtest/output.txt" )"
 
-        elapsed_millisec="$(($end_millisec - $begin_millisec))"
-        elapsed_sec="$(($elapsed_millisec/1000)).$(printf "%03d" $elapsed_millisec)"
+        elapsed_millisec="$(( end_millisec - begin_millisec ))"
+        elapsed_sec="$(( elapsed_millisec / 1000 )).$(printf "%03d" $elapsed_millisec)"
 
         echo "$pipestatus" > "$output_dir/$test/$subtest/status.txt"
         if [ $pipestatus -gt 1 ]; then # this subtest crashed (0:OK 1:failure >1:crash)
@@ -198,7 +198,7 @@ run-single-test-subtests() {
         else
             echo "$0: error: $test subtest $subtest ended with code $(cat $output_dir/$test/$subtest/status.txt)" >&2
         fi
-        i=$((i + 1))
+        i=$(( i + 1 ))
     done < "$output_dir/$test/subtests.txt"
 }
 
@@ -250,23 +250,23 @@ run-all-tests() {
         echo "$(shuf $output_dir/${test_type}.txt)" > "$output_dir/${test_type}.txt"
     fi
     local total_lines="$(cat "$output_dir/${test_type}.txt" | wc -l)"
-    local lines_per_thread=$((total_lines/VM_MAX_PARALLEL_TESTS+1))
+    local lines_per_thread=$((total_lines / VM_MAX_PARALLEL_TESTS + 1))
     split -l $lines_per_thread "$output_dir/${test_type}.txt" "$output_dir/${test_type}_part-"
     thread=0
     for file in "$output_dir/${test_type}_part-"*; do
         do-run-all-tests "$file" &
         pids[${thread}]=$!
-        thread=$((thread+1))
+        thread=$(( thread + 1 ))
     done
     # forward stop signals to child processes
     trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
     # wait for all pids
     thread=0
     for file in "$output_dir/${test_type}_part-"*; do
-        echo "Waiting for thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
+        echo "Waiting for thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
         wait ${pids[$thread]}
-        echo "Thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
-        thread=$((thread+1))
+        echo "Thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
+        thread=$(( thread + 1 ))
     done
     echo "Done."
 }

@@ -325,7 +325,7 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
     tests_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations $BUILD_DIR $SRC_DIR)
 
-    tests_problems=$((tests_failures+tests_errors))
+    tests_problems=$(( tests_failures + tests_errors ))
     github_message="${github_message} $tests_problems unit"
     if [ $tests_problems -gt 1 ]; then
         github_message="${github_message}s"
@@ -363,7 +363,7 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
     scenes_duration=$("$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR)
 
-    scenes_problems=$((scenes_errors+scenes_crashes))
+    scenes_problems=$(( scenes_errors + scenes_crashes ))
     github_message="${github_message}, $scenes_problems scene"
     if [ $scenes_problems -gt 1 ]; then
         github_message="${github_message}s"
@@ -407,7 +407,7 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
     regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR $references_dir)
     regressions_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations $BUILD_DIR $SRC_DIR $references_dir)
 
-    regressions_problems=$((regressions_failures+regressions_errors))
+    regressions_problems=$(( regressions_failures + regressions_errors ))
     github_message="${github_message}, $regressions_problems regression"
     if [ $regressions_problems -gt 1 ]; then
         github_message="${github_message}s"
