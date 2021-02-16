@@ -49,28 +49,25 @@ list-tests() {
     pushd "$build_dir/bin" > /dev/null
     if [[ "$test_type" == "regression-tests" ]]; then
         for file in *; do
-            case "$file" in
-                *Regression_test|*Regression_testd|*Regression_test.exe|*Regression_testd.exe)
-                    echo $file
-                    ;;
-            esac
+            if [[ "$file" == *Regression_test* ]]; then
+                echo $file
+            fi
         done
     else
         for file in *; do
-            case "$file" in
-                *Regression_test*)
-                    continue # ignore Regression_test
-                    ;;
-                *_test|*_testd|*_test.exe|*_testd.exe)
-                    echo $file
-                    ;;
-                *_simutest|*_simutestd|*_simutest.exe|*_simutestd.exe)
-                    echo $file
-                    ;;
-                *.Tests|*.Testsd|*.Tests.exe|*.Testsd.exe) # SofaPython3 unit tests
-                    echo $file
-                    ;;
-            esac
+            if [[ "$file" == *Regression_test* ]]; then
+                continue # ignore regression tests
+            fi
+            if [[ "$file" == *_test ]]         || [[ "$file" == *_testd ]] ||
+               [[ "$file" == *_test.exe ]]     || [[ "$file" == *_testd.exe ]] ||
+               [[ "$file" == *_simutest ]]     || [[ "$file" == *_simutestd ]] ||
+               [[ "$file" == *_simutest.exe ]] || [[ "$file" == *_simutestd.exe ]]; then
+                echo $file
+            elif [[ "$file" == *.Tests ]]      || [[ "$file" == *.Testsd ]] ||
+                 [[ "$file" == *.Tests.exe ]]  || [[ "$file" == *.Testsd.exe ]]; then
+                # SofaPython3 unit tests
+                echo $file
+            fi
         done
     fi
     popd > /dev/null
