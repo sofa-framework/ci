@@ -224,7 +224,6 @@ run-single-test() {
     if [ -f "$output_file" ]; then
         if [ "$status" -gt 1 ]; then # report exists but gtest crashed
             echo "$0: fatal: unexpected crash of $test with code $status" >&2
-            exit $status
         fi
         fix-test-report "$output_file" "$test"
         cp "$output_file" "$output_dir/reports/$test.xml"
