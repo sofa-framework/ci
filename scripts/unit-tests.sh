@@ -37,6 +37,9 @@ elif [[ ! -d "$src_dir/applications/plugins" ]]; then
     echo "Error: '$src_dir' does not look like a Sofa source tree."
     usage; exit 1
 fi
+if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
+    VM_MAX_PARALLEL_TESTS=1
+fi
 
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
 export SOFA_ROOT="$build_dir"
