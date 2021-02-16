@@ -68,8 +68,8 @@ RUN mkdir -p /root/.local/share/Qt
 ADD qtaccount.ini /root/.local/share/Qt/qtaccount.ini
 ADD qtinstaller_controlscript_template_linux.qs /tmp/qtinstaller_controlscript_template_linux.qs
 RUN cat /tmp/qtinstaller_controlscript_template_linux.qs \
-    | sed "s/_QTVERSION_/$QT_MAJOR$QT_MINOR$QT_PATCH/g" \
-    | sed "s/_QT_INSTALLDIR_/$QT_INSTALLDIR/g" \
+    | sed 's:_QTVERSION_:'"$QT_MAJOR$QT_MINOR$QT_PATCH"':g' \
+    | sed 's:_QT_INSTALLDIR_:'"$QT_INSTALLDIR"':g' \
     > /tmp/qtinstaller_controlscript.qs
 ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
 RUN yum install -y -q libxkbcommon-x11 libwayland-cursor
