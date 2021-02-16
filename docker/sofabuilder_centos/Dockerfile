@@ -111,17 +111,14 @@ ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
 # Install CUDA
-#RUN yum-config-manager --add-repo \
-#    http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo \
-#    && yum clean all
-#RUN yum install -y -q cuda-toolkit-10-2
-#RUN yum install -y -q nvidia-driver-cuda
-#RUN yum install -y -q nvidia-kmod
-#ENV PATH="/usr/local/cuda-10.2/bin:/usr/local/cuda-10.2/NsightCompute-2019.1${PATH:+:${PATH}}"
-#ENV LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-#ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
-#ENV VM_CUDA_ARCH="sm_50"
-ENV VM_HAS_CUDA="false"
+RUN yum-config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo \
+    && yum clean expire-cache
+RUN yum install -y -q cuda-10-2
+ENV PATH="/usr/local/cuda-10.2/bin:/usr/local/cuda-10.2/NsightCompute-2019.1${PATH:+:${PATH}}"
+ENV LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
+ENV VM_CUDA_ARCH="sm_50"
+ENV VM_HAS_CUDA="true"
 
 ###################################
 
