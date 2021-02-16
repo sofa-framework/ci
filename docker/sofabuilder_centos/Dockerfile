@@ -20,7 +20,7 @@ RUN yum install -y -q \
 
 # Install build tools
 RUN yum install -y -q \
-	cmake3 \
+    cmake3 \
     ninja-build \
     devtoolset-7 \
     llvm-toolset-7 \
@@ -67,7 +67,10 @@ ARG QT_INSTALLDIR="/opt/Qt"
 RUN mkdir -p /root/.local/share/Qt
 ADD qtaccount.ini /root/.local/share/Qt/qtaccount.ini
 ADD qtinstaller_controlscript_template_linux.qs /tmp/qtinstaller_controlscript_template_linux.qs
-RUN cat /tmp/qtinstaller_controlscript_template_linux.qs | sed "s/_QTVERSION_/$QT_MAJOR$QT_MINOR$QT_PATCH/g" | sed "s/_QT_INSTALLDIR_/$QT_INSTALLDIR/g" > /tmp/qtinstaller_controlscript.qs
+RUN cat /tmp/qtinstaller_controlscript_template_linux.qs \
+    | sed "s/_QTVERSION_/$QT_MAJOR$QT_MINOR$QT_PATCH/g" \
+    | sed "s/_QT_INSTALLDIR_/$QT_INSTALLDIR/g" \
+    > /tmp/qtinstaller_controlscript.qs
 ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
 RUN yum install -y -q libxkbcommon-x11 libwayland-cursor
 RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
@@ -100,7 +103,7 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
     && mkdir build \
     && cd build \
     && source /opt/rh/devtoolset-7/enable || true \
-	&& source /opt/rh/llvm-toolset-7/enable || true \
+    && source /opt/rh/llvm-toolset-7/enable || true \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
     && make install
 ENV VM_HAS_CGAL="true"
