@@ -196,6 +196,31 @@ else
             add-cmake-option "-DPYTHON_LIBRARY=$python_path/lib/libpython2.7.dylib"
             add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
         fi
+    elif vm-is-centos; then
+        python2_path="$(python2-config --prefix)"
+        python2_lib="$(find $python2_path/lib64 -name libpython2*.so -maxdepth 1 -type f)"
+        python2_include="$(find $python2_path/include -name python2* -maxdepth 1 -type d)"
+        python2_exec="$(which python2)"
+        if [ -e "$python2_lib" ] && [ -e "$python2_include" ] && [ -e "$python2_exec" ]; then
+            add-cmake-option "-DPYTHON_LIBRARY=$python2_lib"
+            add-cmake-option "-DPYTHON_INCLUDE_DIR=$python2_include"
+            add-cmake-option "-DPYTHON_EXECUTABLE=$python2_exec"
+            add-cmake-option "-DPython2_LIBRARY=$python2_lib"
+            add-cmake-option "-DPython2_INCLUDE_DIR=$python2_include"
+            add-cmake-option "-DPython2_EXECUTABLE=$python2_exec"
+        fi
+        python3_path="$(python3-config --prefix)"
+        python3_lib="$(find $python3_path/lib64 -name libpython3*.so -maxdepth 1 -type f)"
+        python3_include="$(find $python3_path/include -name python3* -maxdepth 1 -type d)"
+        python3_exec="$(which python3)"
+        if [ -e "$python3_lib" ] && [ -e "$python3_include" ] && [ -e "$python3_exec" ]; then
+            add-cmake-option "-DPython_LIBRARY=$python3_lib"
+            add-cmake-option "-DPython_INCLUDE_DIR=$python3_include"
+            add-cmake-option "-DPython_EXECUTABLE=$python3_exec"
+            add-cmake-option "-DPython3_LIBRARY=$python3_lib"
+            add-cmake-option "-DPython3_INCLUDE_DIR=$python3_include"
+            add-cmake-option "-DPython3_EXECUTABLE=$python3_exec"
+        fi
     fi
     if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [[ -e "$VM_PYTHON3_EXECUTABLE" ]]; then
         add-cmake-option "-DPYTHON_EXECUTABLE=$VM_PYTHON3_EXECUTABLE"
