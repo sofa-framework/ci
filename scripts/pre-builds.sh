@@ -62,19 +62,20 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
     pr_labels="$(github-get-pr-labels "$pr_id")"
     
-    GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
-    
-    export GITHUB_CONTEXT="Dashboard"
-    
     for label in "$pr_labels"; do
         echo "label = $label"
         if [[ "$label" == *"status: wip"* ]]; then
             echo "WIP label detected."
             echo "true" > "$output_dir/skip-this-build" # will be searched by Groovy script on launcher
+            
+            export GITHUB_CONTEXT="Dashboard"
+            export GITHUB_TARGET_URL="https://www.sofa-framework.org/dash?branch=$DASH_COMMIT_BRANCH"
             github-notify "success" "WIP label detected. Build ignored."
             exit 0
         fi
     done
+    
+    GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
     
     export GITHUB_CONTEXT="[with-scene-tests]"
     
