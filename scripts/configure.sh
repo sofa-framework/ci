@@ -197,39 +197,41 @@ else
             add-cmake-option "-DPYTHON_INCLUDE_DIR=$python_path/include/python2.7"
         fi
     elif vm-is-centos; then
-        python2_path="$(python2-config --prefix)"
-        python2_lib="$(find $python2_path/lib64 -maxdepth 1 -name libpython2*.so -type l)"
-        python2_include="$(find $python2_path/include -maxdepth 1 -name python2* -type d)"
-        python2_exec="$(which python2)"
-        echo "python2_path = $python2_path"
-        echo "python2_lib = $python2_lib"
-        echo "python2_include = $python2_include"
-        echo "python2_exec = $python2_exec"
-        if [ -e "$python2_lib" ] && [ -e "$python2_include" ] && [ -e "$python2_exec" ]; then
-            add-cmake-option "-DPYTHON_LIBRARY=$python2_lib"
-            add-cmake-option "-DPYTHON_INCLUDE_DIR=$python2_include"
-            add-cmake-option "-DPYTHON_EXECUTABLE=$python2_exec"
-            add-cmake-option "-DPython2_LIBRARY=$python2_lib"
-            add-cmake-option "-DPython2_INCLUDE_DIR=$python2_include"
-            add-cmake-option "-DPython2_EXECUTABLE=$python2_exec"
+        if [ -x "$(command -v python2-config)" ]; then
+            python2_path="$(python2-config --prefix)"
+            python2_lib="$(find $python2_path/lib64 -maxdepth 1 -name libpython2*.so -type l)"
+            python2_include="$(find $python2_path/include -maxdepth 1 -name python2* -type d)"
+            python2_exec="$(which python2)"
+            echo "python2_path = $python2_path"
+            echo "python2_lib = $python2_lib"
+            echo "python2_include = $python2_include"
+            echo "python2_exec = $python2_exec"
+            if [ -e "$python2_lib" ] && [ -e "$python2_include" ] && [ -e "$python2_exec" ]; then
+                add-cmake-option "-DPYTHON_LIBRARY=$python2_lib"
+                add-cmake-option "-DPYTHON_INCLUDE_DIR=$python2_include"
+                add-cmake-option "-DPYTHON_EXECUTABLE=$python2_exec"
+                add-cmake-option "-DPython2_LIBRARY=$python2_lib"
+                add-cmake-option "-DPython2_INCLUDE_DIR=$python2_include"
+                add-cmake-option "-DPython2_EXECUTABLE=$python2_exec"
+            fi
         fi
-        python3_path="$(python3-config --prefix)"
-        python3_lib="$(find $python3_path/lib64 -maxdepth 1 -name libpython3*.so -type l)"
-        python3_include="$(find $python3_path/include -maxdepth 1 -name python3* -type d)"
-        python3_exec="$(which python3)"
-        echo "python3_path = $python3_path"
-        echo "python3_lib = $python3_lib"
-        echo "python3_include = $python3_include"
-        echo "python3_exec = $python3_exec"
-        if [ -e "$python3_lib" ] && [ -e "$python3_include" ] && [ -e "$python3_exec" ]; then
-            add-cmake-option "-DPython_LIBRARY=$python3_lib"
-            add-cmake-option "-DPython_INCLUDE_DIR=$python3_include"
-            add-cmake-option "-DPython_EXECUTABLE=$python3_exec"
-            add-cmake-option "-DPython3_LIBRARY=$python3_lib"
-            add-cmake-option "-DPython3_INCLUDE_DIR=$python3_include"
-            add-cmake-option "-DPython3_EXECUTABLE=$python3_exec"
-
-            add-cmake-option "-DPYTHON_EXECUTABLE=$python3_exec" # we should not need this
+        if [ -x "$(command -v python3-config)" ]; then
+            python3_path="$(python3-config --prefix)"
+            python3_lib="$(find $python3_path/lib64 -maxdepth 1 -name libpython3*.so -type l)"
+            python3_include="$(find $python3_path/include -maxdepth 1 -name python3* -type d)"
+            python3_exec="$(which python3)"
+            echo "python3_path = $python3_path"
+            echo "python3_lib = $python3_lib"
+            echo "python3_include = $python3_include"
+            echo "python3_exec = $python3_exec"
+            if [ -e "$python3_lib" ] && [ -e "$python3_include" ] && [ -e "$python3_exec" ]; then
+                add-cmake-option "-DPython_LIBRARY=$python3_lib"
+                add-cmake-option "-DPython_INCLUDE_DIR=$python3_include"
+                add-cmake-option "-DPython_EXECUTABLE=$python3_exec"
+                add-cmake-option "-DPython3_LIBRARY=$python3_lib"
+                add-cmake-option "-DPython3_INCLUDE_DIR=$python3_include"
+                add-cmake-option "-DPython3_EXECUTABLE=$python3_exec"
+            fi
         fi
     fi
     if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [[ -e "$VM_PYTHON3_EXECUTABLE" ]]; then
