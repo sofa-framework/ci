@@ -517,7 +517,7 @@ count-durations() {
     total=0
     while read scene; do
         duration="$(cat "$output_dir/$scene/duration.txt" 2>/dev/null || echo "0")"
-        total="$( $python_exe -c "print $total + $duration" )"
+        total="$( $python_exe -c "print($total + $duration)" )"
     done < "$output_dir/all-tested-scenes.txt"
     echo "$total"
 }

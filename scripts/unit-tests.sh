@@ -312,7 +312,7 @@ tests-get()
     # sum the values
     total=0
     for value in $counts; do
-        total="$( $python_exe -c "print $total + $value" )"
+        total="$( $python_exe -c "print($total + $value)" )"
     done
     echo "$total"
 }

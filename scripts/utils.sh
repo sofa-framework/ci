@@ -199,8 +199,8 @@ count-processes() {
 }
 
 time-millisec() {
-    if [ -x "$(command -v python)" ]; then
-        python -c 'import time; print "%d" % (time.time()*1000)'
+    if [ -x "$(command -v python3)" ]; then
+        python3 -c 'import time; print("%d" % (time.time()*1000))'
     else
         if vm-is-macos; then
             if [ -e "/usr/local/bin/gdate" ]; then
