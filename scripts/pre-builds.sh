@@ -38,7 +38,7 @@ echo "$GITHUB_BASECOMMIT_HASH" > "$output_dir/GITHUB_BASECOMMIT_HASH.txt"
 # Check [ci-ignore] flag in commit message
 if [ -n "$GITHUB_COMMIT_MESSAGE" ] && [[ "$GITHUB_COMMIT_MESSAGE" == *"[ci-ignore]"* ]]; then
     # Ignore this build
-    touch "abort-this-build"
+    echo "true" > "$output_dir/abort-this-build"
     echo "WARNING: [ci-ignore] detected in commit message, build aborted."
     exit 1
 fi
@@ -60,8 +60,20 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
     pr_id="${DASH_COMMIT_BRANCH#*-}"
     latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
+    pr_labels="$(github-get-pr-labels "$pr_id")"
     
     GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
+    
+    export GITHUB_CONTEXT="Dashboard"
+    
+    for label in $pr_labels; do
+        if [[ "$label" == *"status: wip"* ]] && [[ "$BUILD_CAUSE" == *"BRANCHEVENTCAUSE"* ]]; then
+            echo "true" > "$output_dir/skip-this-build" # will be searched by Groovy script on launcher
+            github-notify "success" "WIP label detected. Build ignored."
+            exit 0
+        fi
+    done
+    
     export GITHUB_CONTEXT="[with-scene-tests]"
     
     if [[ "$latest_build_comment" == *"[with-scene-tests]"* ]] || 

@@ -41,3 +41,8 @@ def get_latest_build_comment(json_string):
             return
     print("")
 
+def get_labels(json_string):
+    obj = json.load(json_string)
+    for label in (obj['labels']):
+        print("'" + label['name'] + "'" + " ")
+    print("")
