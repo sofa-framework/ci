@@ -198,8 +198,8 @@ else
         fi
     elif vm-is-centos; then
         python2_path="$(python2-config --prefix)"
-        python2_lib="$(find $python2_path/lib64 -name libpython2*.so -maxdepth 1 -type f)"
-        python2_include="$(find $python2_path/include -name python2* -maxdepth 1 -type d)"
+        python2_lib="$(find $python2_path/lib64 -maxdepth 1 -name libpython2*.so -type l)"
+        python2_include="$(find $python2_path/include -maxdepth 1 -name python2* -type d)"
         python2_exec="$(which python2)"
         echo "python2_path = $python2_path"
         echo "python2_lib = $python2_lib"
@@ -214,8 +214,8 @@ else
             add-cmake-option "-DPython2_EXECUTABLE=$python2_exec"
         fi
         python3_path="$(python3-config --prefix)"
-        python3_lib="$(find $python3_path/lib64 -name libpython3*.so -maxdepth 1 -type f)"
-        python3_include="$(find $python3_path/include -name python3* -maxdepth 1 -type d)"
+        python3_lib="$(find $python3_path/lib64 -maxdepth 1 -name libpython3*.so -type l)"
+        python3_include="$(find $python3_path/include -maxdepth 1 -name python3* -type d)"
         python3_exec="$(which python3)"
         echo "python3_path = $python3_path"
         echo "python3_lib = $python3_lib"
