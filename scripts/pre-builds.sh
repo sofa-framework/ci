@@ -56,7 +56,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
             
             export GITHUB_CONTEXT="Dashboard"
             export GITHUB_TARGET_URL="https://www.sofa-framework.org/dash?branch=$DASH_COMMIT_BRANCH"
-            github-notify "success" "WIP label detected. Build ignored."
+            github-notify "failure" "WIP label detected. Build ignored."
             exit 0
         fi
     done
