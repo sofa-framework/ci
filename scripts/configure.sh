@@ -274,6 +274,7 @@ add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
 add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 add-cmake-option "-DPLUGIN_SOFAPYTHON3=OFF"
+add-cmake-option "-DSOFA_ENABLE_SOFT_DEPS_TO_SOFAPYTHON=ON"
 
 add-cmake-option "-DMODULE_SOFADENSESOLVER=ON"
 add-cmake-option "-DMODULE_SOFAEXPORTER=ON"
