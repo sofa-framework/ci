@@ -120,6 +120,13 @@ ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
 ENV VM_CUDA_ARCH="sm_50"
 ENV VM_HAS_CUDA="true"
 
+# Install pybind11 (needed by SofaPython3)
+RUN git clone -b v2.4 --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
+    && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
+    && source /opt/rh/rh-python38/enable || true \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3.8)" -DPYBIND11_TEST=OFF ../src \
+    && make && make install
+
 ###################################
 
 # Disable core dumps
