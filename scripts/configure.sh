@@ -228,6 +228,8 @@ else
             add-cmake-option "-DPython3_LIBRARY=$python3_lib"
             add-cmake-option "-DPython3_INCLUDE_DIR=$python3_include"
             add-cmake-option "-DPython3_EXECUTABLE=$python3_exec"
+
+            add-cmake-option "-DPYTHON_EXECUTABLE=$python3_exec" # we should not need this
         fi
     fi
     if [[ "$CI_PYTHON_VERSION" == "3.x" ]] && [[ -e "$VM_PYTHON3_EXECUTABLE" ]]; then
