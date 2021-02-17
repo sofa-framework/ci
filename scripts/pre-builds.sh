@@ -66,7 +66,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     
     export GITHUB_CONTEXT="Dashboard"
     
-    for label in $pr_labels; do
+    for label in "$pr_labels"; do
         echo "label = $label"
         if [[ "$label" == *"status: wip"* ]]; then
             echo "WIP label detected."
