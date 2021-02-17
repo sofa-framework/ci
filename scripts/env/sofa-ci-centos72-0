@@ -22,3 +22,6 @@ if [ ! -f /.dockerenv ]; then # not in Docker
 fi
 
 export VM_MAX_PARALLEL_TESTS="4"
+
+# TEMPORARY: prioritize python2
+source /opt/rh/python27/enable || true
