@@ -40,21 +40,8 @@ if [ -n "$GITHUB_COMMIT_MESSAGE" ] && [[ "$GITHUB_COMMIT_MESSAGE" == *"[ci-ignor
     # Ignore this build
     echo "true" > "$output_dir/abort-this-build"
     echo "WARNING: [ci-ignore] detected in commit message, build aborted."
-    exit 1
+    exit 0
 fi
-
-
-dashboard-init
-
-# Set Dashboard line on GitHub
-GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
-GITHUB_TARGET_URL_OLD="$GITHUB_TARGET_URL"
-export GITHUB_CONTEXT="Dashboard"
-export GITHUB_TARGET_URL="https://www.sofa-framework.org/dash?branch=$DASH_COMMIT_BRANCH"
-github-notify "success" "Builds triggered."
-export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
-export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
-
 
 if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     # Get latest [ci-build] comment in PR
@@ -128,6 +115,18 @@ elif [[ "$DASH_COMMIT_BRANCH" == "origin/master" ]]; then
     # Always regression tests for master builds
     echo "true" > "$output_dir/enable-regression-tests" # will be searched by Groovy script on launcher to set CI_RUN_REGRESSION_TESTS
 fi
+
+# Create Dashboard line
+dashboard-init
+
+# Set Dashboard line on GitHub
+GITHUB_CONTEXT_OLD="$GITHUB_CONTEXT"
+GITHUB_TARGET_URL_OLD="$GITHUB_TARGET_URL"
+export GITHUB_CONTEXT="Dashboard"
+export GITHUB_TARGET_URL="https://www.sofa-framework.org/dash?branch=$DASH_COMMIT_BRANCH"
+github-notify "success" "Builds triggered."
+export GITHUB_CONTEXT="$GITHUB_CONTEXT_OLD"
+export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
 
 # WARNING: Matrix combinations string must be explicit using only '()' and/or '==' and/or '&&' and/or '||'
 # Example: (CI_CONFIG=='ubuntu_gcc-5.4' && CI_PLUGINS=='options' && CI_TYPE=='release') || (CI_CONFIG=='windows7_VS-2015_amd64' && CI_PLUGINS=='options' && CI_TYPE=='release')
