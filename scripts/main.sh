@@ -78,13 +78,19 @@ if [ -n "$NODE_NAME" ]; then
 fi
 
 # Find Python
-python_exe="python"
-if [ ! -x "$(command -v "$python_exe")" ]; then
-    if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
-        python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"
-    else
-        echo "WARNING: Python executable not found. Try setting VM_PYTHON_PATH variable."
-    fi
+if [ -n "$CI_PYTHON_CMD" ]; then
+    python_exe="$CI_PYTHON_CMD"
+elif [ -x "$(command -v "python3")" ]; then
+    python_exe="python3"
+elif [ -n "$VM_PYTHON3_EXECUTABLE" ] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+    python_exe="$VM_PYTHON3_EXECUTABLE"
+elif [ -n "$VM_PYTHON_EXECUTABLE" ] && [ -e "$VM_PYTHON_EXECUTABLE" ]; then
+    python_exe="$VM_PYTHON_EXECUTABLE"
+elif [ -x "$(command -v "python")" ]; then
+    python_exe="python"
+else
+    echo "WARNING: Python executable not found. Try setting VM_PYTHON3_EXECUTABLE variable."
+    python_exe="python-not-found"
 fi
 export CI_PYTHON_CMD="$python_exe"
 
