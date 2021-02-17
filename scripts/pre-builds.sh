@@ -67,7 +67,9 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     export GITHUB_CONTEXT="Dashboard"
     
     for label in $pr_labels; do
+        echo "label = $label"
         if [[ "$label" == *"status: wip"* ]]; then
+            echo "WIP label detected."
             echo "true" > "$output_dir/skip-this-build" # will be searched by Groovy script on launcher
             github-notify "success" "WIP label detected. Build ignored."
             exit 0
