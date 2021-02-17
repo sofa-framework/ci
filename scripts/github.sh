@@ -184,13 +184,10 @@ github-export-vars() {
 github-get-pr-latest-build-comment() {
     local pr_id="$1"
     local python_exe="python"
-    if [ ! -x "$(command -v "$python_exe")" ]; then
-        if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
-            python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"
-        else
-            echo "ERROR: Python executable not found. Try setting VM_PYTHON_PATH variable."
-        fi
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
     fi
+
     local options="$-"
     set +x # Private stuff here: echo disabled
     if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
@@ -222,13 +219,10 @@ github-get-pr-diff() {
 github-get-pr-state() {
     local pr_id="$1"
     local python_exe="python"
-    if [ ! -x "$(command -v "$python_exe")" ]; then
-        if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
-            python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"
-        else
-            echo "ERROR: Python executable not found. Try setting VM_PYTHON_PATH variable."
-        fi
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
     fi
+
     if [ -z "$GITHUB_REPOSITORY" ]; then
         export GITHUB_REPOSITORY="sofa-framework/sofa"
     fi
