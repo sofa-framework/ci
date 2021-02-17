@@ -63,8 +63,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     pr_labels="$(github-get-pr-labels "$pr_id")"
     
     for label in "$pr_labels"; do
-        echo "label = $label"
-        if [[ "$label" == *"status: wip"* ]]; then
+        if [[ "$label" == *"status: wip"* ]] && [[ "$BUILD_CAUSE" == *"BRANCHEVENTCAUSE"* ]]; then
             echo "WIP label detected."
             echo "true" > "$output_dir/skip-this-build" # will be searched by Groovy script on launcher
             
