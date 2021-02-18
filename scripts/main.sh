@@ -112,7 +112,11 @@ if [ -n "$CI_REPORT_TO_GITHUB" ] && [ -n "$CI_REPORT_TO_DASHBOARD" ]; then
 
     # dashboard-init # Ensure Dashboard line is OK
 
+    GITHUB_TARGET_URL_OLD="$GITHUB_TARGET_URL"
+    export GITHUB_TARGET_URL="${GITHUB_TARGET_URL}console"
     github-notify "pending" "Building..."
+    export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
+
     dashboard-notify "status=build"
 fi
 
