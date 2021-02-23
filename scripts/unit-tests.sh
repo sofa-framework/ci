@@ -37,6 +37,9 @@ elif [[ ! -d "$src_dir/applications/plugins" ]]; then
     echo "Error: '$src_dir' does not look like a Sofa source tree."
     usage; exit 1
 fi
+if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
+    VM_MAX_PARALLEL_TESTS=1
+fi
 
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
 export SOFA_ROOT="$build_dir"
@@ -49,25 +52,25 @@ list-tests() {
     pushd "$build_dir/bin" > /dev/null
     if [[ "$test_type" == "regression-tests" ]]; then
         for file in *; do
-            case "$file" in
-                *Regression_test|*Regression_testd|*Regression_test.exe|*Regression_testd.exe)
-                    echo $file
-                    ;;
-            esac
+            if [[ "$file" == *Regression_test* ]]; then
+                echo $file
+            fi
         done
     else
         for file in *; do
-            case "$file" in
-                *Regression_test*)
-                    continue # ignore Regression_test
-                    ;;
-                *_test|*_testd|*_test.exe|*_testd.exe)
-                    echo $file
-                    ;;
-                *_simutest|*_simutestd|*_simutest.exe|*_simutestd.exe)
-                    echo $file
-                    ;;
-            esac
+            if [[ "$file" == *Regression_test* ]]; then
+                continue # ignore regression tests
+            fi
+            if [[ "$file" == *_test ]]         || [[ "$file" == *_testd ]] ||
+               [[ "$file" == *_test.exe ]]     || [[ "$file" == *_testd.exe ]] ||
+               [[ "$file" == *_simutest ]]     || [[ "$file" == *_simutestd ]] ||
+               [[ "$file" == *_simutest.exe ]] || [[ "$file" == *_simutestd.exe ]]; then
+                echo $file
+            elif [[ "$file" == *.Tests ]]      || [[ "$file" == *.Testsd ]] ||
+                 [[ "$file" == *.Tests.exe ]]  || [[ "$file" == *.Testsd.exe ]]; then
+                # SofaPython3 unit tests
+                echo $file
+            fi
         done
     fi
     popd > /dev/null
@@ -91,7 +94,13 @@ fix-test-report() {
     if [[ "$test_type" == "regression-tests" ]]; then
         package="RegressionTests"
     fi
-    
+
+    if [[ "$test_name" == "Sofa."* ]]; then
+        test_name=Sofa"${test_name#*.}"
+    elif [[ "$test_name" == "Bindings."* ]]; then
+        test_name=Bindings"${test_name#*.}"
+    fi
+
     # Little fix: Googletest marks skipped tests with a 'status="notrun"' attribute,
     # but the JUnit XML understood by Jenkins requires a '<skipped/>' element instead.
     # source: http://stackoverflow.com/a/14074664
@@ -161,8 +170,8 @@ run-single-test-subtests() {
         # Log on stdout
         echo "$( printf "\n\n" && cat "$output_dir/$test/$subtest/output.txt" )"
 
-        elapsed_millisec="$(($end_millisec - $begin_millisec))"
-        elapsed_sec="$(($elapsed_millisec/1000)).$(printf "%03d" $elapsed_millisec)"
+        elapsed_millisec="$(( end_millisec - begin_millisec ))"
+        elapsed_sec="$(( elapsed_millisec / 1000 )).$(printf "%03d" $elapsed_millisec)"
 
         echo "$pipestatus" > "$output_dir/$test/$subtest/status.txt"
         if [ $pipestatus -gt 1 ]; then # this subtest crashed (0:OK 1:failure >1:crash)
@@ -189,7 +198,7 @@ run-single-test-subtests() {
         else
             echo "$0: error: $test subtest $subtest ended with code $(cat $output_dir/$test/$subtest/status.txt)" >&2
         fi
-        i=$((i + 1))
+        i=$(( i + 1 ))
     done < "$output_dir/$test/subtests.txt"
 }
 
@@ -218,7 +227,6 @@ run-single-test() {
     if [ -f "$output_file" ]; then
         if [ "$status" -gt 1 ]; then # report exists but gtest crashed
             echo "$0: fatal: unexpected crash of $test with code $status" >&2
-            exit $status
         fi
         fix-test-report "$output_file" "$test"
         cp "$output_file" "$output_dir/reports/$test.xml"
@@ -242,23 +250,23 @@ run-all-tests() {
         echo "$(shuf $output_dir/${test_type}.txt)" > "$output_dir/${test_type}.txt"
     fi
     local total_lines="$(cat "$output_dir/${test_type}.txt" | wc -l)"
-    local lines_per_thread=$((total_lines/VM_MAX_PARALLEL_TESTS+1))
+    local lines_per_thread=$((total_lines / VM_MAX_PARALLEL_TESTS + 1))
     split -l $lines_per_thread "$output_dir/${test_type}.txt" "$output_dir/${test_type}_part-"
     thread=0
     for file in "$output_dir/${test_type}_part-"*; do
         do-run-all-tests "$file" &
         pids[${thread}]=$!
-        thread=$((thread+1))
+        thread=$(( thread + 1 ))
     done
     # forward stop signals to child processes
     trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
     # wait for all pids
     thread=0
     for file in "$output_dir/${test_type}_part-"*; do
-        echo "Waiting for thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
+        echo "Waiting for thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
         wait ${pids[$thread]}
-        echo "Thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
-        thread=$((thread+1))
+        echo "Thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
+        thread=$(( thread + 1 ))
     done
     echo "Done."
 }
@@ -304,7 +312,7 @@ tests-get()
     # sum the values
     total=0
     for value in $counts; do
-        total="$( $python_exe -c "print $total + $value" )"
+        total="$( $python_exe -c "print($total + $value)" )"
     done
     echo "$total"
 }

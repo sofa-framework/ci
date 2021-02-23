@@ -199,8 +199,8 @@ count-processes() {
 }
 
 time-millisec() {
-    if [ -x "$(command -v python)" ]; then
-        python -c 'import time; print "%d" % (time.time()*1000)'
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        $CI_PYTHON_CMD -c 'import time; print("%d" % (time.time()*1000))'
     else
         if vm-is-macos; then
             if [ -e "/usr/local/bin/gdate" ]; then
@@ -212,7 +212,7 @@ time-millisec() {
             date_nanosec_cmd="date +%s%N"
         fi
         date_nanosec="$($date_nanosec_cmd)"
-        echo "$(($date_nanosec/1000000))"
+        echo "$(( date_nanosec / 1000000 ))"
     fi    
 }
 

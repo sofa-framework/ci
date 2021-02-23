@@ -33,6 +33,7 @@ else
     usage; exit 1
 fi
 
+echo "[BEGIN] Init"
 
 # Clean build dir
 rm -f  $BUILD_DIR/make-output*.txt $BUILD_DIR/build-result $BUILD_DIR/full-build
@@ -44,6 +45,12 @@ rm -f  $BUILD_DIR/SOFA_*.exe $BUILD_DIR/SOFA_*.run $BUILD_DIR/SOFA_*.dmg $BUILD_
 rm -rf $BUILD_DIR/cube5x5x5* $BUILD_DIR/energy.txt $BUILD_DIR/*.vtu $BUILD_DIR/exporter1.* \
        $BUILD_DIR/monitor_* $BUILD_DIR/outfile.* $BUILD_DIR/particleGravity* \
        $BUILD_DIR/PluginManager_test* $BUILD_DIR/Springtest_positions* $BUILD_DIR/test.*
+# TEMPORARY: remove huge core dumps on CentOS and disable them
+# TODO: fix the issue and remove this 
+if vm-is-centos; then
+    rm -f $BUILD_DIR/core.*
+    ulimit -c 0
+fi
 
 # Choose between incremental build and full build
 full_build=""
@@ -78,13 +85,19 @@ if [ -n "$NODE_NAME" ]; then
 fi
 
 # Find Python
-python_exe="python"
-if [ ! -x "$(command -v "$python_exe")" ]; then
-    if [ -n "$VM_PYTHON_PATH" ] && [ -e "$(cd $VM_PYTHON_PATH && pwd)/python.exe" ]; then
-        python_exe="$(cd $VM_PYTHON_PATH && pwd)/python.exe"
-    else
-        echo "WARNING: Python executable not found. Try setting VM_PYTHON_PATH variable."
-    fi
+if [ -n "$CI_PYTHON_CMD" ]; then
+    python_exe="$CI_PYTHON_CMD"
+elif [ -n "$VM_PYTHON3_EXECUTABLE" ] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+    python_exe="$VM_PYTHON3_EXECUTABLE"
+elif [ -x "$(command -v "python3")" ]; then
+    python_exe="python3"
+elif [ -n "$VM_PYTHON_EXECUTABLE" ] && [ -e "$VM_PYTHON_EXECUTABLE" ]; then
+    python_exe="$VM_PYTHON_EXECUTABLE"
+elif [ -x "$(command -v "python")" ]; then
+    python_exe="python"
+else
+    echo "WARNING: Python executable not found. Try setting VM_PYTHON3_EXECUTABLE variable."
+    python_exe="python-not-found"
 fi
 export CI_PYTHON_CMD="$python_exe"
 
@@ -99,9 +112,16 @@ if [ -n "$CI_REPORT_TO_GITHUB" ] && [ -n "$CI_REPORT_TO_DASHBOARD" ]; then
 
     # dashboard-init # Ensure Dashboard line is OK
 
+    GITHUB_TARGET_URL_OLD="$GITHUB_TARGET_URL"
+    export GITHUB_TARGET_URL="${GITHUB_TARGET_URL}console"
     github-notify "pending" "Building..."
+    export GITHUB_TARGET_URL="$GITHUB_TARGET_URL_OLD"
+
     dashboard-notify "status=build"
 fi
+
+echo "[END] Init"
+
 
 # Moving to src dir
 cd "$SRC_DIR"
@@ -164,6 +184,7 @@ else
 fi
 echo "--------------------------------------------"
 
+echo "[BEGIN] Git work"
 
 # Wait for git to be available
 if [ `ps -elf | grep -c git` -gt 1 ]; then
@@ -237,9 +258,13 @@ if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB
     echo "--------------------------------------------"
 fi
 
+echo "[END] Git work"
+
 
 # Configure
+echo "[BEGIN] Configure"
 . "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CONFIG" "$BUILD_TYPE" "$BUILD_OPTIONS"
+echo "[END] Configure"
 
 
 # Regression dir
@@ -258,13 +283,16 @@ fi
 
 
 # Compile
+echo "[BEGIN] Build"
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$CONFIG"
 dashboard-notify "status=success"
 github_status="success"
 github_message="Build OK."
 github-notify "$github_status" "$github_message"
+echo "[END] Build"
 
 
+echo "[BEGIN] Post build"
 # [Full build] Count Warnings
 if [ -e "$BUILD_DIR/full-build" ]; then
     if vm-is-windows; then
@@ -306,8 +334,12 @@ else
 fi
 grep -v "SofaCUDA" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
+echo "[END] Post build"
+
 # Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
+    echo "[BEGIN] Unit tests"
+    
     tests_status="running"
     dashboard-notify "tests_status=$tests_status"
     echo "$tests_status" > "$BUILD_DIR/unit-tests.status"  
@@ -325,7 +357,7 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
     tests_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations $BUILD_DIR $SRC_DIR)
 
-    tests_problems=$((tests_failures+tests_errors))
+    tests_problems=$(( tests_failures + tests_errors ))
     github_message="${github_message} $tests_problems unit"
     if [ $tests_problems -gt 1 ]; then
         github_message="${github_message}s"
@@ -341,12 +373,16 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
         "tests_failures=$tests_failures" \
         "tests_errors=$tests_errors" \
         "tests_duration=$tests_duration"
+
+    echo "[END] Unit tests"
 else
     echo "disabled" > "$BUILD_DIR/unit-tests.status"
 fi
 
 # Scene tests
 if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
+    echo "[BEGIN] Scene tests"
+    
     scenes_status="running"
     dashboard-notify "scenes_status=$scenes_status"
     echo "$scenes_status" > "$BUILD_DIR/scene-tests.status"
@@ -363,7 +399,7 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
     scenes_duration=$("$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR)
 
-    scenes_problems=$((scenes_errors+scenes_crashes))
+    scenes_problems=$(( scenes_errors + scenes_crashes ))
     github_message="${github_message}, $scenes_problems scene"
     if [ $scenes_problems -gt 1 ]; then
         github_message="${github_message}s"
@@ -382,12 +418,16 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     # Clamping warning and error files to avoid Jenkins overflow
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
     "$SCRIPT_DIR/scene-tests.sh" clamp-errors "$BUILD_DIR" "$SRC_DIR" 5000
+    
+    echo "[END] Scene tests"
 else
     echo "disabled" > "$BUILD_DIR/scene-tests.status"
 fi
 
 # Regression tests
 if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ]; then
+    echo "[BEGIN] Regression tests"
+
     regressions_status="running"
     dashboard-notify "regressions_status=$regressions_status"
     echo "$regressions_status" > "$BUILD_DIR/regression-tests.status"
@@ -407,7 +447,7 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
     regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR $references_dir)
     regressions_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations $BUILD_DIR $SRC_DIR $references_dir)
 
-    regressions_problems=$((regressions_failures+regressions_errors))
+    regressions_problems=$(( regressions_failures + regressions_errors ))
     github_message="${github_message}, $regressions_problems regression"
     if [ $regressions_problems -gt 1 ]; then
         github_message="${github_message}s"
@@ -423,10 +463,18 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
         "regressions_failures=$regressions_failures" \
         "regressions_errors=$regressions_errors" \
         "regressions_duration=$regressions_duration"
+
+    echo "[END] Regression tests"
 else
     echo "disabled" > "$BUILD_DIR/regression-tests.status"
 fi
 
 if [ -e "$BUILD_DIR/full-build" ]; then
     mv "$BUILD_DIR/make-output.txt" "$BUILD_DIR/make-output-fullbuild-$COMPILER.txt"
+fi
+
+# TEMPORARY: remove huge core dumps on CentOS
+# TODO: fix the issue and remove this
+if vm-is-centos; then
+    rm -f $BUILD_DIR/core.*
 fi

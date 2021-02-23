@@ -6,6 +6,7 @@ SHELL ["/bin/bash", "-c"]
 RUN yum install -y -q deltarpm 
 RUN yum install -y -q epel-release
 RUN yum install -y -q centos-release-scl
+RUN yum install -y -q centos-release-scl-rh
 RUN yum install -y -q http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-1.noarch.rpm
 RUN yum update -y && yum upgrade -y && yum clean all
 
@@ -19,7 +20,7 @@ RUN yum install -y -q \
 
 # Install build tools
 RUN yum install -y -q \
-	cmake3 \
+    cmake3 \
     ninja-build \
     devtoolset-7 \
     llvm-toolset-7 \
@@ -33,9 +34,12 @@ RUN yum install -y -q \
     zlib-devel \
     eigen3-devel
 
+###################################
+
 # Install plugin deps
 RUN yum install -y -q \
-    python-devel numpy scipy \
+    python27-python-devel python27-python-pip \
+    rh-python38-python-devel rh-python38-python-pip \
     libpng-devel libjpeg-devel libtiff-devel \
     blas-devel \
     lapack-devel \
@@ -44,8 +48,15 @@ RUN yum install -y -q \
     assimp-devel \
     bullet-extras-devel \
     OCE-devel
+RUN source /opt/rh/python27/enable \
+    && python2.7 -m pip install --upgrade "pip < 21.0" \
+    && python2.7 -m pip install "numpy < 1.17"
+RUN source /opt/rh/rh-python38/enable \
+    && python3.8 -m pip install --upgrade pip \
+    && python3.8 -m pip install numpy
+ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
- # BulletColisionDetection is broken
+# BulletColisionDetection is broken
 ENV VM_HAS_BULLET="disabled"
 ENV VM_HAS_OPENCASCADE="true"
 
@@ -53,15 +64,19 @@ ENV VM_HAS_OPENCASCADE="true"
 ARG QT_MAJOR=5
 ARG QT_MINOR=12
 ARG QT_PATCH=6
+ARG QT_INSTALLDIR="/opt/Qt"
 RUN mkdir -p /root/.local/share/Qt
 ADD qtaccount.ini /root/.local/share/Qt/qtaccount.ini
 ADD qtinstaller_controlscript_template_linux.qs /tmp/qtinstaller_controlscript_template_linux.qs
-RUN cat /tmp/qtinstaller_controlscript_template_linux.qs | sed "s/_QTVERSION_/$QT_MAJOR$QT_MINOR$QT_PATCH/g" > /tmp/qtinstaller_controlscript.qs
+RUN cat /tmp/qtinstaller_controlscript_template_linux.qs \
+    | sed 's:_QTVERSION_:'"$QT_MAJOR$QT_MINOR$QT_PATCH"':g' \
+    | sed 's:_QT_INSTALLDIR_:'"$QT_INSTALLDIR"':g' \
+    > /tmp/qtinstaller_controlscript.qs
 ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
-RUN yum install -y -q libxkbcommon-x11
+RUN yum install -y -q libxkbcommon-x11 libwayland-cursor
 RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
     && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose
-ENV QTDIR="/opt/Qt/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
+ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
 ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
@@ -89,25 +104,33 @@ RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
     && mkdir build \
     && cd build \
     && source /opt/rh/devtoolset-7/enable || true \
-	&& source /opt/rh/llvm-toolset-7/enable || true \
+    && source /opt/rh/llvm-toolset-7/enable || true \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
     && make install
 ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
 # Install CUDA
-RUN yum-config-manager --add-repo \
-    http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo \
-    && yum clean all
-RUN yum install -y -q cuda-toolkit-10-2
-RUN yum install -y -q nvidia-driver-cuda
-RUN yum install -y -q nvidia-kmod
+RUN yum-config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo \
+    && yum clean expire-cache
+RUN yum install -y -q cuda-10-2
 ENV PATH="/usr/local/cuda-10.2/bin:/usr/local/cuda-10.2/NsightCompute-2019.1${PATH:+:${PATH}}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-ENV VM_HAS_CUDA="true"
 ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
 ENV VM_CUDA_ARCH="sm_50"
+ENV VM_HAS_CUDA="true"
 
+# Install pybind11 (needed by SofaPython3)
+RUN git clone -b v2.4 --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
+    && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
+    && source /opt/rh/rh-python38/enable || true \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3.8)" -DPYBIND11_TEST=OFF ../src \
+    && make && make install
+
+###################################
+
+# Disable core dumps
+RUN printf '\n# Disable core dumps\n* soft core 0\n* hard core 0\n' >> /etc/security/limits.conf
 
 # Init /builds directory
 WORKDIR /builds

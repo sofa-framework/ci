@@ -341,7 +341,7 @@ ignore-scenes-with-missing-plugins() {
             done < "$output_dir/grep.tmp"
             rm -f "$output_dir/grep.tmp"
         fi
-    done < <(grep "^examples/" "$output_dir/all-tested-scenes.txt")
+    done < "$output_dir/all-tested-scenes.txt"
     echo "Searching for missing plugins: done."
 }
 
@@ -373,7 +373,7 @@ do-test-all-scenes() {
     local tested_scenes_count="$(cat "$tested_scenes" | wc -l)"
     current_scene_count=0
     while read scene; do
-        current_scene_count=$((current_scene_count+1))
+        current_scene_count=$(( current_scene_count + 1 ))
         local iterations=$(cat "$output_dir/$scene/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
         local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
@@ -394,8 +394,8 @@ do-test-all-scenes() {
         "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout        
         end_millisec="$(time-millisec)"
         
-        elapsed_millisec="$(($end_millisec - $begin_millisec))"
-        elapsed_sec="$(($elapsed_millisec/1000)).$(printf "%03d" $elapsed_millisec)"
+        elapsed_millisec="$(( end_millisec - begin_millisec ))"
+        elapsed_sec="$(( elapsed_millisec / 1000 )).$(printf "%03d" $elapsed_millisec)"
         
         if [[ -e "$output_dir/$scene/runSofa.timeout" ]]; then
             echo 'Timeout!'
@@ -422,13 +422,13 @@ test-all-scenes() {
         echo "$(shuf $output_dir/all-tested-scenes.txt)" > "$output_dir/all-tested-scenes.txt"
     fi
     local total_lines="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"
-    local lines_per_thread=$((total_lines/VM_MAX_PARALLEL_TESTS+1))
+    local lines_per_thread=$(( total_lines / VM_MAX_PARALLEL_TESTS + 1 ))
     split -l $lines_per_thread "$output_dir/all-tested-scenes.txt" "$output_dir/all-tested-scenes_part-"
     thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
-        do-test-all-scenes "$file" "$((thread+1))" &
+        do-test-all-scenes "$file" "$(( thread + 1 ))" &
         pids[${thread}]=$!
-        thread=$((thread+1))
+        thread=$(( thread + 1 ))
     done
     # forward stop signals to child processes
     # trap "kill -TERM ${pids[*]}" SIGINT SIGTERM EXIT
@@ -436,10 +436,10 @@ test-all-scenes() {
     # wait child processes
     thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
-        echo "Waiting for thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
+        echo "Waiting for thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
         wait ${pids[$thread]}
-        echo "Thread $((thread+1))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
-        thread=$((thread+1))
+        echo "Thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
+        thread=$(( thread + 1 ))
     done
     echo "Done."
 }
@@ -517,7 +517,7 @@ count-durations() {
     total=0
     while read scene; do
         duration="$(cat "$output_dir/$scene/duration.txt" 2>/dev/null || echo "0")"
-        total="$( $python_exe -c "print $total + $duration" )"
+        total="$( $python_exe -c "print($total + $duration)" )"
     done < "$output_dir/all-tested-scenes.txt"
     echo "$total"
 }
