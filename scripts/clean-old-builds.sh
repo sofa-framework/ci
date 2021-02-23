@@ -80,11 +80,12 @@ for build_dir in "$@"; do
             fi
 
             # check if the PR has migrated on a new machine
-            is_duplicated_build_on_other_machine="false"
+            has_a_preference_for_an_other_machine="false"
+            # This is where the jenkins scheduler have allocated the job last time.
             pr_last_built_machine="$(jenkins-get-last-node-for-pr "$pr_id" 'CI_CONFIG=$CI_CONFIG,CI_PLUGINS=$CI_PLUGINS,CI_TYPE=$CI_TYPE')"
             if [[ "pr_last_built_machine" != "$NODE_NAME" ]]; then
                 echo "    PR $pr_id is also on node: '$pr_last_built_machine'"
-                is_duplicated_build_on_other_machine="true"                
+                has_a_preference_for_an_other_machine="true"
             fi
         fi
 
@@ -111,7 +112,7 @@ for build_dir in "$@"; do
                 MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_SHORTEST"
                 max_sec_since_modified="$max_sec_since_modified_shortest"
             fi
-            if [[ "$is_duplicated_build_on_other_machine" == "true" ]]; then
+            if [[ "$has_a_preference_for_an_other_machine" == "true" ]]; then
                 MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_SHORTEST"
                 max_sec_since_modified="$max_sec_since_modified_shortest"
             fi
