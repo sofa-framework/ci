@@ -34,10 +34,10 @@ if [ "$#" -gt 0 ]; then
     . "$SCRIPT_DIR"/github.sh
 
     MAX_DAYS_SINCE_MODIFIED_LONG=7
-    max_sec_since_modified_long=$(( 3600 * 24 * MAX_DAYS_SINCE_MODIFIED_LONG ))
+    max_sec_since_modified_long=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_LONG ))
     
-    MAX_DAYS_SINCE_MODIFIED_SHORT=1
-    max_sec_since_modified_short=$(( 3600 * 24 * MAX_DAYS_SINCE_MODIFIED_SHORT ))
+    MAX_DAYS_SINCE_MODIFIED_SHORT=1/4
+    max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORT ))
     
     MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
     max_sec_since_modified="$max_sec_since_modified_long"
