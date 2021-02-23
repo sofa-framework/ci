@@ -34,7 +34,7 @@ if [ "$#" -gt 0 ]; then
     . "$SCRIPT_DIR"/github.sh
 
     MAX_DAYS_SINCE_MODIFIED_LONG=7
-    max_sec_since_modified_long=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_LONG ))
+    max_sec_since_modified_long=$(( 3600 * 24 * MAX_DAYS_SINCE_MODIFIED_LONG ))
     
     MAX_DAYS_SINCE_MODIFIED_SHORT=1
     max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORT ))
@@ -82,7 +82,7 @@ for build_dir in "$@"; do
             # check if the PR has migrated on a new machine
             is_duplicated_build_on_other_machine="false"
             pr_last_built_machine="$(jenkins-get-last-node-for-pr "$pr_id" 'CI_CONFIG=$CI_CONFIG,CI_PLUGINS=$CI_PLUGINS,CI_TYPE=$CI_TYPE')"
-            if [[ "pr_last_built_machine" == "$NODE_NAME" ]]; then
+            if [[ "pr_last_built_machine" != "$NODE_NAME" ]]; then
                 echo "    PR $pr_id is also on node: '$pr_last_built_machine'"
                 is_duplicated_build_on_other_machine="true"                
             fi
