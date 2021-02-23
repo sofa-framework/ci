@@ -29,16 +29,10 @@ jenkins-get-first-node-for-pr()
     response="$(curl --silent "https://ci.inria.fr/sofa-ci-dev/job/sofa-framework/job/PR-$pr_id/$ci_config/1/api/json?pretty=true")"
     echo $response
     if [ -n "$response" ]; then
-        last_built_on_machine="$( echo "$response" | $python_exe -c "import sys; import json; print(json.load(sys.stdin)['builtOn'])")"
-        echo ${last_built_on_machine}
+        first_built_on_machine="$( echo "$response" | $python_exe -c "import sys; import json; print(json.load(sys.stdin)['builtOn'])")"
+        echo ${first_built_on_machine}
     else
         echo "undefine"
     fi
 }
 
-python_exe=/usr/bin/python3
-CI_CONFIG=windows10_vs-2017
-CI_PLUGINS=options
-CI_TYPE=release
-jenkins-get-last-node-for-pr "1799" "CI_CONFIG=$CI_CONFIG,CI_PLUGINS=$CI_PLUGINS,CI_TYPE=$CI_TYPE"
-jenkins-get-first-node-for-pr "1799" "CI_CONFIG=$CI_CONFIG,CI_PLUGINS=$CI_PLUGINS,CI_TYPE=$CI_TYPE"
