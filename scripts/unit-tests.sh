@@ -52,13 +52,15 @@ list-tests() {
     pushd "$build_dir/bin" > /dev/null
     if [[ "$test_type" == "regression-tests" ]]; then
         for file in *; do
-            if [[ "$file" == *Regression_test* ]]; then
+            if [[ "$file" == Regression_test ]]     || [[ "$file" == Regression_testd ]] ||
+               [[ "$file" == Regression_test.exe ]] || [[ "$file" == Regression_testd.exe ]]; then
                 echo $file
             fi
         done
     else
         for file in *; do
-            if [[ "$file" == *Regression_test* ]]; then
+            if [[ "$file" == Regression_test ]]     || [[ "$file" == Regression_testd ]] ||
+               [[ "$file" == Regression_test.exe ]] || [[ "$file" == Regression_testd.exe ]]; then
                 continue # ignore regression tests
             fi
             if [[ "$file" == *_test ]]         || [[ "$file" == *_testd ]] ||
