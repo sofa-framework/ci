@@ -187,7 +187,7 @@ if vm-is-windows; then # Finding libs on Windows
         python2_include="$python2_path/include"
     fi
     if [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
-        python3_path="$(dirname "$VM_PYTHON_EXECUTABLE")"
+        python3_path="$(dirname "$VM_PYTHON3_EXECUTABLE")"
         if [[ "$ARCHITECTURE" == "x86" ]]; then
             python3_path="${python3_path}_x86"
         fi

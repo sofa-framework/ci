@@ -26,5 +26,8 @@ export VM_MAX_PARALLEL_TESTS="4"
 # TEMPORARY: prioritize python2
 source /opt/rh/python27/enable || true
 
+export PYTHONIOENCODING="UTF-8"
+export PYTHONUSERBASE="/tmp/pythonuserbase"
+mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 export VM_PYTHON_EXECUTABLE="/opt/rh/python27/root/usr/bin/python2.7"
 export VM_PYTHON3_EXECUTABLE="/opt/rh/rh-python38/root/usr/bin/python3.8"
