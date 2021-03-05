@@ -25,3 +25,6 @@ export VM_MAX_PARALLEL_TESTS="4"
 
 # TEMPORARY: prioritize python2
 source /opt/rh/python27/enable || true
+
+export VM_PYTHON_EXECUTABLE="/opt/rh/python27/root/usr/bin/python2.7"
+export VM_PYTHON3_EXECUTABLE="/opt/rh/rh-python38/root/usr/bin/python3.8"

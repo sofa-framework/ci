@@ -29,7 +29,7 @@ else
     export PYTHONIOENCODING="UTF-8"
     export PYTHONUSERBASE="/tmp/pythonuserbase"
     mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
-    export VM_PYTHON_EXECUTABLE="/usr/bin/python"
+    export VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
     export VM_PYTHON3_EXECUTABLE="/usr/bin/python3.7"
 fi
 
