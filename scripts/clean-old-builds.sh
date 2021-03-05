@@ -33,13 +33,13 @@ if [ "$#" -gt 0 ]; then
     . "$SCRIPT_DIR"/utils.sh
     . "$SCRIPT_DIR"/github.sh
 
-    MAX_DAYS_SINCE_MODIFIED_LONG=7
-    max_sec_since_modified_long=$(( 3600 * 24 * MAX_DAYS_SINCE_MODIFIED_LONG ))
+    MAX_DAYS_SINCE_MODIFIED_LONG=5
+    max_sec_since_modified_long=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_LONG ))
     
     MAX_DAYS_SINCE_MODIFIED_SHORT=1
     max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORT ))
 
-    MAX_DAYS_SINCE_MODIFIED_SHORTEST=0.16
+    MAX_DAYS_SINCE_MODIFIED_SHORTEST=1/6
     max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORTEST ))
 
     MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
