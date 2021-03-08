@@ -308,8 +308,8 @@ add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
 add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
-add-cmake-option "-DPLUGIN_SOFAPYTHON3=OFF"
-add-cmake-option "-DSOFA_ENABLE_SOFT_DEPS_TO_SOFAPYTHON=ON"
+add-cmake-option "-DPLUGIN_SOFAPYTHON3=ON" "-DSOFA_FETCH_SOFAPYTHON3=ON"
+add-cmake-option "-DSOFA_ENABLE_SOFT_DEPS_TO_SOFAPYTHON=OFF"
 
 add-cmake-option "-DMODULE_SOFADENSESOLVER=ON"
 add-cmake-option "-DMODULE_SOFAEXPORTER=ON"
@@ -321,12 +321,10 @@ add-cmake-option "-DMODULE_SOFASPARSESOLVER=ON"
 add-cmake-option "-DMODULE_SOFAVALIDATION=ON"
 
 if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
-    add-cmake-option "-DSOFA_FETCH_REGRESSION=ON"
-    add-cmake-option "-DAPPLICATION_REGRESSION_TEST=ON"
+    add-cmake-option "-DAPPLICATION_REGRESSION_TEST=ON" "-DSOFA_FETCH_REGRESSION=ON"
 else
     # clean eventual cached value
-    add-cmake-option "-DSOFA_FETCH_REGRESSION=OFF"
-    add-cmake-option "-DAPPLICATION_REGRESSION_TEST=OFF"
+    add-cmake-option "-DAPPLICATION_REGRESSION_TEST=OFF" "-DSOFA_FETCH_REGRESSION=OFF"
 fi
 
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
@@ -485,23 +483,13 @@ fi
 #############
 
 echo "Calling cmake with the following options:"
-if vm-is-macos; then
-    echo "$cmake_options" | tr -s ' ' '\n' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
-    echo "Enabled modules and plugins:"
-    echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=ON" | sort
-    echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=ON" | sort
-    echo "Disabled modules and plugins:"
-    echo "$cmake_options" | tr -s ' ' '\n' | grep "MODULE_" | grep "=OFF" | sort
-    echo "$cmake_options" | tr -s ' ' '\n' | grep "PLUGIN_" | grep "=OFF" | sort
-else
-    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
-    echo "Enabled modules and plugins:"
-    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=ON" | sort
-    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=ON" | sort
-    echo "Disabled modules and plugins:"
-    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "MODULE_" | grep "=OFF" | sort
-    echo "$cmake_options" | sed 's/ -D/\n-D/g' | grep "PLUGIN_" | grep "=OFF" | sort    
-fi
+echo "$cmake_options" | tr -s " " "\n" | grep -v "MODULE_" | grep -v "PLUGIN_" | sort
+echo "Enabled modules and plugins:"
+echo "$cmake_options" | tr -s " " "\n" | grep "MODULE_" | grep "=ON" | sort
+echo "$cmake_options" | tr -s " " "\n" | grep "PLUGIN_" | grep "=ON" | sort
+echo "Disabled modules and plugins:"
+echo "$cmake_options" | tr -s " " "\n" | grep "MODULE_" | grep "=OFF" | sort
+echo "$cmake_options" | tr -s " " "\n" | grep "PLUGIN_" | grep "=OFF" | sort
 
 if [ -n "$full_build" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
