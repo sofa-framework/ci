@@ -237,6 +237,26 @@ else
         done
     fi
 fi
+if [ -e "$python2_path" ]; then
+    add-cmake-option "-DPYTHON_ROOT_DIR=$python2_path"
+    add-cmake-option "-DPYTHON_ROOT=$python2_path"
+    add-cmake-option "-DPython2_ROOT_DIR=$python2_path"
+    add-cmake-option "-DPython2_ROOT=$python2_path"
+    export PYTHON_ROOT_DIR="$python2_path"
+    export PYTHON_ROOT="$python2_path"
+    export Python2_ROOT_DIR="$python2_path"
+    export Python2_ROOT="$python2_path"
+fi
+if [ -e "$python3_path" ]; then
+    add-cmake-option "-DPython_ROOT_DIR=$python3_path"
+    add-cmake-option "-DPython_ROOT=$python3_path"
+    add-cmake-option "-DPython3_ROOT_DIR=$python3_path"
+    add-cmake-option "-DPython3_ROOT=$python3_path"
+    export Python_ROOT_DIR="$python3_path"
+    export Python_ROOT="$python3_path"
+    export Python3_ROOT_DIR="$python3_path"
+    export Python3_ROOT="$python3_path"
+fi
 if [ -e "$python2_exec" ] && [ -e "$python2_lib" ] && [ -e "$python2_include" ]; then
     add-cmake-option "-DPYTHON_EXECUTABLE=$python2_exec"
     add-cmake-option "-DPYTHON_LIBRARY=$python2_lib"
