@@ -183,7 +183,7 @@ if vm-is-windows; then # Finding libs on Windows
             python2_path="${python2_path}_x86"
         fi
         python2_exec="$python2_path/python.exe"
-        python2_lib="$(ls $python2_path/libs/python*.lib | head -n 1)"
+        python2_lib="$(ls $python2_path/libs/python[0-9][0-9].lib | head -n 1)"
         python2_include="$python2_path/include"
     fi
     if [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
@@ -192,7 +192,7 @@ if vm-is-windows; then # Finding libs on Windows
             python3_path="${python3_path}_x86"
         fi
         python3_exec="$python3_path/python.exe"
-        python3_lib="$(ls $python3_path/libs/python*.lib | head -n 1)"
+        python3_lib="$(ls $python3_path/libs/python[0-9][0-9].lib | head -n 1)"
         python3_include="$python3_path/include"
     fi
 else
