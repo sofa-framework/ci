@@ -118,7 +118,16 @@ count-args() {
 
 list-scenes() {
     local directory="$1"
-    /usr/bin/find "$directory" -name '*.scn' | sed -e "s:$directory/::"
+
+    scenes_scn="$(/usr/bin/find "$directory" -name '*.scn' | sed -e "s:$directory/::")"
+    scenes_scn_grep="scenes_scn_to_filter_out"
+    for scene in $scenes_scn; do
+        scenes_scn_grep="$scenes_scn_grep"'\|'"${scene%.*}"
+    done
+    scenes_pyscn="$(/usr/bin/find "$directory" -name '*.pyscn' | sed -e "s:$directory/::" | grep -v "$scenes_scn_grep")"
+    scenes_py="$(/usr/bin/find "$directory" -name '*.py' | sed -e "s:$directory/::" | grep -v "$scenes_scn_grep")"
+
+    (echo "$scenes_scn" && echo "$scenes_pyscn" && echo "$scenes_py") | sort | uniq
 }
 
 
@@ -283,6 +292,14 @@ parse-options-files() {
         sed -e "s:^:$path/:" "$output_dir/$path/added-scenes.txt" >> "$output_dir/all-added-scenes.txt"
         sed -e "s:^:$path/:" "$output_dir/$path/tested-scenes.txt" >> "$output_dir/all-tested-scenes.txt"
     done < "$output_dir/directories.txt"
+
+    # Clean output files
+    cat "$output_dir/all-ignored-scenes.txt" | grep "\." | sort | uniq > "$output_dir/all-ignored-scenes.txt.tmp" &&
+        mv -f "$output_dir/all-ignored-scenes.txt.tmp" "$output_dir/all-ignored-scenes.txt"
+    cat "$output_dir/all-added-scenes.txt"   | grep "\." | sort | uniq > "$output_dir/all-added-scenes.txt.tmp" &&
+        mv -f "$output_dir/all-added-scenes.txt.tmp" "$output_dir/all-added-scenes.txt"
+    cat "$output_dir/all-tested-scenes.txt"  | grep "\." | sort | uniq > "$output_dir/all-tested-scenes.txt.tmp" &&
+        mv -f "$output_dir/all-tested-scenes.txt.tmp" "$output_dir/all-tested-scenes.txt"
 }
 
 ignore-scenes-with-deprecated-components() {
