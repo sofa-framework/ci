@@ -98,9 +98,9 @@ fix-test-report() {
     fi
 
     if [[ "$test_name" == "Sofa."* ]]; then
-        test_name=Sofa"${test_name#*.}"
+        test_name=Sofa_"${test_name#*.}"
     elif [[ "$test_name" == "Bindings."* ]]; then
-        test_name=Bindings"${test_name#*.}"
+        test_name=Bindings_"${test_name#*.}"
     fi
 
     # Little fix: Googletest marks skipped tests with a 'status="notrun"' attribute,
