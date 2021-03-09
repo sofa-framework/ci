@@ -654,7 +654,7 @@ export-to-junit-xml() {
         <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">'
 
         while read crash_msg; do
-            crash_msg_short="$(echo $crash_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g;')"
+            crash_msg_short="$(echo $crash_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g ; s/</\&lt;/g ; s/>/\&gt;/g ; s/"/\&quot;/g')"
             echo '
             <error message="'$crash_msg_short'">
 <![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
@@ -662,7 +662,7 @@ export-to-junit-xml() {
         done < <( grep -o "${scene}.*" "$output_dir/reports/crashes.txt" )
 
         while read error_msg; do
-            error_msg_short="$(echo $error_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g;')"
+            error_msg_short="$(echo $error_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g ; s/</\&lt;/g ; s/>/\&gt;/g ; s/"/\&quot;/g')"
             echo '
             <failure message="'$error_msg_short'">
 <![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
@@ -700,7 +700,7 @@ export-to-junit-xml() {
     echo '<?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="Scene Tests" tests="'$count_errors_crashes_tests'" errors="'$count_errors_crashes_errors'" failures="'$count_errors_crashes_failures'" disabled="0">
     <testsuite name="All Scenes" tests="'$count_errors_crashes_tests'" errors="'$count_errors_crashes_errors'" failures="'$count_errors_crashes_failures'" disabled="0">' > "$xml_file_errors_crashes"
-    iconv -f utf-8 -t ascii//translit "$xml_file_errors_crashes.tmp" >> "$xml_file_errors_crashes"
+    cat "$xml_file_errors_crashes.tmp" | sed 's:[\x00-\x08]::g ; s:\x0B::g ; s:\x0C::g ; s:[\x0E-\x1F]::g' >> "$xml_file_errors_crashes"
     echo '
     </testsuite>
 </testsuites>' >> "$xml_file_errors_crashes"
@@ -712,7 +712,7 @@ export-to-junit-xml() {
     echo '<?xml version="1.0" encoding="UTF-8"?>
 <testsuites name="Scene Tests" tests="'$count_successes_tests'" errors="'$count_successes_errors'" failures="'$count_successes_failures'" disabled="0">
     <testsuite name="All Scenes" tests="'$count_successes_tests'" errors="'$count_successes_errors'" failures="'$count_successes_failures'" disabled="0">' > "$xml_file_successes"
-    iconv -f utf-8 -t ascii//translit "$xml_file_successes.tmp" >> "$xml_file_successes"
+    cat "$xml_file_successes.tmp" | sed 's:[\x00-\x08]::g ; s:\x0B::g ; s:\x0C::g ; s:[\x0E-\x1F]::g' >> "$xml_file_successes"
     echo '
     </testsuite>
 </testsuites>' >> "$xml_file_successes"
