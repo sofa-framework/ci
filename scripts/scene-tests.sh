@@ -650,20 +650,20 @@ export-to-junit-xml() {
         <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">'
 
         while read crash_msg; do
-            crash_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
+            crash_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##')"
             success="false"
             echo '
-            <error message="<![CDATA['$crash_msg_short']]>">
-<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"']]>
+            <error message="<![CDATA['"$crash_msg_short"' ]]>">
+<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
             </error>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/crashes.txt" )
 
         while read error_msg; do
-            error_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
+            error_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##')"
             success="false"
             echo '
-            <failure message="<![CDATA['$error_msg_short']]>">
-<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"']]>
+            <failure message="<![CDATA['"$error_msg_short"' ]]>">
+<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
             </failure>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )
 
