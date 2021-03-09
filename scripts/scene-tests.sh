@@ -659,7 +659,7 @@ export-to-junit-xml() {
         done < <( grep -o "${scene}.*" "$output_dir/reports/crashes.txt" )
 
         while read error_msg; do
-            error_msg_short="$(echo $crash_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
+            error_msg_short="$(echo $error_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
             success="false"
             echo '
             <failure message="'$error_msg_short'">
@@ -667,6 +667,12 @@ export-to-junit-xml() {
             </failure>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )
 
+        if [[ "$success" == "true" ]]; then
+            echo '
+            <system-out>
+<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
+            </system-out>'
+        fi
         echo '
         </testcase>'
     done < "$output_dir/all-tested-scenes.txt" > "$xml_file.tmp"
