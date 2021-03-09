@@ -637,21 +637,24 @@ print-summary() {
 
 export-to-junit-xml() {
     echo "Exporting as JUnit XML..."
-    local xml_file="$output_dir/reports/junit.xml"
+    local xml_file_errors_crashes="$output_dir/reports/junit_errors_crashes.xml"
+    local xml_file_successes="$output_dir/reports/junit_successes.xml"
 
     # Gather results
-    while read scene; do
+    ( # get list of scenes with errors or crashes
+    cat "$output_dir/reports/errors.txt" | sed 's#:.*##' | sort | uniq
+    cat "$output_dir/reports/crashes.txt" | sed 's#:.*##' | sort | uniq
+    ) | sort | uniq | while read scene; do
         scene_path="$(dirname $scene)" # scene path
         scene_name="$(basename $scene)" # scene name
         scene_name_noext="${scene_name%.*}" # scene name without extension
         elapsed_sec="$(cat "$output_dir/$scene/duration.txt" || echo "0")"
-        success="true"
+
         echo '
         <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">'
 
         while read crash_msg; do
             crash_msg_short="$(echo $crash_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
-            success="false"
             echo '
             <error message="'$crash_msg_short'">
 <![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
@@ -660,36 +663,61 @@ export-to-junit-xml() {
 
         while read error_msg; do
             error_msg_short="$(echo $error_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
-            success="false"
             echo '
             <failure message="'$error_msg_short'">
 <![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
             </failure>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )
 
-        if [[ "$success" == "true" ]]; then
-            echo '
-            <system-out>
-<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
-            </system-out>'
-        fi
         echo '
         </testcase>'
-    done < "$output_dir/all-tested-scenes.txt" > "$xml_file.tmp"
+    done > "$xml_file_errors_crashes.tmp"
+    
+    ( # get list of scenes with success
+    cat "$output_dir/reports/successes.txt" | sed 's#:.*##' | sort | uniq
+    ) | sort | uniq | while read scene; do
+        scene_path="$(dirname $scene)" # scene path
+        scene_name="$(basename $scene)" # scene name
+        scene_name_noext="${scene_name%.*}" # scene name without extension
+        elapsed_sec="$(cat "$output_dir/$scene/duration.txt" || echo "0")"
 
-    # Write XML report
-    test_count="$(grep '<testcase' "$xml_file.tmp" | wc -l)"
-    error_count="$(grep '<error' "$xml_file.tmp" | wc -l)"
-    failure_count="$(grep '<failure' "$xml_file.tmp" | wc -l)"
+        echo '
+        <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">'
+
+        echo '
+        <system-out>
+<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
+        </system-out>'
+
+        echo '
+        </testcase>'
+    done > "$xml_file_successes.tmp"
+
+    # Write XML report for errors and crashes
+    count_errors_crashes_tests="$(grep '<testcase ' "$xml_file_errors_crashes.tmp" | wc -l | tr -d ' 	')"
+    count_errors_crashes_errors="$(grep '<error ' "$xml_file_errors_crashes.tmp" | wc -l | tr -d ' 	')"
+    count_errors_crashes_failures="$(grep '<failure ' "$xml_file_errors_crashes.tmp" | wc -l | tr -d ' 	')"
     echo '<?xml version="1.0" encoding="UTF-8"?>
-<testsuites name="Scene Tests" tests="'$test_count'" errors="'$error_count'" failures="'$failure_count'" disabled="0">
-    <testsuite name="All Scenes" tests="'$test_count'" errors="'$error_count'" failures="'$failure_count'" disabled="0">' > "$xml_file"
-    cat "$xml_file.tmp" >> "$xml_file"
+<testsuites name="Scene Tests" tests="'$count_errors_crashes_tests'" errors="'$count_errors_crashes_errors'" failures="'$count_errors_crashes_failures'" disabled="0">
+    <testsuite name="All Scenes" tests="'$count_errors_crashes_tests'" errors="'$count_errors_crashes_errors'" failures="'$count_errors_crashes_failures'" disabled="0">' > "$xml_file_errors_crashes"
+    cat "$xml_file_errors_crashes.tmp" >> "$xml_file_errors_crashes"
     echo '
     </testsuite>
-</testsuites>' >> "$xml_file"
+</testsuites>' >> "$xml_file_errors_crashes"
 
-    rm -f "$xml_file.tmp"
+    # Write XML report for successes
+    count_successes_tests="$(grep '<testcase ' "$xml_file_successes.tmp" | wc -l | tr -d ' 	')"
+    count_successes_errors="$(grep '<error ' "$xml_file_successes.tmp" | wc -l | tr -d ' 	')"
+    count_successes_failures="$(grep '<failure ' "$xml_file_successes.tmp" | wc -l | tr -d ' 	')"
+    echo '<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Scene Tests" tests="'$count_successes_tests'" errors="'$count_successes_errors'" failures="'$count_successes_failures'" disabled="0">
+    <testsuite name="All Scenes" tests="'$count_successes_tests'" errors="'$count_successes_errors'" failures="'$count_successes_failures'" disabled="0">' > "$xml_file_successes"
+    cat "$xml_file_successes.tmp" >> "$xml_file_successes"
+    echo '
+    </testsuite>
+</testsuites>' >> "$xml_file_successes"
+
+    rm -f "$xml_file_errors_crashes.tmp" "$xml_file_successes.tmp"
     echo "Done."
 }
 
