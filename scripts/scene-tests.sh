@@ -400,20 +400,20 @@ do-test-all-scenes() {
         echo "- $scene (thread $thread_num/$VM_MAX_PARALLEL_TESTS ; scene $current_scene_count/$tested_scenes_count)"
 
         ( echo "" &&
-          echo "------------------------------------------" && 
+          echo "------------------------------------------" &&
           echo "" &&
           echo "Running scene-test $scene" &&
           echo 'Calling: "'$SCRIPT_DIR'/timeout.sh" "'$output_dir'/'$scene'/runSofa" "'$runSofa_cmd'" '$timeout &&
           echo ""
         ) > "$output_dir/$scene/output.txt"
-        
+
         begin_millisec="$(time-millisec)"
-        "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout        
+        "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout
         end_millisec="$(time-millisec)"
-        
+
         elapsed_millisec="$(( end_millisec - begin_millisec ))"
         elapsed_sec="$(( elapsed_millisec / 1000 )).$(printf "%03d" $elapsed_millisec)"
-        
+
         if [[ -e "$output_dir/$scene/runSofa.timeout" ]]; then
             echo 'Timeout!'
             echo timeout > "$output_dir/$scene/status.txt"
@@ -638,45 +638,39 @@ print-summary() {
 export-to-junit-xml() {
     echo "Exporting as JUnit XML..."
     local xml_file="$output_dir/reports/junit.xml"
-    
+
     # Gather results
     while read scene; do
         scene_path="$(dirname $scene)" # scene path
         scene_name="$(basename $scene)" # scene name
         scene_name_noext="${scene_name%.*}" # scene name without extension
-        elapsed_sec="$(cat "$output_dir/$scene/duration.txt")"
+        elapsed_sec="$(cat "$output_dir/$scene/duration.txt" || echo "0")"
         success="true"
         echo '
         <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">'
-        
+
         while read crash_msg; do
             crash_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
             success="false"
             echo '
-            <error message="'$crash_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
+            <error message="<![CDATA['$crash_msg_short']]>">
+<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"']]>
             </error>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/crashes.txt" )
-        
+
         while read error_msg; do
             error_msg_short="$(echo "$crash_msg" | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g;')"
             success="false"
             echo '
-            <failure message="'$error_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
+            <failure message="<![CDATA['$error_msg_short']]>">
+<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"']]>
             </failure>'
-        done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )        
-        
-        if [[ "$success" == "true" ]]; then
-            echo '
-            <system-out>
-<![CDATA['"$(cat $output_dir/$scene/output.txt)"']]>
-            </system-out>'
-        fi
+        done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )
+
         echo '
         </testcase>'
     done < "$output_dir/all-tested-scenes.txt" > "$xml_file.tmp"
-    
+
     # Write XML report
     test_count="$(grep '<testcase' "$xml_file.tmp" | wc -l)"
     error_count="$(grep '<error' "$xml_file.tmp" | wc -l)"
@@ -711,7 +705,7 @@ if [[ "$command" = run ]]; then
     extract-warnings
     extract-errors
     extract-crashes
-    if ! vm-is-macos; then 
+    if ! vm-is-macos; then
         # TODO: fix a blocking call on MacOS when reading scene
         export-to-junit-xml
     fi
