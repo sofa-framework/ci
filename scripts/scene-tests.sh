@@ -47,6 +47,10 @@ if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
     VM_MAX_PARALLEL_TESTS=1
 fi
 
+export SOFA_ROOT="$build_dir"
+if [ -e "$build_dir/python3" ]; then
+    export PYTHONPATH="$build_dir/python3:$PYTHONPATH"
+fi
 
 ### Utils
 
@@ -362,6 +366,27 @@ ignore-scenes-with-missing-plugins() {
     echo "Searching for missing plugins: done."
 }
 
+ignore-scenes-python-without-createscene() {
+    echo "Searching for unwanted python scripts..."
+    base_dir="$(pwd)"
+    cd "$src_dir"
+    grep '.py$' "$base_dir/$output_dir/all-tested-scenes.txt" | while read scene; do
+        if ! grep -q "def createScene" "$scene"; then
+            # Remove the scene from all-tested-scenes
+            grep -v "$scene" "$base_dir/$output_dir/all-tested-scenes.txt" > "$base_dir/$output_dir/all-tested-scenes.tmp"
+            mv "$base_dir/$output_dir/all-tested-scenes.tmp" "$base_dir/$output_dir/all-tested-scenes.txt"
+            rm -f "$base_dir/$output_dir/all-tested-scenes.tmp"
+            # Add the scene in all-ignored-scenes
+            if ! grep -q "$scene" "$base_dir/$output_dir/all-ignored-scenes.txt"; then
+                echo "  ignore $scene: createScene function not found."
+                echo "$scene" >> "$base_dir/$output_dir/all-ignored-scenes.txt"
+            fi
+        fi
+    done
+    cd "$base_dir"
+    echo "Searching for unwanted python scripts: done."
+}
+
 initialize-scene-tests() {
     echo "Initializing scene testing."
     rm -rf "$output_dir"
@@ -393,6 +418,18 @@ do-test-all-scenes() {
         current_scene_count=$(( current_scene_count + 1 ))
         local iterations=$(cat "$output_dir/$scene/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
+        
+        # Try to guess if a python scene needs SofaPython or SofaPython3
+        if [[ "$scene" == *".py" ]]; then
+            if grep -q -i "python3" "$src_dir/$scene"; then
+                options="$options -lSofaPython3"
+            elif grep -q "createChild" "$src_dir/$scene" || grep -q "createObject" "$src_dir/$scene"; then
+                options="$options -lSofaPython"
+            else
+                options="$options -lSofaPython3"
+            fi
+        fi
+        
         local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
         local timeout=$(cat "$output_dir/$scene/timeout.txt")
         echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
@@ -729,11 +766,12 @@ if [[ "$command" = run ]]; then
     if [ ! -d "$build_dir/screenshots" ]; then
         mkdir "$build_dir/screenshots"
     fi
-    if ! grep -q "SOFA_WITH_DEPRECATED_COMPONENTS:BOOL=ON" "$build_dir/CMakeCache.txt" &&
-       grep -q "APPLICATION_GETDEPRECATEDCOMPONENTS:BOOL=ON" "$build_dir/CMakeCache.txt"; then
+    if ! grep -q "SOFA_WITH_DEPRECATED_COMPONENTS:.*=ON" "$build_dir/CMakeCache.txt" &&
+       grep -q "APPLICATION_GETDEPRECATEDCOMPONENTS:.*=ON" "$build_dir/CMakeCache.txt"; then
         ignore-scenes-with-deprecated-components
     fi
     ignore-scenes-with-missing-plugins
+    ignore-scenes-python-without-createscene
     test-all-scenes
     extract-successes
     extract-warnings
