@@ -325,14 +325,15 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS" || in-array "run-scene-tests" "$BU
     github_message="${github_message} FIXME:"
 fi
 
-# Remove SofaCUDA from plugin_list.conf.default
-echo "Preventing SofaCUDA from being loaded in VMs."
+# Remove SofaCUDA and SofaPython from plugin_list.conf.default
+echo "Removing SofaCUDA and SofaPython from plugin_list.conf.default"
 if vm-is-windows; then
     plugin_conf="$BUILD_DIR/bin/plugin_list.conf.default"
 else
     plugin_conf="$BUILD_DIR/lib/plugin_list.conf.default"
 fi
-grep -v "SofaCUDA" "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
+grep -v "SofaCUDA " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
+grep -v "SofaPython " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
 echo "[END] Post build"
 
