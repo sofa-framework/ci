@@ -421,12 +421,17 @@ do-test-all-scenes() {
         
         # Try to guess if a python scene needs SofaPython or SofaPython3
         if [[ "$scene" == *".py" ]]; then
-            if grep -q -i "python3" "$src_dir/$scene"; then
-                options="$options -lSofaPython3"
-            elif grep -q "createChild" "$src_dir/$scene" || grep -q "createObject" "$src_dir/$scene"; then
-                options="$options -lSofaPython"
+            if [[ "$scene" == *"/SofaPython3/"* ]] ||
+                grep -q -i "python3" "$src_dir/$scene"; then
+                    options="$options -lSofaPython3"
+            elif [[ "$scene" == *"/SofaPython/"* ]]      ||
+                grep -q 'createChild' "$src_dir/$scene"  ||
+                grep -q 'createObject' "$src_dir/$scene" ||
+                grep -q 'print "' "$src_dir/$scene"; then
+                    options="$options -lSofaPython"
             else
-                options="$options -lSofaPython3"
+                # TODO: change to SofaPython3
+                options="$options -lSofaPython"
             fi
         fi
         
