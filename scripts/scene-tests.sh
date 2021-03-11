@@ -420,7 +420,7 @@ do-test-all-scenes() {
         local options="-g batch -s dag -n $iterations" # -z test
         
         # Try to guess if a python scene needs SofaPython or SofaPython3
-        if [[ "$scene" == *".py" ]]; then
+        if [[ "$scene" == *".py" ]] || [[ "$scene" == *".pyscn" ]]; then
             if [[ "$scene" == *"/SofaPython3/"* ]] ||
                 grep -q -i "python3" "$src_dir/$scene"; then
                     options="$options -lSofaPython3"
