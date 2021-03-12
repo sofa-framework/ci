@@ -47,10 +47,12 @@ RUN apt-get install -y \
     libbullet-dev \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev
-RUN python2.7 -m pip install numpy
-RUN python3.7 -m pip install numpy
+RUN python2.7 -m pip install --upgrade "pip < 21.0" \
+    && python2.7 -m pip install "numpy < 1.17" "scipy < 1.3" "matplotlib < 3.0"
+RUN python3.7 -m pip install --upgrade pip \
+    && python3.7 -m pip install numpy scipy pygame
 ENV VM_HAS_ASSIMP="true"
- # BulletColisionDetection is broken
+# BulletColisionDetection is broken
 ENV VM_HAS_BULLET="disabled"
 ENV VM_HAS_OPENCASCADE="true"
 
