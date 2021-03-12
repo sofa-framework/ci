@@ -417,6 +417,7 @@ do-test-all-scenes() {
         local options="-g batch -s dag -n $iterations" # -z test
         
         # Try to guess if a python scene needs SofaPython or SofaPython3
+        export PYTHONPATH=""
         if [[ "$scene" == *".py" ]] || [[ "$scene" == *".pyscn" ]]; then
             pythonPlugin="SofaPython"
             if [[ "$scene" == *"/SofaPython3/"* ]] ||
@@ -433,7 +434,6 @@ do-test-all-scenes() {
             fi
             options="$options -l$pythonPlugin"
 
-            export PYTHONPATH=""
             if [[ "$pythonPlugin" == 'SofaPython3' ]]; then
                 if [ -e "$VM_PYTHON3_PYTHONPATH" ]; then
                     export PYTHONPATH="$VM_PYTHON3_PYTHONPATH:$PYTHONPATH"
