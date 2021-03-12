@@ -18,7 +18,7 @@ export VM_QT_PATH="/Users/ci/Qt/5.12.6"
 
 export VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
 export VM_PYTHON3_EXECUTABLE="/usr/local/bin/python3.7"
-
+export VM_PYTHON3_PYTHONPATH="/usr/local/lib/python3.7/site-packages"
 
 export VM_MAKE_OPTIONS="-j4"
 

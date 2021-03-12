@@ -48,9 +48,6 @@ if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
 fi
 
 export SOFA_ROOT="$build_dir"
-if [ -e "$build_dir/python3" ]; then
-    export PYTHONPATH="$build_dir/python3:$PYTHONPATH"
-fi
 
 ### Utils
 
@@ -421,17 +418,32 @@ do-test-all-scenes() {
         
         # Try to guess if a python scene needs SofaPython or SofaPython3
         if [[ "$scene" == *".py" ]] || [[ "$scene" == *".pyscn" ]]; then
+            local pythonPlugin="SofaPython"
             if [[ "$scene" == *"/SofaPython3/"* ]] ||
                 grep -q -i "python3" "$src_dir/$scene"; then
-                    options="$options -lSofaPython3"
+                    pythonPlugin="SofaPython3"
             elif [[ "$scene" == *"/SofaPython/"* ]]      ||
                 grep -q 'createChild' "$src_dir/$scene"  ||
                 grep -q 'createObject' "$src_dir/$scene" ||
                 grep -q 'print "' "$src_dir/$scene"; then
-                    options="$options -lSofaPython"
+                    pythonPlugin="SofaPython"
             else
                 # TODO: change to SofaPython3
-                options="$options -lSofaPython"
+                pythonPlugin="SofaPython"
+            fi
+            options="$options -l$pythonPlugin"
+
+            if [[ "$pythonPlugin" == "SofaPython3" ]]; then
+                if [ -e "$VM_PYTHON3_PYTHONPATH" ]; then
+                    export PYTHONPATH="$VM_PYTHON3_PYTHONPATH:$PYTHONPATH"
+                fi
+                if [ -e "$build_dir/python3/site-packages" ]; then
+                    export PYTHONPATH="$build_dir/python3/site-packages:$PYTHONPATH"
+                fi
+            elif [[ "$pythonPlugin" == "SofaPython" ]]; then
+                if [ -e "$VM_PYTHON_PYTHONPATH" ]; then
+                    export PYTHONPATH="$VM_PYTHON_PYTHONPATH:$PYTHONPATH"
+                fi
             fi
         fi
         
