@@ -445,6 +445,8 @@ do-test-all-scenes() {
                     export PYTHONPATH="$VM_PYTHON_PYTHONPATH:$PYTHONPATH"
                 fi
             fi
+            echo "pythonPlugin = $pythonPlugin"
+            echo "PYTHONPATH = $PYTHONPATH"
         fi
         
         local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
