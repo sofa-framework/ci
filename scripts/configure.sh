@@ -356,6 +356,7 @@ else # This is not a "package" build
     add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
     add-cmake-option "-DSOFA_BUILD_TESTS=ON"
     add-cmake-option "-DSOFA_BUILD_METIS=ON"
+    add-cmake-option "-DSOFA_DUMP_VISITOR_INFO=ON"
     add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
     add-cmake-option "-DAPPLICATION_MODELER=ON"
     add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
