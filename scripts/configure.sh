@@ -289,7 +289,7 @@ add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
 add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
 add-cmake-option "-DPLUGIN_SOFAPYTHON=ON"
 add-cmake-option "-DPLUGIN_SOFAPYTHON3=ON" "-DSOFA_FETCH_SOFAPYTHON3=ON"
-add-cmake-option "-DSOFA_ENABLE_SOFT_DEPS_TO_SOFAPYTHON=OFF"
+add-cmake-option "-DSOFA_ENABLE_SOFT_DEPS_TO_SOFAPYTHON=ON" # affects only Compliant and image
 
 add-cmake-option "-DMODULE_SOFADENSESOLVER=ON"
 add-cmake-option "-DMODULE_SOFAEXPORTER=ON"
