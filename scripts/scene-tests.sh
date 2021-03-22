@@ -268,13 +268,9 @@ parse-options-files() {
 
     # echo "Listing ignored and added scenes."
     while read path; do
-        grep -xf "$output_dir/$path/ignore-patterns.txt" \
-            "$output_dir/$path/scenes.txt" \
-            > "$output_dir/$path/ignored-scenes.txt" || true
+        grep -f "$output_dir/$path/ignore-patterns.txt" "$output_dir/$path/scenes.txt" > "$output_dir/$path/ignored-scenes.txt" || true
         if [ -s "$output_dir/$path/ignore-patterns.txt" ]; then
-            grep -xvf "$output_dir/$path/ignore-patterns.txt" \
-                "$output_dir/$path/scenes.txt" \
-                > "$output_dir/$path/tested-scenes.txt" || true
+            grep -v -f "$output_dir/$path/ignore-patterns.txt" "$output_dir/$path/scenes.txt" > "$output_dir/$path/tested-scenes.txt" || true
         else
             cp  "$output_dir/$path/scenes.txt" "$output_dir/$path/tested-scenes.txt"
         fi
