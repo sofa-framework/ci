@@ -433,7 +433,7 @@ do-test-all-scenes() {
 
             if [[ "$pythonPlugin" == 'SofaPython3' ]]; then
                 if [ -e "$VM_PYTHON3_PYTHONPATH" ]; then
-                    export PYTHONPATH="$VM_PYTHON3_PYTHONPATH:$PYTHONPATH"
+                    export PYTHONPATH="$(cd $VM_PYTHON3_PYTHONPATH && pwd):$PYTHONPATH"
                 fi
                 if [ -e "$build_dir/python3/site-packages" ]; then
                     export PYTHONPATH="$build_dir/python3/site-packages:$PYTHONPATH"
@@ -445,7 +445,7 @@ do-test-all-scenes() {
                 fi
             elif [[ "$pythonPlugin" == 'SofaPython' ]]; then
                 if [ -e "$VM_PYTHON_PYTHONPATH" ]; then
-                    export PYTHONPATH="$VM_PYTHON_PYTHONPATH:$PYTHONPATH"
+                    export PYTHONPATH="$(cd $VM_PYTHON_PYTHONPATH && pwd):$PYTHONPATH"
                 fi
                 if vm-is-windows && [ -e "$VM_PYTHON_EXECUTABLE" ]; then
                     pythonroot="$(dirname $VM_PYTHON_EXECUTABLE)"
