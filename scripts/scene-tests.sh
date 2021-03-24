@@ -48,6 +48,7 @@ if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
 fi
 
 export SOFA_ROOT="$build_dir"
+PATH_RESET="$PATH"
 
 ### Utils
 
@@ -437,9 +438,19 @@ do-test-all-scenes() {
                 if [ -e "$build_dir/python3/site-packages" ]; then
                     export PYTHONPATH="$build_dir/python3/site-packages:$PYTHONPATH"
                 fi
+                if vm-is-windows && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+                    pythonroot="$(dirname $VM_PYTHON3_EXECUTABLE)"
+                    pythonroot="$(cd "$pythonroot" && pwd)"
+                    export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
+                fi
             elif [[ "$pythonPlugin" == 'SofaPython' ]]; then
                 if [ -e "$VM_PYTHON_PYTHONPATH" ]; then
                     export PYTHONPATH="$VM_PYTHON_PYTHONPATH:$PYTHONPATH"
+                fi
+                if vm-is-windows && [ -e "$VM_PYTHON_EXECUTABLE" ]; then
+                    pythonroot="$(dirname $VM_PYTHON_EXECUTABLE)"
+                    pythonroot="$(cd "$pythonroot" && pwd)"
+                    export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
                 fi
             fi
         fi
