@@ -26,17 +26,17 @@ github-notify() {
             \"target_url\": \"$GITHUB_TARGET_URL\"
         }"
 
-        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN"  --data "$request" "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_COMMIT_HASH")"
+        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" --data "$request" "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_COMMIT_HASH")"
         if [ -n "$response" ]; then
             notify="sent"
         fi
     fi
     set -$options
 
-    echo "Notify GitHub ($notify): [$state] $GITHUB_CONTEXT - $message"
-    # if [ -n "$response" ]; then
-        # echo "GitHub reponse: $response"
-    # fi
+    echo "Notify GitHub https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_COMMIT_HASH ($notify): [$state] $GITHUB_CONTEXT - $message"
+    #if [ -n "$response" ]; then
+    #    echo "GitHub reponse: $response"
+    #fi
 }
 
 github-export-vars() {
@@ -109,13 +109,10 @@ github-export-vars() {
         if [ -n "$GITHUB_SOFABOT_TOKEN" ]; then
             response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$pr_id")"
             if [ -n "$response" ]; then
-                local prev_pwd="$(pwd)"
-                cd "$SCRIPT_DIR"
                 if [ -z "$GITHUB_COMMIT_HASH" ]; then
-                    export GITHUB_COMMIT_HASH="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
+                    export GITHUB_COMMIT_HASH="$( cd "$SCRIPT_DIR" && echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_head_sha(sys.stdin)" )"
                 fi
-                export GITHUB_BASE_REF="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_base_ref(sys.stdin)" )"
-                cd "$prev_pwd"
+                export GITHUB_BASE_REF="$( cd "$SCRIPT_DIR" && echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_base_ref(sys.stdin)" )"
             fi
         fi
         if [ -z "$GITHUB_BASECOMMIT_HASH" ]; then
@@ -162,12 +159,9 @@ github-export-vars() {
        [ -n "$GITHUB_COMMIT_HASH" ]; then
         response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/commits/$GITHUB_COMMIT_HASH")"
         if [ -n "$response" ]; then
-            local prev_pwd="$(pwd)"
-            cd "$SCRIPT_DIR"
-            export GITHUB_COMMIT_MESSAGE="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_commit_message(sys.stdin)" )"
-            export GITHUB_COMMIT_AUTHOR="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_commit_author(sys.stdin)" )"
-            export GITHUB_COMMIT_DATE="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_commit_date(sys.stdin)" )"
-            cd "$prev_pwd"
+            export GITHUB_COMMIT_MESSAGE="$( cd "$SCRIPT_DIR" && echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_commit_message(sys.stdin)" )"
+            export GITHUB_COMMIT_AUTHOR="$( cd "$SCRIPT_DIR" && echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_commit_author(sys.stdin)" )"
+            export GITHUB_COMMIT_DATE="$( cd "$SCRIPT_DIR" && echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_commit_date(sys.stdin)" )"
         fi
     fi
     set -$options
@@ -194,29 +188,105 @@ github-get-pr-latest-build-comment() {
        [ -n "$GITHUB_REPOSITORY" ]; then
         response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/$pr_id/comments")"
         if [ -n "$response" ]; then
-            local prev_pwd="$(pwd)"
-            cd "$SCRIPT_DIR"
-            latest_build_comment="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_latest_build_comment(sys.stdin)" )"
-            cd "$prev_pwd"
+            latest_build_comment="$( cd "$SCRIPT_DIR" && echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_latest_build_comment(sys.stdin)" )"
         fi
     fi
     set -$options
     echo "$latest_build_comment"
 }
 
-github-get-pr-diff() {
-    local pr_id="$1"
+github-get-pr-json() {
+    local pr="$1"
     local options="$-"
+
+    if [ -z "$GITHUB_REPOSITORY" ]; then
+        export GITHUB_REPOSITORY="sofa-framework/sofa"
+    fi
+    
     set +x # Private stuff here: echo disabled
     if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
        [ -n "$GITHUB_REPOSITORY" ]; then
-        response="$(curl -L --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://github.com/$GITHUB_REPOSITORY/pull/${pr_id}.diff")"
+        if [[ "$pr" == "{"* ]]; then
+            # pr is a json string
+            json="$pr"
+        elif [[ "$pr" == "http"* ]]; then
+            # pr is an url
+            pr="$(echo "$pr" | sed 's:/github\.com/:/api.github.com/repos/:g' | sed 's:/pull/:/pulls/:g' | sed 's:/issue/:/issues/:g')"
+            pr="${pr%$'\r'}"
+            json="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "$pr")"
+        else
+            # pr is an id
+            json="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$pr")"
+        fi
     fi
     set -$options
-    echo "$response"
+    echo "$json"
 }
 
 github-get-pr-state() {
+    local python_exe="python"
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    fi
+    
+    echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_state(sys.stdin)" )"
+}
+
+github-is-pr-merged() {
+    local python_exe="python"
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    fi
+
+    echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.is_merged(sys.stdin)" )"
+}
+
+github-get-pr-labels() {
+    local python_exe="python"
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    fi
+    
+    echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_labels(sys.stdin)" )"
+}
+
+github-get-pr-description() {
+    local python_exe="python"
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    fi
+    
+    echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_description(sys.stdin)" )"
+}
+
+github-get-pr-project-url() {
+    local python_exe="python"
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    fi
+    
+    echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_project_url(sys.stdin)" )"
+}
+
+github-get-pr-project-name() {
+    local python_exe="python"
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    fi
+    
+    echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_project_name(sys.stdin)" )"
+}
+
+github-get-pr-merge-commit() {
+    local python_exe="python"
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    fi
+    
+    echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_merge_commit(sys.stdin)" )"
+}
+
+github-get-pr-diff() {
     local pr_id="$1"
     local python_exe="python"
     if [ -n "$CI_PYTHON_CMD" ]; then
@@ -226,42 +296,43 @@ github-get-pr-state() {
     if [ -z "$GITHUB_REPOSITORY" ]; then
         export GITHUB_REPOSITORY="sofa-framework/sofa"
     fi
+
     local options="$-"
     set +x # Private stuff here: echo disabled
     if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
        [ -n "$GITHUB_REPOSITORY" ]; then
-        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$pr_id")"
+        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://patch-diff.githubusercontent.com/raw/$GITHUB_REPOSITORY/pull/${pr_id}.diff")"
         if [ -n "$response" ]; then
-            local prev_pwd="$(pwd)"
-            cd "$SCRIPT_DIR"
-            state="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_state(sys.stdin)" )"
-            cd "$prev_pwd"
+            diff="$response"
         fi
     fi
     set -$options
-    echo "$state"
+    echo "$diff"
 }
 
-github-get-pr-labels() {
+github-post-pr-comment() {
     local pr_id="$1"
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
+    local message="$2"
 
     local options="$-"
+    local notify="not sent"
+    local response=""
+
     set +x # Private stuff here: echo disabled
-    if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
-       [ -n "$GITHUB_REPOSITORY" ]; then
-        response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" "https://api.github.com/repos/$GITHUB_REPOSITORY/pulls/$pr_id")"
+    if [[ "$GITHUB_NOTIFY" == "true" ]] &&
+       [ -n "$GITHUB_REPOSITORY" ] &&
+       [ -n "$GITHUB_SOFABOT_TOKEN" ]; then
+        request="{\"body\": \"$message\"}"
+        request="${request%$'\r'}"
+        response="$(curl --silent -H "Authorization: token $GITHUB_SOFABOT_TOKEN" -X POST -d "$request" "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${pr_id}/comments")"
         if [ -n "$response" ]; then
-            local prev_pwd="$(pwd)"
-            cd "$SCRIPT_DIR"
-            labels="$( echo "$response" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_labels(sys.stdin)" )"
-            cd "$prev_pwd"
+            notify="sent"
         fi
     fi
     set -$options
-    echo "$labels"
-}
 
+    echo "Post GitHub comment ($notify): $message"
+    #if [ -n "$response" ]; then
+    #    echo "GitHub reponse: $response"
+    #fi
+}

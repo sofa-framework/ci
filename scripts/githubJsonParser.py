@@ -1,6 +1,6 @@
 #!python3
 
-import json,datetime;
+import sys,json,datetime;
 
 def get_head_sha(json_string):
     obj=json.load(json_string)
@@ -17,6 +17,10 @@ def get_base_ref(json_string):
 def get_state(json_string):
     obj=json.load(json_string)
     print(obj['state'])
+
+def is_merged(json_string):
+    obj=json.load(json_string)
+    print(obj['merged'])
 
 def get_commit_message(json_string):
     obj=json.load(json_string)
@@ -46,3 +50,19 @@ def get_labels(json_string):
     for label in (obj['labels']):
         print("'" + label['name'] + "'" + " ")
     print("")
+
+def get_description(json_string):
+    obj = json.load(json_string)
+    print(obj['body'])
+
+def get_project_url(json_string):
+    obj = json.load(json_string)
+    print(obj['base']['repo']['html_url'])
+
+def get_project_name(json_string):
+    obj = json.load(json_string)
+    print(obj['base']['repo']['name'])
+    
+def get_merge_commit(json_string):
+    obj = json.load(json_string)
+    print(str(obj['merge_commit_sha'] or "null"))

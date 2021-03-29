@@ -262,6 +262,35 @@ if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB
     echo "--------------------------------------------"
 fi
 
+
+# Handle [ci-depends-on]
+if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
+    # Get info about this PR from GitHub API
+    pr_id="${DASH_COMMIT_BRANCH#*-}"
+    pr_json="$(github-get-pr-json "$pr_id")"
+    pr_description="$(github-get-pr-description "$pr_json")"
+    
+    while read dependency; do
+        dependency="${dependency%$'\r'}" # remove \r from dependency
+        dependency_url="$(echo "$dependency" | sed 's:\[ci-depends-on \(.*\)\]:\1:g')"
+        dependency_json="$(github-get-pr-json "$dependency_url")"
+        dependency_project_name="$(github-get-pr-project-name "$dependency_json")"
+        dependency_project_url="$(github-get-pr-project-url "$dependency_json")"
+        dependency_merge_commit="$(github-get-pr-merge-commit "$dependency_json")" 
+    
+        external_project_file="$(find "$SRC_DIR" -wholename "*/$dependency_project_name/ExternalProjectConfig.cmake.in")"
+        if [ -e "$external_project_file" ]; then
+            # Force replace GIT_REPOSITORY and GIT_TAG
+            sed -i'.bak' 's,GIT_REPOSITORY .*,GIT_REPOSITORY '"$dependency_project_url"',g' "$external_project_file" && rm -f "$external_project_file.bak"
+            sed -i'.bak' 's,GIT_TAG .*,GIT_TAG '"$dependency_merge_commit"',g' "$external_project_file" && rm -f "$external_project_file.bak"
+        fi
+        echo "[ci-depends-on] Replacing $external_project_file with"
+        echo "    GIT_REPOSITORY $dependency_project_url"
+        echo "    GIT_TAG $dependency_merge_commit"
+    done < <( echo "$pr_description" | grep '\[ci-depends-on' )
+fi
+
+
 time_millisec_git_end="$(time-millisec)"
 time_sec_git="$(time-elapsed-sec $time_millisec_git_begin $time_millisec_git_end)"
 echo "[END] Git work ($(time-date)) - took $time_sec_git seconds"
