@@ -36,9 +36,12 @@ if [ "$#" -gt 0 ]; then
     MAX_DAYS_SINCE_MODIFIED_LONG=5
     max_sec_since_modified_long=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_LONG ))
     
-    MAX_DAYS_SINCE_MODIFIED_SHORT=1/4
+    MAX_DAYS_SINCE_MODIFIED_SHORT=1
     max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORT ))
-    
+
+    MAX_DAYS_SINCE_MODIFIED_SHORTEST=1/6
+    max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORTEST ))
+
     MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
     max_sec_since_modified="$max_sec_since_modified_long"
 else
@@ -75,6 +78,15 @@ for build_dir in "$@"; do
                 rm -rf "$dir"
                 continue
             fi
+
+            # check if the PR has migrated on a new machine
+            has_a_preference_for_an_other_machine="false"
+            # This is where the jenkins scheduler have allocated the job last time.
+            pr_last_built_machine="$(jenkins-get-last-node-for-pr "$pr_id" 'CI_CONFIG=$CI_CONFIG,CI_PLUGINS=$CI_PLUGINS,CI_TYPE=$CI_TYPE')"
+            if [[ "pr_last_built_machine" != "$NODE_NAME" ]]; then
+                echo "    PR $pr_id is also on node: '$pr_last_built_machine'"
+                has_a_preference_for_an_other_machine="true"
+            fi
         fi
 
         if [[ "$build_dir/" == *"/launcher/"* ]]; then
@@ -97,8 +109,12 @@ for build_dir in "$@"; do
             MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
             max_sec_since_modified="$max_sec_since_modified_long"
             if [[ "$build_dir/" != *"/sofa-framework/"* ]]; then
-                MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_SHORT"
-                max_sec_since_modified="$max_sec_since_modified_short"
+                MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_SHORTEST"
+                max_sec_since_modified="$max_sec_since_modified_shortest"
+            fi
+            if [[ "$has_a_preference_for_an_other_machine" == "true" ]]; then
+                MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_SHORTEST"
+                max_sec_since_modified="$max_sec_since_modified_shortest"
             fi
 
             all_configs_removed="true"
