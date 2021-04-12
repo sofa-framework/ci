@@ -198,6 +198,20 @@ count-processes() {
     echo "$(ps -ef | grep -v grep | grep "$1" | wc -l)"
 }
 
+time-date() {
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        $CI_PYTHON_CMD -c 'from datetime import datetime; print(datetime.now())'
+    else
+        if vm-is-macos && [ -e "/usr/local/bin/gdate" ]; then
+            date_cmd="/usr/local/bin/gdate"
+        else
+            date_cmd="date"
+        fi
+        date="$($date_nanosec_cmd)"
+        echo "$date"
+    fi
+}
+
 time-millisec() {
     if [ -n "$CI_PYTHON_CMD" ]; then
         $CI_PYTHON_CMD -c 'import time; print("%d" % (time.time()*1000))'
@@ -214,6 +228,14 @@ time-millisec() {
         date_nanosec="$($date_nanosec_cmd)"
         echo "$(( date_nanosec / 1000000 ))"
     fi    
+}
+
+time-elapsed-sec() {
+    local begin_millisec="$1"
+    local end_millisec="$2"
+    elapsed_millisec="$(( end_millisec - begin_millisec ))"
+    elapsed_sec="$(( elapsed_millisec / 1000 )).$(printf "%03d" $elapsed_millisec)"
+    echo "$elapsed_sec"
 }
 
 call-cmake() {

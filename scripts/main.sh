@@ -33,7 +33,8 @@ else
     usage; exit 1
 fi
 
-echo "[BEGIN] Init"
+echo "[BEGIN] Init ($(time-date))"
+time_millisec_init_begin="$(time-millisec)"
 
 # Clean build dir
 rm -f  $BUILD_DIR/make-output*.txt $BUILD_DIR/build-result $BUILD_DIR/full-build
@@ -120,7 +121,9 @@ if [ -n "$CI_REPORT_TO_GITHUB" ] && [ -n "$CI_REPORT_TO_DASHBOARD" ]; then
     dashboard-notify "status=build"
 fi
 
-echo "[END] Init"
+time_millisec_init_end="$(time-millisec)"
+time_sec_init="$(time-elapsed-sec $time_millisec_init_begin $time_millisec_init_end)"
+echo "[END] Init ($(time-date)) - took $time_sec_init seconds"
 
 
 # Moving to src dir
@@ -184,7 +187,8 @@ else
 fi
 echo "--------------------------------------------"
 
-echo "[BEGIN] Git work"
+echo "[BEGIN] Git work ($(time-date))"
+time_millisec_git_begin="$(time-millisec)"
 
 # Wait for git to be available
 if [ `ps -elf | grep -c git` -gt 1 ]; then
@@ -258,13 +262,18 @@ if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB
     echo "--------------------------------------------"
 fi
 
-echo "[END] Git work"
+time_millisec_git_end="$(time-millisec)"
+time_sec_git="$(time-elapsed-sec $time_millisec_git_begin $time_millisec_git_end)"
+echo "[END] Git work ($(time-date)) - took $time_sec_git seconds"
 
 
 # Configure
-echo "[BEGIN] Configure"
+echo "[BEGIN] Configure ($(time-date))"
+time_millisec_configure_begin="$(time-millisec)"
 . "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CONFIG" "$BUILD_TYPE" "$BUILD_OPTIONS"
-echo "[END] Configure"
+time_millisec_configure_end="$(time-millisec)"
+time_sec_configure="$(time-elapsed-sec $time_millisec_configure_begin $time_millisec_configure_end)"
+echo "[END] Configure ($(time-date)) - took $time_sec_configure seconds"
 
 
 # Regression dir
@@ -283,16 +292,20 @@ fi
 
 
 # Compile
-echo "[BEGIN] Build"
+echo "[BEGIN] Build ($(time-date))"
+time_millisec_build_begin="$(time-millisec)"
 "$SCRIPT_DIR/compile.sh" "$BUILD_DIR" "$CONFIG"
 dashboard-notify "status=success"
 github_status="success"
 github_message="Build OK."
 github-notify "$github_status" "$github_message"
-echo "[END] Build"
+time_millisec_build_end="$(time-millisec)"
+time_sec_build="$(time-elapsed-sec $time_millisec_build_begin $time_millisec_build_end)"
+echo "[END] Build ($(time-date)) - took $time_sec_build seconds"
 
 
-echo "[BEGIN] Post build"
+echo "[BEGIN] Post build ($(time-date))"
+time_millisec_postbuild_begin="$(time-millisec)"
 # [Full build] Count Warnings
 if [ -e "$BUILD_DIR/full-build" ]; then
     if vm-is-windows; then
@@ -335,11 +348,14 @@ fi
 grep -v "SofaCUDA " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 grep -v "SofaPython " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
-echo "[END] Post build"
+time_millisec_postbuild_end="$(time-millisec)"
+time_sec_postbuild="$(time-elapsed-sec $time_millisec_postbuild_begin $time_millisec_postbuild_end)"
+echo "[END] Post build ($(time-date)) - took $time_sec_postbuild seconds"
 
 # Unit tests
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
-    echo "[BEGIN] Unit tests"
+    echo "[BEGIN] Unit tests ($(time-date))"
+    time_millisec_unittests_begin="$(time-millisec)"
     
     tests_status="running"
     dashboard-notify "tests_status=$tests_status"
@@ -375,14 +391,17 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
         "tests_errors=$tests_errors" \
         "tests_duration=$tests_duration"
 
-    echo "[END] Unit tests"
+    time_millisec_unittests_end="$(time-millisec)"
+    time_sec_unittests="$(time-elapsed-sec $time_millisec_unittests_begin $time_millisec_unittests_end)"
+    echo "[END] Unit tests ($(time-date)) - took $time_sec_unittests seconds"
 else
     echo "disabled" > "$BUILD_DIR/unit-tests.status"
 fi
 
 # Scene tests
 if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
-    echo "[BEGIN] Scene tests"
+    echo "[BEGIN] Scene tests ($(time-date))"
+    time_millisec_scenetests_begin="$(time-millisec)"
     
     scenes_status="running"
     dashboard-notify "scenes_status=$scenes_status"
@@ -420,14 +439,17 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
     "$SCRIPT_DIR/scene-tests.sh" clamp-errors "$BUILD_DIR" "$SRC_DIR" 5000
     
-    echo "[END] Scene tests"
+    time_millisec_scenetests_end="$(time-millisec)"
+    time_sec_scenetests="$(time-elapsed-sec $time_millisec_scenetests_begin $time_millisec_scenetests_end)"
+    echo "[END] Scene tests ($(time-date)) - took $time_sec_scenetests seconds"
 else
     echo "disabled" > "$BUILD_DIR/scene-tests.status"
 fi
 
 # Regression tests
 if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ]; then
-    echo "[BEGIN] Regression tests"
+    echo "[BEGIN] Regression tests ($(time-date))"
+    time_millisec_regressiontests_begin="$(time-millisec)"
 
     regressions_status="running"
     dashboard-notify "regressions_status=$regressions_status"
@@ -465,7 +487,9 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
         "regressions_errors=$regressions_errors" \
         "regressions_duration=$regressions_duration"
 
-    echo "[END] Regression tests"
+    time_millisec_regressiontests_end="$(time-millisec)"
+    time_sec_regressiontests="$(time-elapsed-sec $time_millisec_regressiontests_begin $time_millisec_regressiontests_end)"
+    echo "[END] Regression tests ($(time-date)) - took $time_sec_regressiontests seconds"
 else
     echo "disabled" > "$BUILD_DIR/regression-tests.status"
 fi
