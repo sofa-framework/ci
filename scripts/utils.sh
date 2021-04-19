@@ -30,6 +30,27 @@ vm-is-ubuntu() {
     fi
 }
 
+find-python() {
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    elif [ -n "$VM_PYTHON3_EXECUTABLE" ] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+        python_exe="$VM_PYTHON3_EXECUTABLE"
+    elif [ -x "$(command -v "python3")" ]; then
+        python_exe="python3"
+    elif [ -n "$VM_PYTHON_EXECUTABLE" ] && [ -e "$VM_PYTHON_EXECUTABLE" ]; then
+        python_exe="$VM_PYTHON_EXECUTABLE"
+    elif [ -x "$(command -v "python")" ]; then
+        python_exe="python"
+    else
+        >&2 echo "WARNING: Python executable not found. Try setting VM_PYTHON3_EXECUTABLE variable."
+        python_exe="python-not-found"
+    fi
+    if [[ "$CI_PYTHON_CMD" != "$python_exe" ]]; then
+        export CI_PYTHON_CMD="$python_exe"
+    fi
+    echo "$python_exe"
+}
+
 load-vm-env() {
     # VM environment variables
     echo "ENV VARS: load $SCRIPT_DIR/env/default"
@@ -43,6 +64,7 @@ load-vm-env() {
             exit 1
         fi
     fi
+    find-python
 }
 
 package-is-installed() {

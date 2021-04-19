@@ -310,12 +310,8 @@ tests-get()
                      -e "/^[0-9]/s/\".*//p" "$output_dir/reports/"*.xml)
     fi
     
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
-    
     # sum the values
+    local python_exe="$(find-python)"
     total=0
     for value in $counts; do
         total="$( $python_exe -c "print($total + $value)" )"
