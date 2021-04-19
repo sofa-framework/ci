@@ -589,10 +589,7 @@ count-tested-scenes() {
 }
 
 count-durations() {
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
+    local python_exe="$(find-python)"
     total=0
     while read scene; do
         duration="$(cat "$output_dir/$scene/duration.txt" 2>/dev/null || echo "0")"

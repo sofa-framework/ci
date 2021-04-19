@@ -52,10 +52,7 @@ github-export-vars() {
         local build_options="$1"
     fi
 
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
+    local python_exe="$(find-python)"
 
     if in-array "report-to-github" "$build_options"; then
         export GITHUB_NOTIFY="true"
@@ -177,10 +174,7 @@ github-export-vars() {
 
 github-get-pr-latest-build-comment() {
     local pr_id="$1"
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
+    local python_exe="$(find-python)"
 
     local options="$-"
     set +x # Private stuff here: echo disabled
@@ -224,74 +218,43 @@ github-get-pr-json() {
 }
 
 github-get-pr-state() {
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
-    
+    local python_exe="$(find-python)"    
     echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_state(sys.stdin)" )"
 }
 
 github-is-pr-merged() {
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
-
+    local python_exe="$(find-python)"
     echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.is_merged(sys.stdin)" )"
 }
 
 github-get-pr-labels() {
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
-    
+    local python_exe="$(find-python)"
     echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_labels(sys.stdin)" )"
 }
 
 github-get-pr-description() {
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
-    
+    local python_exe="$(find-python)"
     echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_description(sys.stdin)" )"
 }
 
 github-get-pr-project-url() {
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
-    
+    local python_exe="$(find-python)"
     echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_project_url(sys.stdin)" )"
 }
 
 github-get-pr-project-name() {
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
-    
+    local python_exe="$(find-python)"
     echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_project_name(sys.stdin)" )"
 }
 
 github-get-pr-merge-commit() {
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
-    
+    local python_exe="$(find-python)"
     echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_merge_commit(sys.stdin)" )"
 }
 
 github-get-pr-diff() {
     local pr_id="$1"
-    local python_exe="python"
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
-    fi
+    local python_exe="$(find-python)"
 
     if [ -z "$GITHUB_REPOSITORY" ]; then
         export GITHUB_REPOSITORY="sofa-framework/sofa"

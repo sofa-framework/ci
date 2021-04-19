@@ -73,34 +73,7 @@ fi
 
 
 # Set VM environment variables
-echo "ENV VARS: load $SCRIPT_DIR/env/default"
-. "$SCRIPT_DIR/env/default"
-if [ -n "$NODE_NAME" ]; then
-    if [ -e "$SCRIPT_DIR/env/$NODE_NAME" ]; then
-        echo "ENV VARS: load node specific $SCRIPT_DIR/env/$NODE_NAME"
-        . "$SCRIPT_DIR/env/$NODE_NAME"
-    else
-        echo "ERROR: No config file found for node $NODE_NAME."
-        exit 1
-    fi
-fi
-
-# Find Python
-if [ -n "$CI_PYTHON_CMD" ]; then
-    python_exe="$CI_PYTHON_CMD"
-elif [ -n "$VM_PYTHON3_EXECUTABLE" ] && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
-    python_exe="$VM_PYTHON3_EXECUTABLE"
-elif [ -x "$(command -v "python3")" ]; then
-    python_exe="python3"
-elif [ -n "$VM_PYTHON_EXECUTABLE" ] && [ -e "$VM_PYTHON_EXECUTABLE" ]; then
-    python_exe="$VM_PYTHON_EXECUTABLE"
-elif [ -x "$(command -v "python")" ]; then
-    python_exe="python"
-else
-    echo "WARNING: Python executable not found. Try setting VM_PYTHON3_EXECUTABLE variable."
-    python_exe="python-not-found"
-fi
-export CI_PYTHON_CMD="$python_exe"
+load-vm-env
 
 
 if [ -n "$CI_REPORT_TO_GITHUB" ] && [ -n "$CI_REPORT_TO_DASHBOARD" ]; then
