@@ -134,9 +134,11 @@ fix-test-report() {
     sed -i'.bak' 's:^\(.*<testcase[^>]* name=\"\)\([^\"]*\)\(\"[^>]* classname=\"[^\"]*\)/\([0-9]*\)\(\".*\)$:\1\2/\4\3\5:g' "$report_file"
     rm -f "$report_file.bak"
 
-    # Protect against invalid XML characters in the CDATA sections
-    sed -i'.bak' 's:[\x00-\x08]::g ; s:\x0B::g ; s:\x0C::g ; s:[\x0E-\x1F]::g' "$report_file"
-    rm -f "$report_file.bak"
+    if ! vm-is-macos; then
+        # Protect against invalid XML characters in the CDATA sections
+        sed -i'.bak' 's:[\x00-\x08]::g ; s:\x0B::g ; s:\x0C::g ; s:[\x0E-\x1F]::g' "$report_file"
+        rm -f "$report_file.bak"
+    fi
 }
 
 
