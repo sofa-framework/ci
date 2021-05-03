@@ -153,7 +153,7 @@ run-single-test-subtests() {
         if echo "$line" | grep -q "^  [^ ][^ ]*" ; then
             local current_subtest="$(echo "$line" | sed 's/^  \([^ ][^ ]*\).*/\1/g')"
             echo "$current_test.$current_subtest" >> "$output_dir/$test/subtests.txt"
-        else
+        elif echo "$line" | grep -q "^[^ ][^ ]*\." ; then
             local current_test="$(echo "$line" | sed 's/\..*//g')"
         fi
     done < "$output_dir/$test/subtests.tmp.txt"
