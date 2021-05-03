@@ -259,12 +259,22 @@ do-run-all-tests() {
     
 run-all-tests() {
     echo "Unit testing in progress..."
+    
+    # Move SofaPython3 tests out of the list
+    cat "$output_dir/${test_type}.txt" | grep "Bindings\." > "$output_dir/${test_type}.SofaPython3.txt"
+    cat "$output_dir/${test_type}.txt" | grep -v "Bindings\." > "$output_dir/${test_type}.txt.tmp"
+    cp -f "$output_dir/${test_type}.txt.tmp" "$output_dir/${test_type}.txt" && rm -f "$output_dir/${test_type}.txt.tmp"
+    
     if [ -x "$(command -v shuf)" ]; then
         echo "$(shuf $output_dir/${test_type}.txt)" > "$output_dir/${test_type}.txt"
     fi
     local total_lines="$(cat "$output_dir/${test_type}.txt" | wc -l)"
     local lines_per_thread=$((total_lines / VM_MAX_PARALLEL_TESTS + 1))
     split -l $lines_per_thread "$output_dir/${test_type}.txt" "$output_dir/${test_type}_part-"
+    
+    # Add SofaPython3 tests in first part
+    cat "$output_dir/${test_type}.SofaPython3.txt" >> "$output_dir/${test_type}_part-aa"
+    
     thread=0
     for file in "$output_dir/${test_type}_part-"*; do
         do-run-all-tests "$file" &
