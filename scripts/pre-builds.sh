@@ -43,7 +43,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     pr_json="$(github-get-pr-json "$pr_id")"
     pr_latest_build_comment="$(github-get-pr-latest-build-comment "$pr_id")"
     pr_diff="$(github-get-pr-diff "$pr_id")"
-    
+
     pr_description="$(github-get-pr-description "$pr_json")"
     pr_labels="$(github-get-pr-labels "$pr_json")"
 
@@ -53,8 +53,8 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     pr_has_dependencies="false"
     pr_is_mergeable="true"
     github_comment_header='**[ci-depends-on]** detected during [build #'$BUILD_NUMBER']('$BUILD_URL').'
-    github_comment_body='To unlock the merge button, you must'
-    
+    github_comment_body='\n\n To unlock the merge button, you must'
+
     echo "pr_diff = $pr_diff"
 
     while read dependency; do
@@ -62,7 +62,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         dependency="${dependency%$'\r'}" # remove \r from dependency
         dependency_url="$(echo "$dependency" | sed 's:\[ci-depends-on \(.*\)\]:\1:g')"
         dependency_json="$(github-get-pr-json "$dependency_url")"
-        
+
         dependency_state="$(github-get-pr-state "$dependency_json")"
         dependency_is_merged="$(github-is-pr-merged "$dependency_json")"
         dependency_project_name="$(github-get-pr-project-name "$dependency_json")"
@@ -78,13 +78,18 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         echo "dependency_project_url = $dependency_project_url"
         echo "dependency_merge_commit = $dependency_merge_commit"
 
-        if [[ "$dependency_is_merged" == "True" ]] || [[ "$dependency_is_merged" == "true" ]]; then # this dependency is a merged PR
+        if [[ "$dependency_is_merged" == [Tt]"rue" ]]; then # this dependency is a merged PR
             pr_diff_for_dependency="$(echo "$pr_diff" | grep -v '^-' | sed -n -e '/'$dependency_project_name'\/ExternalProjectConfig\.cmake\.in/,/diff --git/p')"
             echo "pr_diff_for_dependency = $pr_diff_for_dependency"
-            if ! ( echo "$pr_diff_for_dependency" | grep -q "GIT_REPOSITORY $dependency_project_url" ) ||
-               ! ( echo "$pr_diff_for_dependency" | grep -q "GIT_TAG $dependency_merge_commit" ); then
-                # The diff (without removals), taken only for ProjectName/ExternalProjectConfig.cmake.in, DOES NOT contain the correct GIT_REPOSITORY and GIT_TAG
-                github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with  \nGIT_REPOSITORY '$dependency_project_url'  \nGIT_TAG '$dependency_merge_commit''
+            dependency_git_repository="$(echo "$pr_diff_for_dependency" | grep -o "GIT_REPOSITORY .*")"
+            dependency_git_tag="$(echo "$pr_diff_for_dependency" | grep -o "GIT_TAG .*")"
+            # The diff (without removals), taken only for ProjectName/ExternalProjectConfig.cmake.in, DOES NOT contain the correct GIT_REPOSITORY and GIT_TAG
+            if [ -n "$dependency_git_repository" ] && [[ "$dependency_git_repository" != *"$dependency_project_url"* ]]; then
+                github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with: GIT_REPOSITORY '$dependency_project_url
+                pr_is_mergeable="false"
+            fi
+            if [ -n "$dependency_git_tag" ] && [[ "$dependency_git_tag" != *" origin/"* ]] && [[ "$dependency_git_tag" != *"$dependency_merge_commit"* ]]; then
+                github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with: GIT_TAG '$dependency_merge_commit
                 pr_is_mergeable="false"
             fi
         else
@@ -118,7 +123,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
             echo "true" > "$output_dir/skip-this-build" # will be searched by Groovy script on launcher
             exit 0
         fi
-        
+
         # Check PR labels, search for "WIP"
         for label in "$pr_labels"; do
             if [[ "$label" == *"pr: status wip"* ]]; then
@@ -134,7 +139,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
 
     GITHUB_CONTEXT_RESET="$GITHUB_CONTEXT" # save
     export GITHUB_CONTEXT="[with-scene-tests]" # edit
-    if [[ "$pr_latest_build_comment" == *"[with-scene-tests]"* ]] || 
+    if [[ "$pr_latest_build_comment" == *"[with-scene-tests]"* ]] ||
        [[ "$pr_latest_build_comment" == *"[with-all-tests]"* ]]; then
         echo "Scene tests: forced."
         echo "true" > "$output_dir/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
@@ -144,7 +149,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         diffLineCount=999
         diffLineCount="$(github-get-pr-diff "$pr_id" | wc -l)"
         echo "Scene tests: diffLineCount = $diffLineCount"
-        
+
         if [ "$diffLineCount" -lt 200 ]; then
             github-notify "success" "Ignored."
         else
@@ -152,10 +157,10 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         fi
     fi
     export GITHUB_CONTEXT="$GITHUB_CONTEXT_RESET" # reset
-    
+
     GITHUB_CONTEXT_RESET="$GITHUB_CONTEXT" # save
     export GITHUB_CONTEXT="[with-regression-tests]" # edit
-    if [[ "$pr_latest_build_comment" == *"[with-regression-tests]"* ]] || 
+    if [[ "$pr_latest_build_comment" == *"[with-regression-tests]"* ]] ||
        [[ "$pr_latest_build_comment" == *"[with-all-tests]"* ]]; then
         echo "Regression tests: forced."
         echo "true" > "$output_dir/enable-regression-tests" # will be searched by Groovy script on launcher to set CI_RUN_REGRESSION_TESTS
@@ -165,14 +170,14 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         diffLineCount=999
         diffLineCount="$(github-get-pr-diff "$pr_id" | wc -l)"
         echo "Regression tests: diffLineCount = $diffLineCount"
-        
+
         if [ "$diffLineCount" -lt 200 ]; then
             github-notify "success" "Ignored."
         else
             github-notify "failure" "Missing."
         fi
     fi
-    
+
     if [[ "$pr_latest_build_comment" == *"[force-full-build]"* ]]; then
         echo "Full build: forced."
         echo "true" > "$output_dir/force-full-build" # will be searched by Groovy script on launcher to set CI_FORCE_FULL_BUILD
@@ -182,7 +187,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
 elif [[ "$DASH_COMMIT_BRANCH" == "origin/master" ]]; then
 
     # Always scene tests for master builds
-    echo "true" > "$output_dir/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS    
+    echo "true" > "$output_dir/enable-scene-tests" # will be searched by Groovy script on launcher to set CI_RUN_SCENE_TESTS
     # Always regression tests for master builds
     echo "true" > "$output_dir/enable-regression-tests" # will be searched by Groovy script on launcher to set CI_RUN_REGRESSION_TESTS
 
@@ -227,4 +232,3 @@ for matrix_combination in "${matrix_combinations[@]}"; do
 
     sleep 1 # ensure we are not flooding APIs
 done
-
