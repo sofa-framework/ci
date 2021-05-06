@@ -55,8 +55,6 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     github_comment_header='**[ci-depends-on]** detected during [build #'$BUILD_NUMBER']('$BUILD_URL').'
     github_comment_body='\n\n To unlock the merge button, you must'
 
-    echo "pr_diff = $pr_diff"
-
     while read dependency; do
         pr_has_dependencies="true"
         dependency="${dependency%$'\r'}" # remove \r from dependency
@@ -80,9 +78,11 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
 
         if [[ "$dependency_is_merged" == [Tt]"rue" ]]; then # this dependency is a merged PR
             pr_diff_for_dependency="$(echo "$pr_diff" | grep -v '^-' | sed -n -e '/'$dependency_project_name'\/ExternalProjectConfig\.cmake\.in/,/diff --git/p')"
-            echo "pr_diff_for_dependency = $pr_diff_for_dependency"
             dependency_git_repository="$(echo "$pr_diff_for_dependency" | grep -o "GIT_REPOSITORY .*")"
             dependency_git_tag="$(echo "$pr_diff_for_dependency" | grep -o "GIT_TAG .*")"
+            echo "pr_diff_for_dependency = $pr_diff_for_dependency"
+            echo "dependency_git_repository = $dependency_git_repository"
+            echo "dependency_git_tag = $dependency_git_tag"
             # The diff (without removals), taken only for ProjectName/ExternalProjectConfig.cmake.in, DOES NOT contain the correct GIT_REPOSITORY and GIT_TAG
             if [ -n "$dependency_git_repository" ] && [[ "$dependency_git_repository" != *"$dependency_project_url"* ]]; then
                 github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with: GIT_REPOSITORY '$dependency_project_url
