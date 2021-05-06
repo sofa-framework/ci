@@ -86,13 +86,17 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
             echo "dependency_git_repository = $dependency_git_repository"
             echo "dependency_git_tag = $dependency_git_tag"
             # The diff (without removals), taken only for ProjectName/ExternalProjectConfig.cmake.in, DOES NOT contain the correct GIT_REPOSITORY and GIT_TAG
-            if [ -n "$dependency_git_repository" ] && [[ "$dependency_git_repository" != *"$dependency_project_url"* ]]; then
-                github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with: GIT_REPOSITORY '$dependency_project_url
+            if [ -n "$dependency_git_repository" ] && [[ "$dependency_git_repository" != *"$dependency_project_url"* ]] ||
+               [ -n "$dependency_git_tag" ] && [[ "$dependency_git_tag" != *"$dependency_merge_branch"* ]] && [[ "$dependency_git_tag" != *"$dependency_merge_commit"* ]]; then
                 pr_is_mergeable="false"
-            fi
-            if [ -n "$dependency_git_tag" ] && [[ "$dependency_git_tag" != *"$dependency_merge_branch"* ]] && [[ "$dependency_git_tag" != *"$dependency_merge_commit"* ]]; then
-                github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with: GIT_TAG '$dependency_merge_branch
-                pr_is_mergeable="false"
+                github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with'
+                if [ -n "$dependency_git_repository" ] && [[ "$dependency_git_repository" != *"$dependency_project_url"* ]]; then
+                    github_comment_body=$github_comment_body'\nGIT_REPOSITORY '$dependency_project_url
+                fi
+                if [ -n "$dependency_git_tag" ] && [[ "$dependency_git_tag" != *"$dependency_merge_branch"* ]] && [[ "$dependency_git_tag" != *"$dependency_merge_commit"* ]]; then
+                    github_comment_body=$github_comment_body'\nGIT_TAG origin/'$dependency_merge_branch
+                    pr_is_mergeable="false"
+                fi
             fi
         else
             github_comment_body=$github_comment_body'\n- **Merge or close '$dependency_url'**\nFor this build, '$dependency_project_name'/ExternalProjectConfig.cmake.in will be edited by builders with  \nGIT_REPOSITORY '$dependency_project_url'  \nGIT_TAG '$dependency_merge_commit
