@@ -82,9 +82,11 @@ ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Install Boost
-RUN yum install -y -q boost169-devel
-RUN ln -s -f "boost169/boost" "/usr/include/boost" || true
-RUN ln -s -f "boost169" "/usr/lib64/boost" || true
+ARG BOOST_MAJOR=1
+ARG BOOST_MINOR=69
+RUN yum install -y -q boost${BOOST_MAJOR}${BOOST_MINOR}-devel
+RUN ln -s -f "boost${BOOST_MAJOR}${BOOST_MINOR}/boost" "/usr/include/boost" || true
+RUN ln -s -f "boost${BOOST_MAJOR}${BOOST_MINOR}" "/usr/lib64/boost" || true
 ENV BOOST_INCLUDEDIR="/usr/include"
 ENV BOOST_LIBRARYDIR="/usr/lib64/boost"
 ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
@@ -98,10 +100,13 @@ RUN update-alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
-ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-4.14.3/CGAL-4.14.3.tar.xz /tmp/CGAL.tar.xz
+ARG CGAL_MAJOR=4
+ARG CGAL_MINOR=14
+ARG CGAL_PATCH=3
+ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH.tar.xz /tmp/CGAL.tar.xz
 RUN yum install -y -q gmp-devel mpfr-devel
 RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
-    && cd /tmp/CGAL \
+    && cd /tmp/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH \
     && mkdir build \
     && cd build \
     && source /opt/rh/devtoolset-7/enable || true \
@@ -112,17 +117,21 @@ ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
 # Install CUDA
+ARG CUDA_MAJOR=10
+ARG CUDA_MINOR=2
 RUN yum-config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo \
     && yum clean expire-cache
-RUN yum install -y -q cuda-10-2
-ENV PATH="/usr/local/cuda-10.2/bin:/usr/local/cuda-10.2/NsightCompute-2019.1${PATH:+:${PATH}}"
-ENV LD_LIBRARY_PATH="/usr/local/cuda-10.2/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+RUN yum install -y -q cuda-$CUDA_MAJOR-$CUDA_MINOR
+ENV PATH="/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/bin:/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/NsightCompute-2019.1${PATH:+:${PATH}}"
+ENV LD_LIBRARY_PATH="/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
 ENV VM_CUDA_ARCH="sm_50"
 ENV VM_HAS_CUDA="true"
 
 # Install pybind11 (needed by SofaPython3)
-RUN git clone -b v2.4 --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
+ARG PYBIND_MAJOR=2
+ARG PYBIND_MINOR=4
+RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
     && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
     && source /opt/rh/rh-python38/enable || true \
     && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3.8)" -DPYBIND11_TEST=OFF ../src \
