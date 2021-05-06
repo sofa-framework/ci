@@ -66,11 +66,12 @@ ARG QT_MINOR=12
 ARG QT_PATCH=6
 ARG QT_INSTALLDIR="/opt/Qt"
 RUN mkdir -p /root/.local/share/Qt
-ADD qtaccount.ini /root/.local/share/Qt/qtaccount.ini
-ADD qtinstaller_controlscript_template_linux.qs /tmp/qtinstaller_controlscript_template_linux.qs
-RUN cat /tmp/qtinstaller_controlscript_template_linux.qs \
+ADD https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qt/qtaccount.ini /root/.local/share/Qt/qtaccount.ini
+ADD https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qt/qtinstaller_controlscript_template.qs /tmp/qtinstaller_controlscript_template.qs
+RUN cat /tmp/qtinstaller_controlscript_template.qs \
     | sed 's:_QTVERSION_:'"$QT_MAJOR$QT_MINOR$QT_PATCH"':g' \
-    | sed 's:_QT_INSTALLDIR_:'"$QT_INSTALLDIR"':g' \
+    | sed 's:_QTINSTALLDIR_:'"$QT_INSTALLDIR"':g' \
+    | sed 's:_QTCOMPILER_:gcc_64:g' \
     > /tmp/qtinstaller_controlscript.qs
 ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
 RUN yum install -y -q libxkbcommon-x11 libwayland-cursor
@@ -97,10 +98,10 @@ RUN update-alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
-ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-4.14.3/CGAL-4.14.3.tar.xz /tmp
+ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-4.14.3/CGAL-4.14.3.tar.xz /tmp/CGAL.tar.xz
 RUN yum install -y -q gmp-devel mpfr-devel
-RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
-    && cd /tmp/CGAL-4.14.3 \
+RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
+    && cd /tmp/CGAL \
     && mkdir build \
     && cd build \
     && source /opt/rh/devtoolset-7/enable || true \

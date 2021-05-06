@@ -59,30 +59,41 @@ ENV VM_HAS_OPENCASCADE="true"
 ###################################
 
 # Install CMake
-ADD https://github.com/Kitware/CMake/releases/download/v3.12.0/cmake-3.12.0-Linux-x86_64.sh /tmp
-RUN chmod a+x /tmp/cmake-3.12.0-Linux-x86_64.sh
-RUN /tmp/cmake-3.12.0-Linux-x86_64.sh --skip-license --prefix=/usr/local
+ARG CMAKE_MAJOR=3
+ARG CMAKE_MINOR=12
+ARG CMAKE_PATCH=0
+ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH/cmake-$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH-Linux-x86_64.sh /tmp/cmake.sh
+RUN chmod a+x /tmp/cmake.sh
+RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 
 # Install Qt
-RUN add-apt-repository -y ppa:beineri/opt-qt-5.12.6-bionic \
+ARG QT_MAJOR=5
+ARG QT_MINOR=12
+ARG QT_PATCH=6
+RUN add-apt-repository -y ppa:beineri/opt-qt-$QT_MAJOR.$QT_MINOR.$QT_PATCH-bionic \
     && apt-get update \
-    && apt-get install -y qt512-meta-full qt512charts-no-lgpl
+    && apt-get install -y qt${QT_MAJOR}${QT_MINOR}-meta-full qt${QT_MAJOR}${QT_MINOR}charts-no-lgpl
 ADD https://www.sofa-framework.org/wp-content/uploads/2020/06/QtInstallerFramework_3.0_Linux.zip /tmp
 RUN unzip /tmp/QtInstallerFramework_3.0_Linux.zip -d /builds && chmod -R a+x /builds/Qt
 ENV QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
 ENV PATH="${QTIFWDIR}/bin:${PATH}"
 
 # Install Boost
+ARG BOOST_MAJOR=1
+ARG BOOST_MINOR=67
 RUN add-apt-repository -y ppa:mhier/libboost-latest \
     && apt-get update \
-    && apt-get install -y libboost1.67-dev
+    && apt-get install -y libboost$BOOST_MAJOR.$BOOST_MINOR-dev
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
-ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-4.14.3/CGAL-4.14.3.tar.xz /tmp
+ARG CGAL_MAJOR=4
+ARG CGAL_MINOR=14
+ARG CGAL_PATCH=3
+ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH.tar.xz /tmp/CGAL.tar.xz
 RUN apt-get install -y libgmp-dev libmpfr-dev
-RUN tar -xJf /tmp/CGAL-4.14.3.tar.xz --directory /tmp \
-    && cd /tmp/CGAL-4.14.3 \
+RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
+    && cd /tmp/CGAL \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
@@ -97,13 +108,18 @@ ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
 ENV VM_CUDA_ARCH="sm_50"
 
 # Install pybind11 (needed by SofaPython3)
-RUN git clone -b v2.4 --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
+ARG PYBIND_MAJOR=2
+ARG PYBIND_MINOR=4
+RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
     && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3.7 -DPYBIND11_TEST=OFF ../src \
     && make && make install
 
 # Install NodeEditor (needed by SofaQtQuick)
-RUN git clone -b 2.1.3 --depth 1 https://github.com/paceholder/nodeeditor.git /tmp/nodeeditor/src \
+ARG NODE_MAJOR=2
+ARG NODE_MINOR=1
+ARG NODE_PATCH=3
+RUN git clone -b $NODE_MAJOR.$NODE_MINOR.$NODE_PATCH --depth 1 https://github.com/paceholder/nodeeditor.git /tmp/nodeeditor/src \
     && mkdir /tmp/nodeeditor/build && cd /tmp/nodeeditor/build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../src \
     && make && make install
