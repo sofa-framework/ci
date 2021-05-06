@@ -59,14 +59,12 @@ Controller.prototype.DynamicTelemetryPluginFormCallback = function() {
     //}
 }
 
-Controller.prototype.TargetDirectoryPageCallback = function()
-{
+Controller.prototype.TargetDirectoryPageCallback = function() {
     gui.currentPageWidget().TargetDirectoryLineEdit.setText("_QTINSTALLDIR_");
     gui.clickButton(buttons.NextButton, 2000);
 }
 
 Controller.prototype.ComponentSelectionPageCallback = function() {
-
     // https://doc-snapshots.qt.io/qtifw-3.1/noninteractive.html
     var page = gui.pageWidgetByObjectName("ComponentSelectionPage");
 
@@ -98,15 +96,14 @@ Controller.prototype.StartMenuDirectoryPageCallback = function() {
     gui.clickButton(buttons.NextButton, 2000);
 }
 
-Controller.prototype.ReadyForInstallationPageCallback = function()
-{
+Controller.prototype.ReadyForInstallationPageCallback = function() {
     gui.clickButton(buttons.NextButton, 2000);
 }
 
 Controller.prototype.FinishedPageCallback = function() {
-var checkBoxForm = gui.currentPageWidget().LaunchQtCreatorCheckBoxForm;
-if (checkBoxForm && checkBoxForm.launchQtCreatorCheckBox) {
-    checkBoxForm.launchQtCreatorCheckBox.checked = false;
-}
+    var checkBoxForm = gui.currentPageWidget().LaunchQtCreatorCheckBoxForm;
+    if (checkBoxForm && checkBoxForm.launchQtCreatorCheckBox) {
+        checkBoxForm.launchQtCreatorCheckBox.checked = false;
+    }
     gui.clickButton(buttons.FinishButton, 2000);
 }
