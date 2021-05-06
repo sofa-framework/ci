@@ -66,6 +66,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         dependency_project_name="$(github-get-pr-project-name "$dependency_json")"
         dependency_project_url="$(github-get-pr-project-url "$dependency_json")"
         dependency_merge_commit="$(github-get-pr-merge-commit "$dependency_json")"
+        dependency_merge_branch="$(github-get-pr-merge-branch "$dependency_json")"
 
         echo "$dependency" >> "$output_dir/ci-depends-on"
 
@@ -75,6 +76,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         echo "dependency_project_name = $dependency_project_name"
         echo "dependency_project_url = $dependency_project_url"
         echo "dependency_merge_commit = $dependency_merge_commit"
+        echo "dependency_merge_branch = $dependency_merge_branch"
 
         if [[ "$dependency_is_merged" == [Tt]"rue" ]]; then # this dependency is a merged PR
             pr_diff_for_dependency="$(echo "$pr_diff" | grep -v '^-' | sed -n -e '/'$dependency_project_name'\/ExternalProjectConfig\.cmake\.in/,/diff --git/p')"
@@ -88,8 +90,8 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
                 github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with: GIT_REPOSITORY '$dependency_project_url
                 pr_is_mergeable="false"
             fi
-            if [ -n "$dependency_git_tag" ] && [[ "$dependency_git_tag" != *" origin/"* ]] && [[ "$dependency_git_tag" != *"$dependency_merge_commit"* ]]; then
-                github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with: GIT_TAG '$dependency_merge_commit
+            if [ -n "$dependency_git_tag" ] && [[ "$dependency_git_tag" != *"$dependency_merge_branch"* ]] && [[ "$dependency_git_tag" != *"$dependency_merge_commit"* ]]; then
+                github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with: GIT_TAG '$dependency_merge_branch
                 pr_is_mergeable="false"
             fi
         else

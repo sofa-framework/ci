@@ -5,15 +5,15 @@ import sys,json,datetime;
 def get_head_sha(json_string):
     obj=json.load(json_string)
     print(obj['head']['sha'])
-    
+
 def get_base_sha(json_string):
     obj=json.load(json_string)
     print(obj['base']['sha'])
-    
+
 def get_base_ref(json_string):
     obj=json.load(json_string)
     print(obj['base']['ref'])
-    
+
 def get_state(json_string):
     obj=json.load(json_string)
     print(obj['state'])
@@ -36,7 +36,7 @@ def get_commit_date(json_string):
     dt=datetime.datetime.strptime(str(commit_date), '%Y-%m-%dT%H:%M:%SZ')
     timestamp=(dt-datetime.datetime(1970,1,1)).total_seconds()
     print(int(timestamp))
-    
+
 def get_latest_build_comment(json_string):
     comments = json.load(json_string)
     for comment in reversed(comments):
@@ -62,7 +62,11 @@ def get_project_url(json_string):
 def get_project_name(json_string):
     obj = json.load(json_string)
     print(obj['base']['repo']['name'])
-    
+
 def get_merge_commit(json_string):
     obj = json.load(json_string)
     print(str(obj['merge_commit_sha'] or "null"))
+
+def get_merge_branch(json_string):
+    obj = json.load(json_string)
+    print(str(obj['base']['ref'] or "null"))

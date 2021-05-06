@@ -41,7 +41,7 @@ github-notify() {
 
 github-export-vars() {
     echo "Calling ${FUNCNAME[0]}"
-    
+
     if [ "$#" -ge 5 ]; then
         local platform="$1"
         local compiler="$2"
@@ -140,7 +140,7 @@ github-export-vars() {
     fi
     echo "GITHUB_COMMIT_HASH = $GITHUB_COMMIT_HASH"
     echo "GITHUB_BASECOMMIT_HASH = $GITHUB_BASECOMMIT_HASH"
-    
+
     if [ -n "$CI_DEBUG" ]; then
         echo "Debug info for GitHub env vars export:"
         echo "  python_exe = $python_exe"
@@ -163,7 +163,7 @@ github-export-vars() {
     fi
     set -$options
 
-    if [ -n "$platform" ]; then    
+    if [ -n "$platform" ]; then
         export GITHUB_CONTEXT="$(dashboard-config-string "$platform" "$compiler" "$architecture" "$build_type" "$build_options")"
     fi
 
@@ -196,7 +196,7 @@ github-get-pr-json() {
     if [ -z "$GITHUB_REPOSITORY" ]; then
         export GITHUB_REPOSITORY="sofa-framework/sofa"
     fi
-    
+
     set +x # Private stuff here: echo disabled
     if [ -n "$GITHUB_SOFABOT_TOKEN" ] &&
        [ -n "$GITHUB_REPOSITORY" ]; then
@@ -218,7 +218,7 @@ github-get-pr-json() {
 }
 
 github-get-pr-state() {
-    local python_exe="$(find-python)"    
+    local python_exe="$(find-python)"
     echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_state(sys.stdin)" )"
 }
 
@@ -250,6 +250,11 @@ github-get-pr-project-name() {
 github-get-pr-merge-commit() {
     local python_exe="$(find-python)"
     echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_merge_commit(sys.stdin)" )"
+}
+
+github-get-pr-merge-branch() {
+    local python_exe="$(find-python)"
+    echo "$( cd "$SCRIPT_DIR" && github-get-pr-json "$1" | $python_exe -c "import sys,githubJsonParser; githubJsonParser.get_merge_branch(sys.stdin)" )"
 }
 
 github-get-pr-diff() {
