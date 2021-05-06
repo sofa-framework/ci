@@ -2,7 +2,7 @@ FROM ubuntu:18.04
 
 SHELL ["/bin/bash", "-c"]
 
-ADD "https://www.sofa-framework.org/rand/" ForceNoCache
+# ADD "https://www.sofa-framework.org/rand/" ForceNoCache
 
 RUN apt-get update && apt-get upgrade -y
 
@@ -151,4 +151,3 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Define default command.
 CMD ["/bin/bash"]
-
