@@ -99,7 +99,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
                 fi
             fi
         else
-            github_comment_body=$github_comment_body'\n- **Merge or close '$dependency_url'**\nFor this build, '$dependency_project_name'/ExternalProjectConfig.cmake.in will be edited by builders with  \nGIT_REPOSITORY '$dependency_project_url'  \nGIT_TAG '$dependency_merge_commit
+            github_comment_body=$github_comment_body'\n- **Merge or close '$dependency_url'**\n_For this build, '$dependency_project_name'/ExternalProjectConfig.cmake.in will be edited by builders with\nGIT_REPOSITORY '$dependency_project_url'\nGIT_TAG '$dependency_merge_commit'_'
             pr_is_mergeable="false"
         fi
     done < <( echo "$pr_description" | grep '\[ci-depends-on' )
