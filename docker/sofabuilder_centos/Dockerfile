@@ -66,8 +66,8 @@ ARG QT_MINOR=12
 ARG QT_PATCH=6
 ARG QT_INSTALLDIR="/opt/Qt"
 RUN mkdir -p /root/.local/share/Qt
-ADD https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qt/qtaccount.ini /root/.local/share/Qt/qtaccount.ini
-ADD https://raw.githubusercontent.com/sofa-framework/ci/testing/setup/qt/qtinstaller_controlscript_template.qs /tmp/qtinstaller_controlscript_template.qs
+ADD https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtaccount.ini /root/.local/share/Qt/qtaccount.ini
+ADD https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtinstaller_controlscript_template.qs /tmp/qtinstaller_controlscript_template.qs
 RUN cat /tmp/qtinstaller_controlscript_template.qs \
     | sed 's:_QTVERSION_:'"$QT_MAJOR$QT_MINOR$QT_PATCH"':g' \
     | sed 's:_QTINSTALLDIR_:'"$QT_INSTALLDIR"':g' \
