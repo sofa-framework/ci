@@ -17,11 +17,24 @@
 var INSTALL_COMPONENTS = [
     "qt.qt5._QTVERSION_._QTCOMPILER_",
     "qt.qt5._QTVERSION_.qtcharts",
-    "qt.qt5._QTVERSION_.qtcharts._QTCOMPILER_",    
+    "qt.qt5._QTVERSION_.qtcharts._QTCOMPILER_",
     "qt.qt5._QTVERSION_.qtwebengine",
     "qt.qt5._QTVERSION_.qtwebengine._QTCOMPILER_"
 ]
 
+
+function dump_var(v) {
+    switch (typeof v) {
+        case "object":
+            for (var i in v) {
+                console.log(i+":"+v[i]);
+            }
+            break;
+        default: //number, string, boolean, null, undefined
+            console.log(typeof v+":"+v);
+            break;
+    }
+}
 
 function Controller() {
     installer.autoRejectMessageBoxes();
@@ -88,7 +101,7 @@ Controller.prototype.ComponentSelectionPageCallback = function() {
 }
 
 Controller.prototype.LicenseAgreementPageCallback = function() {
-    gui.currentPageWidget().AcceptLicenseRadioButton.setChecked(true);
+    gui.currentPageWidget().AcceptLicenseCheckBox.setChecked(true);
     gui.clickButton(buttons.NextButton, 2000);
 }
 

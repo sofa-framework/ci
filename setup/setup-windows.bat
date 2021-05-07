@@ -117,7 +117,7 @@ powershell -Command "(gc %WORKDIR%\qtinstaller_controlscript_template.qs) "^
 powershell -Command "Invoke-WebRequest "^
     "https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe "^
     "-OutFile %WORKDIR%\qtinstaller.exe"
-%WORKDIR%\qtinstaller.exe --script %WORKDIR%\qtinstaller_controlscript.qs
+%WORKDIR%\qtinstaller.exe --script %WORKDIR%\qtinstaller_controlscript.qs --verbose
 :qt_done
 
 
