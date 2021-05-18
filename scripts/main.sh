@@ -251,6 +251,10 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         dependency="${dependency%$'\r'}" # remove \r from dependency
         dependency_url="$(echo "$dependency" | sed 's:\[ci-depends-on \(.*\)\]:\1:g')"
         dependency_json="$(github-get-pr-json "$dependency_url")"
+        if [ -z "$dependency_json" ]; then
+            continue
+        fi
+
         dependency_project_name="$(github-get-pr-project-name "$dependency_json")"
         dependency_project_url="$(github-get-pr-project-url "$dependency_json")"
         dependency_merge_commit="$(github-get-pr-merge-commit "$dependency_json")" 
