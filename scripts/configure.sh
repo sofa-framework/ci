@@ -430,6 +430,7 @@ else # This is not a "package" build
         else
             add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
         fi
+        add-cmake-option "-DPLUGIN_SOFAGLFW=ON" "-DAPPLICATION_RUNSOFAGLFW=ON" "-DSOFA_FETCH_SOFAGLFW=ON"
         add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
         add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON"
         add-cmake-option "-DPLUGIN_RIGIDSCALE=ON"
