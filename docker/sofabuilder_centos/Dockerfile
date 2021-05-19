@@ -47,7 +47,8 @@ RUN yum install -y -q \
     ffmpeg-devel \
     assimp-devel \
     bullet-extras-devel \
-    OCE-devel
+    OCE-devel \
+    libXrandr-devel
 RUN source /opt/rh/python27/enable \
     && python2.7 -m pip install --upgrade "pip == 20.3.4" \
     && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
