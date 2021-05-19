@@ -47,8 +47,8 @@ RUN apt-get install -y \
     libbullet-dev \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev
-RUN python2.7 -m pip install --upgrade "pip < 21.0" \
-    && python2.7 -m pip install "numpy < 1.17" "scipy < 1.3" "matplotlib < 3.0"
+RUN python2.7 -m pip install --upgrade "pip == 20.3.4" \
+    && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
 RUN python3.7 -m pip install --upgrade pip \
     && python3.7 -m pip install numpy scipy pygame
 ENV VM_HAS_ASSIMP="true"

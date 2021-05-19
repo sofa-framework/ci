@@ -3,7 +3,7 @@ FROM centos:7
 SHELL ["/bin/bash", "-c"]
 
 # Install yum repositories
-RUN yum install -y -q deltarpm 
+RUN yum install -y -q deltarpm
 RUN yum install -y -q epel-release
 RUN yum install -y -q centos-release-scl
 RUN yum install -y -q centos-release-scl-rh
@@ -49,8 +49,8 @@ RUN yum install -y -q \
     bullet-extras-devel \
     OCE-devel
 RUN source /opt/rh/python27/enable \
-    && python2.7 -m pip install --upgrade "pip < 21.0" \
-    && python2.7 -m pip install "numpy < 1.17" "scipy < 1.3" "matplotlib < 3.0"
+    && python2.7 -m pip install --upgrade "pip == 20.3.4" \
+    && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
 RUN source /opt/rh/rh-python38/enable \
     && python3.8 -m pip install --upgrade pip \
     && python3.8 -m pip install numpy scipy pygame
