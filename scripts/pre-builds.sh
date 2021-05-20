@@ -56,23 +56,22 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     github_comment_body='\n\n To unlock the merge button, you must'
 
     while read dependency; do
-        pr_has_dependencies="true"
         dependency="${dependency%$'\r'}" # remove \r from dependency
         dependency_url="$(echo "$dependency" | sed 's:\[ci-depends-on \(.*\)\]:\1:g')"
         echo "dependency_url = $dependency_url"
         if ! curl -sSf "$dependency_url" > /dev/null; then
+            # bad url
             continue
         fi
-        dependency_json="$(github-get-pr-json "$dependency_url")"
 
+        pr_has_dependencies="true"
+        dependency_json="$(github-get-pr-json "$dependency_url")"
         dependency_state="$(github-get-pr-state "$dependency_json")"
         dependency_is_merged="$(github-is-pr-merged "$dependency_json")"
         dependency_project_name="$(github-get-pr-project-name "$dependency_json")"
         dependency_project_url="$(github-get-pr-project-url "$dependency_json")"
         dependency_merge_commit="$(github-get-pr-merge-commit "$dependency_json")"
         dependency_merge_branch="$(github-get-pr-merge-branch "$dependency_json")"
-
-        echo "$dependency" >> "$output_dir/ci-depends-on"
 
         echo "dependency_state = $dependency_state"
         echo "dependency_is_merged = $dependency_is_merged"
