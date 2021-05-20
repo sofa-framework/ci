@@ -14,7 +14,7 @@ if [ "$#" -ge 4 ]; then
     if [ ! -d "$1" ]; then
         mkdir -p "$1";
     fi
-    
+
     BUILD_DIR="$(cd "$1" && pwd)"
     BUILD_DIR_RESET="$BUILD_DIR"
     SRC_DIR="$(cd "$2" && pwd)"
@@ -47,7 +47,7 @@ rm -rf $BUILD_DIR/cube5x5x5* $BUILD_DIR/energy.txt $BUILD_DIR/*.vtu $BUILD_DIR/e
        $BUILD_DIR/monitor_* $BUILD_DIR/outfile.* $BUILD_DIR/particleGravity* \
        $BUILD_DIR/PluginManager_test* $BUILD_DIR/Springtest_positions* $BUILD_DIR/test.*
 # TEMPORARY: remove huge core dumps on CentOS and disable them
-# TODO: fix the issue and remove this 
+# TODO: fix the issue and remove this
 if vm-is-centos; then
     rm -f $BUILD_DIR/core.*
     ulimit -c 0
@@ -182,13 +182,13 @@ fi
 
 
 # Git config (needed by CMake ExternalProject)
-git config --system user.name 'SOFA Bot' > /dev/null 2>&1 || 
-    git config --global user.name 'SOFA Bot' > /dev/null 2>&1 || 
-    git config user.name 'SOFA Bot' > /dev/null 2>&1 || 
+git config --system user.name 'SOFA Bot' > /dev/null 2>&1 ||
+    git config --global user.name 'SOFA Bot' > /dev/null 2>&1 ||
+    git config user.name 'SOFA Bot' > /dev/null 2>&1 ||
     echo "WARNING: cannot setup git config"
-git config --system user.email '<>' > /dev/null 2>&1 || 
-    git config --global user.email '<>' > /dev/null 2>&1 || 
-    git config user.email '<>' > /dev/null 2>&1 || 
+git config --system user.email '<>' > /dev/null 2>&1 ||
+    git config --global user.email '<>' > /dev/null 2>&1 ||
+    git config user.email '<>' > /dev/null 2>&1 ||
     echo "WARNING: cannot setup git config"
 
 
@@ -204,7 +204,7 @@ if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     export EXECUTOR_LINK_WINDOWS="J:\\$EXECUTOR_NUMBER"
     export EXECUTOR_LINK_WINDOWS_SRC="J:\\$EXECUTOR_NUMBER\src"
     export EXECUTOR_LINK_WINDOWS_BUILD="J:\\$EXECUTOR_NUMBER\build"
-    
+
     SRC_DIR="/J/$EXECUTOR_NUMBER/src"
     BUILD_DIR="/J/$EXECUTOR_NUMBER/build"
 fi
@@ -246,19 +246,20 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     pr_id="${DASH_COMMIT_BRANCH#*-}"
     pr_json="$(github-get-pr-json "$pr_id")"
     pr_description="$(github-get-pr-description "$pr_json")"
-    
+
     while read dependency; do
         dependency="${dependency%$'\r'}" # remove \r from dependency
         dependency_url="$(echo "$dependency" | sed 's:\[ci-depends-on \(.*\)\]:\1:g')"
-        dependency_json="$(github-get-pr-json "$dependency_url")"
-        if [ -z "$dependency_json" ]; then
+        if ! curl -sSf "$dependency_url" > /dev/null; then
+            # bad url
             continue
         fi
+        dependency_json="$(github-get-pr-json "$dependency_url")"
 
         dependency_project_name="$(github-get-pr-project-name "$dependency_json")"
         dependency_project_url="$(github-get-pr-project-url "$dependency_json")"
-        dependency_merge_commit="$(github-get-pr-merge-commit "$dependency_json")" 
-    
+        dependency_merge_commit="$(github-get-pr-merge-commit "$dependency_json")"
+
         external_project_file="$(find "$SRC_DIR" -wholename "*/$dependency_project_name/ExternalProjectConfig.cmake.in")"
         if [ -e "$external_project_file" ]; then
             # Force replace GIT_REPOSITORY and GIT_TAG
@@ -366,14 +367,14 @@ echo "[END] Post build ($(time-date)) - took $time_sec_postbuild seconds"
 if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     echo "[BEGIN] Unit tests ($(time-date))"
     time_millisec_unittests_begin="$(time-millisec)"
-    
+
     tests_status="running"
     dashboard-notify "tests_status=$tests_status"
-    echo "$tests_status" > "$BUILD_DIR/unit-tests.status"  
-    
+    echo "$tests_status" > "$BUILD_DIR/unit-tests.status"
+
     "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
     "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
-    
+
     tests_status="done" # TODO: handle script crash
     echo "$tests_status" > "$BUILD_DIR/unit-tests.status"
 
@@ -412,14 +413,14 @@ fi
 if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     echo "[BEGIN] Scene tests ($(time-date))"
     time_millisec_scenetests_begin="$(time-millisec)"
-    
+
     scenes_status="running"
     dashboard-notify "scenes_status=$scenes_status"
     echo "$scenes_status" > "$BUILD_DIR/scene-tests.status"
 
     "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
     "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
-    
+
     scenes_status="done" # TODO: handle script crash
     echo "$scenes_status" > "$BUILD_DIR/scene-tests.status"
 
@@ -436,7 +437,7 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     fi
     github_status="success" # do not fail on tests failure
     github-notify "$github_status" "$github_message"
-    
+
     dashboard-notify \
         "scenes_status=$scenes_status" \
         "scenes_total=$scenes_total" \
@@ -448,7 +449,7 @@ if in-array "run-scene-tests" "$BUILD_OPTIONS"; then
     # Clamping warning and error files to avoid Jenkins overflow
     "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
     "$SCRIPT_DIR/scene-tests.sh" clamp-errors "$BUILD_DIR" "$SRC_DIR" 5000
-    
+
     time_millisec_scenetests_end="$(time-millisec)"
     time_sec_scenetests="$(time-elapsed-sec $time_millisec_scenetests_begin $time_millisec_scenetests_end)"
     echo "[END] Scene tests ($(time-date)) - took $time_sec_scenetests seconds"
@@ -464,12 +465,12 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
     regressions_status="running"
     dashboard-notify "regressions_status=$regressions_status"
     echo "$regressions_status" > "$BUILD_DIR/regression-tests.status"
-    
+
     references_dir="$REGRESSION_DIR/references"
-    
+
     "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR" "$references_dir"
     "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" "$references_dir"
-    
+
     regressions_status="done" # TODO: handle script crash
     echo "$regressions_status" > "$BUILD_DIR/regression-tests.status"
 

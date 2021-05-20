@@ -59,11 +59,11 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         pr_has_dependencies="true"
         dependency="${dependency%$'\r'}" # remove \r from dependency
         dependency_url="$(echo "$dependency" | sed 's:\[ci-depends-on \(.*\)\]:\1:g')"
-        dependency_json="$(github-get-pr-json "$dependency_url")"
         echo "dependency_url = $dependency_url"
-        if [ -z "$dependency_json" ]; then
+        if ! curl -sSf "$dependency_url" > /dev/null; then
             continue
         fi
+        dependency_json="$(github-get-pr-json "$dependency_url")"
 
         dependency_state="$(github-get-pr-state "$dependency_json")"
         dependency_is_merged="$(github-is-pr-merged "$dependency_json")"
