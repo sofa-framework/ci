@@ -2,6 +2,8 @@ FROM centos:7
 
 SHELL ["/bin/bash", "-c"]
 
+ADD "https://www.sofa-framework.org/rand/" ForceNoCache
+
 # Install yum repositories
 RUN yum install -y -q deltarpm
 RUN yum install -y -q epel-release
