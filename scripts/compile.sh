@@ -52,6 +52,7 @@ echo "-----------------------------------------------"
 rm -f "$BUILD_DIR/make-failed"
 
 ( call-make "$BUILD_DIR" "all" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee "$BUILD_DIR/make-output.txt"
+
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
     echo "-------------- Start packaging --------------" | tee -a "$BUILD_DIR/make-output.txt"
     ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee -a "$BUILD_DIR/make-output.txt"
@@ -61,9 +62,11 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
         call-cmake "$BUILD_DIR" "-DCPACK_BINARY_ZIP=OFF" "-DCPACK_GENERATOR=DragNDrop" "-DCPACK_BINARY_DRAGNDROP=ON" "-DSOFA_BUILD_APP_BUNDLE=ON" .
         ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee -a "$BUILD_DIR/make-output.txt"
     fi
-    echo "---------------------------------------------" | tee -a "$BUILD_DIR/make-output.txt"
+    echo "--------------- End packaging ---------------" | tee -a "$BUILD_DIR/make-output.txt"
 fi
 
 if [ -e "$BUILD_DIR/make-failed" ]; then
+    echo "ERROR: Detected $BUILD_DIR/make-failed"
+    echo "       See $BUILD_DIR/make-output.txt"
     exit 1
 fi
