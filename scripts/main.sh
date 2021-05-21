@@ -52,6 +52,16 @@ if vm-is-centos; then
     rm -f $BUILD_DIR/core.*
     ulimit -c 0
 fi
+# Reset external repositories in src dir
+(
+cd $SRC_DIR
+find * -name '.git' | while read external_repo_git; do
+    external_repo="$(dirname $external_repo_git)"
+    rm -rf $external_repo
+    mkdir -p $external_repo
+    git checkout HEAD -- $external_repo
+done
+)
 
 # Choose between incremental build and full build
 full_build=""
