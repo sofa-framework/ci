@@ -22,7 +22,9 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
 
     # Load Qt environment
-    source /opt/qt512/bin/qt512-env.sh || true
+    if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
+        source /opt/qt512/bin/qt512-env.sh || true
+    fi
 else
     # in Docker (to be put in Dockerfile)
     export PYTHONIOENCODING="UTF-8"
