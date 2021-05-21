@@ -10,7 +10,7 @@ RUN yum install -y -q epel-release
 RUN yum install -y -q centos-release-scl
 RUN yum install -y -q centos-release-scl-rh
 RUN yum install -y -q http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-1.noarch.rpm
-RUN yum update -y && yum upgrade -y && yum clean all
+RUN yum update -y && yum upgrade -y --nogpgcheck && yum clean all
 
 # Install tools
 RUN yum install -y -q \
