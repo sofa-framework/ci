@@ -4,6 +4,7 @@ SHELL ["/bin/bash", "-c"]
 
 ADD "https://www.sofa-framework.org/rand/" ForceNoCache
 
+RUN add-apt-repository ppa:git-core/ppa
 RUN apt-get update && apt-get upgrade -y
 
 # Install tools
