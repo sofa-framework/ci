@@ -13,7 +13,7 @@ RUN yum install -y -q http://repo.okay.com.mx/centos/7/x86_64/release/okay-relea
 RUN yum install -y -q https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.9-1.x86_64.rpm
 RUN yum update -y && yum upgrade -y && yum clean all
 
-# Install tools
+# Install system tools
 RUN yum install -y -q \
     git \
     wget \
