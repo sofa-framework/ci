@@ -9,7 +9,7 @@ RUN yum install -y -q deltarpm
 RUN yum install -y -q epel-release
 RUN yum install -y -q centos-release-scl
 RUN yum install -y -q centos-release-scl-rh
-RUN yum install -y -q okay-release
+RUN yum install -y -q http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-5.el7.noarch.rpm
 RUN yum install -y -q https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.9-1.x86_64.rpm
 RUN yum update -y && yum upgrade -y && yum clean all
 
