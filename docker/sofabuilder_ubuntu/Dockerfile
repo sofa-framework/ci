@@ -4,12 +4,15 @@ SHELL ["/bin/bash", "-c"]
 
 ADD "https://www.sofa-framework.org/rand/" ForceNoCache
 
+# Install APT tools and repos
+RUN apt-get install -y \
+    apt-utils \
+    software-properties-common
 RUN add-apt-repository ppa:git-core/ppa
 RUN apt-get update && apt-get upgrade -y
 
-# Install tools
+# Install system tools
 RUN apt-get install -y \
-    apt-utils \
     git \
     net-tools \
     vim \
@@ -22,7 +25,6 @@ RUN apt-get install -y \
 # Install compilers
 RUN apt-get install -y \
     build-essential \
-    software-properties-common \
     ninja-build \
     gcc-7 g++-7 \
     clang \
