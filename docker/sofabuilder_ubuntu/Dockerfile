@@ -51,7 +51,7 @@ RUN apt-get install -y \
     libbullet-dev \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev \
-    libxrandr-dev libxinerama-dev
+    libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev 
 RUN python2.7 -m pip install --upgrade "pip == 20.3.4" \
     && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
 RUN python3.7 -m pip install --upgrade pip \
