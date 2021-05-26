@@ -81,11 +81,12 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         echo "dependency_merge_branch = $dependency_merge_branch"
 
         if [[ "$dependency_is_merged" == [Tt]"rue" ]]; then # this dependency is a merged PR
+            echo "pr_diff = $pr_diff"
             pr_diff_for_dependency="$(echo "$pr_diff" | grep -v '^-' | sed -n -e '/'$dependency_project_name'\/ExternalProjectConfig\.cmake\.in/,/diff --git/p')"
-            dependency_git_repository="$(echo "$pr_diff_for_dependency" | grep -o "GIT_REPOSITORY .*")"
-            dependency_git_tag="$(echo "$pr_diff_for_dependency" | grep -o "GIT_TAG .*")"
             echo "pr_diff_for_dependency = $pr_diff_for_dependency"
+            dependency_git_repository="$(echo "$pr_diff_for_dependency" | grep -o "GIT_REPOSITORY .*")"
             echo "dependency_git_repository = $dependency_git_repository"
+            dependency_git_tag="$(echo "$pr_diff_for_dependency" | grep -o "GIT_TAG .*")"
             echo "dependency_git_tag = $dependency_git_tag"
             # The diff (without removals), taken only for ProjectName/ExternalProjectConfig.cmake.in, DOES NOT contain the correct GIT_REPOSITORY and GIT_TAG
             if [ -n "$dependency_git_repository" ] && [[ "$dependency_git_repository" != *"$dependency_project_url"* ]] ||
