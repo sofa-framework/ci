@@ -57,10 +57,11 @@ fi
 cd $SRC_DIR
 find * -name '.git' | while read external_repo_git; do
     external_repo="$(dirname $external_repo_git)"
-    rm -rf $external_repo
-    mkdir -p $external_repo
-    git checkout HEAD -- $external_repo
+    if [ -d $external_repo ]; then
+        rm -rf $external_repo
+    fi
 done
+git reset --hard
 )
 
 # Choose between incremental build and full build
