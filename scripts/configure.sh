@@ -102,7 +102,7 @@ if vm-is-windows; then
         #export CLCACHE_HARDLINK=1 # this may cause cache corruption. see https://github.com/frerich/clcache/issues/282
         export CLCACHE_OBJECT_CACHE_TIMEOUT_MS=3600000
         clcache -M 17179869184 # Set cache size to 1024*1024*1024*16 = 16 GB
-        
+
         add-cmake-option "-DCMAKE_C_COMPILER=clcache"
         add-cmake-option "-DCMAKE_CXX_COMPILER=clcache"
     fi
@@ -366,11 +366,11 @@ else # This is not a "package" build
         add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=ON"
     fi
 
-    if in-array "build-all-plugins" "$BUILD_OPTIONS"; then 
+    if in-array "build-all-plugins" "$BUILD_OPTIONS"; then
         # Build with as many options enabled as possible
         add-cmake-option "-DSOFA_BUILD_ARTRACK=ON"
         add-cmake-option "-DSOFA_BUILD_MINIFLOWVR=ON"
-        
+
         # HeadlessRecorder is Linux only for now
         if [[ "$(uname)" == "Linux" ]]; then
             id=$(cat /etc/*-release | grep "ID")
@@ -380,7 +380,7 @@ else # This is not a "package" build
                 add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=ON"
             fi
         fi
-        
+
         ### Modules
         add-cmake-option "-DMODULE_SOFACOMBINATORIALMAPS=ON"
         add-cmake-option "-DMODULE_SOFACOMBINATORIALMAPS_FETCH_CGOGN=ON"
@@ -410,6 +410,7 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_DIFFUSIONSOLVER=ON"
         add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
         add-cmake-option "-DPLUGIN_FLEXIBLE=ON -DSOFA_FETCH_FLEXIBLE=ON"
+        add-cmake-option "-DPLUGIN_GEOMAGIC=ON" # possible since PR#2115
         add-cmake-option "-DPLUGIN_IMAGE=ON"
         add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON -DSOFA_FETCH_INVERTIBLEFVM=ON"
         add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
@@ -434,20 +435,20 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
         add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON"
         add-cmake-option "-DPLUGIN_RIGIDSCALE=ON"
-        
+
         add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
         add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
         add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
         add-cmake-option "-DPLUGIN_SOFASPHFLUID=ON"
         add-cmake-option "-DPLUGIN_SOFAMISCCOLLISION=ON"
         add-cmake-option "-DPLUGIN_SOFAVOLUMETRICDATA=ON"
-        
-        
+
+
         # Always disabled
         add-cmake-option "-DPLUGIN_HAPTION=OFF" # Requires specific libraries.
-        add-cmake-option "-DPLUGIN_PERSISTENTCONTACT=OFF" # Does not compile, but it just needs to be updated.    
-        add-cmake-option "-DPLUGIN_SENSABLE=OFF" # Requires OpenHaptics libraries.    
-        add-cmake-option "-DPLUGIN_SIXENSEHYDRA=OFF" # Requires Sixense libraries.    
+        add-cmake-option "-DPLUGIN_PERSISTENTCONTACT=OFF" # Does not compile, but it just needs to be updated.
+        add-cmake-option "-DPLUGIN_SENSABLE=OFF" # Requires OpenHaptics libraries.
+        add-cmake-option "-DPLUGIN_SIXENSEHYDRA=OFF" # Requires Sixense libraries.
         add-cmake-option "-DPLUGIN_SOFAHAPI=OFF" # Requires HAPI libraries.
         add-cmake-option "-DPLUGIN_XITACT=OFF" # Requires XiRobot library.
     fi
@@ -478,4 +479,4 @@ if [ -n "$full_build" ]; then
     call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
 else
     call-cmake "$BUILD_DIR" $cmake_options .
-fi 
+fi
