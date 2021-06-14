@@ -1,5 +1,11 @@
 @echo off
 
+REM Install is MINIMAL by default
+REM Add "FULL" argument to enable FULL install
+set MINIMAL_INSTALL="TRUE"
+if "%1" == "FULL" set "MINIMAL_INSTALL="
+
+set SCRIPTDIR=%~dp0
 set WORKDIR=%TEMP%\%~n0
 rmdir /S /Q %WORKDIR%
 mkdir %WORKDIR%
@@ -7,40 +13,46 @@ mkdir %WORKDIR%
 REM Install Chocolatey (will also install refreshenv command)
 powershell -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))"
 set AddToUserPATH=%ALLUSERSPROFILE%\chocolatey\bin
+choco upgrade -y chocolatey
 call refreshenv && echo OK
 
+REM Install system tools
+Dism /online /Enable-Feature /FeatureName:"NetFx3" && choco install -y --no-progress pathed
+choco install -y --no-progress nsis
+REM choco install -y --no-progress zip
+REM choco install -y --no-progress unzip
+REM choco install -y --no-progress curl
+call refreshenv && echo OK
 
 REM Install CI-specific dependencies and tools
-choco install -y jre8
-choco install -y notepadplusplus
-choco install -y vswhere
-Dism /online /Enable-Feature /FeatureName:"NetFx3" && choco install -y pathed
-choco install -y nsis
-REM choco install -y zip
-REM choco install -y unzip
-REM choco install -y curl
+if DEFINED MINIMAL_INSTALL goto :cispecificdeps_end
+choco install -y --no-progress jre8
+choco install -y --no-progress notepadplusplus
+choco install -y --no-progress vswhere
 call refreshenv && echo OK
+:cispecificdeps_end
 
 
 REM Install SOFA dependencies with Chocolatey
-choco install -y git --version=2.25.1
+choco install -y --no-progress git --version=2.25.1
 pathed /MACHINE /APPEND "C:\Program Files\Git\bin"
-choco install -y wget --version=1.20.3.20190531
-choco install -y ninja --version=1.10.0
-choco install -y cmake --version=3.16.2 --installargs 'ADD_CMAKE_TO_PATH=System'
-choco install -y python2 --version=2.7.17
+choco install -y --no-progress wget --version=1.20.3.20190531
+choco install -y --no-progress ninja --version=1.10.0
+choco install -y --no-progress cmake --version=3.16.2 --installargs 'ADD_CMAKE_TO_PATH=System'
+choco install -y --no-progress python --version=3.7.9
 call refreshenv && echo OK
 python -m pip install --upgrade pip
 python -m pip install numpy scipy
 
 
 REM Install plugins dependencies
-choco install -y cuda --version=10.2.89.20191206
+if DEFINED MINIMAL_INSTALL goto :plugindeps_end
+choco install -y --no-progress cuda --version=10.2.89.20191206
 REM Bullet: source code to build: https://github.com/bulletphysics/bullet3/releases
-
+:plugindeps_end
 
 REM Install clcache
-if exist C:\clcache goto :clcache_done
+if exist C:\clcache goto :clcache_end
 echo Installing Clcache...
 set CLCACHE_MAJOR=4
 set CLCACHE_MINOR=2
@@ -60,17 +72,14 @@ REM (
   REM echo }
 REM ) > J:\clcache\config.txt
 pathed /MACHINE /APPEND "C:\clcache"
-:clcache_done
+:clcache_end
 
 
 REM Install Visual Studio Build Tools 2017
-if exist C:\VSBuildTools goto :vs_done
+if exist C:\VSBuildTools goto :vs_end
 echo Installing Visual Studio Build Tools...
 REM To see component names, run Visual Studio Installer and play with configuration export.
 REM Use --passive instead of --quiet when testing (GUI will appear with progress bar).
-powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat "^
-    "-OutFile %WORKDIR%\wait_process_to_end.bat"
 powershell -Command "Invoke-WebRequest "^
     "https://aka.ms/vs/15/release/vs_buildtools.exe "^
     "-OutFile %WORKDIR%\vs_buildtools.exe"
@@ -83,18 +92,18 @@ powershell -Command "Invoke-WebRequest "^
     --add microsoft.visualstudio.component.vc.atlmfc ^
     --add microsoft.visualstudio.component.vc.cli.support ^
     --includeRecommended ^
-   & call %WORKDIR%\wait_process_to_end.bat "vs_bootstrapper.exe" ^
-   & call %WORKDIR%\wait_process_to_end.bat "vs_BuildTools.exe" ^
-   & call %WORKDIR%\wait_process_to_end.bat "vs_buildtools.exe" ^
-   & call %WORKDIR%\wait_process_to_end.bat "vs_installer.exe"
+   & call %SCRIPTDIR%\wait_process_to_end.bat "vs_bootstrapper.exe" ^
+   & call %SCRIPTDIR%\wait_process_to_end.bat "vs_BuildTools.exe" ^
+   & call %SCRIPTDIR%\wait_process_to_end.bat "vs_buildtools.exe" ^
+   & call %SCRIPTDIR%\wait_process_to_end.bat "vs_installer.exe"
 
 setx /M VS150COMNTOOLS C:\VSBuildTools\Common7\Tools\
 setx /M VSINSTALLDIR C:\VSBuildTools\
-:vs_done
+:vs_end
 
 
 REM Install Qt
-if exist C:\Qt goto :qt_done
+if exist C:\Qt goto :qt_end
 echo Installing Qt...
 set QT_MAJOR=5
 set QT_MINOR=12
@@ -103,13 +112,8 @@ REM setx /M QTDIR "C:\Qt\%QT_MAJOR%.%QT_MINOR%.%QT_PATCH%\msvc2017_64"
 REM setx /M QTDIR64 %QTDIR%
 REM setx /M Qt5_DIR %QTDIR%
 if not exist "%APPDATA%\Qt\" mkdir %APPDATA%\Qt
-powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtaccount.ini "^
-    "-OutFile %APPDATA%\Qt\qtaccount.ini"
-powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtinstaller_controlscript_template.qs "^
-    "-OutFile %WORKDIR%\qtinstaller_controlscript_template.qs"
-powershell -Command "(gc %WORKDIR%\qtinstaller_controlscript_template.qs) "^
+copy /Y "%SCRIPTDIR%\qt\qtaccount.ini" "%APPDATA%\Qt\qtaccount.ini"
+powershell -Command "(gc %SCRIPTDIR%\qt\qtinstaller_controlscript_template.qs) "^
     "-replace '_QTVERSION_', %QT_MAJOR%%QT_MINOR%%QT_PATCH% "^
     "-replace '_QTCOMPILER_', 'win64_msvc2017_64' "^
     "-replace '_QTINSTALLDIR_', 'C:\\Qt' "^
@@ -118,28 +122,25 @@ powershell -Command "Invoke-WebRequest "^
     "https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe "^
     "-OutFile %WORKDIR%\qtinstaller.exe"
 %WORKDIR%\qtinstaller.exe --script %WORKDIR%\qtinstaller_controlscript.qs --verbose
-:qt_done
+:qt_end
 
 
 REM Install Boost
-if exist C:\boost goto :boost_done
+if exist C:\boost goto :boost_end
 echo Installing Boost...
 set BOOST_MAJOR=1
 set BOOST_MINOR=69
 set BOOST_PATCH=0
 powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat "^
-    "-OutFile %WORKDIR%\wait_process_to_end.bat"
-powershell -Command "Invoke-WebRequest "^
     "https://boost.teeks99.com/bin/%BOOST_MAJOR%.%BOOST_MINOR%.%BOOST_PATCH%/boost_%BOOST_MAJOR%_%BOOST_MINOR%_%BOOST_PATCH%-msvc-14.1-64.exe "^
     "-OutFile %WORKDIR%\boostinstaller.exe"
 %WORKDIR%\boostinstaller.exe /NORESTART /VERYSILENT /DIR=C:\boost
-call %WORKDIR%\wait_process_to_end.bat "boostinstaller.exe"
-:boost_done
+call %SCRIPTDIR%\wait_process_to_end.bat "boostinstaller.exe"
+:boost_end
 
 
 REM Install Eigen
-if exist C:\eigen goto :eigen_done
+if exist C:\eigen goto :eigen_end
 echo Installing Eigen...
 set EIGEN_MAJOR=3
 set EIGEN_MINOR=3
@@ -148,71 +149,63 @@ powershell -Command "Invoke-WebRequest "^
     "https://gitlab.com/libeigen/eigen/-/archive/%EIGEN_MAJOR%.%EIGEN_MINOR%.%EIGEN_PATCH%/eigen-%EIGEN_MAJOR%.%EIGEN_MINOR%.%EIGEN_PATCH%.zip "^
     "-OutFile %WORKDIR%\eigen.zip"
 powershell Expand-Archive %WORKDIR%\eigen.zip -DestinationPath C:\eigen
-:eigen_done
+:eigen_end
 
 
 REM Install Assimp
-if exist C:\assimp goto :assimp_done
+if DEFINED MINIMAL_INSTALL goto :assimp_end
+if exist C:\assimp goto :assimp_end
 echo Installing Assimp...
 set ASSIMP_MAJOR=4
 set ASSIMP_MINOR=1
 set ASSIMP_PATCH=0
 powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_start.bat "^
-    "-OutFile %WORKDIR%\wait_process_to_start.bat"
-powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat "^
-    "-OutFile %WORKDIR%\wait_process_to_end.bat"
-powershell -Command "Invoke-WebRequest "^
     "https://github.com/assimp/assimp/releases/download/"^
         "v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%/assimp-sdk-%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%-setup.exe "^
     "-OutFile %WORKDIR%\assimpinstaller.exe"
 %WORKDIR%\assimpinstaller.exe /NORESTART /VERYSILENT /DIR=C:\assimp
-call %WORKDIR%\wait_process_to_start.bat "vc_redist.x64.exe"
+call %SCRIPTDIR%\wait_process_to_start.bat "vc_redist.x64.exe"
 taskkill /F /IM vc_redist.x64.exe
-call %WORKDIR%\wait_process_to_end.bat "assimpinstaller.exe"
+call %SCRIPTDIR%\wait_process_to_end.bat "assimpinstaller.exe"
 pathed /MACHINE /APPEND "C:\assimp"
-:assimp_done
+:assimp_end
 
 
 REM Install CGAL
-if exist C:\CGAL goto :cgal_done
+if DEFINED MINIMAL_INSTALL goto :cgal_end
+if exist C:\CGAL goto :cgal_end
 echo Installing CGAL...
 set CGAL_MAJOR=5
 set CGAL_MINOR=0
 set CGAL_PATCH=2
 powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat "^
-    "-OutFile %WORKDIR%\wait_process_to_end.bat"
-powershell -Command "Invoke-WebRequest "^
     "https://github.com/CGAL/cgal/releases/download/releases/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%-Setup.exe "^
     "-OutFile %WORKDIR%\cgalinstaller.exe"
 %WORKDIR%\cgalinstaller.exe /S /D=C:\CGAL
-call %WORKDIR%\wait_process_to_end.bat "cgalinstaller.exe"
+call %SCRIPTDIR%\wait_process_to_end.bat "cgalinstaller.exe"
 pathed /MACHINE /APPEND "C:\CGAL"
-:cgal_done
+:cgal_end
 
 
 REM Install OpenCascade
-if exist C:\OpenCascade goto :occ_done
+if DEFINED MINIMAL_INSTALL goto :occ_end
+if exist C:\OpenCascade goto :occ_end
 echo Installing OpenCascade...
 set OCC_MAJOR=7
 set OCC_MINOR=4
 set OCC_PATCH=0
 powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/sofa-framework/ci/master/setup/wait_process_to_end.bat "^
-    "-OutFile %WORKDIR%\wait_process_to_end.bat"
-powershell -Command "Invoke-WebRequest "^
     "http://transfer.sofa-framework.org/opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%-vc14-64.exe "^
     "-OutFile %WORKDIR%\occinstaller.exe"
 %WORKDIR%\occinstaller.exe /NORESTART /VERYSILENT /DIR=C:\OpenCascade
-call %WORKDIR%\wait_process_to_end.bat "occinstaller.exe"
+call %SCRIPTDIR%\wait_process_to_end.bat "occinstaller.exe"
 pathed /MACHINE /APPEND "C:\OpenCascade\opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%"
-:occ_done
+:occ_end
 
 
 REM Install ZeroMQ
-if exist C:\zeromq goto :zmq_done
+if DEFINED MINIMAL_INSTALL goto :zmq_end
+if exist C:\zeromq goto :zmq_end
 echo Installing ZMQ...
 set ZMQ_MAJOR=4
 set ZMQ_MINOR=3
@@ -235,11 +228,12 @@ powershell -Command "Invoke-WebRequest "^
     "-OutFile %ZMQ_ROOT%\install\include\zmq_addon.hpp"
 pathed /MACHINE /APPEND "%ZMQ_ROOT%\install"
 setx /M ZMQ_ROOT %ZMQ_ROOT%\install
-:zmq_done
+:zmq_end
 
 
 REM Install VRPN
-if exist C:\vrpn goto :vrpn_done
+if DEFINED MINIMAL_INSTALL goto :vrpn_end
+if exist C:\vrpn goto :vrpn_end
 echo Installing VRPN...
 set VRPN_MAJOR=07
 set VRPN_MINOR=33
@@ -255,11 +249,12 @@ mkdir %VRPN_ROOT%\build && cd %VRPN_ROOT%\build
     && ninja install
 pathed /MACHINE /APPEND "%VRPN_ROOT%\install"
 setx /M VRPN_ROOT %VRPN_ROOT%\install
-:vrpn_done
+:vrpn_end
 
 
 REM Install Oscpack
-if exist C:\oscpack goto :oscpack_done
+if DEFINED MINIMAL_INSTALL goto :oscpack_end
+if exist C:\oscpack goto :oscpack_end
 echo Installing OSC...
 set OSC_MAJOR=1
 set OSC_MINOR=1
@@ -279,7 +274,7 @@ Xcopy /E /I %OSC_ROOT%\src\osc %OSC_ROOT%\install\include\oscpack\osc\
 Xcopy /E /I %OSC_ROOT%\build\oscpack.lib %OSC_ROOT%\install\lib\
 pathed /MACHINE /APPEND "%OSC_ROOT%\install"
 setx /M Oscpack_ROOT %OSC_ROOT%\install
-:oscpack_done
+:oscpack_end
 
 
 REM Finalize environment

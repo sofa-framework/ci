@@ -38,32 +38,53 @@ function dump_var(v) {
 
 function Controller() {
     installer.autoRejectMessageBoxes();
+    installer.setMessageBoxAutomaticAnswer("OverwriteTargetDirectory", QMessageBox.Yes);
+    installer.setMessageBoxAutomaticAnswer("stopProcessesForUpdates", QMessageBox.Ignore);
+
+    installer.setAutoAcceptLicenses();
+
     installer.installationFinished.connect(function() {
         gui.clickButton(buttons.NextButton, 2000);
     })
 }
 
 Controller.prototype.WelcomePageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     // click delay here because the next button is initially disabled for ~1 second
     gui.clickButton(buttons.NextButton, 2000);
 }
 
 Controller.prototype.CredentialsPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     gui.clickButton(buttons.NextButton, 2000);
 }
 
 Controller.prototype.IntroductionPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     gui.clickButton(buttons.NextButton, 2000);
 }
 
 Controller.prototype.ObligationsPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     var page = gui.pageWidgetByObjectName("ObligationsPage");
     page.obligationsAgreement.setChecked(true);
+
+    var nameEdit = gui.findChild(page, "CompanyName")
+    if (nameEdit) {
+        nameEdit.text = "SOFA Framework"
+    }
+    // Or alternatively:
+    // var individualCheckbox = gui.findChild(page, "IndividualPerson")
+    // if (individualCheckbox) {
+    //     individualCheckbox.checked = true;
+    // }
+
     page.completeChanged();
-    gui.clickButton(buttons.NextButton, 2000);
+    gui.clickButton(buttons.NextButton);
 }
 
 Controller.prototype.DynamicTelemetryPluginFormCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     gui.currentPageWidget().TelemetryPluginForm.statisticGroupBox.disableStatisticRadioButton.setChecked(true);
     gui.clickButton(buttons.NextButton, 2000);
 
@@ -73,11 +94,13 @@ Controller.prototype.DynamicTelemetryPluginFormCallback = function() {
 }
 
 Controller.prototype.TargetDirectoryPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     gui.currentPageWidget().TargetDirectoryLineEdit.setText("_QTINSTALLDIR_");
     gui.clickButton(buttons.NextButton, 2000);
 }
 
 Controller.prototype.ComponentSelectionPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     // https://doc-snapshots.qt.io/qtifw-3.1/noninteractive.html
     var page = gui.pageWidgetByObjectName("ComponentSelectionPage");
 
@@ -101,19 +124,23 @@ Controller.prototype.ComponentSelectionPageCallback = function() {
 }
 
 Controller.prototype.LicenseAgreementPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     gui.currentPageWidget().AcceptLicenseCheckBox.setChecked(true);
     gui.clickButton(buttons.NextButton, 2000);
 }
 
 Controller.prototype.StartMenuDirectoryPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     gui.clickButton(buttons.NextButton, 2000);
 }
 
 Controller.prototype.ReadyForInstallationPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     gui.clickButton(buttons.NextButton, 2000);
 }
 
 Controller.prototype.FinishedPageCallback = function() {
+    console.log("Step: " + gui.currentPageWidget());
     var checkBoxForm = gui.currentPageWidget().LaunchQtCreatorCheckBoxForm;
     if (checkBoxForm && checkBoxForm.launchQtCreatorCheckBox) {
         checkBoxForm.launchQtCreatorCheckBox.checked = false;
