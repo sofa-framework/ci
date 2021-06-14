@@ -37,4 +37,4 @@ jobs:
             with:
                 context: ${{ env.DOCKERFILE_PATH }}
                 push: true
-                tags: sofabuilder_ubuntu:${{ env.DATE_FOR_TAG }}
+                tags: sofaframework/sofabuilder_ubuntu:${{ env.DATE_FOR_TAG }}
