@@ -7,7 +7,7 @@ on: [push, workflow_dispatch]
 jobs:
     # This workflow contains a single job called "build"
     build:
-        name: Running for ${{ matrix.target }}
+        name: ${{ matrix.target }}
         runs-on: ubuntu-latest
         strategy:
             matrix:
@@ -27,12 +27,15 @@ jobs:
                 username: ${{ secrets.DOCKERHUB_USERNAME }}
                 password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-          - name: Set DATE_FOR_TAG
-            run: echo "DATE_FOR_TAG=$(date +%Y%m%d_%H%M%S)" >> $GITHUB_ENV
+          - name: Set DOCKERHUB_IMAGE_TAG
+            run: |
+                echo "DOCKERHUB_IMAGE_TAG=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+                echo "DOCKERHUB_IMAGE_TAG = $DOCKERHUB_IMAGE_TAG"
+                if [ -z "$DOCKERHUB_IMAGE_TAG" ]; then exit 1; fi
 
           - name: Build and push
             uses: docker/build-push-action@v2
             with:
                 context: docker/${{ matrix.target }} # path of the Dockerfile
                 push: true
-                tags: sofaframework/${{ matrix.target }}:${{ env.DATE_FOR_TAG }}
+                tags: sofaframework/${{ matrix.target }}:${{ env.DOCKERHUB_IMAGE_TAG }}
