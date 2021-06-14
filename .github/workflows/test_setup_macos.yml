@@ -3,15 +3,7 @@
 name: Test MacOS setup script
 
 # Controls when the action will run. 
-on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ test_setup_scripts ]
-  pull_request:
-    branches: [ test_setup_scripts ]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+on: [push, pull_request, workflow_dispatch]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -33,8 +25,6 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
           pwd
           ls -la
 
@@ -43,4 +33,4 @@ jobs:
         run: |
           chmod a+x ./setup/setup-macos.sh
           bash -c ./setup/setup-macos.sh
-          echo "DONE!"
+          echo "DONE."
