@@ -121,16 +121,16 @@ ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
 # Install CUDA
-ARG CUDA_MAJOR=10
-ARG CUDA_MINOR=2
-RUN yum-config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo \
-    && yum clean expire-cache
-RUN yum install -y -q cuda-$CUDA_MAJOR-$CUDA_MINOR
-ENV PATH="/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/bin:/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/NsightCompute-2019.1${PATH:+:${PATH}}"
-ENV LD_LIBRARY_PATH="/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
-ENV VM_CUDA_ARCH="sm_50"
-ENV VM_HAS_CUDA="true"
+# ARG CUDA_MAJOR=10
+# ARG CUDA_MINOR=2
+# RUN yum-config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/rhel7/x86_64/cuda-rhel7.repo \
+#     && yum clean expire-cache
+# RUN yum install -y -q cuda-$CUDA_MAJOR-$CUDA_MINOR
+# ENV PATH="/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/bin:/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/NsightCompute-2019.1${PATH:+:${PATH}}"
+# ENV LD_LIBRARY_PATH="/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+# ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
+# ENV VM_CUDA_ARCH="sm_50"
+# ENV VM_HAS_CUDA="true"
 
 # Install pybind11 (needed by SofaPython3)
 ARG PYBIND_MAJOR=2
