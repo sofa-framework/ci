@@ -80,7 +80,10 @@ RUN cat /tmp/qtinstaller_controlscript_template.qs \
 ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
 RUN yum install -y -q libxkbcommon-x11 libwayland-cursor
 RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
-    && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose
+    && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose \
+    && rm -rf $QT_INSTALLDIR/Docs \
+    && rm -rf $QT_INSTALLDIR/Examples \
+    && rm -rf $QT_INSTALLDIR/Tools
 ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
 ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
@@ -116,7 +119,7 @@ RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
     && source /opt/rh/devtoolset-7/enable || true \
     && source /opt/rh/llvm-toolset-7/enable || true \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
-    && make install
+    && make --silent install
 ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
@@ -137,9 +140,15 @@ ARG PYBIND_MAJOR=2
 ARG PYBIND_MINOR=4
 RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
     && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
+    && source /opt/rh/devtoolset-7/enable || true \
+    && source /opt/rh/llvm-toolset-7/enable || true \
     && source /opt/rh/rh-python38/enable || true \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3.8)" -DPYBIND11_TEST=OFF ../src \
-    && make && make install
+    && cmake \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DPYTHON_EXECUTABLE="$(which python3.8)" \
+        -DPYBIND11_TEST=OFF \
+        ../src \
+    && make --silent install
 
 ###################################
 
