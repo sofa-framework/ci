@@ -12,8 +12,8 @@ RUN apt-get install -y \
     unzip
 
 # Install SOFA binaries
-ARG DOCKER_TAG
-ADD https://ci.inria.fr/sofa-ci-dev/job/nightly-generate-binaries/CI_SCOPE=binaries_${DOCKER_TAG}/lastSuccessfulBuild/artifact/Linux/*zip*/Linux.zip /tmp
+ARG BINARIES_CONFIG
+ADD https://ci.inria.fr/sofa-ci-dev/job/nightly-generate-binaries/CI_SCOPE=binaries_${BINARIES_CONFIG}/lastSuccessfulBuild/artifact/Linux/*zip*/Linux.zip /tmp
 RUN unzip /tmp/Linux.zip -d /tmp && unzip /tmp/Linux/SOFA_*.zip -d /root
 RUN mv /root/SOFA_* /root/SOFA
 ENV SOFA_ROOT="/root/SOFA"
@@ -38,5 +38,3 @@ ENTRYPOINT ["/docker-entrypoint.sh"]
 
 # Define default command.
 CMD ["/bin/bash"]
-
-
