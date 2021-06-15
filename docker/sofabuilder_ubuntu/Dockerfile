@@ -51,7 +51,7 @@ RUN apt-get install -y \
     libbullet-dev \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev \
-    libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev 
+    libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
 RUN python2.7 -m pip install --upgrade "pip == 20.3.4" \
     && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
 RUN python3.7 -m pip install --upgrade pip \
@@ -77,7 +77,9 @@ ARG QT_MINOR=12
 ARG QT_PATCH=6
 RUN add-apt-repository -y ppa:beineri/opt-qt-$QT_MAJOR.$QT_MINOR.$QT_PATCH-bionic \
     && apt-get update \
-    && apt-get install -y qt${QT_MAJOR}${QT_MINOR}-meta-full qt${QT_MAJOR}${QT_MINOR}charts-no-lgpl
+    && apt-get install -y qt${QT_MAJOR}${QT_MINOR}-meta-full qt${QT_MAJOR}${QT_MINOR}charts-no-lgpl \
+    && rm -rf /opt/qt${QT_MAJOR}${QT_MINOR}/doc \
+    && rm -rf /opt/qt${QT_MAJOR}${QT_MINOR}/examples
 ADD https://www.sofa-framework.org/wp-content/uploads/2020/06/QtInstallerFramework_3.0_Linux.zip /tmp
 RUN unzip /tmp/QtInstallerFramework_3.0_Linux.zip -d /builds && chmod -R a+x /builds/Qt
 ENV QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
@@ -102,7 +104,7 @@ RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
-    && make install
+    && make --silent install
 ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 
@@ -118,7 +120,7 @@ ARG PYBIND_MINOR=4
 RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
     && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3.7 -DPYBIND11_TEST=OFF ../src \
-    && make && make install
+    && make --silent install
 
 # Install NodeEditor (needed by SofaQtQuick)
 ARG NODE_MAJOR=2
@@ -127,7 +129,7 @@ ARG NODE_PATCH=3
 RUN git clone -b $NODE_MAJOR.$NODE_MINOR.$NODE_PATCH --depth 1 https://github.com/paceholder/nodeeditor.git /tmp/nodeeditor/src \
     && mkdir /tmp/nodeeditor/build && cd /tmp/nodeeditor/build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../src \
-    && make && make install
+    && make --silent install
 
 ###################################
 
