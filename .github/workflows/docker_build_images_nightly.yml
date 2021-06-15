@@ -7,7 +7,7 @@ on: [ push, workflow_dispatch ]
 jobs:
     # This workflow contains a single job called "build"
     build:
-        name: ${{ matrix.target }}
+        name: ${{ matrix.target }}/${{ matrix.config }}
         runs-on: ubuntu-latest
         strategy:
             matrix:
