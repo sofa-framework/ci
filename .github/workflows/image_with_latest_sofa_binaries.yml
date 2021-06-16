@@ -1,4 +1,4 @@
-name: Image with latest SOFA binaries
+name: Push image with latest SOFA binaries
 
 # Controls when the action will run.
 on: [ push, workflow_dispatch ]
