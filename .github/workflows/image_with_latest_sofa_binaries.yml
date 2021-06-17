@@ -7,7 +7,7 @@ on:
             matrix_configs:
                 description: 'Configs to set in the matrix'
                 required: false
-                default: [ minimal, standard, full ]
+                default: "[ minimal, standard, full ]"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
