@@ -1,7 +1,13 @@
 name: Push image with latest SOFA binaries
 
 # Controls when the action will run.
-on: [ push, workflow_dispatch ]
+on:
+    workflow_dispatch:
+        inputs:
+            matrix_configs:
+                description: 'Configs to set in the matrix'
+                required: false
+                default: [ minimal, standard, full ]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -12,7 +18,7 @@ jobs:
         strategy:
             matrix:
                 target: [ sofa_nightly_ubuntu ]
-                config: [ minimal, standard, full ]
+                config: ${{ github.event.inputs.matrix_configs }}
 
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
