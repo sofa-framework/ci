@@ -18,7 +18,7 @@ jobs:
         strategy:
             matrix:
                 target: [ sofa_nightly_ubuntu ]
-                config: ${{fromJSON( ${{toJSON( ${{ github.event.inputs.matrix_configs }} )}} )}}
+                config: ${{ fromJSON( toJSON( github.event.inputs.matrix_configs ) ) }}
 
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
