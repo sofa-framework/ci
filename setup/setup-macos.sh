@@ -11,10 +11,10 @@ echo "--------------------------------------------"
 echo "---- AppleClang version"
 clang --version
 
-if [ -x "$(command -v brew)" ]; then
+if [ ! -x "$(command -v brew)" ]; then
     echo "--------------------------------------------"
     echo "---- Install brew"
-    curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh > /dev/null
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh > /dev/null)"
 fi
 
 echo "--------------------------------------------"
@@ -54,9 +54,14 @@ echo "--------------------------------------------"
 echo "---- Install plugins dependencies"
 # Python 2
 # brew install python@2.7
-python -V
-python -m pip install --upgrade "pip == 20.3.4"
-python -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
+if [[ "$(python -V)" == *" 2.7"* ]]; then
+    if [ ! -x "$(python -m pip)" ]; then
+        curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+        sudo python get-pip.py
+    fi
+    sudo python -m pip install --upgrade "pip == 20.3.4"
+    sudo python -m pip install "scipy == 1.2.3" "matplotlib == 2.2.5" # "numpy == 1.16.6"
+fi
 # Python 3
 brew install python@3.7
 python3 -m pip install --upgrade pip
