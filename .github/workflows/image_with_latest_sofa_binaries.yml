@@ -1,18 +1,23 @@
 name: Push image with latest SOFA binaries
 
 # Controls when the action will run.
-on: [ push, workflow_dispatch ]
+on:
+    workflow_dispatch:
+        inputs:
+            binaries_config:
+                description: 'binaries_config'
+                required: true
+                default: 'standard'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
     # This workflow contains a single job called "build"
     build:
-        name: ${{ matrix.target }}/${{ matrix.config }}
+        name: ${{ matrix.target }}/${{ github.event.inputs.binaries_config }}
         runs-on: ubuntu-latest
         strategy:
             matrix:
                 target: [ sofa_nightly_ubuntu ]
-                config: [ minimal, standard, full ]
 
         # Steps represent a sequence of tasks that will be executed as part of the job
         steps:
@@ -33,6 +38,6 @@ jobs:
             with:
                 context: docker/${{ matrix.target }} # path of the Dockerfile
                 build-args: |
-                    BINARIES_CONFIG=${{ matrix.config }}
+                    BINARIES_CONFIG=${{ github.event.inputs.binaries_config }}
                 push: true
-                tags: sofaframework/${{ matrix.target }}:${{ matrix.config }}
+                tags: sofaframework/${{ matrix.target }}:${{ github.event.inputs.binaries_config }}
