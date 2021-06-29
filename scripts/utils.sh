@@ -144,7 +144,7 @@ get-platform-from-config() {
     elif [ -n "$CI_CONFIG" ]; then
         config="$CI_CONFIG"
     fi
-    
+
     # substitute eventually 2 times to handle "windows_vs-2015_x32" case
     subconfig="${config%_*}" # take first part
     if [[ "$subconfig" == *"_"* ]]; then
@@ -160,7 +160,7 @@ get-compiler-from-config() {
     elif [ -n "$CI_CONFIG" ]; then
         config="$CI_CONFIG"
     fi
-    
+
     # substitute eventually 2 times to handle "windows_vs-2015_x32" case
     subconfig="${config#*_}" # take last part
     if [[ "$subconfig" == *"_"* ]]; then
@@ -176,7 +176,7 @@ get-architecture-from-config() {
     elif [ -n "$CI_CONFIG" ]; then
         config="$CI_CONFIG"
     fi
-    
+
     # substitute eventually 2 times to handle "windows_vs-2015_x32" case
     subconfig="${config#*_}" # take last part
     if [[ "$subconfig" == *"_"* ]]; then
@@ -249,7 +249,7 @@ time-millisec() {
         fi
         date_nanosec="$($date_nanosec_cmd)"
         echo "$(( date_nanosec / 1000000 ))"
-    fi    
+    fi
 }
 
 time-elapsed-sec() {
@@ -263,12 +263,12 @@ time-elapsed-sec() {
 call-cmake() {
     build_dir="$(cd "$1" && pwd)"
     shift # Remove first arg
-    
+
     cmake_command="cmake"
     if [[ "$CI_DEBUG" == "true" ]]; then
         cmake_command="cmake --trace"
     fi
-    
+
     if vm-is-windows; then
         msvc_comntools="$(get-msvc-comntools $COMPILER)"
         msvc_year="$(get-msvc-year $COMPILER)"

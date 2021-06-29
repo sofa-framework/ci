@@ -22,7 +22,7 @@ if [ "$#" -ge 3 ]; then
 elif [ -n "$BUILD_ID" ]; then # Jenkins
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
-    
+
     BUILD_DIR="$(cd "$WORKSPACE/../build" && pwd)"
     CONFIG="$CI_CONFIG"
     PLATFORM="$(get-platform-from-config "$CONFIG")"
@@ -128,7 +128,7 @@ esac
 if [ -n "$EXECUTOR_NUMBER" ]; then
     if vm-is-windows; then
         cmd //c "if exist J:\%EXECUTOR_NUMBER% rmdir /S /Q J:\%EXECUTOR_NUMBER%"
-        
+
         export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
         export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
         cmd //c "if not exist %WORKSPACE_WINDOWS%\parent_dir mklink /D %WORKSPACE_WINDOWS%\parent_dir %WORKSPACE_PARENT_WINDOWS%"
@@ -136,6 +136,3 @@ if [ -n "$EXECUTOR_NUMBER" ]; then
         ln -sf "$(cd $WORKSPACE/.. && pwd)" "$WORKSPACE/parent_dir"
     fi
 fi
-
-
-

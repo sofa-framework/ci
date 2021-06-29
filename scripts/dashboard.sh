@@ -65,7 +65,7 @@ dashboard-config-string() {
 
 dashboard-export-vars() {
     echo "Calling ${FUNCNAME[0]}"
-    
+
     if [ "$#" -ge 5 ]; then
         local platform="$1"
         local compiler="$2"
@@ -93,7 +93,7 @@ dashboard-export-vars() {
     else
         export DASH_COMMIT_HASH="$(git log --pretty=format:'%H' -1)"
         echo "Trying to guess DASH_COMMIT_HASH: $DASH_COMMIT_HASH"
-    fi    
+    fi
 
     if [ -n "$CI_BASECOMMIT_HASH" ]; then
         export DASH_BASECOMMIT_HASH="$CI_BASECOMMIT_HASH"
