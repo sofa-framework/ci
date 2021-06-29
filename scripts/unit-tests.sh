@@ -111,14 +111,14 @@ fix-test-report() {
     # source: http://stackoverflow.com/a/14074664
     sed -i'.bak' 's:\(<testcase [^>]*status="notrun".*\)/>:\1><skipped/></testcase>:' "$report_file"
     rm -f "$report_file.bak"
-    
+
     sed -i'.bak' 's:\(<testsuite [^>]*\)>:\1 package="'"$test_name"'">:g' "$report_file"
     rm -f "$report_file.bak"
 
     # Add a package name by inserting "UnitTest." in front of the classname attribute of each testcase
     sed -i'.bak' 's:^\(.*<testcase[^>]* classname=\"\)\([^\"]*\".*\)$:\1'"$package"'\.'"$test_name"'/\2:g' "$report_file"
     rm -f "$report_file.bak"
-    
+
     # Transform JUnit report navigation for typed tests into
     #   - SofaGeneralEngine_test/TransformEngine_test
     #       > 1/input, 1/rotation, 1/scale, ...
@@ -167,19 +167,19 @@ run-single-test-subtests() {
         local test_cmd="$build_dir/bin/$test --gtest_output=xml:$output_file --gtest_filter=$subtest 2>&1"
         mkdir -p "$output_dir/$test/$subtest"
         echo "$test_cmd" >> "$output_dir/$test/$subtest/command.txt"
-                
+
         ( echo "" &&
-          echo "------------------------------------------" && 
+          echo "------------------------------------------" &&
           echo "" &&
           echo "Running $test_type subtest $subtest" &&
           echo 'Calling: bash -c "'$test_cmd'"' &&
           echo ""
         ) > "$output_dir/$test/$subtest/output.txt"
-        
+
         begin_millisec="$(time-millisec)"
         bash -c "$test_cmd" >> "$output_dir/$test/$subtest/output.txt" ; pipestatus="${PIPESTATUS[0]}"
         end_millisec="$(time-millisec)"
-        
+
         # Log on stdout
         echo "$( printf "\n\n" && cat "$output_dir/$test/$subtest/output.txt" )"
 
@@ -222,21 +222,21 @@ run-single-test() {
     rm -f "$output_file"
 
     ( echo "" &&
-      echo "------------------------------------------" && 
+      echo "------------------------------------------" &&
       echo "" &&
       echo "Running $test_type $test" &&
       echo 'Calling: bash -c "'$test_cmd'"' &&
       echo ""
     ) > "$output_dir/$test/output.txt"
-    
+
     bash -c "$test_cmd" >> "$output_dir/$test/output.txt" ; status="${PIPESTATUS[0]}"
-    
+
     echo "$test_cmd" > "$output_dir/$test/command.txt"
     echo "$status" > "$output_dir/$test/status.txt"
-    
+
     # Log on stdout
     echo "$( printf "\n\n" && cat "$output_dir/$test/output.txt" )"
-    
+
     if [ -f "$output_file" ]; then
         if [ "$status" -gt 1 ]; then # report exists but gtest crashed
             echo "$0: fatal: unexpected crash of $test with code $status" >&2
@@ -256,25 +256,25 @@ do-run-all-tests() {
         run-single-test "$test"
     done < "$file"
 }
-    
+
 run-all-tests() {
     echo "Unit testing in progress..."
-    
+
     # Move SofaPython3 tests out of the list
     cat "$output_dir/${test_type}.txt" | grep "Bindings\." > "$output_dir/${test_type}.SofaPython3.txt"
     cat "$output_dir/${test_type}.txt" | grep -v "Bindings\." > "$output_dir/${test_type}.txt.tmp"
     cp -f "$output_dir/${test_type}.txt.tmp" "$output_dir/${test_type}.txt" && rm -f "$output_dir/${test_type}.txt.tmp"
-    
+
     if [ -x "$(command -v shuf)" ]; then
         echo "$(shuf $output_dir/${test_type}.txt)" > "$output_dir/${test_type}.txt"
     fi
     local total_lines="$(cat "$output_dir/${test_type}.txt" | wc -l)"
     local lines_per_thread=$((total_lines / VM_MAX_PARALLEL_TESTS + 1))
     split -l $lines_per_thread "$output_dir/${test_type}.txt" "$output_dir/${test_type}_part-"
-    
+
     # Add SofaPython3 tests in first part
     cat "$output_dir/${test_type}.SofaPython3.txt" >> "$output_dir/${test_type}_part-aa"
-    
+
     thread=0
     for file in "$output_dir/${test_type}_part-"*; do
         do-run-all-tests "$file" &
@@ -319,14 +319,14 @@ tests-get()
 
     # grep the lines containing '<testsuites'; for each one, match the
     # 'attribute="..."' pattern, and collect the "..." part
-    counts=$(sed -ne "s/.*<testsuites[^>]* $attribute=\"//" \
-                 -e "/^[0-9]/s/\".*//p" "$output_dir/reports/"*.xml)
+    counts=$(sed -ne 's/.*<testsuites[^>]* '"$attribute"'="//' \
+                 -e '/^[0-9]/s/".*//p' "$output_dir/reports/"*.xml)
     # if count is empty, retry with testcase
     if [ -z "$counts" ]; then
-        counts=$(sed -ne "s/.*<testcase[^>]* $attribute=\"//" \
-                     -e "/^[0-9]/s/\".*//p" "$output_dir/reports/"*.xml)
+        counts=$(sed -ne 's/.*<testcase[^>]* '"$attribute"'="//' \
+                     -e '/^[0-9]/s/".*//p' "$output_dir/reports/"*.xml)
     fi
-    
+
     # sum the values
     local python_exe="$(find-python)"
     total=0

@@ -304,25 +304,25 @@ ignore-scenes-with-deprecated-components() {
     echo "Searching for deprecated components..."
     getDeprecatedComponents="$(ls "$build_dir/bin/getDeprecatedComponents"{,d,_d} 2> /dev/null || true)"
     $getDeprecatedComponents > "$output_dir/deprecatedcomponents.txt"
-    base_dir="$(pwd)"
-    cd "$src_dir"
-    while read component; do
-        component="$(echo "$component" | tr -d '\n' | tr -d '\r')"
-        grep -r "$component" --include=\*.{scn,py,pyscn} | cut -f1 -d":" | sort | uniq > "$base_dir/$output_dir/grep.tmp"
-        while read scene; do
-            if grep -q "$scene" "$base_dir/$output_dir/all-tested-scenes.txt"; then
-                grep -v "$scene" "$base_dir/$output_dir/all-tested-scenes.txt" > "$base_dir/$output_dir/all-tested-scenes.tmp"
-                mv "$base_dir/$output_dir/all-tested-scenes.tmp" "$base_dir/$output_dir/all-tested-scenes.txt"
-                rm -f "$base_dir/$output_dir/all-tested-scenes.tmp"
-                if ! grep -q "$scene" "$base_dir/$output_dir/all-ignored-scenes.txt"; then
-                    echo "  ignore $scene: deprecated component \"$component\""
-                    echo "$scene" >> "$base_dir/$output_dir/all-ignored-scenes.txt"
+    (
+        cd "$src_dir"
+        while read component; do
+            component="$(echo "$component" | tr -d '\n' | tr -d '\r')"
+            grep -r "$component" --include=\*.{scn,py,pyscn} | cut -f1 -d":" | sort | uniq > "$base_dir/$output_dir/grep.tmp"
+            while read scene; do
+                if grep -q "$scene" "$base_dir/$output_dir/all-tested-scenes.txt"; then
+                    grep -v "$scene" "$base_dir/$output_dir/all-tested-scenes.txt" > "$base_dir/$output_dir/all-tested-scenes.tmp"
+                    mv "$base_dir/$output_dir/all-tested-scenes.tmp" "$base_dir/$output_dir/all-tested-scenes.txt"
+                    rm -f "$base_dir/$output_dir/all-tested-scenes.tmp"
+                    if ! grep -q "$scene" "$base_dir/$output_dir/all-ignored-scenes.txt"; then
+                        echo "  ignore $scene: deprecated component \"$component\""
+                        echo "$scene" >> "$base_dir/$output_dir/all-ignored-scenes.txt"
+                    fi
                 fi
-            fi
-        done < "$base_dir/$output_dir/grep.tmp"
-    done < "$base_dir/$output_dir/deprecatedcomponents.txt"
-    rm -f "$base_dir/$output_dir/grep.tmp"
-    cd "$base_dir"
+            done < "$base_dir/$output_dir/grep.tmp"
+        done < "$base_dir/$output_dir/deprecatedcomponents.txt"
+        rm -f "$base_dir/$output_dir/grep.tmp"
+    )
     echo "Searching for deprecated components: done."
 }
 
@@ -363,21 +363,22 @@ ignore-scenes-with-missing-plugins() {
 ignore-scenes-python-without-createscene() {
     echo "Searching for unwanted python scripts..."
     base_dir="$(pwd)"
-    cd "$src_dir"
-    grep '.py$' "$base_dir/$output_dir/all-tested-scenes.txt" | while read scene; do
-        if ! grep -q "def createScene" "$scene"; then
-            # Remove the scene from all-tested-scenes
-            grep -v "$scene" "$base_dir/$output_dir/all-tested-scenes.txt" > "$base_dir/$output_dir/all-tested-scenes.tmp"
-            mv "$base_dir/$output_dir/all-tested-scenes.tmp" "$base_dir/$output_dir/all-tested-scenes.txt"
-            rm -f "$base_dir/$output_dir/all-tested-scenes.tmp"
-            # Add the scene in all-ignored-scenes
-            if ! grep -q "$scene" "$base_dir/$output_dir/all-ignored-scenes.txt"; then
-                echo "  ignore $scene: createScene function not found."
-                echo "$scene" >> "$base_dir/$output_dir/all-ignored-scenes.txt"
+    (
+        cd "$src_dir"
+        grep '.py$' "$base_dir/$output_dir/all-tested-scenes.txt" | while read scene; do
+            if ! grep -q "def createScene" "$scene"; then
+                # Remove the scene from all-tested-scenes
+                grep -v "$scene" "$base_dir/$output_dir/all-tested-scenes.txt" > "$base_dir/$output_dir/all-tested-scenes.tmp"
+                mv "$base_dir/$output_dir/all-tested-scenes.tmp" "$base_dir/$output_dir/all-tested-scenes.txt"
+                rm -f "$base_dir/$output_dir/all-tested-scenes.tmp"
+                # Add the scene in all-ignored-scenes
+                if ! grep -q "$scene" "$base_dir/$output_dir/all-ignored-scenes.txt"; then
+                    echo "  ignore $scene: createScene function not found."
+                    echo "$scene" >> "$base_dir/$output_dir/all-ignored-scenes.txt"
+                fi
             fi
-        fi
-    done
-    cd "$base_dir"
+        done
+    )
     echo "Searching for unwanted python scripts: done."
 }
 
@@ -412,7 +413,7 @@ do-test-all-scenes() {
         current_scene_count=$(( current_scene_count + 1 ))
         local iterations=$(cat "$output_dir/$scene/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
-        
+
         # Try to guess if a python scene needs SofaPython or SofaPython3
         export PYTHONPATH=""
         if [[ "$scene" == *".py" ]] || [[ "$scene" == *".pyscn" ]]; then
@@ -454,7 +455,7 @@ do-test-all-scenes() {
                 fi
             fi
         fi
-        
+
         local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
         local timeout=$(cat "$output_dir/$scene/timeout.txt")
         echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
@@ -731,7 +732,7 @@ export-to-junit-xml() {
         echo '
         </testcase>'
     done > "$xml_file_errors_crashes.tmp"
-    
+
     ( # get list of scenes with success
     cat "$output_dir/reports/successes.txt" | sed 's#:.*##' | sort | uniq
     ) | sort | uniq | while read scene; do
