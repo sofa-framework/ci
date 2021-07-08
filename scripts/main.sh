@@ -52,18 +52,6 @@ if vm-is-centos; then
     rm -f $BUILD_DIR/core.*
     ulimit -c 0
 fi
-# Reset external repositories in src dir
-(
-cd $SRC_DIR
-find * -name '.git' | while read external_repo_git; do
-    external_repo="$(dirname $external_repo_git)"
-    if [ -d $external_repo ]; then
-        echo "Cleaning external repository: $external_repo"
-        rm -rf $external_repo
-    fi
-done
-git reset --hard
-)
 
 # Choose between incremental build and full build
 full_build=""
@@ -194,14 +182,18 @@ fi
 
 
 # Git config (needed by CMake ExternalProject)
-git config --system user.name 'SOFA Bot' > /dev/null 2>&1 ||
-    git config --global user.name 'SOFA Bot' > /dev/null 2>&1 ||
-    git config user.name 'SOFA Bot' > /dev/null 2>&1 ||
-    echo "WARNING: cannot setup git config"
-git config --system user.email '<>' > /dev/null 2>&1 ||
-    git config --global user.email '<>' > /dev/null 2>&1 ||
-    git config user.email '<>' > /dev/null 2>&1 ||
-    echo "WARNING: cannot setup git config"
+if ! git config --get user.name; then
+    git config --system user.name 'SOFA Bot' > /dev/null 2>&1 ||
+        git config --global user.name 'SOFA Bot' > /dev/null 2>&1 ||
+        git config user.name 'SOFA Bot' > /dev/null 2>&1 ||
+        echo "WARNING: cannot setup git config"
+fi
+if ! git config --get user.email; then
+    git config --system user.email '<>' > /dev/null 2>&1 ||
+        git config --global user.email '<>' > /dev/null 2>&1 ||
+        git config user.email '<>' > /dev/null 2>&1 ||
+        echo "WARNING: cannot setup git config"
+fi
 
 
 # Jenkins: create link for Windows jobs (too long path problem)
@@ -220,6 +212,18 @@ if vm-is-windows && [ -n "$EXECUTOR_NUMBER" ]; then
     SRC_DIR="/J/$EXECUTOR_NUMBER/src"
     BUILD_DIR="/J/$EXECUTOR_NUMBER/build"
 fi
+
+
+# Reset external repositories in src dir
+find * -name '.git' | while read external_repo_git; do
+    external_repo="$(dirname $external_repo_git)"
+    echo "Detected external repository: $external_repo"
+    if [ -d $external_repo ]; then
+        echo "Cleaning external repository: $external_repo"
+        rm -rf $external_repo
+    fi
+done
+git reset --hard
 
 
 # Checkout the right commit
