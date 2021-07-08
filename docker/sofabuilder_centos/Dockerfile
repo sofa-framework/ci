@@ -161,6 +161,8 @@ WORKDIR /builds
 
 # Set env vars
 ENV HOME="/root"
+RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
+RUN git config --system user.email '<>' || git config --global user.email '<>'
 
 # Cleanup
 RUN yum clean all \

@@ -145,6 +145,8 @@ ENV PYTHONIOENCODING="UTF-8"
 ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 ENV PYTHON3_EXECUTABLE="/usr/bin/python3.7"
+RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
+RUN git config --system user.email '<>' || git config --global user.email '<>'
 
 # Cleanup
 RUN apt-get clean -y \
