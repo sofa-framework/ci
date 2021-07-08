@@ -58,6 +58,7 @@ cd $SRC_DIR
 find * -name '.git' | while read external_repo_git; do
     external_repo="$(dirname $external_repo_git)"
     if [ -d $external_repo ]; then
+        echo "Cleaning external repository: $external_repo"
         rm -rf $external_repo
     fi
 done
