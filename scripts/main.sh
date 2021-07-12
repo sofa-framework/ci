@@ -33,6 +33,9 @@ else
     usage; exit 1
 fi
 
+
+# Set VM environment variables
+load-vm-env
 echo "[BEGIN] Init ($(time-date))"
 time_millisec_init_begin="$(time-millisec)"
 
@@ -71,11 +74,7 @@ else
     echo "Starting an incremental build"
 fi
 
-
-# Set VM environment variables
-load-vm-env
-
-
+# Notify GitHub and Dashboard
 if [ -n "$CI_REPORT_TO_GITHUB" ] && [ -n "$CI_REPORT_TO_DASHBOARD" ]; then
     # CI environment variables + init
     github-export-vars "$PLATFORM" "$COMPILER" "$ARCHITECTURE" "$BUILD_TYPE" "$BUILD_OPTIONS"
