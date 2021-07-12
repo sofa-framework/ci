@@ -31,7 +31,9 @@ vm-is-ubuntu() {
 }
 
 find-python() {
-    if [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+    if [ -n "$CI_PYTHON_CMD" ]; then
+        python_exe="$CI_PYTHON_CMD"
+    elif [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
         python_exe="$VM_PYTHON3_EXECUTABLE"
     elif [ -x "$(command -v "python3")" ]; then
         python_exe="python3"
@@ -39,8 +41,6 @@ find-python() {
         python_exe="$VM_PYTHON_EXECUTABLE"
     elif [ -x "$(command -v "python")" ]; then
         python_exe="python"
-    elif [ -n "$CI_PYTHON_CMD" ]; then
-        python_exe="$CI_PYTHON_CMD"
     else
         >&2 echo "WARNING: Python executable not found. Try setting VM_PYTHON3_EXECUTABLE variable."
         python_exe=""
