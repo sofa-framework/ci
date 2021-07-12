@@ -43,7 +43,7 @@ find-python() {
         python_exe="python"
     else
         >&2 echo "WARNING: Python executable not found. Try setting VM_PYTHON3_EXECUTABLE variable."
-        python_exe="python-not-found"
+        python_exe=""
     fi
     if [[ "$CI_PYTHON_CMD" != "$python_exe" ]]; then
         export CI_PYTHON_CMD="$python_exe"
@@ -221,22 +221,24 @@ count-processes() {
 }
 
 time-date() {
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        $CI_PYTHON_CMD -c 'from datetime import datetime; print(datetime.now())'
+    local python_exe="$(find-python)"
+    if [ -n "$python_exe" ]; then
+        $python_exe -c 'from datetime import datetime; print(datetime.now())'
     else
         if vm-is-macos && [ -e "/usr/local/bin/gdate" ]; then
             date_cmd="/usr/local/bin/gdate"
         else
             date_cmd="date"
         fi
-        date="$($date_nanosec_cmd)"
+        date="$($date_cmd)"
         echo "$date"
     fi
 }
 
 time-millisec() {
-    if [ -n "$CI_PYTHON_CMD" ]; then
-        $CI_PYTHON_CMD -c 'import time; print("%d" % (time.time()*1000))'
+    local python_exe="$(find-python)"
+    if [ -n "$python_exe" ]; then
+        $python_exe -c 'import time; print("%d" % (time.time()*1000))'
     else
         if vm-is-macos; then
             if [ -e "/usr/local/bin/gdate" ]; then

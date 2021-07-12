@@ -217,7 +217,6 @@ fi
 # Reset external repositories in src dir
 find * -name '.git' | while read external_repo_git; do
     external_repo="$(dirname $external_repo_git)"
-    echo "Detected external repository: $external_repo"
     if [ -d $external_repo ]; then
         echo "Cleaning external repository: $external_repo"
         rm -rf $external_repo
