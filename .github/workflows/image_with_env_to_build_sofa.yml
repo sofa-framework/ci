@@ -34,17 +34,20 @@ jobs:
                 if [ -z "$DOCKERHUB_IMAGE_TAG" ]; then exit 1; fi
                 echo "DOCKERHUB_IMAGE_TAG=$DOCKERHUB_IMAGE_TAG" >> $GITHUB_ENV
 
-          - name: Build and push
-            uses: docker/build-push-action@v2
-            with:
-                context: docker/${{ matrix.target }} # path of the Dockerfile
-                push: true
-                tags: sofaframework/${{ matrix.target }}:${{ env.DOCKERHUB_IMAGE_TAG }}
-
-          - name: Update tag "latest"
+          - name: Build and push (if branch is master)
             if: ${{ env.DOCKERHUB_IMAGE_TAG == 'master' }}
             uses: docker/build-push-action@v2
             with:
                 context: docker/${{ matrix.target }} # path of the Dockerfile
                 push: true
-                tags: sofaframework/${{ matrix.target }}:latest
+                tags: |
+                    sofaframework/${{ matrix.target }}:latest
+                    sofaframework/${{ matrix.target }}:${{ env.DOCKERHUB_IMAGE_TAG }}
+
+          - name: Build and push (if branch is not master)
+            if: ${{ env.DOCKERHUB_IMAGE_TAG != 'master' }}
+            uses: docker/build-push-action@v2
+            with:
+                context: docker/${{ matrix.target }} # path of the Dockerfile
+                push: true
+                tags: sofaframework/${{ matrix.target }}:${{ env.DOCKERHUB_IMAGE_TAG }}
