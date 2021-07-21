@@ -55,6 +55,9 @@ if vm-is-centos; then
     rm -f $BUILD_DIR/core.*
     ulimit -c 0
 fi
+# TEMPORARY: remove SofaPython3 files linked to the error
+# Submodule_Simulation.cpp.o: file not recognized: File format not recognized
+rm -rf $BUILD_DIR/applications/plugins/SofaPython3/bindings/Sofa
 
 # Choose between incremental build and full build
 full_build=""
