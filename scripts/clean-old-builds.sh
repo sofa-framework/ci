@@ -141,3 +141,12 @@ if [ -x "$(command -v docker)" ]; then
     echo "Cleaning Docker containers and images..."
     docker system prune -a -f || true
 fi
+
+# Clear compilation cache
+echo "" && echo ""
+echo "Cleaning compilation cache (if any)..."
+if [ -x "$(command -v ccache)" ]; then
+    ccache -C
+elif [ -x "$(command -v clcache)" ]; then
+    clcache -C
+fi
