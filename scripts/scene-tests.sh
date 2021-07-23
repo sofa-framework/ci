@@ -430,7 +430,7 @@ do-test-all-scenes() {
                 # TODO: change to SofaPython3
                 pythonPlugin="SofaPython"
             fi
-            options="$options -l$pythonPlugin"
+            options="$options -l $pythonPlugin"
 
             if [[ "$pythonPlugin" == 'SofaPython3' ]]; then
                 if [ -e "$VM_PYTHON3_PYTHONPATH" ]; then
