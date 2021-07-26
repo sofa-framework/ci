@@ -28,7 +28,7 @@ RUN apt-get install -y \
     build-essential \
     ninja-build \
     gcc-7 g++-7 \
-    clang \
+    clang llvm-dev \
     ccache
 
 # Install core deps
