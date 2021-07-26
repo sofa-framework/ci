@@ -116,8 +116,8 @@ ENV VM_CUDA_ARCH="sm_50"
 
 # Install pybind11 (needed by SofaPython3)
 ARG PYBIND_MAJOR=2
-ARG PYBIND_MINOR=7
-ARG PYBIND_PATCH=0
+ARG PYBIND_MINOR=4
+ARG PYBIND_PATCH=3
 RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR.$PYBIND_PATCH --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
     && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3.7 -DPYBIND11_TEST=OFF ../src \
