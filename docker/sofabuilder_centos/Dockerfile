@@ -139,7 +139,8 @@ ENV VM_HAS_CUDA="true"
 # Install pybind11 (needed by SofaPython3)
 ARG PYBIND_MAJOR=2
 ARG PYBIND_MINOR=4
-RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
+ARG PYBIND_PATCH=3
+RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR.$PYBIND_PATCH --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
     && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
     && source /opt/rh/devtoolset-7/enable || true \
     && source /opt/rh/llvm-toolset-7/enable || true \
