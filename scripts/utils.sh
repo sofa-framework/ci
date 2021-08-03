@@ -81,6 +81,8 @@ get-msvc-year() {
             vs-2015) echo "2015" ;;
             vs-2017) echo "2017" ;;
             vs-2019) echo "2019" ;;
+            vs2017)  echo "2017" ;;
+            vs2019)  echo "2019" ;;
         esac
     fi
 }
@@ -94,6 +96,8 @@ get-msvc-comntools() {
             vs-2015) echo "VS140COMNTOOLS" ;;
             vs-2017) echo "VS150COMNTOOLS" ;;
             vs-2019) echo "VS160COMNTOOLS" ;;
+            vs2017)  echo "VS150COMNTOOLS" ;;
+            vs2019)  echo "VS160COMNTOOLS" ;;
         esac
     fi
 }
