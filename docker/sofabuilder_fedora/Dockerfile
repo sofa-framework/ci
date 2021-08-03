@@ -24,32 +24,24 @@ RUN yum install -y -q \
     wget \
     curl \
     vim
-    # update-alternatives
 
 # Install build tools
 RUN yum install -y -q \
-    cmake \
     ninja-build \
-    # devtoolset-7 \
-    # llvm-toolset-7 \
     clang \
     ccache
-RUN ln -sf /usr/bin/ninja-build /usr/bin/ninja || true
 
 # Install core deps
 RUN yum install -y -q \
+    boost-devel \
     glew-devel \
     freeglut-devel \
     zlib-devel \
     eigen3-devel
 
-###################################
-
 # Install plugin deps
 RUN yum install -y -q \
-    # python27-python-devel python27-python-pip \
-    # rh-python38-python-devel rh-python38-python-pip \
-    python3 python3-pip \
+    python3.8 \
     libpng-devel libjpeg-turbo-devel libtiff-devel \
     blas-devel \
     lapack-devel \
@@ -62,13 +54,23 @@ RUN yum install -y -q \
 # RUN source /opt/rh/python27/enable \
     # && python2.7 -m pip install --upgrade "pip == 20.3.4" \
     # && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
-RUN python3 -m pip install --upgrade pip \
-    && python3 -m pip install numpy scipy pygame
+RUN python3.8 -m ensurepip --upgrade \
+    && python3.8 -m pip install numpy scipy pygame
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
 # BulletColisionDetection is broken
 ENV VM_HAS_BULLET="disabled"
 ENV VM_HAS_OPENCASCADE="true"
+
+###################################
+
+# Install CMake
+ARG CMAKE_MAJOR=3
+ARG CMAKE_MINOR=12
+ARG CMAKE_PATCH=0
+ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH/cmake-$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH-Linux-x86_64.sh /tmp/cmake.sh
+RUN chmod a+x /tmp/cmake.sh
+RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 
 # Install Qt
 ARG QT_MAJOR=5
@@ -93,23 +95,6 @@ RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
 ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
 ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-
-# Install Boost
-# ARG BOOST_MAJOR=1
-# ARG BOOST_MINOR=69
-RUN yum install -y -q boost-devel
-# RUN ln -s -f "boost${BOOST_MAJOR}${BOOST_MINOR}/boost" "/usr/include/boost" || true
-# RUN ln -s -f "boost${BOOST_MAJOR}${BOOST_MINOR}" "/usr/lib64/boost" || true
-ENV BOOST_INCLUDEDIR="/usr/include"
-ENV BOOST_LIBRARYDIR="/usr/lib64/boost"
-ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-
-# Set cmake3 the default CMake
-# RUN update-alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 \
-#     --slave /usr/local/bin/ctest ctest /usr/bin/ctest3 \
-#     --slave /usr/local/bin/cpack cpack /usr/bin/cpack3 \
-#     --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake3 \
-#     --family cmake
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
