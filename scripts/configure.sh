@@ -68,7 +68,7 @@ if vm-is-windows && [ ! -d "$SRC_DIR/lib" ]; then
     (
     cd "$SRC_DIR"
     echo "Copying dependency pack in the source tree."
-    curl -L "https://www.sofa-framework.org/download/WinDepPack/$COMPILER/latest" --output dependencies_tmp.zip
+    curl -L "https://www.sofa-framework.org/download/WinDepPack/latest" --output dependencies_tmp.zip
     unzip dependencies_tmp.zip -d dependencies_tmp > /dev/null
     cp -rf dependencies_tmp/*/* "$SRC_DIR"
     rm -rf dependencies_tmp*
