@@ -41,6 +41,7 @@ RUN yum install -y -q \
 
 # Install plugin deps
 RUN yum install -y -q \
+    python2.7 \
     python3.8 \
     libpng-devel libjpeg-turbo-devel libtiff-devel \
     blas-devel \
@@ -51,10 +52,13 @@ RUN yum install -y -q \
     bullet-extras-devel \
     opencascade-devel \
     libXrandr-devel
-# RUN source /opt/rh/python27/enable \
-    # && python2.7 -m pip install --upgrade "pip == 20.3.4" \
-    # && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
-RUN python3.8 -m ensurepip --upgrade \
+RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
+    && python2.7 /tmp/get-pip2.py \
+    && python2.7 -m pip install --upgrade "pip == 20.3.4" \
+    && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.8 /tmp/get-pip3.py \
+    && python3.8 -m pip install --upgrade pip \
     && python3.8 -m pip install numpy scipy pygame
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
