@@ -15,7 +15,7 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     export VM_HAS_OPENCASCADE="false"
 
 
-    export VM_MAKE_OPTIONS="-j6"
+    export VM_MAKE_OPTIONS="-j4"
 
     export VM_CUDA_ARCH="sm_50"
 
