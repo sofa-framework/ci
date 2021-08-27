@@ -24,17 +24,13 @@ RUN yum install -y -q \
     wget \
     curl \
     vim
-    # update-alternatives
 
 # Install build tools
 RUN yum install -y -q \
     cmake \
     ninja-build \
-    # devtoolset-7 \
-    # llvm-toolset-7 \
     clang \
     ccache
-RUN ln -sf /usr/bin/ninja-build /usr/bin/ninja || true
 
 # Install core deps
 RUN yum install -y -q \
