@@ -30,7 +30,8 @@ RUN yum install -y -q \
     cmake \
     ninja-build \
     clang \
-    ccache
+    ccache \
+    libXdamage
 
 # Install core deps
 RUN yum install -y -q \
