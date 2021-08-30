@@ -27,4 +27,6 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     fi
 fi
 
-export VM_MAX_PARALLEL_TESTS="4"
+export VM_MAKE_OPTIONS="-j6"
+
+export VM_MAX_PARALLEL_TESTS="7"
