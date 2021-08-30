@@ -1,7 +1,10 @@
 #!/bin/bash
 
-
 export VM_HAS_REQUIRED_LIBS="true"
+
+export VM_MAKE_OPTIONS="-j8"
+
+export VM_MAX_PARALLEL_TESTS="8" # warning: 2 executors
 
 if [ ! -f /.dockerenv ]; then # not in Docker
     export VM_HAS_BULLET="false"
@@ -14,12 +17,7 @@ if [ ! -f /.dockerenv ]; then # not in Docker
 
     export VM_HAS_OPENCASCADE="false"
 
-
-    export VM_MAKE_OPTIONS="-j8"
-
     export VM_CUDA_ARCH="sm_50"
 
     export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
 fi
-
-export VM_MAX_PARALLEL_TESTS="8" # warning: 2 executors

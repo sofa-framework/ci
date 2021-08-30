@@ -1,7 +1,22 @@
 #!/bin/bash
 
+# Display Name	sofa-ci-ubuntu1604-0
+# Name	sofa-ci-ubuntu1604-0
+# State	Running
+# Template	[DELETE] Ubuntu-16.04_GCC-5.4_Clang-3.8
+# Dynamically Scalable	Yes
+# OS Type	Ubuntu 16.04 (64-bit)
+# Attached ISO
+# Compute offering	xxLarge Instance
+# # of CPU Cores	4
+# CPU (in MHz)	2000
+# Memory (in MB)	12288
 
 export VM_HAS_REQUIRED_LIBS="true"
+
+export VM_MAKE_OPTIONS="-j4"
+
+export VM_MAX_PARALLEL_TESTS="4"
 
 if [ ! -f /.dockerenv ]; then # not in Docker
     export VM_HAS_BULLET="false"
@@ -14,9 +29,6 @@ if [ ! -f /.dockerenv ]; then # not in Docker
 
     export VM_HAS_OPENCASCADE="false"
 
-
-    export VM_MAKE_OPTIONS="-j6"
-
     export VM_CUDA_ARCH="sm_50"
 
     export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
@@ -27,5 +39,3 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     fi
     export QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
 fi
-
-export VM_MAX_PARALLEL_TESTS="4"
