@@ -4,6 +4,9 @@ SHELL ["/bin/bash", "-c"]
 
 ADD "https://www.sofa-framework.org/rand/" ForceNoCache
 
+RUN useradd --no-log-init ci --uid 1000 --home /home/ci --create-home --shell /bin/bash
+ENV HOME="/home/ci"
+
 # Install APT tools and repos
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y \
@@ -141,7 +144,6 @@ RUN printf '\n# Disable core dumps\n* soft core 0\n* hard core 0\n' >> /etc/secu
 WORKDIR /builds
 
 # Set env vars
-ENV HOME="/root"
 ENV PYTHONIOENCODING="UTF-8"
 ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"

@@ -27,7 +27,6 @@ RUN yum install -y -q \
 
 # Install build tools
 RUN yum install -y -q \
-    cmake \
     ninja-build \
     clang \
     ccache \
@@ -40,8 +39,6 @@ RUN yum install -y -q \
     zlib-devel \
     eigen3-devel
 
-###################################
-
 # Install plugin deps
 RUN yum install -y -q \
     python2.7 \
@@ -52,7 +49,6 @@ RUN yum install -y -q \
     suitesparse-devel \
     ffmpeg-devel \
     assimp-devel \
-    bullet-extras-devel \
     opencascade-devel \
     libXrandr-devel
 RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
@@ -65,9 +61,24 @@ RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.8 -m pip install numpy scipy pygame
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
-# BulletColisionDetection is broken
-ENV VM_HAS_BULLET="disabled"
 ENV VM_HAS_OPENCASCADE="true"
+
+###################################
+
+# Install CMake
+ARG CMAKE_MAJOR=3
+ARG CMAKE_MINOR=12
+ARG CMAKE_PATCH=0
+ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH/cmake-$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH-Linux-x86_64.sh /tmp/cmake.sh
+RUN chmod a+x /tmp/cmake.sh
+RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
+
+# Set cmake3 the default CMake
+# RUN update-alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake 20 \
+#     --slave /usr/local/bin/ctest ctest /usr/bin/ctest \
+#     --slave /usr/local/bin/cpack cpack /usr/bin/cpack \
+#     --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake \
+#     --family cmake
 
 # Install Qt
 ARG QT_MAJOR=5
@@ -102,13 +113,6 @@ RUN yum install -y -q boost-devel
 ENV BOOST_INCLUDEDIR="/usr/include"
 ENV BOOST_LIBRARYDIR="/usr/lib64/boost"
 ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-
-# Set cmake3 the default CMake
-# RUN update-alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake3 20 \
-#     --slave /usr/local/bin/ctest ctest /usr/bin/ctest3 \
-#     --slave /usr/local/bin/cpack cpack /usr/bin/cpack3 \
-#     --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake3 \
-#     --family cmake
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
