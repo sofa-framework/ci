@@ -478,5 +478,5 @@ if [ -n "$full_build" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
     call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
 else
-    call-cmake "$BUILD_DIR" $cmake_options .
+    call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options .
 fi
