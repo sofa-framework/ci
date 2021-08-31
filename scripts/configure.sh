@@ -358,7 +358,7 @@ else # This is not a "package" build
     add-cmake-option "-DSOFA_BUILD_METIS=ON"
     add-cmake-option "-DSOFA_DUMP_VISITOR_INFO=ON"
     add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
-    add-cmake-option "-DAPPLICATION_MODELER=ON"
+    add-cmake-option "-DAPPLICATION_MODELER=OFF"
     add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
     if [ -n "$VM_NODEEDITOR_PATH" ]; then
         add-cmake-option "-DNodeEditor_ROOT=$VM_NODEEDITOR_PATH"
