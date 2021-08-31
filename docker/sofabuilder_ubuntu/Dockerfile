@@ -13,6 +13,7 @@ RUN apt-get install -y \
     apt-utils \
     software-properties-common
 RUN add-apt-repository ppa:git-core/ppa
+RUN add-apt-repository ppa:ubuntu-support-team/ninja
 RUN apt-get update && apt-get upgrade -y
 
 # Install system tools
@@ -29,17 +30,18 @@ RUN apt-get install -y \
 # Install compilers
 RUN apt-get install -y \
     build-essential \
-    ninja-build \
-    gcc-7 g++-7 \
-    clang \
-    ccache
+    ninja-build=1.10.\* \
+    gcc-7=7.5.\* \
+    g++-7=7.5.\* \
+    clang=1:6.\* \
+    ccache=3.4.\*
 
 # Install core deps
 RUN apt-get install -y \
-    libglew-dev \
-    freeglut3-dev \
-    zlib1g-dev \
-    libeigen3-dev
+    libglew-dev=2.0.\* \
+    freeglut3-dev=2.8.\* \
+    zlib1g-dev=1:1.2.\* \
+    libeigen3-dev=3.3.\*
 
 # Install plugins deps
 RUN apt-get install -y \
