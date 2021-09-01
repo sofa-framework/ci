@@ -136,7 +136,7 @@ for build_dir in "$@"; do
 done
 
 # Clean Docker
-if [ -x "$(command -v docker)" ]; then
+if [ -e "$(command -v docker)" ]; then
     echo "" && echo ""
     echo "Cleaning Docker containers and images..."
     docker system prune -a -f || true

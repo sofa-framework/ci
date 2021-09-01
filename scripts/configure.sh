@@ -92,7 +92,7 @@ if vm-is-windows; then
     # see comntools usage in call-cmake() for compiler selection on Windows
 
     # Cache
-    if [ -x "$(command -v clcache)" ]; then
+    if [ -e "$(command -v clcache)" ]; then
         export CLCACHE_DIR="J:/clcache"
         if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
             export CLCACHE_BASEDIR="$EXECUTOR_LINK_WINDOWS_BUILD"
@@ -128,7 +128,7 @@ else
     add-cmake-option "-DCMAKE_CXX_COMPILER=$cxx_compiler"
 
     # Cache
-    if [ -x "$(command -v ccache)" ]; then
+    if [ -e "$(command -v ccache)" ]; then
         if [ -n "$WORKSPACE" ]; then
             # Useful for docker builds, set CCACHE_DIR at root of mounted volume
             # WARNING: this is dirty, it relies on "docker run" mount parameter "-v" in Jenkins job configuration

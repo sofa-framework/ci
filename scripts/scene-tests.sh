@@ -498,7 +498,7 @@ do-test-all-scenes() {
 
 test-all-scenes() {
     echo "Scene testing in progress..."
-    if [ -x "$(command -v shuf)" ]; then
+    if [ -e "$(command -v shuf)" ]; then
         echo "$(shuf $output_dir/all-tested-scenes.txt)" > "$output_dir/all-tested-scenes.txt"
     fi
     local total_lines="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"

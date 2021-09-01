@@ -16,14 +16,14 @@ vm-is-windows() {
     fi
 }
 vm-is-centos() {
-    if [[ "$(uname)" == "Linux" ]] && [ -x "$(command -v yum)" ]; then
+    if [[ "$(uname)" == "Linux" ]] && [ -e "$(command -v yum)" ]; then
         return 0 # true
     else
         return 1 # false
     fi
 }
 vm-is-ubuntu() {
-    if [[ "$(uname)" == "Linux" ]] && [ -x "$(command -v apt)" ]; then
+    if [[ "$(uname)" == "Linux" ]] && [ -e "$(command -v apt)" ]; then
         return 0 # true
     else
         return 1 # false
@@ -35,11 +35,11 @@ find-python() {
         python_exe="$CI_PYTHON_CMD"
     elif [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
         python_exe="$VM_PYTHON3_EXECUTABLE"
-    elif [ -x "$(command -v "python3")" ]; then
+    elif [ -e "$(command -v "python3")" ]; then
         python_exe="python3"
     elif [ -e "$VM_PYTHON_EXECUTABLE" ]; then
         python_exe="$VM_PYTHON_EXECUTABLE"
-    elif [ -x "$(command -v "python")" ]; then
+    elif [ -e "$(command -v "python")" ]; then
         python_exe="python"
     else
         >&2 echo "WARNING: Python executable not found. Try setting VM_PYTHON3_EXECUTABLE variable."
@@ -211,7 +211,7 @@ load-env-vars() {
 }
 
 generator() {
-    if [ -x "$(command -v ninja)" ]; then
+    if [ -e "$(command -v ninja)" ]; then
         echo "Ninja"
     elif vm-is-windows; then
         echo "\"NMake Makefiles\""
@@ -315,7 +315,7 @@ call-make() {
             vcvarsall="cd %VSINSTALLDIR% && call %${msvc_comntools}%\\VsDevCmd -host_arch=amd64 -arch=$ARCHITECTURE"
         fi
         toolname="nmake" # default
-        if [ -x "$(command -v ninja)" ]; then
+        if [ -e "$(command -v ninja)" ]; then
         	echo "Using ninja as build system"
             toolname="ninja"
         fi
@@ -332,7 +332,7 @@ call-make() {
         fi
     else
     	toolname="make" # default
-        if [ -x "$(command -v ninja)" ]; then
+        if [ -e "$(command -v ninja)" ]; then
             echo "Using ninja as build system"
 	        toolname="ninja"
         fi

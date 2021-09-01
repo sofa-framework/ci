@@ -265,7 +265,7 @@ run-all-tests() {
     cat "$output_dir/${test_type}.txt" | grep -v "Bindings\." > "$output_dir/${test_type}.txt.tmp"
     cp -f "$output_dir/${test_type}.txt.tmp" "$output_dir/${test_type}.txt" && rm -f "$output_dir/${test_type}.txt.tmp"
 
-    if [ -x "$(command -v shuf)" ]; then
+    if [ -e "$(command -v shuf)" ]; then
         echo "$(shuf $output_dir/${test_type}.txt)" > "$output_dir/${test_type}.txt"
     fi
     local total_lines="$(cat "$output_dir/${test_type}.txt" | wc -l)"
