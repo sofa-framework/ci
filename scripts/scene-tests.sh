@@ -388,7 +388,7 @@ initialize-scene-tests() {
     mkdir -p "$output_dir/reports"
 
     runSofa="$(ls "$build_dir/bin/runSofa"{,d,_d} 2> /dev/null || true)"
-    if [[ -x "$runSofa" ]]; then
+    if [[ -x "$runSofa" ]] || [[ -L "$runSofa" ]]; then
         echo "Found runSofa: $runSofa" | log
     else
         echo "Error: could not find runSofa."
