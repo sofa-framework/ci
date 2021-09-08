@@ -1,22 +1,22 @@
 #!/bin/bash
 
-# Display Name	sofa-ci-dev-ubuntu1804-1
-# Name	sofa-ci-dev-ubuntu1804-1
+# Display Name	sofa-ci-dev-ubuntu2004-0
+# Name	sofa-ci-dev-ubuntu2004-0
 # State	Running
-# Template	ubuntu-18.04-amd64
+# Template	sed-paris-ubuntu-20.04-lts
 # Dynamically Scalable	No
-# OS Type	Ubuntu 16.04 (64-bit)
+# OS Type	Other Ubuntu (64-bit)
 # Attached ISO
-# Compute offering	xxLarge Instance
-# # of CPU Cores	4
+# Compute offering	Custom
+# # of CPU Cores	8
 # CPU (in MHz)	2000
-# Memory (in MB)	12288
+# Memory (in MB)	8192
 
 export VM_HAS_REQUIRED_LIBS="true"
 
-export VM_MAKE_OPTIONS="-j4"
+export VM_MAKE_OPTIONS="-j6"
 
-export VM_MAX_PARALLEL_TESTS="4"
+export VM_MAX_PARALLEL_TESTS="8"
 
 if [ ! -f /.dockerenv ]; then # not in Docker
     export VM_HAS_BULLET="false"

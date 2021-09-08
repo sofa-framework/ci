@@ -29,18 +29,18 @@ RUN apt-get install -y \
 # Install build tools
 RUN apt-get install -y \
     build-essential \
-    ninja-build \
-    gcc g++ \
-    clang \
-    ccache
+    ninja-build=1.10.\* \
+    gcc-7=7.5.\* \
+    g++-7=7.5.\* \
+    clang=1:6.\* \
+    ccache=3.4.\*
 
 # Install core deps
 RUN apt-get install -y \
-    libboost1.71-all-dev \
-    libglew-dev \
-    freeglut3-dev \
-    zlib1g-dev \
-    libeigen3-dev
+    libglew-dev=2.0.\* \
+    freeglut3-dev=2.8.\* \
+    zlib1g-dev=1:1.2.\* \
+    libeigen3-dev=3.3.\*
 
 # Install plugins deps
 RUN apt-get install -y \
@@ -108,6 +108,13 @@ RUN unzip /tmp/QtInstallerFramework_3.0_Linux.zip -d /builds && chmod -R a+x /bu
 ENV QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
 ENV PATH="${QTIFWDIR}/bin:${PATH}"
 
+# Install Boost
+ARG BOOST_MAJOR=1
+ARG BOOST_MINOR=67
+RUN add-apt-repository -y ppa:mhier/libboost-latest \
+    && apt-get update \
+    && apt-get install -y libboost$BOOST_MAJOR.$BOOST_MINOR-dev
+
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
 ARG CGAL_MAJOR=4
@@ -160,6 +167,7 @@ WORKDIR /builds
 ENV PYTHONIOENCODING="UTF-8"
 ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
+ENV VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
 ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.8"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'

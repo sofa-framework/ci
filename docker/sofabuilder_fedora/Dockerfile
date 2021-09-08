@@ -29,11 +29,11 @@ RUN yum install -y -q \
 RUN yum install -y -q \
     ninja-build \
     clang \
-    ccache
+    ccache \
+    libXdamage
 
 # Install core deps
 RUN yum install -y -q \
-    boost-devel \
     glew-devel \
     freeglut-devel \
     zlib-devel \
@@ -49,7 +49,6 @@ RUN yum install -y -q \
     suitesparse-devel \
     ffmpeg-devel \
     assimp-devel \
-    bullet-extras-devel \
     opencascade-devel \
     libXrandr-devel
 RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
@@ -62,8 +61,6 @@ RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.8 -m pip install numpy scipy pygame
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
-# BulletColisionDetection is broken
-ENV VM_HAS_BULLET="disabled"
 ENV VM_HAS_OPENCASCADE="true"
 
 ###################################
@@ -75,6 +72,13 @@ ARG CMAKE_PATCH=0
 ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH/cmake-$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH-Linux-x86_64.sh /tmp/cmake.sh
 RUN chmod a+x /tmp/cmake.sh
 RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
+
+# Set cmake3 the default CMake
+# RUN update-alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake 20 \
+#     --slave /usr/local/bin/ctest ctest /usr/bin/ctest \
+#     --slave /usr/local/bin/cpack cpack /usr/bin/cpack \
+#     --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake \
+#     --family cmake
 
 # Install Qt
 ARG QT_MAJOR=5
@@ -99,6 +103,16 @@ RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
 ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
 ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+
+# Install Boost
+# ARG BOOST_MAJOR=1
+# ARG BOOST_MINOR=69
+RUN yum install -y -q boost-devel
+# RUN ln -s -f "boost${BOOST_MAJOR}${BOOST_MINOR}/boost" "/usr/include/boost" || true
+# RUN ln -s -f "boost${BOOST_MAJOR}${BOOST_MINOR}" "/usr/lib64/boost" || true
+ENV BOOST_INCLUDEDIR="/usr/include"
+ENV BOOST_LIBRARYDIR="/usr/lib64/boost"
+ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
@@ -148,6 +162,11 @@ RUN printf '\n# Disable core dumps\n* soft core 0\n* hard core 0\n' >> /etc/secu
 WORKDIR /builds
 
 # Set env vars
+ENV PYTHONIOENCODING="UTF-8"
+ENV PYTHONUSERBASE="/tmp/pythonuserbase"
+RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
+ENV VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
+ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.8"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'
 

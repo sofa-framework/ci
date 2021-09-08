@@ -1,7 +1,23 @@
 #!/bin/bash
 
+# Display Name	sofa-ci-windows10-0
+# Name	sofa-ci-windows10-0
+# State	Running
+# Template	Windows 10
+# Dynamically Scalable	Yes
+# OS Type	Windows 10 (64-bit)
+# Attached ISO
+# Compute offering	xxLarge Instance
+# # of CPU Cores	4
+# CPU (in MHz)	2000
+# Memory (in MB)	12288
 
 export VM_HAS_REQUIRED_LIBS="true"
+
+export VM_MAKE_OPTIONS="-j4"
+
+export VM_MAX_PARALLEL_TESTS="4"
+
 
 export VM_HAS_BULLET="false"
 
@@ -36,10 +52,5 @@ export VM_OPENCASCADE_PATH="C:/OpenCascade/opencascade-7.4.0"
 export VM_EIGEN3_PATH="C:/eigen/eigen-3.3.7"
 
 export VM_NODEEDITOR_PATH="C:/NodeEditor/2.1.3/install"
-
-
-export VM_MAKE_OPTIONS="-j4"
-
-export VM_MAX_PARALLEL_TESTS="4"
 
 export VM_CUDA_ARCH="sm_50"

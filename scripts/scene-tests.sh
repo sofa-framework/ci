@@ -388,7 +388,7 @@ initialize-scene-tests() {
     mkdir -p "$output_dir/reports"
 
     runSofa="$(ls "$build_dir/bin/runSofa"{,d,_d} 2> /dev/null || true)"
-    if [[ -x "$runSofa" ]]; then
+    if [[ -x "$runSofa" ]] || [[ -L "$runSofa" ]]; then
         echo "Found runSofa: $runSofa" | log
     else
         echo "Error: could not find runSofa."
@@ -498,7 +498,7 @@ do-test-all-scenes() {
 
 test-all-scenes() {
     echo "Scene testing in progress..."
-    if [ -x "$(command -v shuf)" ]; then
+    if [ -e "$(command -v shuf)" ]; then
         echo "$(shuf $output_dir/all-tested-scenes.txt)" > "$output_dir/all-tested-scenes.txt"
     fi
     local total_lines="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"

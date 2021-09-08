@@ -11,7 +11,7 @@ echo "--------------------------------------------"
 echo "---- AppleClang version"
 clang --version
 
-if [ ! -x "$(command -v brew)" ]; then
+if [ ! -e "$(command -v brew)" ]; then
     echo "--------------------------------------------"
     echo "---- Install brew"
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh > /dev/null)"

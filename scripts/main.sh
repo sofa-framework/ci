@@ -121,7 +121,7 @@ echo "$PATH"
 echo "-- CMake"
 cmake --version
 echo "-- Generator"
-if [ -x "$(command -v ninja)" ]; then
+if [ -e "$(command -v ninja)" ]; then
     echo "ninja $(ninja --version)"
 elif vm-is-windows; then
     cmd //c "nmake /HELP"
@@ -130,7 +130,7 @@ else
 fi
 echo "-- Compiler"
 if vm-is-windows; then
-    if [ -x "$(command -v vswhere)" ]; then
+    if [ -e "$(command -v vswhere)" ]; then
         cmd //c "vswhere -latest -products * -property displayName"
     else
         echo "Visual Studio $(get-msvc-year "$COMPILER")"
@@ -142,10 +142,10 @@ elif vm-is-macos; then
     echo "AppleClang/Clang correspondance: https://en.wikipedia.org/wiki/Xcode#Xcode_7.0_-_12.x_%28since_Free_On-Device_Development%29"
     echo "Example: AppleClang 1001.0.46.3 is based on Clang 7.0.0"
 
-    if [ -x "$(command -v xcodebuild)" ]; then
+    if [ -e "$(command -v xcodebuild)" ]; then
         echo "Xcode version: $(xcodebuild -version)"
     fi
-    if [ -x "$(command -v xcode-select)" ]; then
+    if [ -e "$(command -v xcode-select)" ]; then
         echo "Xcode install dir: $(xcode-select -p)"
     fi
 else
@@ -155,7 +155,7 @@ echo "-- Qt"
 if [ -n "$VM_QT_PATH" ]; then
     echo -n "Qt "
     basename "$VM_QT_PATH"
-elif [ -x "$(command -v qmake)" ]; then
+elif [ -e "$(command -v qmake)" ]; then
     qmake --version
 else
     echo "Don't know how to get Qt version."
@@ -241,7 +241,7 @@ fi
 # Merge PR with target branch
 # Fail build if conflict
 if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB_REPOSITORY" ] && [ -n "$GITHUB_BASE_REF" ] && [ -n "$GITHUB_BASECOMMIT_HASH" ] &&
-   [ -x "$(command -v git)" ] && [[ "$(git log -n 1 --pretty=format:"%H")" == "$GITHUB_COMMIT_HASH" ]] &&
+   [ -e "$(command -v git)" ] && [[ "$(git log -n 1 --pretty=format:"%H")" == "$GITHUB_COMMIT_HASH" ]] &&
    [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     echo "--------------------------------------------"
     echo "Merging $DASH_COMMIT_BRANCH with this commit of base $GITHUB_BASE_REF: $GITHUB_BASECOMMIT_HASH"
