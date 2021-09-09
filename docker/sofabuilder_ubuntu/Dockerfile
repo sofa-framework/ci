@@ -45,7 +45,7 @@ RUN apt-get install -y \
 # Install plugins deps
 RUN apt-get install -y \
     python2.7-dev \
-    python3.8-dev \
+    python3.8-dev python3-distutils=3.8.\* \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
