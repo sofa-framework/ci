@@ -37,6 +37,7 @@ RUN apt-get install -y \
 
 # Install core deps
 RUN apt-get install -y \
+    libboost-all-dev=1.71.\* \
     libglew-dev=2.1.\* \
     freeglut3-dev=2.8.\* \
     zlib1g-dev=1:1.2.\* \
@@ -109,11 +110,11 @@ ENV QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
 ENV PATH="${QTIFWDIR}/bin:${PATH}"
 
 # Install Boost
-ARG BOOST_MAJOR=1
-ARG BOOST_MINOR=67
-RUN add-apt-repository -y ppa:mhier/libboost-latest \
-    && apt-get update \
-    && apt-get install -y libboost$BOOST_MAJOR.$BOOST_MINOR-dev
+# ARG BOOST_MAJOR=1
+# ARG BOOST_MINOR=67
+# RUN add-apt-repository -y ppa:mhier/libboost-latest \
+#     && apt-get update \
+#     && apt-get install -y libboost$BOOST_MAJOR.$BOOST_MINOR-dev
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
