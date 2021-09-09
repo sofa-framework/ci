@@ -30,14 +30,14 @@ RUN apt-get install -y \
 RUN apt-get install -y \
     build-essential \
     ninja-build=1.10.\* \
-    gcc-7=7.5.\* \
-    g++-7=7.5.\* \
-    clang=1:6.\* \
-    ccache=3.4.\*
+    gcc=4:9.\* \
+    g++=4:9.\* \
+    clang=1:10.\* \
+    ccache=3.7.\*
 
 # Install core deps
 RUN apt-get install -y \
-    libglew-dev=2.0.\* \
+    libglew-dev=2.1.\* \
     freeglut3-dev=2.8.\* \
     zlib1g-dev=1:1.2.\* \
     libeigen3-dev=3.3.\*
