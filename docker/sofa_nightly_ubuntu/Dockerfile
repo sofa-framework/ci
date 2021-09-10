@@ -13,7 +13,7 @@ RUN apt-get install -y \
 
 # Install SOFA binaries
 ARG BINARIES_CONFIG
-ADD https://ci.inria.fr/sofa-ci-dev/job/nightly-generate-binaries/CI_SCOPE=binaries_${BINARIES_CONFIG}/lastSuccessfulBuild/artifact/Linux/*zip*/Linux.zip /tmp
+ADD https://ci.inria.fr/sofa-ci-dev/job/nightly-generate-binaries/CI_BRANCH=master,CI_SCOPE=${BINARIES_CONFIG}/lastSuccessfulBuild/artifact/Linux/*zip*/Linux.zip /tmp
 RUN unzip /tmp/Linux.zip -d /tmp && unzip /tmp/Linux/SOFA_*.zip -d /root
 RUN mv /root/SOFA_* /root/SOFA
 ENV SOFA_ROOT="/root/SOFA"

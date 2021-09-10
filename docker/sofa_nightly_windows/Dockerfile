@@ -12,7 +12,7 @@ RUN if not exist %WORKDIR% mkdir %WORKDIR%
 
 # Install SOFA binaries
 ARG DOCKER_TAG
-ADD https://ci.inria.fr/sofa-ci-dev/job/nightly-generate-binaries/CI_SCOPE=binaries_${DOCKER_TAG}/lastSuccessfulBuild/artifact/Windows/*zip*/Windows.zip $WORKDIR
+ADD https://ci.inria.fr/sofa-ci-dev/job/nightly-generate-binaries/CI_BRANCH=master,CI_SCOPE=${DOCKER_TAG}/lastSuccessfulBuild/artifact/Windows/*zip*/Windows.zip $WORKDIR
 RUN powershell Expand-Archive %WORKDIR%\Windows.zip -DestinationPath %WORKDIR% `
  && powershell Expand-Archive %WORKDIR%\Windows\SOFA_*.zip -DestinationPath %WORKDIR%\binaries `
  && move %WORKDIR%\binaries\SOFA_* C:\SOFA
