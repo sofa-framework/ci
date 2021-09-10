@@ -1,4 +1,4 @@
-name: Push image with env to build SOFA
+name: Update SOFA builder
 
 # Controls when the action will run.
 on: [ push, workflow_dispatch ]
