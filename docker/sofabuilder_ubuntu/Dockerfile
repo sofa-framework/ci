@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 
 SHELL ["/bin/bash", "-c"]
 
@@ -13,7 +13,6 @@ RUN apt-get install -y \
     apt-utils \
     software-properties-common
 RUN add-apt-repository ppa:git-core/ppa
-RUN add-apt-repository ppa:ubuntu-support-team/ninja
 RUN apt-get update && apt-get upgrade -y
 
 # Install system tools
@@ -27,26 +26,27 @@ RUN apt-get install -y \
     unzip \
     patchelf
 
-# Install compilers
+# Install build tools
 RUN apt-get install -y \
     build-essential \
     ninja-build=1.10.\* \
-    gcc-7=7.5.\* \
-    g++-7=7.5.\* \
-    clang=1:6.\* \
-    ccache=3.4.\*
+    gcc=4:9.\* \
+    g++=4:9.\* \
+    clang=1:10.\* \
+    ccache=3.7.\*
 
 # Install core deps
 RUN apt-get install -y \
-    libglew-dev=2.0.\* \
+    libboost-all-dev=1.71.\* \
+    libglew-dev=2.1.\* \
     freeglut3-dev=2.8.\* \
     zlib1g-dev=1:1.2.\* \
     libeigen3-dev=3.3.\*
 
 # Install plugins deps
 RUN apt-get install -y \
-    python2.7-dev python-pip \
-    python3.7-dev python3-pip \
+    python2.7-dev \
+    python3.8-dev python3-distutils=3.8.\* \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
@@ -57,10 +57,14 @@ RUN apt-get install -y \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev \
     libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
-RUN python2.7 -m pip install --upgrade "pip == 20.3.4" \
+RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
+    && python2.7 /tmp/get-pip2.py \
+    && python2.7 -m pip install --upgrade "pip == 20.3.4" \
     && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
-RUN python3.7 -m pip install --upgrade pip \
-    && python3.7 -m pip install numpy scipy pygame
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.8 /tmp/get-pip3.py \
+    && python3.8 -m pip install --upgrade pip \
+    && python3.8 -m pip install numpy scipy pygame
 ENV VM_HAS_ASSIMP="true"
 # BulletColisionDetection is broken
 ENV VM_HAS_BULLET="disabled"
@@ -80,22 +84,37 @@ RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 ARG QT_MAJOR=5
 ARG QT_MINOR=12
 ARG QT_PATCH=6
-RUN add-apt-repository -y ppa:beineri/opt-qt-$QT_MAJOR.$QT_MINOR.$QT_PATCH-bionic \
-    && apt-get update \
-    && apt-get install -y qt${QT_MAJOR}${QT_MINOR}-meta-full qt${QT_MAJOR}${QT_MINOR}charts-no-lgpl \
-    && rm -rf /opt/qt${QT_MAJOR}${QT_MINOR}/doc \
-    && rm -rf /opt/qt${QT_MAJOR}${QT_MINOR}/examples
+ARG QT_INSTALLDIR="/opt/Qt"
+RUN mkdir -p /home/ci/.local/share/Qt
+ADD https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtaccount.ini /home/ci/.local/share/Qt/qtaccount.ini
+ADD https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtinstaller_controlscript_template.qs /tmp/qtinstaller_controlscript_template.qs
+RUN cat /tmp/qtinstaller_controlscript_template.qs \
+    | sed 's:_QTVERSION_:'"$QT_MAJOR$QT_MINOR$QT_PATCH"':g' \
+    | sed 's:_QTINSTALLDIR_:'"$QT_INSTALLDIR"':g' \
+    | sed 's:_QTCOMPILER_:gcc_64:g' \
+    > /tmp/qtinstaller_controlscript.qs
+ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
+RUN apt-get install -y libxkbcommon-x11-0 libwayland-cursor0
+RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
+    && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose \
+    && rm -rf $QT_INSTALLDIR/Docs \
+    && rm -rf $QT_INSTALLDIR/Examples \
+    && rm -rf $QT_INSTALLDIR/Tools
+ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
+ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
+ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+# Install QtInstallerFramework
 ADD https://www.sofa-framework.org/wp-content/uploads/2020/06/QtInstallerFramework_3.0_Linux.zip /tmp
 RUN unzip /tmp/QtInstallerFramework_3.0_Linux.zip -d /builds && chmod -R a+x /builds/Qt
 ENV QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
 ENV PATH="${QTIFWDIR}/bin:${PATH}"
 
 # Install Boost
-ARG BOOST_MAJOR=1
-ARG BOOST_MINOR=67
-RUN add-apt-repository -y ppa:mhier/libboost-latest \
-    && apt-get update \
-    && apt-get install -y libboost$BOOST_MAJOR.$BOOST_MINOR-dev
+# ARG BOOST_MAJOR=1
+# ARG BOOST_MINOR=67
+# RUN add-apt-repository -y ppa:mhier/libboost-latest \
+#     && apt-get update \
+#     && apt-get install -y libboost$BOOST_MAJOR.$BOOST_MINOR-dev
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
@@ -125,7 +144,7 @@ ARG PYBIND_MINOR=4
 ARG PYBIND_PATCH=3
 RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR.$PYBIND_PATCH --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
     && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3.7 -DPYBIND11_TEST=OFF ../src \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE=/usr/bin/python3.8 -DPYBIND11_TEST=OFF ../src \
     && make --silent install
 
 # Install NodeEditor (needed by SofaQtQuick)
@@ -150,7 +169,7 @@ ENV PYTHONIOENCODING="UTF-8"
 ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 ENV VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
-ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.7"
+ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.8"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'
 
