@@ -32,15 +32,6 @@ if [ "$#" -gt 0 ]; then
     SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     . "$SCRIPT_DIR"/utils.sh
     . "$SCRIPT_DIR"/github.sh
-
-    MAX_DAYS_SINCE_MODIFIED_LONG=5
-    max_sec_since_modified_long=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_LONG ))
-
-    MAX_DAYS_SINCE_MODIFIED_SHORT=1/4
-    max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORT ))
-
-    MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
-    max_sec_since_modified="$max_sec_since_modified_long"
 else
     usage; exit 1
 fi
@@ -48,6 +39,28 @@ fi
 load-vm-env
 
 BASE_DIR="$(pwd)"
+
+free_space="$(df -P . | tail -1 | awk '{print $4}')"
+if [ "$free_space" -lt 5242880 ]; then
+    # less than 5 GB
+    MAX_DAYS_SINCE_MODIFIED_SHORT=1/5
+    MAX_DAYS_SINCE_MODIFIED_LONG=3/2
+elif [ "$free_space" -lt 10485760 ]; then
+    # less than 10 GB
+    MAX_DAYS_SINCE_MODIFIED_SHORT=1/4
+    MAX_DAYS_SINCE_MODIFIED_LONG=3
+else
+    MAX_DAYS_SINCE_MODIFIED_SHORT=1/2
+    MAX_DAYS_SINCE_MODIFIED_LONG=6
+fi
+max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORT ))
+max_sec_since_modified_long=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_LONG ))
+echo "------------------"
+echo "free_space = $free_space"
+echo "MAX_DAYS_SINCE_MODIFIED_SHORT = $MAX_DAYS_SINCE_MODIFIED_SHORT"
+echo "MAX_DAYS_SINCE_MODIFIED_LONG = $MAX_DAYS_SINCE_MODIFIED_LONG"
+echo "------------------"
+
 for build_dir in "$@"; do
     cd "$BASE_DIR"
     if [ ! -d "$build_dir" ]; then
@@ -77,14 +90,17 @@ for build_dir in "$@"; do
             fi
         fi
 
+        MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
+        max_sec_since_modified="$max_sec_since_modified_long"
+
         if [[ "$build_dir/" == *"/launcher/"* ]]; then
             # Launcher has no config/build, only sources
             echo "  Launcher detected."
             delta="$(last-edit "$dir" "seconds")"
             lastedit_date="$(last-edit "$dir" "date")"
             echo -n "    last launch: $lastedit_date"
-            if [ "$delta" -gt $max_sec_since_modified_long ]; then
-                echo "   (more than $MAX_DAYS_SINCE_MODIFIED_LONG days ago)"
+            if [ "$delta" -gt $max_sec_since_modified ]; then
+                echo "   (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
                 echo "    -> removed"
                 rm -rf "$dir"
             else
@@ -94,8 +110,6 @@ for build_dir in "$@"; do
         else
             cd "$dir"
 
-            MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
-            max_sec_since_modified="$max_sec_since_modified_long"
             if [[ "$build_dir/" != *"/sofa-framework/"* ]]; then
                 MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_SHORT"
                 max_sec_since_modified="$max_sec_since_modified_short"
