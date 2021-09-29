@@ -40,25 +40,24 @@ load-vm-env
 
 BASE_DIR="$(pwd)"
 
+# Define short and long TTL
 free_space="$(df -P . | tail -1 | awk '{print $4}')"
 if [ "$free_space" -lt 5242880 ]; then
     # less than 5 GB
-    MAX_DAYS_SINCE_MODIFIED_SHORT=1/5
-    MAX_DAYS_SINCE_MODIFIED_LONG=3/2
+    max_days_since_modified_short=1/5
+    max_days_since_modified_long=3/2
 elif [ "$free_space" -lt 10485760 ]; then
     # less than 10 GB
-    MAX_DAYS_SINCE_MODIFIED_SHORT=1/4
-    MAX_DAYS_SINCE_MODIFIED_LONG=3
+    max_days_since_modified_short=1/4
+    max_days_since_modified_long=3
 else
-    MAX_DAYS_SINCE_MODIFIED_SHORT=1/2
-    MAX_DAYS_SINCE_MODIFIED_LONG=6
+    max_days_since_modified_short=1/2
+    max_days_since_modified_long=6
 fi
-max_sec_since_modified_short=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_SHORT ))
-max_sec_since_modified_long=$(( 3600 * 24 * $MAX_DAYS_SINCE_MODIFIED_LONG ))
 echo "------------------"
 echo "free_space = $free_space"
-echo "MAX_DAYS_SINCE_MODIFIED_SHORT = $MAX_DAYS_SINCE_MODIFIED_SHORT"
-echo "MAX_DAYS_SINCE_MODIFIED_LONG = $MAX_DAYS_SINCE_MODIFIED_LONG"
+echo "max_days_since_modified_short = $max_days_since_modified_short"
+echo "max_days_since_modified_long = $max_days_since_modified_long"
 echo "------------------"
 
 for build_dir in "$@"; do
@@ -69,6 +68,13 @@ for build_dir in "$@"; do
 
     echo "" # newline
     echo "Cleaning in $build_dir"
+
+    # Choose which TTL to use for this build
+    max_days_since_modified=$max_days_since_modified_short # short TTL by default
+    if [[ "$build_dir" == *"/sofa-framework"* ]]; then
+        max_days_since_modified=$max_days_since_modified_long # long TTL for SOFA builds
+    fi
+    max_sec_since_modified=$(( 3600 * 24 * $max_days_since_modified ))
 
     cd "$build_dir"
     for dir in *; do
@@ -90,9 +96,6 @@ for build_dir in "$@"; do
             fi
         fi
 
-        MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_LONG"
-        max_sec_since_modified="$max_sec_since_modified_long"
-
         if [[ "$build_dir/" == *"/launcher/"* ]]; then
             # Launcher has no config/build, only sources
             echo "  Launcher detected."
@@ -100,7 +103,7 @@ for build_dir in "$@"; do
             lastedit_date="$(last-edit "$dir" "date")"
             echo -n "    last launch: $lastedit_date"
             if [ "$delta" -gt $max_sec_since_modified ]; then
-                echo "   (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
+                echo "   (more than $max_days_since_modified days ago)"
                 echo "    -> removed"
                 rm -rf "$dir"
             else
@@ -109,12 +112,6 @@ for build_dir in "$@"; do
             fi
         else
             cd "$dir"
-
-            if [[ "$build_dir/" != *"/sofa-framework/"* ]]; then
-                MAX_DAYS_SINCE_MODIFIED="$MAX_DAYS_SINCE_MODIFIED_SHORT"
-                max_sec_since_modified="$max_sec_since_modified_short"
-            fi
-
             all_configs_removed="true"
             for config in *; do
                 if [ ! -d "$config" ] || [[ "$config" == *"tmp" ]] || [ ! -d "$config/src/SofaKernel" ]; then
@@ -127,7 +124,7 @@ for build_dir in "$@"; do
                     lastedit_date="$(last-edit "$config/build" "date")"
                     echo -n "      last build was on $lastedit_date"
                     if [ "$delta" -gt $max_sec_since_modified ]; then
-                        echo "   (more than $MAX_DAYS_SINCE_MODIFIED days ago)"
+                        echo "   (more than $max_days_since_modified days ago)"
                         echo "      -> removed"
                         rm -rf "$config"
                     else
