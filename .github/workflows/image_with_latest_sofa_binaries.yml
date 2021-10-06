@@ -4,6 +4,10 @@ name: Update SOFA binaries
 on:
     workflow_dispatch:
         inputs:
+            binaries_branch:
+                description: 'binaries_branch'
+                required: true
+                default: 'v21.06'
             binaries_config:
                 description: 'binaries_config'
                 required: true
@@ -38,6 +42,7 @@ jobs:
             with:
                 context: docker/${{ matrix.target }} # path of the Dockerfile
                 build-args: |
+                    BINARIES_BRANCH=${{ github.event.inputs.binaries_branch }}
                     BINARIES_CONFIG=${{ github.event.inputs.binaries_config }}
                 push: true
-                tags: sofaframework/${{ matrix.target }}:${{ github.event.inputs.binaries_config }}
+                tags: sofaframework/${{ matrix.target }}:${{ github.event.inputs.binaries_branch }}-${{ github.event.inputs.binaries_config }}
