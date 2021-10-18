@@ -124,15 +124,21 @@ case "$BUILD_RESULT" in
 esac
 
 
-# Jenkins: remove link for Windows jobs (too long path problem)
+# Jenkins
 if [ -n "$EXECUTOR_NUMBER" ]; then
     if vm-is-windows; then
+        # remove link for Windows jobs (too long path problem)
         cmd //c "if exist J:\%EXECUTOR_NUMBER% rmdir /S /Q J:\%EXECUTOR_NUMBER%"
 
         export WORKSPACE_WINDOWS="$(cd "$WORKSPACE" && pwd -W | sed 's#/#\\#g')"
         export WORKSPACE_PARENT_WINDOWS="$(cd "$WORKSPACE/.." && pwd -W | sed 's#/#\\#g')"
         cmd //c "if not exist %WORKSPACE_WINDOWS%\parent_dir mklink /D %WORKSPACE_WINDOWS%\parent_dir %WORKSPACE_PARENT_WINDOWS%"
     else
+        # create "parent_dir" link for Jenkins JUnit parsing
         ln -sf "$(cd $WORKSPACE/.. && pwd)" "$WORKSPACE/parent_dir"
     fi
 fi
+
+echo "----------- WORKSPACE -----------"
+ls -la "$WORKSPACE"
+echo "---------------------------------"
