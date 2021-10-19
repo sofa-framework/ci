@@ -1,5 +1,5 @@
 #!/bin/bash
-set -o errexit # Exit on error
+#set -o errexit # Exit on error
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 . "$SCRIPT_DIR"/utils.sh
 
@@ -19,8 +19,8 @@ dashboard-notify-explicit() {
     fi
 
     if [[ "$DASH_NOTIFY" == "true" ]] && [ -n "$DASH_DASHBOARD_URL" ]; then
-        curl --silent --data "$message" -X POST "$DASH_DASHBOARD_URL"
-        notify="sent"
+        curl --silent --data "$message" -X POST "$DASH_DASHBOARD_URL" \
+        && notify="sent"
     fi
 
     echo "Notify Dashboard ($notify): $message"

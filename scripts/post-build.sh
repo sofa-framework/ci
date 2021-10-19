@@ -5,10 +5,12 @@ usage() {
     echo "Usage: post-build.sh <build-dir> <config> <build-type> <build-options>"
 }
 
-if [ "$#" -ge 3 ]; then
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    . "$SCRIPT_DIR"/utils.sh
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+. "$SCRIPT_DIR"/utils.sh
+. "$SCRIPT_DIR"/dashboard.sh
+. "$SCRIPT_DIR"/github.sh
 
+if [ "$#" -ge 3 ]; then
     BUILD_DIR="$(cd "$1" && pwd)"
     CONFIG="$2"
     PLATFORM="$(get-platform-from-config "$CONFIG")"
@@ -20,9 +22,6 @@ if [ "$#" -ge 3 ]; then
         BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi
 elif [ -n "$BUILD_ID" ]; then # Jenkins
-    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-    . "$SCRIPT_DIR"/utils.sh
-
     BUILD_DIR="$(cd "$WORKSPACE/../build" && pwd)"
     CONFIG="$CI_CONFIG"
     PLATFORM="$(get-platform-from-config "$CONFIG")"
@@ -63,9 +62,6 @@ if vm-is-centos; then
     rm -f $BUILD_DIR/core.*
 fi
 
-. "$SCRIPT_DIR"/dashboard.sh
-. "$SCRIPT_DIR"/github.sh
-
 load-env-vars "GITHUB" "$BUILD_DIR" # Retrieve GITHUB env vars used during build
 load-env-vars "DASH" "$BUILD_DIR" # Retrieve DASH env vars used during build
 
@@ -101,7 +97,8 @@ echo "---------------------------------"
 dashboard-notify \
     "tests_status=$tests_status" \
     "scenes_status=$scenes_status" \
-    "regressions_status=$regressions_status"
+    "regressions_status=$regressions_status" \
+    || echo "WARNING: dashboard-notify failed."
 
 # Get build result from Groovy script output (Jenkins)
 BUILD_RESULT="UNKNOWN"
