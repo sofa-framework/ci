@@ -103,22 +103,6 @@ dashboard-notify \
     "scenes_status=$scenes_status" \
     "regressions_status=$regressions_status"
 
-
-on-failure() {
-    dashboard-notify "status=failure"
-    github-notify "failure" "Build failed."
-}
-
-on-error() {
-    dashboard-notify "status=failure"
-    github-notify "error" "Unexpected error, see log for details."
-}
-
-on-aborted() {
-    dashboard-notify "status=cancel"
-    github-notify "failure" "Build canceled."
-}
-
 # Get build result from Groovy script output (Jenkins)
 BUILD_RESULT="UNKNOWN"
 if [ -e "$BUILD_DIR/build-result" ]; then
@@ -126,12 +110,16 @@ if [ -e "$BUILD_DIR/build-result" ]; then
 fi
 echo "BUILD_RESULT = $BUILD_RESULT"
 
-case "$BUILD_RESULT" in
-    FAILURE) on-failure;;
-    ERROR) on-error;;
-    ABORTED) on-aborted;;
-esac
-
+if [[ "$BUILD_RESULT" == "FAILURE" ]]; then
+    dashboard-notify "status=failure"
+    github-notify "failure" "Build failed."
+elif [[ "$BUILD_RESULT" == "ERROR" ]]; then
+    dashboard-notify "status=failure"
+    github-notify "error" "Unexpected error, see log for details."
+elif [[ "$BUILD_RESULT" == "ABORTED" ]]; then
+    dashboard-notify "status=cancel"
+    github-notify "failure" "Build canceled."
+fi
 
 # Jenkins
 if [ -n "$EXECUTOR_NUMBER" ]; then
