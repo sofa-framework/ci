@@ -80,6 +80,9 @@ echo "---------------------"
 tests_status="failure"
 scenes_status="failure"
 regressions_status="failure"
+echo "----------- BUILD_DIR -----------"
+ls -la "$BUILD_DIR"
+echo "---------------------------------"
 if [ -e "$BUILD_DIR/unit-tests.status" ]; then
     tests_status="$(cat $BUILD_DIR/unit-tests.status)"
 fi
@@ -89,6 +92,12 @@ fi
 if [ -e "$BUILD_DIR/regression-tests.status" ]; then
     regressions_status="$(cat $BUILD_DIR/regression-tests.status)"
 fi
+echo "----------- statuses -----------"
+echo "tests_status = $tests_status"
+echo "scenes_status = $scenes_status"
+echo "regressions_status = $regressions_status"
+echo "---------------------------------"
+
 dashboard-notify \
     "tests_status=$tests_status" \
     "scenes_status=$scenes_status" \
