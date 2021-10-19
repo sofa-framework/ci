@@ -76,9 +76,6 @@ echo "---------------------"
 tests_status="failure"
 scenes_status="failure"
 regressions_status="failure"
-echo "----------- BUILD_DIR -----------"
-ls -la "$BUILD_DIR"
-echo "---------------------------------"
 if [ -e "$BUILD_DIR/unit-tests.status" ]; then
     tests_status="$(cat $BUILD_DIR/unit-tests.status)"
 fi
