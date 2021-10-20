@@ -406,10 +406,8 @@ else # This is not a "package" build
             add-cmake-option "-DPLUGIN_SOFAASSIMP=OFF"
         fi
         add-cmake-option "-DPLUGIN_COMMUNICATION=ON"
-        add-cmake-option "-DPLUGIN_COMPLIANT=ON -DSOFA_FETCH_COMPLIANT=ON"
         add-cmake-option "-DPLUGIN_DIFFUSIONSOLVER=ON"
         add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
-        add-cmake-option "-DPLUGIN_FLEXIBLE=ON -DSOFA_FETCH_FLEXIBLE=ON"
         add-cmake-option "-DPLUGIN_GEOMAGIC=ON" # possible since PR#2115
         add-cmake-option "-DPLUGIN_IMAGE=ON"
         add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON -DSOFA_FETCH_INVERTIBLEFVM=ON"
@@ -434,7 +432,6 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_SOFAGLFW=ON" "-DAPPLICATION_RUNSOFAGLFW=ON" "-DSOFA_FETCH_SOFAGLFW=ON"
         add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
         add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON"
-        add-cmake-option "-DPLUGIN_RIGIDSCALE=ON -DSOFA_FETCH_RIGIDSCALE=ON"
 
         add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
         add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
