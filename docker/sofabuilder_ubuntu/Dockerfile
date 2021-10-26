@@ -22,6 +22,7 @@ RUN apt-get install -y \
     vim \
     wget \
     curl \
+    ca-certificates \
     zip \
     unzip \
     patchelf

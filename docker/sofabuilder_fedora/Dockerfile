@@ -23,6 +23,7 @@ RUN yum install -y -q \
     git \
     wget \
     curl \
+    ca-certificates \
     vim
 
 # Install build tools
