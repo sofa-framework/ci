@@ -20,7 +20,7 @@ dashboard-notify-explicit() {
 
     if [[ "$DASH_NOTIFY" == "true" ]] && [ -n "$DASH_DASHBOARD_URL" ]; then
         if [ ! -e /tmp/cacert.pem ]; then
-            echo "Curl certificate bundle not found. Downloading it from https://curl.haxx.se/ca/cacert.pe"
+            echo "Curl certificate bundle not found. Downloading it from https://curl.haxx.se/ca/cacert.pem"
             curl --silent -L "https://curl.haxx.se/ca/cacert.pem" --output /tmp/cacert.pem
             ls -la /tmp/cacert.pem
         fi
