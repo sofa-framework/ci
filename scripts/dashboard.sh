@@ -19,7 +19,12 @@ dashboard-notify-explicit() {
     fi
 
     if [[ "$DASH_NOTIFY" == "true" ]] && [ -n "$DASH_DASHBOARD_URL" ]; then
-        curl --silent --data "$message" -X POST "$DASH_DASHBOARD_URL"
+        if [ ! -e /tmp/cacert.pem ]; then
+            echo "Curl certificate bundle not found. Downloading it from https://curl.haxx.se/ca/cacert.pe"
+            curl --silent -L "https://curl.haxx.se/ca/cacert.pem" --output /tmp/cacert.pem
+            ls -la /tmp/cacert.pem
+        fi
+        curl --silent --cacert "/tmp/cacert.pem" --data "$message" -X POST "$DASH_DASHBOARD_URL"
         notify="sent - curl returned $?"
     fi
 
