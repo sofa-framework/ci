@@ -27,8 +27,8 @@ RUN mv /tmp/sofa/binaries/SOFA_*/* $SOFA_ROOT \
     && rm -rf /tmp/sofa \
     && chmod +x $SOFA_ROOT/bin/runSofa* \
     && chown -R sofa:sofa $SOFA_ROOT
-ENV PATH="$SOFA_ROOT:$SOFA_ROOT/bin:$PATH"
-RUN apt-get install -y libqt5webenginecore5
+RUN ln -sf $SOFA_ROOT/bin/runSofa /bin/runSofa
+RUN apt-get install -y libopengl0 libqt5webenginecore5
 #RUN apt-get install -y \
 #    libdbus-1-3 libfontconfig1 libfreetype6 \
 #    libgl1-mesa-glx libglib2.0-0 libopengl0 \
