@@ -28,7 +28,11 @@ RUN mv /tmp/sofa/binaries/SOFA_*/* $SOFA_ROOT \
     && chmod +x $SOFA_ROOT/bin/runSofa* \
     && chown -R sofa:sofa $SOFA_ROOT
 ENV PATH="$SOFA_ROOT:$SOFA_ROOT/bin:$PATH"
-# RUN if [[ "${BINARIES_CONFIG}" != "minimal" ]]; then apt-get install -y libqt5webenginecore5; fi
+RUN apt-get install -y libqt5webenginecore5
+#RUN apt-get install -y \
+#    libdbus-1-3 libfontconfig1 libfreetype6 \
+#    libgl1-mesa-glx libglib2.0-0 libopengl0 \
+#    libx11-xcb1 libxrender1
 
 # Init WORKDIR
 WORKDIR "$SOFA_ROOT"
