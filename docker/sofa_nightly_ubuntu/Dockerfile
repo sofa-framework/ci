@@ -4,6 +4,9 @@ SHELL ["/bin/bash", "-c"]
 
 # ADD "https://www.sofa-framework.org/rand/" ForceNoCache
 
+RUN useradd --no-log-init sofa --uid 1000 --home /home/sofa --create-home --shell /bin/bash
+ENV HOME="/home/sofa"
+
 RUN apt-get update && apt-get upgrade -y
 
 # Install tools
@@ -14,18 +17,21 @@ RUN apt-get install -y \
 # Install SOFA binaries
 ARG BINARIES_BRANCH=v20.12
 ARG BINARIES_CONFIG=standard
-ADD https://ci.inria.fr/sofa-ci-dev/job/nightly-generate-binaries/CI_BRANCH=${BINARIES_BRANCH},CI_SCOPE=${BINARIES_CONFIG}/lastSuccessfulBuild/artifact/Linux/*zip*/Linux.zip /tmp
-RUN unzip /tmp/Linux.zip -d /tmp && unzip /tmp/Linux/SOFA_*.zip -d /root
-RUN mv /root/SOFA_* /root/SOFA
-ENV SOFA_ROOT="/root/SOFA"
-ENV PATH="/root/SOFA:$PATH"
-RUN echo -e '#!/bin/bash \n $SOFA_ROOT/bin/runSofa $@' > /usr/bin/runSofa && chmod +x /usr/bin/runSofa
+ENV SOFA_ROOT=/opt/sofa
+RUN mkdir -p "$SOFA_ROOT" "/tmp/sofa/zip" "/tmp/sofa/binaries"
+ADD https://ci.inria.fr/sofa-ci-dev/job/nightly-generate-binaries/CI_BRANCH=${BINARIES_BRANCH},CI_SCOPE=${BINARIES_CONFIG}/lastSuccessfulBuild/artifact/Linux/*zip*/Linux.zip \
+    /tmp/sofa
+RUN unzip /tmp/sofa/Linux.zip -d /tmp/sofa/zip \
+    && unzip /tmp/sofa/zip/Linux/SOFA_*.zip -d /tmp/sofa/binaries
+RUN mv /tmp/sofa/binaries/SOFA_*/* $SOFA_ROOT \
+    && rm -rf /tmp/sofa \
+    && chmod +x $SOFA_ROOT/bin/runSofa* \
+    && chown -R sofa:sofa $SOFA_ROOT
+ENV PATH="$SOFA_ROOT:$SOFA_ROOT/bin:$PATH"
+# RUN if [[ "${BINARIES_CONFIG}" != "minimal" ]]; then apt-get install -y libqt5webenginecore5; fi
 
 # Init WORKDIR
-WORKDIR /root/SOFA
-
-# Set env vars
-ENV HOME="/root"
+WORKDIR "$SOFA_ROOT"
 
 # Cleanup
 RUN apt-get clean -y \
