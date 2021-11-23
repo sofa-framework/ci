@@ -427,7 +427,7 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
         add-cmake-option "-DPLUGIN_SOFACARVING=ON"
         if [[ "$VM_HAS_CUDA" == "true" ]]; then
-            add-cmake-option "-DPLUGIN_SOFACUDA=ON"
+            add-cmake-option "-DSOFA_FETCH_SOFACUDA=ON -DPLUGIN_SOFACUDA=ON"
         else
             add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
         fi
