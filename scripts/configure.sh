@@ -421,7 +421,7 @@ else # This is not a "package" build
             add-cmake-option "-DPLUGIN_MESHSTEPLOADER=OFF"
         fi
         add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
-        add-cmake-option "-DPLUGIN_OPTITRACKNATNET=ON"
+        add-cmake-option "-DSOFA_FETCH_OPTITRACKNATNET=ON -DPLUGIN_OPTITRACKNATNET=ON"
         add-cmake-option "-DSOFA_FETCH_PLUGINEXAMPLE=ON -DPLUGIN_PLUGINEXAMPLE=ON"
         add-cmake-option "-DPLUGIN_REGISTRATION=ON"
         add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
