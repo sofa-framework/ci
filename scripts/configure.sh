@@ -423,7 +423,7 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
         add-cmake-option "-DSOFA_FETCH_OPTITRACKNATNET=ON -DPLUGIN_OPTITRACKNATNET=ON"
         add-cmake-option "-DSOFA_FETCH_PLUGINEXAMPLE=ON -DPLUGIN_PLUGINEXAMPLE=ON"
-        add-cmake-option "-DPLUGIN_REGISTRATION=ON"
+        add-cmake-option "-DSOFA_FETCH_REGISTRATION=ON -DPLUGIN_REGISTRATION=ON"
         add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
         add-cmake-option "-DPLUGIN_SOFACARVING=ON"
         if [[ "$VM_HAS_CUDA" == "true" ]]; then
