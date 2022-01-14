@@ -158,15 +158,20 @@ list-scene-directories() {
         local lib="$(get-lib "$plugin")"
         if [ -n "$lib" ]; then
             echo "Plugin $plugin: built (found $lib)" | log
+            scene_dir_found="false"
             if [ -d "$src_dir/applications/plugins/$plugin/examples" ]; then
                 echo "Plugin $plugin: examples/ directory found." | log
                 mkdir -p "$output_dir/applications/plugins/$plugin/examples"
                 echo "applications/plugins/$plugin/examples"
-            elif [ -d "$src_dir/applications/plugins/$plugin/scenes" ]; then
+                scene_dir_found="true"
+            fi
+            if [ -d "$src_dir/applications/plugins/$plugin/scenes" ]; then
                 echo "Plugin $plugin: scenes/ directory found." | log
                 mkdir -p "$output_dir/applications/plugins/$plugin/scenes"
                 echo "applications/plugins/$plugin/scenes"
-            else
+                scene_dir_found="true"
+            fi
+            if [[ "$scene_dir_found" != "true" ]]; then
                 echo "Plugin $plugin: no examples/ nor scenes/ directories." | log
             fi
         else
