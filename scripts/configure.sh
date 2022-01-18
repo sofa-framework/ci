@@ -433,7 +433,7 @@ else # This is not a "package" build
         fi
         add-cmake-option "-DPLUGIN_SOFAGLFW=ON" "-DAPPLICATION_RUNSOFAGLFW=ON" "-DSOFA_FETCH_SOFAGLFW=ON"
         add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
-        add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON"
+        add-cmake-option "-DSOFA_FETCH_THMPGSPATIALHASHING=ON -DPLUGIN_THMPGSPATIALHASHING=ON"
         add-cmake-option "-DPLUGIN_RIGIDSCALE=OFF -DSOFA_FETCH_RIGIDSCALE=OFF"
 
         add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
