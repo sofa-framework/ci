@@ -413,7 +413,7 @@ else # This is not a "package" build
         add-cmake-option "-DPLUGIN_GEOMAGIC=ON" # possible since PR#2115
         add-cmake-option "-DPLUGIN_IMAGE=ON"
         add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON -DSOFA_FETCH_INVERTIBLEFVM=ON"
-        add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON"
+        add-cmake-option "-DSOFA_FETCH_MANIFOLDTOPOLOGIES=ON -DPLUGIN_MANIFOLDTOPOLOGIES=ON"
         add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
         if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
             add-cmake-option "-DPLUGIN_MESHSTEPLOADER=ON"
