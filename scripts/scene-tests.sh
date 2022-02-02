@@ -339,9 +339,9 @@ ignore-scenes-with-missing-plugins() {
             grep '^[	 ]*<[	 ]*RequiredPlugin' "$src_dir/$scene" > "$output_dir/grep.tmp"
             while read match; do
                 if echo "$match" | grep -q 'pluginName'; then
-                    plugin="$(echo "$match" | sed -e "s/.*pluginName[	 ]*=[	 ]*[\'\"]\([A-Za-z _-]*\)[\'\"].*/\1/g")"
+                    plugin="$(echo "$match" | sed -e "s:.*pluginName[	 ]*=[	 ]*[\'\"]\([^\'\"]*\)[\'\"].*:\1:g")"
                 elif echo "$match" | grep -q 'name'; then
-                    plugin="$(echo "$match" | sed -e "s/.*name[	 ]*=[	 ]*[\'\"]\([A-Za-z _-]*\)[\'\"].*/\1/g")"
+                    plugin="$(echo "$match" | sed -e "s:.*name[	 ]*=[	 ]*[\'\"]\([^\'\"]*\)[\'\"].*:\1:g")"
                 else
                     echo "  Warning: unknown RequiredPlugin found in $scene"
                     break
