@@ -135,7 +135,7 @@ fix-test-report() {
     rm -f "$report_file.bak"
 
     # Protect against invalid XML characters in the CDATA sections
-    if vm-is-macos; then
+    if vm-is-macos && [[ "$(which sed)" != *"gnu-sed"* ]]; then
         sed -i'.bak' $'s:[\x00-\x08]::g ; s:\x0B::g ; s:\x0C::g ; s:[\x0E-\x1F]::g' "$report_file"
     else
         sed -i'.bak'  's:[\x00-\x08]::g ; s:\x0B::g ; s:\x0C::g ; s:[\x0E-\x1F]::g' "$report_file"
