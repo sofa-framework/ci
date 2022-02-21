@@ -137,6 +137,9 @@ else
         fi
         export CCACHE_BASEDIR="$(cd "$BUILD_DIR" && pwd)"
         export CCACHE_MAXSIZE="12G"
+        if [ -n "$VM_CCACHE_MAXSIZE" ]; then
+            export CCACHE_MAXSIZE="$VM_CCACHE_MAXSIZE"
+        fi
         # export PATH="/usr/lib/ccache:$PATH" # /usr/lib/ccache contains symlinks for every compiler
         # export CC="ccache $c_compiler -Qunused-arguments -Wno-deprecated-declarations"
         # export CXX="ccache $cxx_compiler -Qunused-arguments -Wno-deprecated-declarations"
@@ -146,9 +149,16 @@ else
         echo "CCACHE_DIR = $CCACHE_DIR"
         echo "CCACHE_BASEDIR = $CCACHE_BASEDIR"
         echo "CCACHE_MAXSIZE = $CCACHE_MAXSIZE"
-        echo "CC = $CC"
-        echo "CXX = $CXX"
         echo "--------------------------"
+    fi
+fi
+
+# Set CMAKE_OSX_ARCHITECTURES
+if vm-is-macos; then
+    if [[ "$(uname -m)" == "arm64" ]]; then
+        add-cmake-option "-DCMAKE_OSX_ARCHITECTURES=arm64"
+    else
+        add-cmake-option "-DCMAKE_OSX_ARCHITECTURES=x86_64"
     fi
 fi
 
