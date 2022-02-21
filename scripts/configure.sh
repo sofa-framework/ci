@@ -177,7 +177,11 @@ if [[ "$VM_HAS_REQUIRED_LIBS" != "true" ]]; then
     exit 1
 fi
 if [ -d "$VM_QT_PATH" ]; then
-    add-cmake-option "-DCMAKE_PREFIX_PATH=$VM_QT_PATH/${qt_compiler}"
+    if [ -d "$VM_QT_PATH/${qt_compiler}" ]; then
+        add-cmake-option "-DCMAKE_PREFIX_PATH=$VM_QT_PATH/${qt_compiler}"
+    else
+        add-cmake-option "-DCMAKE_PREFIX_PATH=$VM_QT_PATH"
+    fi
 fi
 if vm-is-windows; then # Finding libs on Windows
     if [ -d "$VM_BOOST_PATH" ]; then
