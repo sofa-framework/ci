@@ -20,7 +20,7 @@ export VM_HAS_CUDA="false"
 export VM_HAS_OPENCASCADE="true"
 
 
-export VM_QT_PATH="/Users/ci/Qt/5.12.6"
+export VM_QT_PATH="/opt/homebrew/opt/qt5"
 
 export VM_PYTHON_EXECUTABLE=""
 export VM_PYTHON_PYTHONPATH=""
@@ -32,4 +32,5 @@ export PATH="\
 /opt/homebrew/opt/coreutils/libexec/gnubin:\
 /opt/homebrew/opt/ccache/libexec:\
 /opt/homebrew/bin:/opt/homebrew/lib:\
+/opt/homebrew/opt/qt5/bin:\
 $PATH"
