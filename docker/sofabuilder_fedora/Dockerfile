@@ -94,7 +94,7 @@ RUN cat /tmp/qtinstaller_controlscript_template.qs \
     | sed 's:_QTCOMPILER_:gcc_64:g' \
     > /tmp/qtinstaller_controlscript.qs
 ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
-RUN yum install -y -q libxkbcommon-x11 libwayland-cursor
+RUN yum install -y -q libxkbcommon-x11 libwayland-cursor xcb-util-*
 RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
     && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose \
     && rm -rf $QT_INSTALLDIR/Docs \
