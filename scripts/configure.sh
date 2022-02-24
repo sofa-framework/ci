@@ -297,6 +297,7 @@ add-cmake-option "-DCMAKE_COLOR_MAKEFILE=OFF"
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUI_BUILD_TESTS=OFF"
 add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=OFF"
+add-cmake-option "-DSOFAGUIQT_ENABLE_QDOCBROWSER=OFF"
 add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 
 add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
