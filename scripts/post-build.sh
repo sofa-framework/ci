@@ -98,9 +98,11 @@ dashboard-notify \
     || echo "WARNING: dashboard-notify failed."
 
 # Get build result from Groovy script output (Jenkins)
-BUILD_RESULT="UNKNOWN"
-if [ -e "$BUILD_DIR/build-result" ]; then
-    BUILD_RESULT="$(cat $BUILD_DIR/build-result)"
+if [ -z "$BUILD_RESULT" ]; then
+    BUILD_RESULT="UNKNOWN"
+    if [ -e "$BUILD_DIR/build-result" ]; then
+        BUILD_RESULT="$(cat $BUILD_DIR/build-result)"
+    fi
 fi
 echo "BUILD_RESULT = $BUILD_RESULT"
 
