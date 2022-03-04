@@ -76,9 +76,9 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         done
 
         if [[ "$artifacts_detected" == "true" ]]; then
-            # github-post-pr-comment "$pr_id" "$github_comment_header $github_comment_body"
             echo "GitHub comment:"
             echo "$github_comment_header $github_comment_body"
+            github-post-pr-comment "$pr_id" "$github_comment_header $github_comment_body"
         fi
     fi
 fi
