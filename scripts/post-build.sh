@@ -115,6 +115,15 @@ elif [[ "$BUILD_RESULT" == "ERROR" ]]; then
 elif [[ "$BUILD_RESULT" == "ABORTED" ]]; then
     dashboard-notify "status=cancel"
     github-notify "failure" "Build canceled."
+elif [[ "$BUILD_RESULT" == "SUCCESS" ]]; then
+    if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
+        pr_id="${DASH_COMMIT_BRANCH#*-}"
+        if [ -e "$BUILD_DIR/generate-binaries" ]; then
+            github_comment_header='**[generate-binaries]** detected during [build #'$BUILD_NUMBER']('$BUILD_URL').'
+            github_comment_body='\n\n To unlock the merge button, you must'
+            github-post-pr-comment "$pr_id" "$github_comment_header $github_comment_body"
+        fi
+    fi
 fi
 
 # Jenkins
