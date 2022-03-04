@@ -115,8 +115,17 @@ in-array() {
 get-build-options() {
     # Check env vars for build options (also check args)
     build_options=""
-    if [[ "$1" == "options" ]] || [[ "$CI_PLUGINS" == "options" ]]; then
+    if   [[ "$1" == "options" ]] || [[ "$CI_PLUGINS" == "options" ]] || [[ "$CI_SCOPE" == "options" ]] ||
+         [[ "$1" == "full" ]] || [[ "$CI_PLUGINS" == "full" ]] || [[ "$CI_SCOPE" == "full" ]]; then
         build_options="build-all-plugins $build_options"
+        build_options="build-scope-full $build_options"
+    elif [[ "$1" == "default" ]] || [[ "$CI_PLUGINS" == "default" ]] || [[ "$CI_SCOPE" == "default" ]] ||
+         [[ "$1" == "standard" ]] || [[ "$CI_PLUGINS" == "standard" ]] || [[ "$CI_SCOPE" == "standard" ]] ||
+         [[ "$1" == "std" ]] || [[ "$CI_PLUGINS" == "std" ]] || [[ "$CI_SCOPE" == "std" ]]; then
+        build_options="build-scope-standard $build_options"
+    elif [[ "$1" == "minimal" ]] || [[ "$CI_PLUGINS" == "minimal" ]] || [[ "$CI_SCOPE" == "minimal" ]] ||
+         [[ "$1" == "min" ]] || [[ "$CI_PLUGINS" == "min" ]] || [[ "$CI_SCOPE" == "min" ]]; then
+        build_options="build-scope-minimal $build_options"
     fi
     if [[ "$2" == "true" ]] || [[ "$CI_REPORT_TO_DASHBOARD" == "true" ]]; then
         build_options="report-to-dashboard $build_options"
@@ -136,10 +145,19 @@ get-build-options() {
     if [[ "$7" == "true" ]] || [[ "$CI_RUN_REGRESSION_TESTS" == "true" ]]; then
         build_options="run-regression-tests $build_options"
     fi
-    if [[ "$8" == "true" ]] || [[ "$CI_PLUGINS" == "package" ]]; then
+    if [[ "$8" == "true" ]] || [[ "$CI_PLUGINS" == "package" ]] || [[ "$CI_GENERATE_BINARIES" == "true" ]]; then
         build_options="build-release-package $build_options"
     fi
     echo "$build_options"
+}
+
+get-build-type-cmake() {
+    build_type="$1"
+    if [[ "$build_type" == [Dd][Ee][Bb][Uu][Gg] ]]; then
+        echo "Debug"
+    else
+        echo "Release"
+    fi
 }
 
 get-platform-from-config() {
