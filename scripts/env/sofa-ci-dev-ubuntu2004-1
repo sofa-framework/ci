@@ -14,9 +14,9 @@
 
 export VM_HAS_REQUIRED_LIBS="true"
 
-export VM_MAKE_OPTIONS="-j8"
+export VM_MAKE_OPTIONS="-j7"
 
-export VM_MAX_PARALLEL_TESTS="8"
+export VM_MAX_PARALLEL_TESTS="7"
 
 if [ ! -f /.dockerenv ]; then # not in Docker
     export VM_HAS_BULLET="false"
