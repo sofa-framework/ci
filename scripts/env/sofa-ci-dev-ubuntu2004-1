@@ -1,16 +1,16 @@
 #!/bin/bash
 
-# Display Name	sofa-ci-dev-ubuntu2004-0
-# Name	sofa-ci-dev-ubuntu2004-0
+# Display Name	sofa-ci-dev-ubuntu2004-1
+# Name	sofa-ci-dev-ubuntu2004-1
 # State	Running
 # Template	sed-paris-ubuntu-20.04-lts
 # Dynamically Scalable	No
 # OS Type	Other Ubuntu (64-bit)
-# Attached ISO
+# Attached ISO	
 # Compute offering	Custom
-# # of CPU Cores	8
+# # of CPU Cores	7
 # CPU (in MHz)	2000
-# Memory (in MB)	8192
+# Memory (in MB)	10240
 
 export VM_HAS_REQUIRED_LIBS="true"
 
