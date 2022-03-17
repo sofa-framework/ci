@@ -39,10 +39,13 @@ pathed /MACHINE /APPEND "C:\Program Files\Git\bin"
 choco install -y --no-progress wget --version=1.20.3.20190531
 choco install -y --no-progress ninja --version=1.10.0
 choco install -y --no-progress cmake --version=3.16.2 --installargs 'ADD_CMAKE_TO_PATH=System'
-choco install -y --no-progress python --version=3.7.9
+choco install -y --no-progress python --version=3.8.10
 call refreshenv && echo OK
 python -m pip install --upgrade pip
 python -m pip install numpy scipy
+python -m pip install pybind11
+setx /M pybind11_ROOT C:\Python38\Lib\site-packages\pybind11
+pathed /MACHINE /APPEND "C:\Python38\Lib\site-packages\pybind11"
 
 
 REM Install plugins dependencies

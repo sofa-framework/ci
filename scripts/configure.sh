@@ -271,6 +271,14 @@ if [ -e "$python3_exec" ] && [ -e "$python3_lib" ] && [ -e "$python3_include" ];
     add-cmake-option "-DPython3_LIBRARY=$python3_lib"
     add-cmake-option "-DPython3_INCLUDE_DIR=$python3_include"
 fi
+if [ -n "$VM_PYBIND11_CONFIG_EXECUTABLE" ]; then
+    pybind11_cmakedir="$($VM_PYBIND11_CONFIG_EXECUTABLE --cmakedir)"
+    if vm-is-windows; then
+        pybind11_cmakedir="$(cd "$pybind11_cmakedir" && pwd -W)"
+    fi
+    add-cmake-option "-Dpybind11_ROOT=$pybind11_cmakedir"
+    add-cmake-option "-Dpybind11_DIR=$pybind11_cmakedir"
+fi
 if [ -n "$VM_ASSIMP_PATH" ]; then
     add-cmake-option "-DASSIMP_ROOT_DIR=$VM_ASSIMP_PATH"
 fi

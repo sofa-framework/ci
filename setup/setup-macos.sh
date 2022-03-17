@@ -63,10 +63,15 @@ if [[ "$(python -V)" == *" 2.7"* ]]; then
     sudo python -m pip install "scipy == 1.2.3" "matplotlib == 2.2.5" # "numpy == 1.16.6"
 fi
 # Python 3
-brew install python@3.7
+brew install python@3.8
+brew unlink python@3.10
+brew unlink python@3.9
+brew unlink python@3.8
+brew unlink python@3.7
+brew link --force python@3.8
 python3 -m pip install --upgrade pip
-python3 -m pip install numpy scipy pygame
-brew install pybind11
+python3 -m pip install numpy scipy pygame pybind11
+
 brew install assimp
 brew install cgal
 brew install opencascade
