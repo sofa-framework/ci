@@ -31,6 +31,8 @@ rm -rf "$output_dir/*"
 
 github-export-vars "$build_options"
 dashboard-export-vars "$build_options"
+save-env-vars "GITHUB" "$output_dir"
+save-env-vars "DASH" "$output_dir"
 
 echo "$GITHUB_COMMIT_HASH" > "$output_dir/GITHUB_COMMIT_HASH.txt"
 echo "$GITHUB_BASECOMMIT_HASH" > "$output_dir/GITHUB_BASECOMMIT_HASH.txt"
@@ -186,12 +188,17 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
             github-notify "failure" "Missing."
         fi
     fi
+    export GITHUB_CONTEXT="$GITHUB_CONTEXT_RESET" # reset
+
+    if [[ "$pr_latest_build_comment" == *"[generate-binaries]"* ]]; then
+        echo "[generate-binaries] detected: CI_GENERATE_BINARIES will be enabled."
+        echo "true" > "$output_dir/generate-binaries" # will be searched by Groovy script on launcher to set CI_GENERATE_BINARIES
+    fi
 
     if [[ "$pr_latest_build_comment" == *"[force-full-build]"* ]]; then
         echo "Full build: forced."
         echo "true" > "$output_dir/force-full-build" # will be searched by Groovy script on launcher to set CI_FORCE_FULL_BUILD
     fi
-    export GITHUB_CONTEXT="$GITHUB_CONTEXT_RESET" # reset
 
 elif [[ "$DASH_COMMIT_BRANCH" == "origin/master" ]]; then
 

@@ -24,8 +24,9 @@ export VM_QT_PATH="/opt/homebrew/opt/qt5"
 
 export VM_PYTHON_EXECUTABLE=""
 export VM_PYTHON_PYTHONPATH=""
-export VM_PYTHON3_EXECUTABLE="/opt/homebrew/bin/python3.9"
-export VM_PYTHON3_PYTHONPATH="/opt/homebrew/lib/python3.9/site-packages"
+export VM_PYTHON3_EXECUTABLE="/opt/homebrew/bin/python3.8"
+export VM_PYTHON3_PYTHONPATH="/opt/homebrew/lib/python3.8/site-packages"
+export VM_PYBIND11_CONFIG_EXECUTABLE="pybind11-config-3.8"
 
 export PATH="\
 /opt/homebrew/opt/gnu-sed/libexec/gnubin:\

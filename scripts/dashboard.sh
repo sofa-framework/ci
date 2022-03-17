@@ -43,10 +43,11 @@ dashboard-config-string() {
     local build_options="$5"
 
     # suffix = [default, options, default-debug, options-debug]
-    if in-array "build-all-plugins" "$build_options"; then
+    if in-array "build-all-plugins" "$build_options" ||
+       in-array "build-scope-full" "$build_options"; then
         suffix="options"
-    elif in-array "build-release-package" "$build_options"; then
-        suffix="package"
+    elif in-array "build-scope-minimal" "$build_options"; then
+        suffix="minimal"
     else
         suffix="default"
     fi
