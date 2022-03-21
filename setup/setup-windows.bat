@@ -43,7 +43,7 @@ choco install -y --no-progress python --version=3.8.10
 call refreshenv && echo OK
 python -m pip install --upgrade pip
 python -m pip install numpy scipy
-python -m pip install pybind11
+python -m pip install pybind11==2.6.2
 setx /M pybind11_ROOT C:\Python38\Lib\site-packages\pybind11
 pathed /MACHINE /APPEND "C:\Python38\Lib\site-packages\pybind11"
 
