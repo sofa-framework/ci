@@ -110,7 +110,8 @@ set QT_MINOR=12
 set QT_PATCH=6
 python -m pip install aqtinstall
 python -m aqt install-qt   --outputdir C:\Qt windows desktop %QT_MAJOR%.%QT_MINOR%.%QT_PATCH% win64_msvc2017_64 -m qtcharts qtwebengine
-python -m aqt install-tool --outputdir C:\Qt windows desktop tools_ifw
+python -m aqt install-tool --outputdir C:\Qt windows desktop tools_ifw qt.tools.ifw.43
+setx /M QTIFWDIR C:\Qt\Tools\QtInstallerFramework\4.3
 :qt_end
 
 

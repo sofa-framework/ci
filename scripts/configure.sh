@@ -438,7 +438,7 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
     if [[ "$BUILD_TYPE_CMAKE" == "Release" ]]; then
         add-cmake-option "-DCMAKE_BUILD_TYPE=MinSizeRel"
     fi
-    if [ -d "$VM_QT_PATH/Tools/QtInstallerFramework" ]; then
+    if [ -z "$QTIFWDIR"] && [ -d "$VM_QT_PATH/Tools/QtInstallerFramework" ]; then
         for dir in "$VM_QT_PATH/Tools/QtInstallerFramework/"*; do
             if [ -d "$dir" ]; then
                 export QTIFWDIR="$dir" # used for packaging on Linux

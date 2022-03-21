@@ -39,10 +39,10 @@ if [[ "$(python -V)" == *" 2.7"* ]]; then
 fi
 # Python 3
 brew install python@3.8
-brew unlink python@3.10
-brew unlink python@3.9
-brew unlink python@3.8
-brew unlink python@3.7
+brew unlink python@3.10 || true
+brew unlink python@3.9  || true
+brew unlink python@3.8  || true
+brew unlink python@3.7  || true
 brew link --force python@3.8
 python3 -m pip install --upgrade pip
 python3 -m pip install numpy scipy pygame
@@ -64,7 +64,7 @@ if [ -d "$QT_INSTALLDIR" ]; then
 else
     python3 -m pip install aqtinstall
     python3 -m aqt install-qt   --outputdir $QT_INSTALLDIR mac desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH clang_64 -m qtcharts qtwebengine
-    python3 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw
+    python3 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw qt.tools.ifw.43
 fi
 
 echo "--------------------------------------------"
@@ -84,6 +84,7 @@ export PYTHONUSERBASE="/tmp/pythonuserbase"
 mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 # Qt env vars
 export QTDIR="'$QT_INSTALLDIR'/'$QT_MAJOR'.'$QT_MINOR'.'$QT_PATCH'/clang_64"
+export QTIFWDIR="'$QT_INSTALLDIR'/Tools/QtInstallerFramework/4.3"
 export LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 # Add direct access to system utils in PATH
 export PATH="\
@@ -92,6 +93,7 @@ export PATH="\
 /usr/local/opt/ccache/libexec:\
 /usr/local/bin:/usr/local/lib:\
 $QTDIR/bin:\
+$QTIFWDIR/bin:\
 $PATH"
 ' | sudo tee -a ~/.bash_profile
 

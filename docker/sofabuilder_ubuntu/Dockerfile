@@ -87,16 +87,12 @@ ARG QT_MINOR=12
 ARG QT_PATCH=6
 ARG QT_INSTALLDIR="/opt/Qt"
 RUN python3 -m pip install aqtinstall \
-    && python3 -m aqt install-qt   --outputdir $QT_INSTALLDIR linux desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH gcc_64 -m qtcharts qtwebengine
-    # && python3 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw
+    && python3 -m aqt install-qt   --outputdir $QT_INSTALLDIR linux desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH gcc_64 -m qtcharts qtwebengine \
+    && python3 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw qt.tools.ifw.43
 ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
-ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
+ENV QTIFWDIR="$QT_INSTALLDIR/Tools/QtInstallerFramework/4.3"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-# Install QtInstallerFramework
-ADD https://www.sofa-framework.org/wp-content/uploads/2020/06/QtInstallerFramework_3.0_Linux.zip /tmp
-RUN unzip /tmp/QtInstallerFramework_3.0_Linux.zip -d /builds && chmod -R a+x /builds/Qt
-ENV QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
-ENV PATH="${QTIFWDIR}/bin:${PATH}"
+ENV PATH="$QTDIR/bin:$QTIFWDIR/bin${PATH:+:${PATH}}"
 
 # Install Boost
 # ARG BOOST_MAJOR=1
