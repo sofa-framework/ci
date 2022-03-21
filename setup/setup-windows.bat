@@ -108,20 +108,9 @@ echo Installing Qt...
 set QT_MAJOR=5
 set QT_MINOR=12
 set QT_PATCH=6
-REM setx /M QTDIR "C:\Qt\%QT_MAJOR%.%QT_MINOR%.%QT_PATCH%\msvc2017_64"
-REM setx /M QTDIR64 %QTDIR%
-REM setx /M Qt5_DIR %QTDIR%
-if not exist "%APPDATA%\Qt\" mkdir %APPDATA%\Qt
-copy /Y "%SCRIPTDIR%\qt\qtaccount.ini" "%APPDATA%\Qt\qtaccount.ini"
-powershell -Command "(gc %SCRIPTDIR%\qt\qtinstaller_controlscript_template.qs) "^
-    "-replace '_QTVERSION_', %QT_MAJOR%%QT_MINOR%%QT_PATCH% "^
-    "-replace '_QTCOMPILER_', 'win64_msvc2017_64' "^
-    "-replace '_QTINSTALLDIR_', 'C:\\Qt' "^
-    "| Out-File -encoding ASCII %WORKDIR%\qtinstaller_controlscript.qs"
-powershell -Command "Invoke-WebRequest "^
-    "https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe "^
-    "-OutFile %WORKDIR%\qtinstaller.exe"
-%WORKDIR%\qtinstaller.exe --script %WORKDIR%\qtinstaller_controlscript.qs --verbose
+python -m pip install aqtinstall
+python -m aqt install-qt   --outputdir C:\Qt windows desktop %QT_MAJOR%.%QT_MINOR%.%QT_PATCH% win64_msvc2017_64 -m qtcharts qtwebengine
+python -m aqt install-tool --outputdir C:\Qt windows desktop tools_ifw
 :qt_end
 
 

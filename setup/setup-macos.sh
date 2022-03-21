@@ -26,32 +26,7 @@ echo "---- Install SOFA dependencies"
 brew install boost eigen libpng libjpeg libtiff glew
 
 echo "--------------------------------------------"
-echo "---- Install Qt with installer"
-QT_MAJOR=5
-QT_MINOR=12
-QT_PATCH=6
-QT_COMPILER="clang_64"
-QT_ACCOUNT_DIR="$HOME/Library/Application Support/Qt"
-QT_INSTALL_DIR="$HOME/Qt"
-if [ -d "$QT_INSTALL_DIR" ]; then
-    echo "Qt install dir already exists: $QT_INSTALL_DIR"
-    ls -la "$QT_INSTALL_DIR"
-else
-    mkdir -p "$QT_ACCOUNT_DIR"
-    cp -f "$SCRIPT_DIR/qt/qtaccount.ini" "$QT_ACCOUNT_DIR/qtaccount.ini"
-    cat "$SCRIPT_DIR/qt/qtinstaller_controlscript_template.qs" \
-        | sed 's:_QTVERSION_:'"$QT_MAJOR$QT_MINOR$QT_PATCH"':g' \
-        | sed 's:_QTINSTALLDIR_:'"$QT_INSTALL_DIR"':g' \
-        | sed 's:_QTCOMPILER_:'"$QT_COMPILER"':g' \
-        > /tmp/qtinstaller_controlscript.qs
-    curl -L https://download.qt.io/official_releases/online_installers/qt-unified-mac-x64-online.dmg --output /tmp/qt-unified-mac-x64-online.dmg
-    hdiutil attach /tmp/qt-unified-mac-x64-online.dmg
-    /Volumes/qt-unified-macOS-*/qt-unified-macOS-*/Contents/MacOS/qt-unified-macOS-* --script /tmp/qtinstaller_controlscript.qs --verbose
-    hdiutil unmount /Volumes/qt-unified-macOS-*
-fi
-
-echo "--------------------------------------------"
-echo "---- Install plugins dependencies"
+echo "---- Install Python, numpy, scipy, pybind11"
 # Python 2
 # brew install python@2.7
 if [[ "$(python -V)" == *" 2.7"* ]]; then
@@ -71,8 +46,29 @@ brew unlink python@3.7
 brew link --force python@3.8
 python3 -m pip install --upgrade pip
 python3 -m pip install numpy scipy pygame
-
 brew install pybind11
+
+echo "--------------------------------------------"
+echo "---- Install Qt with online installer"
+# Minimal Qt online version compatible with arm64: 6.2.0
+# see 6.1.3: https://download.qt.io/online/qtsdkrepository/mac_x64/desktop/qt6_613/Updates.xml
+#  vs 6.2.0: https://download.qt.io/online/qtsdkrepository/mac_x64/desktop/qt6_620/Updates.xml
+QT_MAJOR=5
+QT_MINOR=12
+QT_PATCH=6
+QT_COMPILER="clang_64"
+QT_INSTALLDIR="$HOME/Qt"
+if [ -d "$QT_INSTALLDIR" ]; then
+    echo "Qt install dir already exists: $QT_INSTALLDIR"
+    ls -la "$QT_INSTALLDIR"
+else
+    python3 -m pip install aqtinstall
+    python3 -m aqt install-qt   --outputdir $QT_INSTALLDIR mac desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH clang_64 -m qtcharts qtwebengine
+    python3 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw
+fi
+
+echo "--------------------------------------------"
+echo "---- Install plugins dependencies"
 brew install assimp
 brew install cgal
 brew install opencascade
