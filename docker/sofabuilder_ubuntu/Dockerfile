@@ -86,17 +86,13 @@ ARG QT_MAJOR=5
 ARG QT_MINOR=12
 ARG QT_PATCH=6
 ARG QT_INSTALLDIR="/opt/Qt"
-RUN python3 -m pip install aqtinstall \
-    && python3 -m aqt install-qt   --outputdir $QT_INSTALLDIR linux desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH gcc_64 -m qtcharts qtwebengine
-    # && python3 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw
+RUN python3.8 -m pip install aqtinstall \
+    && python3.8 -m aqt install-qt   --outputdir $QT_INSTALLDIR linux desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH gcc_64 -m qtcharts qtwebengine \
+    && python3.8 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw qt.tools.ifw.43
 ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
-ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
+ENV QTIFWDIR="$QT_INSTALLDIR/Tools/QtInstallerFramework/4.3"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-# Install QtInstallerFramework
-ADD https://www.sofa-framework.org/wp-content/uploads/2020/06/QtInstallerFramework_3.0_Linux.zip /tmp
-RUN unzip /tmp/QtInstallerFramework_3.0_Linux.zip -d /builds && chmod -R a+x /builds/Qt
-ENV QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
-ENV PATH="${QTIFWDIR}/bin:${PATH}"
+ENV PATH="$QTDIR/bin:$QTIFWDIR/bin${PATH:+:${PATH}}"
 
 # Install Boost
 # ARG BOOST_MAJOR=1
@@ -133,7 +129,7 @@ ARG PYBIND_MINOR=4
 ARG PYBIND_PATCH=2
 RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR.$PYBIND_PATCH --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
 && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
-&& cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3)" -DPYBIND11_TEST=OFF ../src \
+&& cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3.8)" -DPYBIND11_TEST=OFF ../src \
 && make --silent install
 
 # Install NodeEditor (needed by SofaQtQuick)
