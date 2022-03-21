@@ -60,7 +60,7 @@ RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.8 /tmp/get-pip3.py \
     && python3.8 -m pip install --upgrade pip \
     && python3.8 -m pip install numpy scipy pygame \
-    && python3.8 -m pip install pybind11
+    && python3.8 -m pip install pybind11==2.6.2
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
