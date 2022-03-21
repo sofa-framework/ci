@@ -86,21 +86,9 @@ ARG QT_MAJOR=5
 ARG QT_MINOR=12
 ARG QT_PATCH=6
 ARG QT_INSTALLDIR="/opt/Qt"
-RUN mkdir -p /home/ci/.local/share/Qt
-ADD https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtaccount.ini /home/ci/.local/share/Qt/qtaccount.ini
-ADD https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtinstaller_controlscript_template.qs /tmp/qtinstaller_controlscript_template.qs
-RUN cat /tmp/qtinstaller_controlscript_template.qs \
-    | sed 's:_QTVERSION_:'"$QT_MAJOR$QT_MINOR$QT_PATCH"':g' \
-    | sed 's:_QTINSTALLDIR_:'"$QT_INSTALLDIR"':g' \
-    | sed 's:_QTCOMPILER_:gcc_64:g' \
-    > /tmp/qtinstaller_controlscript.qs
-ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
-RUN apt-get install -y libxkbcommon-x11-0 libwayland-cursor0 libxcb-*
-RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
-    && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose \
-    && rm -rf $QT_INSTALLDIR/Docs \
-    && rm -rf $QT_INSTALLDIR/Examples \
-    && rm -rf $QT_INSTALLDIR/Tools
+RUN python3 -m pip install aqtinstall \
+    && python3 -m aqt install-qt   --outputdir $QT_INSTALLDIR linux desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH gcc_64 -m qtcharts qtwebengine
+    # && python3 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw
 ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
 ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
