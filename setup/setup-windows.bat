@@ -43,9 +43,6 @@ choco install -y --no-progress python --version=3.8.10
 call refreshenv && echo OK
 python -m pip install --upgrade pip
 python -m pip install numpy scipy
-python -m pip install pybind11==2.6.2
-setx /M pybind11_ROOT C:\Python38\Lib\site-packages\pybind11
-pathed /MACHINE /APPEND "C:\Python38\Lib\site-packages\pybind11"
 
 
 REM Install plugins dependencies
@@ -211,7 +208,7 @@ if DEFINED MINIMAL_INSTALL goto :pybind11_end
 if exist C:\pybind11 goto :pybind11_end
 echo Installing pybind11...
 set PYBIND11_MAJOR=2
-set PYBIND11_MINOR=6
+set PYBIND11_MINOR=4
 set PYBIND11_PATCH=2
 set PYBIND11_ROOT=C:\pybind11\%PYBIND11_MAJOR%.%PYBIND11_MINOR%.%PYBIND11_PATCH%
 powershell -Command "Invoke-WebRequest "^
