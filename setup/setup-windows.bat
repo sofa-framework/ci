@@ -206,6 +206,28 @@ pathed /MACHINE /APPEND "C:\OpenCascade\opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC
 :occ_end
 
 
+REM Install pybind11
+if DEFINED MINIMAL_INSTALL goto :pybind11_end
+if exist C:\pybind11 goto :pybind11_end
+echo Installing pybind11...
+set PYBIND11_MAJOR=2
+set PYBIND11_MINOR=6
+set PYBIND11_PATCH=2
+set PYBIND11_ROOT=C:\pybind11\%PYBIND11_MAJOR%.%PYBIND11_MINOR%.%PYBIND11_PATCH%
+powershell -Command "Invoke-WebRequest "^
+    "https://github.com/pybind/pybind11/archive/refs/tags/v%PYBIND11_MAJOR%.%PYBIND11_MINOR%.%PYBIND11_PATCH%.zip "^
+    "-OutFile %WORKDIR%\pybind11.zip"
+powershell Expand-Archive %WORKDIR%\pybind11.zip -DestinationPath %PYBIND11_ROOT%
+move %PYBIND11_ROOT%\pybind11-%PYBIND11_MAJOR%.%PYBIND11_MINOR%.%PYBIND11_PATCH% %PYBIND11_ROOT%\src
+mkdir %PYBIND11_ROOT%\build && cd %PYBIND11_ROOT%\build
+%VS150COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PYBIND11_ROOT%\install -DPYBIND11_TEST=OFF ..\src ^
+    && ninja install
+pathed /MACHINE /APPEND "%PYBIND11_ROOT%\install"
+setx /M pybind11_ROOT %PYBIND11_ROOT%\install
+:pybind11_end
+
+
 REM Install ZeroMQ
 if DEFINED MINIMAL_INSTALL goto :zmq_end
 if exist C:\zeromq goto :zmq_end

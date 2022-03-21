@@ -71,8 +71,8 @@ brew unlink python@3.7
 brew link --force python@3.8
 python3 -m pip install --upgrade pip
 python3 -m pip install numpy scipy pygame
-python3 -m pip install pybind11==2.6.2
 
+brew install pybind11
 brew install assimp
 brew install cgal
 brew install opencascade
