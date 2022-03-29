@@ -19,7 +19,7 @@ doxyfile="$(realpath "$1")"; shift
 # $@ now contains only the modifiers
 
 # Normalize Windows paths: /c/windows/path -> c:/windows/path
-script_dir="$(echo $script_dir | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')" 
+script_dir="$(echo $script_dir | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')"
 sofa_dir="$(echo $sofa_dir | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')"
 output_dir="$(echo $output_dir | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')"
 doxyfile="$(echo $doxyfile | sed -e 's/\/\([a-zA-Z]\)\//\1:\//g')"
@@ -68,7 +68,10 @@ echo "
 " > $output_dir/plugins.dox
 # tagfiles=""
 for plugin_dir in $sofa_dir/applications/plugins/*; do
-    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
+    if [ -d "$plugin_dir" ] && [ -e "$plugin_dir/CMakeLists.txt" ] &&
+       [[ "$plugin_dir" != *"DEPRECATED"* ]] &&
+       [[ "$plugin_dir" != *"PluginExample"* ]] &&
+       [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
         plugin="${plugin_dir##*/}"
         # if [ -d "${output_dir}/doc/plugins/${tag_name}/html" ]; then
             # tagfiles="$(printf "$tagfiles \\ \n${output_dir}/tags/plugins/${plugin}.tag=../../plugins/${plugin}/html")"
@@ -83,7 +86,7 @@ echo "
 
 # Generate SOFA doc
 $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
-    "INPUT=${output_dir}/plugins.dox ${script_dir}/mainpage.dox ${sofa_dir}/modules ${sofa_dir}/SofaKernel" \
+    "INPUT=${output_dir}/plugins.dox ${script_dir}/mainpage.dox ${sofa_dir}/Component ${sofa_dir}/modules ${sofa_dir}/SofaKernel/modules" \
     "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" \
     "PROJECT_NAME=\"SOFA API\"" \
     "HTML_HEADER=${script_dir}/custom_header.html" \
@@ -95,7 +98,10 @@ echo "SOFA doc generated."
 echo "Generating plugins doc..."
 for plugin_dir in $sofa_dir/applications/plugins/*; do
     # generate all plugin tags in parallel
-    if [ -d "$plugin_dir" ] && [[ "$plugin_dir" != *"DEPRECATED"* ]] && [[ "$plugin_dir" != *"PluginExample"* ]] && [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
+    if [ -d "$plugin_dir" ] && [ -e "$plugin_dir/CMakeLists.txt" ] &&
+       [[ "$plugin_dir" != *"DEPRECATED"* ]] &&
+       [[ "$plugin_dir" != *"PluginExample"* ]] &&
+       [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
         plugin="${plugin_dir##*/}"
         generate_plugin_doc "$plugin" "$@" &
     fi
