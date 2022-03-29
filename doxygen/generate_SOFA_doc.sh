@@ -92,7 +92,8 @@ $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
     "HTML_HEADER=${script_dir}/custom_header.html" \
     "HTML_EXTRA_STYLESHEET=${script_dir}/custom_style.css" \
     "LAYOUT_FILE=${script_dir}/custom_layout.xml" \
-    "GENERATE_TAGFILE=${output_dir}/tags/SOFA.tag"
+    "GENERATE_TAGFILE=${output_dir}/tags/SOFA.tag" \
+    > "${output_dir}/logs/sofa.txt" 2>&1
 echo "SOFA doc generated."
 
 echo "Generating plugins doc..."
