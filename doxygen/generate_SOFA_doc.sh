@@ -43,7 +43,6 @@ generate_plugin_doc() {
 
     doxyfile_copy="${output_dir}/${doxyfile_name}_${plugin}.dox"
     cp "$doxyfile" "$doxyfile_copy"
-    echo "Executing doxygen on $plugin"
     local tagfiles="$(printf " \\ \n${output_dir}/tags/SOFA.tag=../../../sofa/html")"
     $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
         "INPUT=${sofa_dir}/applications/plugins/${plugin}" \
