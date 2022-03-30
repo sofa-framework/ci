@@ -103,8 +103,7 @@ for plugin_dir in $sofa_dir/applications/plugins/*; do
        [[ "$plugin_dir" != *"PluginExample"* ]] &&
        [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
         plugin="${plugin_dir##*/}"
-        echo "  - $plugin"
-        generate_plugin_doc "$plugin" "$@" &
+        generate_plugin_doc "$plugin" "$@" && echo "  - $plugin doc generated." &
     fi
 done
 wait
