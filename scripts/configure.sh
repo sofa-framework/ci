@@ -313,7 +313,7 @@ fi
 add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
 add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
-add-cmake-option "-DSOFAGUIQT_ENABLE_QDOCBROWSER=OFF"
+add-cmake-option "-DSOFAGUIQT_ENABLE_QDOCBROWSER=ON"
 add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=OFF"
 
 # Build regression tests?
