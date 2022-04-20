@@ -422,18 +422,12 @@ do-test-all-scenes() {
         # Try to guess if a python scene needs SofaPython or SofaPython3
         export PYTHONPATH=""
         if [[ "$scene" == *".py" ]] || [[ "$scene" == *".pyscn" ]]; then
-            pythonPlugin="SofaPython"
-            if [[ "$scene" == *"/SofaPython3/"* ]] ||
-                grep -q -i "python3" "$src_dir/$scene"; then
-                    pythonPlugin="SofaPython3"
-            elif [[ "$scene" == *"/SofaPython/"* ]]      ||
+            pythonPlugin="SofaPython3"
+            if [[ "$scene" == *"/SofaPython/"* ]]        ||
                 grep -q 'createChild' "$src_dir/$scene"  ||
                 grep -q 'createObject' "$src_dir/$scene" ||
                 grep -q 'print "' "$src_dir/$scene"; then
                     pythonPlugin="SofaPython"
-            else
-                # TODO: change to SofaPython3
-                pythonPlugin="SofaPython"
             fi
             options="$options -l $pythonPlugin"
 
