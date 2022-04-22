@@ -430,7 +430,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
     add-cmake-option "-DPLUGIN_SOFASPHFLUID=ON"
     add-cmake-option "-DPLUGIN_COLLISIONOBBCAPSULE=ON"
-    add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=ON -DSOFA_FETCH_THMPGSPATIALHASHING=ON"
+    add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=OFF -DSOFA_FETCH_THMPGSPATIALHASHING=ON"
 fi
 
 # Generate binaries?
