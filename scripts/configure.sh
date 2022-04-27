@@ -382,6 +382,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
         add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=ON"
     fi
     # Plugins
+    add-cmake-option "-DPLUGIN_BEAMADAPTER=ON -DSOFA_FETCH_BEAMADAPTER=ON"
     if [[ "$VM_HAS_BULLET" == "true" ]]; then
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
