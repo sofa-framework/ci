@@ -190,14 +190,17 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     fi
     export GITHUB_CONTEXT="$GITHUB_CONTEXT_RESET" # reset
 
-    if [[ "$pr_latest_build_comment" == *"[generate-binaries]"* ]]; then
-        echo "[generate-binaries] detected: CI_GENERATE_BINARIES will be enabled."
-        echo "true" > "$output_dir/generate-binaries" # will be searched by Groovy script on launcher to set CI_GENERATE_BINARIES
-    fi
+    # If build was triggered by GitHub comment
+    if [[ "$BUILD_CAUSE" == *"GITHUBPULLREQUESTCOMMENTCAUSE"* ]]; then
+        if [[ "$pr_latest_build_comment" == *"[generate-binaries]"* ]]; then
+            echo "[generate-binaries] detected: CI_GENERATE_BINARIES will be enabled."
+            echo "true" > "$output_dir/generate-binaries" # will be searched by Groovy script on launcher to set CI_GENERATE_BINARIES
+        fi
 
-    if [[ "$pr_latest_build_comment" == *"[force-full-build]"* ]]; then
-        echo "Full build: forced."
-        echo "true" > "$output_dir/force-full-build" # will be searched by Groovy script on launcher to set CI_FORCE_FULL_BUILD
+        if [[ "$pr_latest_build_comment" == *"[force-full-build]"* ]]; then
+            echo "Full build: forced."
+            echo "true" > "$output_dir/force-full-build" # will be searched by Groovy script on launcher to set CI_FORCE_FULL_BUILD
+        fi
     fi
 
 elif [[ "$DASH_COMMIT_BRANCH" == "origin/master" ]]; then
