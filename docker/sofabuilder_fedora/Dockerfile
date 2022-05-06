@@ -68,8 +68,8 @@ ENV VM_HAS_OPENCASCADE="true"
 
 # Install CMake
 ARG CMAKE_MAJOR=3
-ARG CMAKE_MINOR=12
-ARG CMAKE_PATCH=0
+ARG CMAKE_MINOR=16
+ARG CMAKE_PATCH=3
 ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH/cmake-$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH-Linux-x86_64.sh /tmp/cmake.sh
 RUN chmod a+x /tmp/cmake.sh
 RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
