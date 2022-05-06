@@ -120,7 +120,7 @@ ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 # Install CUDA
 RUN apt-get install -y nvidia-cuda-toolkit
 ENV VM_HAS_CUDA="true"
-ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
+ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-8"
 ENV VM_CUDA_ARCH="sm_50"
 
 # Install pybind11 (needed by SofaPython3)

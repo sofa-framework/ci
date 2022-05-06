@@ -6,7 +6,7 @@
 # Template	sed-paris-ubuntu-20.04-lts
 # Dynamically Scalable	No
 # OS Type	Other Ubuntu (64-bit)
-# Attached ISO	
+# Attached ISO
 # Compute offering	Custom
 # # of CPU Cores	7
 # CPU (in MHz)	2000
@@ -17,6 +17,8 @@ export VM_HAS_REQUIRED_LIBS="true"
 export VM_MAKE_OPTIONS="-j7"
 
 export VM_MAX_PARALLEL_TESTS="7"
+
+export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-8"
 
 if [ ! -f /.dockerenv ]; then # not in Docker
     export VM_HAS_BULLET="false"
