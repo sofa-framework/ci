@@ -84,7 +84,7 @@ RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 # Install Qt
 ARG QT_MAJOR=5
 ARG QT_MINOR=12
-ARG QT_PATCH=6
+ARG QT_PATCH=8
 ARG QT_INSTALLDIR="/opt/Qt"
 RUN python3.8 -m pip install aqtinstall \
     && python3.8 -m aqt install-qt   --outputdir $QT_INSTALLDIR linux desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH gcc_64 -m qtcharts qtwebengine \
@@ -106,9 +106,9 @@ ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
-ARG CGAL_MAJOR=4
-ARG CGAL_MINOR=14
-ARG CGAL_PATCH=3
+ARG CGAL_MAJOR=5
+ARG CGAL_MINOR=0
+ARG CGAL_PATCH=2
 ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH.tar.xz /tmp/CGAL.tar.xz
 RUN yum install -y -q gmp-devel mpfr-devel
 RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
