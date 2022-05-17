@@ -39,6 +39,11 @@ mkdir -p "${output_dir}/doc/plugins"
 mkdir -p "${output_dir}/doc/sofa"
 rm -f $output_dir/plugins_list*
 
+# forward stop signals to child processes
+# trap "kill -TERM ${pids[*]}" SIGINT SIGTERM EXIT
+#trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+
+
 generate_plugin_doc() {
     plugin="$1"; shift
     # $@ now contains only the modifiers
@@ -57,6 +62,32 @@ generate_plugin_doc() {
         > "${output_dir}/logs/plugins/${plugin}.txt" 2>&1
     echo "  - $plugin doc generated."
 }
+
+
+echo "------------------------------"
+echo "Listing plugins ..."
+for plugin_dir in $sofa_dir/applications/plugins/*; do
+    # generate all plugin tags in parallel
+    if [ -d "$plugin_dir" ] && [ -e "$plugin_dir/CMakeLists.txt" ] &&
+       [[ "$plugin_dir" != *"DEPRECATED"* ]] &&
+       [[ "$plugin_dir" != *"PluginExample"* ]] &&
+       [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
+        echo "$plugin_dir" >> $output_dir/plugins_list.txt
+    fi
+done
+if [ -e "$(command -v shuf)" ]; then
+    echo "$(shuf $output_dir/plugins_list.txt)" > "$output_dir/plugins_list.txt"
+fi
+total_lines="$(cat "$output_dir/plugins_list.txt" | wc -l)"
+lines_per_thread=$(( total_lines / VM_MAX_PARALLEL_THREADS + 1 ))
+split -l $lines_per_thread "$output_dir/plugins_list.txt" "$output_dir/plugins_list_part-"
+for plugins_list in $output_dir/plugins_list_part-*; do
+    echo "------"
+    echo "Plugins in $plugins_list:"
+    cat $plugins_list
+    echo "------"
+done
+echo "Plugins listed."
 
 
 echo "------------------------------"
@@ -95,35 +126,6 @@ $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
     > "${output_dir}/logs/sofa.txt" 2>&1
 echo "SOFA doc generated."
 
-
-echo "------------------------------"
-echo "Listing plugins ..."
-for plugin_dir in $sofa_dir/applications/plugins/*; do
-    # generate all plugin tags in parallel
-    if [ -d "$plugin_dir" ] && [ -e "$plugin_dir/CMakeLists.txt" ] &&
-       [[ "$plugin_dir" != *"DEPRECATED"* ]] &&
-       [[ "$plugin_dir" != *"PluginExample"* ]] &&
-       [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
-        echo "$plugin_dir" >> $output_dir/plugins_list.txt
-    fi
-done
-if [ -e "$(command -v shuf)" ]; then
-    echo "$(shuf $output_dir/plugins_list.txt)" > "$output_dir/plugins_list.txt"
-fi
-local total_lines="$(cat "$output_dir/plugins_list.txt" | wc -l)"
-local lines_per_thread=$(( total_lines / VM_MAX_PARALLEL_THREADS + 1 ))
-split -l $lines_per_thread "$output_dir/plugins_list.txt" "$output_dir/plugins_list_part-"
-for plugins_list in $output_dir/plugins_list_part-*; do
-    echo "------"
-    echo "Plugins in $plugins_list:"
-    cat $plugins_list
-    echo "------"
-done
-echo "Plugins listed."
-
-# forward stop signals to child processes
-# trap "kill -TERM ${pids[*]}" SIGINT SIGTERM EXIT
-trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
 
 echo "------------------------------"
 echo "Generating plugins doc ..."
