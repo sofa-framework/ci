@@ -82,7 +82,6 @@ total_lines="$(cat "$output_dir/plugins_list.txt" | wc -l)"
 lines_per_thread=$(( total_lines / VM_MAX_PARALLEL_THREADS + 1 ))
 split -l $lines_per_thread "$output_dir/plugins_list.txt" "$output_dir/plugins_list_part-"
 for plugins_list in $output_dir/plugins_list_part-*; do
-    echo "------"
     echo "Plugins in $plugins_list:"
     cat $plugins_list
     echo "------"
@@ -109,6 +108,7 @@ done < "$output_dir/plugins_list.txt"
 echo "
     </ul>
 */" >> $output_dir/plugins.dox
+echo "Done."
 
 
 echo "------------------------------"
@@ -129,11 +129,17 @@ echo "SOFA doc generated."
 
 echo "------------------------------"
 echo "Generating plugins doc ..."
-for plugins_list in "$output_dir/plugins_list_part-"*; do
+generate_plugin_doc_from_list() {
+    plugins_list="$1"
+    echo "Start of list: $plugins_list"
     while read plugin_dir; do
         plugin="${plugin_dir##*/}"
-        generate_plugin_doc "$plugin" "$@" &
+        generate_plugin_doc "$plugin" "$@"
     done < "$plugins_list"
-    wait
+    echo "End of list: $plugins_list"
+}
+for plugins_list in "$output_dir/plugins_list_part-"*; do
+    generate_plugin_doc_from_list "$plugins_list" &
 done
+wait
 echo "Plugins doc generated."
