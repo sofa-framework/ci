@@ -71,6 +71,7 @@ for plugin_dir in $sofa_dir/applications/plugins/*; do
     if [ -d "$plugin_dir" ] && [ -e "$plugin_dir/CMakeLists.txt" ] &&
        [[ "$plugin_dir" != *"DEPRECATED"* ]] &&
        [[ "$plugin_dir" != *"PluginExample"* ]] &&
+       [[ "$plugin_dir" != *"SofaCUDA"* ]] &&
        [[ "$plugin_dir" != *"EmptyCmakePlugin"* ]]; then
         echo "$plugin_dir" >> $output_dir/plugins_list.txt
     fi
