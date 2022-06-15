@@ -389,7 +389,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
     fi
     if [[ "$VM_HAS_CGAL" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_CGALPLUGIN=ON -DSOFA_FETCH_CGALPLUGIN=ON"
+        add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
     else
         add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
     fi
