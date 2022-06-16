@@ -389,7 +389,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
     fi
     if [[ "$VM_HAS_CGAL" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_CGALPLUGIN=ON -DSOFA_FETCH_CGALPLUGIN=ON"
+        add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
     else
         add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
     fi
@@ -440,7 +440,7 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
     if [[ "$BUILD_TYPE_CMAKE" == "Release" ]]; then
         add-cmake-option "-DCMAKE_BUILD_TYPE=MinSizeRel"
     fi
-    if [ -d "$VM_QT_PATH/Tools/QtInstallerFramework" ]; then
+    if [ -z "$QTIFWDIR"] && [ -d "$VM_QT_PATH/Tools/QtInstallerFramework" ]; then
         for dir in "$VM_QT_PATH/Tools/QtInstallerFramework/"*; do
             if [ -d "$dir" ]; then
                 export QTIFWDIR="$dir" # used for packaging on Linux

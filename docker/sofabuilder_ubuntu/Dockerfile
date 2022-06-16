@@ -31,9 +31,9 @@ RUN apt-get install -y \
 RUN apt-get install -y \
     build-essential \
     ninja-build=1.10.\* \
-    gcc=4:9.\* \
-    g++=4:9.\* \
-    clang=1:10.\* \
+    gcc=4:9.3.\* \
+    g++=4:9.3.\* \
+    clang=1:10.0-\* \
     ccache=3.7.\*
 
 # Install core deps
@@ -54,7 +54,6 @@ RUN apt-get install -y \
     libsuitesparse-dev \
     libavcodec-dev libavformat-dev libavutil-dev libswscale-dev \
     libassimp-dev \
-    libbullet-dev \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev \
     libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
@@ -67,65 +66,34 @@ RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.8 -m pip install --upgrade pip \
     && python3.8 -m pip install numpy scipy pygame
 ENV VM_HAS_ASSIMP="true"
-# BulletColisionDetection is broken
-ENV VM_HAS_BULLET="disabled"
 ENV VM_HAS_OPENCASCADE="true"
 
 ###################################
 
 # Install CMake
-ARG CMAKE_MAJOR=3
-ARG CMAKE_MINOR=12
-ARG CMAKE_PATCH=0
-ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH/cmake-$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH-Linux-x86_64.sh /tmp/cmake.sh
+ARG CMAKE_VERSION=3.16.3
+ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.sh /tmp/cmake.sh
 RUN chmod a+x /tmp/cmake.sh
 RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 
 # Install Qt
-ARG QT_MAJOR=5
-ARG QT_MINOR=12
-ARG QT_PATCH=6
+ARG QT_VERSION=5.12.8
 ARG QT_INSTALLDIR="/opt/Qt"
-RUN mkdir -p /home/ci/.local/share/Qt
-ADD https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtaccount.ini /home/ci/.local/share/Qt/qtaccount.ini
-ADD https://raw.githubusercontent.com/sofa-framework/ci/master/setup/qt/qtinstaller_controlscript_template.qs /tmp/qtinstaller_controlscript_template.qs
-RUN cat /tmp/qtinstaller_controlscript_template.qs \
-    | sed 's:_QTVERSION_:'"$QT_MAJOR$QT_MINOR$QT_PATCH"':g' \
-    | sed 's:_QTINSTALLDIR_:'"$QT_INSTALLDIR"':g' \
-    | sed 's:_QTCOMPILER_:gcc_64:g' \
-    > /tmp/qtinstaller_controlscript.qs
-ADD http://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run /tmp/qt-unified-linux-x64-online.run
-RUN apt-get install -y libxkbcommon-x11-0 libwayland-cursor0 libxcb-*
-RUN chmod a+x /tmp/qt-unified-linux-x64-online.run \
-    && /tmp/qt-unified-linux-x64-online.run --script /tmp/qtinstaller_controlscript.qs --platform minimal --verbose \
-    && rm -rf $QT_INSTALLDIR/Docs \
-    && rm -rf $QT_INSTALLDIR/Examples \
-    && rm -rf $QT_INSTALLDIR/Tools
-ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
-ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
+RUN python3.8 -m pip install aqtinstall \
+    && python3.8 -m aqt install-qt   --outputdir $QT_INSTALLDIR linux desktop $QT_VERSION gcc_64 -m qtcharts qtwebengine \
+    && python3.8 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw
+ENV QTDIR="$QT_INSTALLDIR/$QT_VERSION/gcc_64"
+ENV QTIFWDIR="$(ls -d $QT_INSTALLDIR/Tools/QtInstallerFramework/*/ | head -n 1 | sed 's://$::g')"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-# Install QtInstallerFramework
-ADD https://www.sofa-framework.org/wp-content/uploads/2020/06/QtInstallerFramework_3.0_Linux.zip /tmp
-RUN unzip /tmp/QtInstallerFramework_3.0_Linux.zip -d /builds && chmod -R a+x /builds/Qt
-ENV QTIFWDIR="/builds/Qt/Tools/QtInstallerFramework/3.0"
-ENV PATH="${QTIFWDIR}/bin:${PATH}"
-
-# Install Boost
-# ARG BOOST_MAJOR=1
-# ARG BOOST_MINOR=67
-# RUN add-apt-repository -y ppa:mhier/libboost-latest \
-#     && apt-get update \
-#     && apt-get install -y libboost$BOOST_MAJOR.$BOOST_MINOR-dev
+ENV PATH="$QTDIR/bin:$QTIFWDIR/bin${PATH:+:${PATH}}"
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
-ARG CGAL_MAJOR=4
-ARG CGAL_MINOR=14
-ARG CGAL_PATCH=3
-ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH.tar.xz /tmp/CGAL.tar.xz
+ARG CGAL_VERSION=5.0.2
+ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-$CGAL_VERSION/CGAL-$CGAL_VERSION.tar.xz /tmp/CGAL.tar.xz
 RUN apt-get install -y libgmp-dev libmpfr-dev
 RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
-    && cd /tmp/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH \
+    && cd /tmp/CGAL-$CGAL_VERSION \
     && mkdir build \
     && cd build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
@@ -136,23 +104,18 @@ ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 # Install CUDA
 RUN apt-get install -y nvidia-cuda-toolkit
 ENV VM_HAS_CUDA="true"
-ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
-ENV VM_CUDA_ARCH="sm_50"
+ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-8"
 
 # Install pybind11 (needed by SofaPython3)
-ARG PYBIND_MAJOR=2
-ARG PYBIND_MINOR=4
-ARG PYBIND_PATCH=2
-RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR.$PYBIND_PATCH --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
-&& mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
-&& cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3)" -DPYBIND11_TEST=OFF ../src \
-&& make --silent install
+ARG PYBIND11_VERSION=2.4.3
+RUN git clone -b v$PYBIND11_VERSION --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
+    && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
+    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3.8)" -DPYBIND11_TEST=OFF ../src \
+    && make --silent install
 
 # Install NodeEditor (needed by SofaQtQuick)
-ARG NODE_MAJOR=2
-ARG NODE_MINOR=1
-ARG NODE_PATCH=3
-RUN git clone -b $NODE_MAJOR.$NODE_MINOR.$NODE_PATCH --depth 1 https://github.com/paceholder/nodeeditor.git /tmp/nodeeditor/src \
+ARG NODEEDITOR_VERSION=2.1.3
+RUN git clone -b $NODEEDITOR_VERSION --depth 1 https://github.com/paceholder/nodeeditor.git /tmp/nodeeditor/src \
     && mkdir /tmp/nodeeditor/build && cd /tmp/nodeeditor/build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../src \
     && make --silent install

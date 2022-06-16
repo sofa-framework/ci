@@ -41,8 +41,8 @@ choco install -y --no-progress ninja --version=1.10.0
 choco install -y --no-progress cmake --version=3.16.2 --installargs 'ADD_CMAKE_TO_PATH=System'
 choco install -y --no-progress python --version=3.8.10
 call refreshenv && echo OK
-python -m pip install --upgrade pip
-python -m pip install numpy scipy
+C:\Python38\python.exe -m pip install --upgrade pip
+C:\Python38\python.exe -m pip install numpy scipy
 
 
 REM Install plugins dependencies
@@ -108,20 +108,10 @@ echo Installing Qt...
 set QT_MAJOR=5
 set QT_MINOR=12
 set QT_PATCH=6
-REM setx /M QTDIR "C:\Qt\%QT_MAJOR%.%QT_MINOR%.%QT_PATCH%\msvc2017_64"
-REM setx /M QTDIR64 %QTDIR%
-REM setx /M Qt5_DIR %QTDIR%
-if not exist "%APPDATA%\Qt\" mkdir %APPDATA%\Qt
-copy /Y "%SCRIPTDIR%\qt\qtaccount.ini" "%APPDATA%\Qt\qtaccount.ini"
-powershell -Command "(gc %SCRIPTDIR%\qt\qtinstaller_controlscript_template.qs) "^
-    "-replace '_QTVERSION_', %QT_MAJOR%%QT_MINOR%%QT_PATCH% "^
-    "-replace '_QTCOMPILER_', 'win64_msvc2017_64' "^
-    "-replace '_QTINSTALLDIR_', 'C:\\Qt' "^
-    "| Out-File -encoding ASCII %WORKDIR%\qtinstaller_controlscript.qs"
-powershell -Command "Invoke-WebRequest "^
-    "https://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe "^
-    "-OutFile %WORKDIR%\qtinstaller.exe"
-%WORKDIR%\qtinstaller.exe --script %WORKDIR%\qtinstaller_controlscript.qs --verbose
+C:\Python38\python.exe -m pip install aqtinstall
+C:\Python38\python.exe -m aqt install-qt   --outputdir C:\Qt windows desktop %QT_MAJOR%.%QT_MINOR%.%QT_PATCH% win64_msvc2017_64 -m qtcharts qtwebengine
+C:\Python38\python.exe -m aqt install-tool --outputdir C:\Qt windows desktop tools_ifw qt.tools.ifw.43
+setx /M QTIFWDIR C:\Qt\Tools\QtInstallerFramework\4.3
 :qt_end
 
 
