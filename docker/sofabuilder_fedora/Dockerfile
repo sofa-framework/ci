@@ -67,52 +67,35 @@ ENV VM_HAS_OPENCASCADE="true"
 ###################################
 
 # Install CMake
-ARG CMAKE_MAJOR=3
-ARG CMAKE_MINOR=16
-ARG CMAKE_PATCH=3
-ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH/cmake-$CMAKE_MAJOR.$CMAKE_MINOR.$CMAKE_PATCH-Linux-x86_64.sh /tmp/cmake.sh
+ARG CMAKE_VERSION=3.16.3
+ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.sh /tmp/cmake.sh
 RUN chmod a+x /tmp/cmake.sh
 RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 
-# Set cmake3 the default CMake
-# RUN update-alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake 20 \
-#     --slave /usr/local/bin/ctest ctest /usr/bin/ctest \
-#     --slave /usr/local/bin/cpack cpack /usr/bin/cpack \
-#     --slave /usr/local/bin/ccmake ccmake /usr/bin/ccmake \
-#     --family cmake
-
 # Install Qt
-ARG QT_MAJOR=5
-ARG QT_MINOR=12
-ARG QT_PATCH=8
+ARG QT_VERSION=5.12.8
 ARG QT_INSTALLDIR="/opt/Qt"
 RUN python3.8 -m pip install aqtinstall \
-    && python3.8 -m aqt install-qt   --outputdir $QT_INSTALLDIR linux desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH gcc_64 -m qtcharts qtwebengine \
-    && python3.8 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw qt.tools.ifw.43
-ENV QTDIR="$QT_INSTALLDIR/$QT_MAJOR.$QT_MINOR.$QT_PATCH/gcc_64"
-ENV QTIFWDIR="$QT_INSTALLDIR/Tools/QtInstallerFramework/4.3"
+    && python3.8 -m aqt install-qt   --outputdir $QT_INSTALLDIR linux desktop $QT_VERSION gcc_64 -m qtcharts qtwebengine \
+    && python3.8 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw
+ENV QTDIR="$QT_INSTALLDIR/$QT_VERSION/gcc_64"
+ENV QTIFWDIR="$(ls -d $QT_INSTALLDIR/Tools/QtInstallerFramework/*/ | head -n 1 | sed 's://$::g')"
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 ENV PATH="$QTDIR/bin:$QTIFWDIR/bin${PATH:+:${PATH}}"
 
 # Install Boost
-# ARG BOOST_MAJOR=1
-# ARG BOOST_MINOR=69
 RUN yum install -y -q boost-devel
-# RUN ln -s -f "boost${BOOST_MAJOR}${BOOST_MINOR}/boost" "/usr/include/boost" || true
-# RUN ln -s -f "boost${BOOST_MAJOR}${BOOST_MINOR}" "/usr/lib64/boost" || true
 ENV BOOST_INCLUDEDIR="/usr/include"
 ENV BOOST_LIBRARYDIR="/usr/lib64/boost"
 ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
-ARG CGAL_MAJOR=5
-ARG CGAL_MINOR=0
-ARG CGAL_PATCH=2
-ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH.tar.xz /tmp/CGAL.tar.xz
+ARG CGAL_VERSION=5.0.2
+ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-$CGAL_VERSION/CGAL-$CGAL_VERSION.tar.xz /tmp/CGAL.tar.xz
 RUN yum install -y -q gmp-devel mpfr-devel
 RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
-    && cd /tmp/CGAL-$CGAL_MAJOR.$CGAL_MINOR.$CGAL_PATCH \
+    && cd /tmp/CGAL-$CGAL_VERSION \
     && mkdir build \
     && cd build \
     && source /opt/rh/devtoolset-7/enable || true \
@@ -122,23 +105,9 @@ RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
 ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
-# Install CUDA
-# ARG CUDA_MAJOR=11
-# ARG CUDA_MINOR=3
-# RUN yum-config-manager --add-repo http://developer.download.nvidia.com/compute/cuda/repos/fedora33/x86_64/cuda-fedora33.repo \
-#     && yum clean expire-cache
-# RUN yum install -y -q cuda-toolkit-$CUDA_MAJOR-$CUDA_MINOR
-# ENV PATH="/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/bin:/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/NsightCompute-2019.1${PATH:+:${PATH}}"
-# ENV LD_LIBRARY_PATH="/usr/local/cuda-$CUDA_MAJOR.$CUDA_MINOR/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-# ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc"
-# ENV VM_CUDA_ARCH="sm_50"
-ENV VM_HAS_CUDA="false"
-
 # Install pybind11 (needed by SofaPython3)
-ARG PYBIND_MAJOR=2
-ARG PYBIND_MINOR=4
-ARG PYBIND_PATCH=2
-RUN git clone -b v$PYBIND_MAJOR.$PYBIND_MINOR.$PYBIND_PATCH --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
+ARG PYBIND11_VERSION=2.4.3
+RUN git clone -b v$PYBIND11_VERSION --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
 && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
 && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3.8)" -DPYBIND11_TEST=OFF ../src \
 && make --silent install
