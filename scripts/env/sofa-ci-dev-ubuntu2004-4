@@ -40,4 +40,10 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
         source /opt/qt512/bin/qt512-env.sh || true
     fi
+else
+    # TMP: force QTIFWDIR reset
+    if [ -z "$VM_QT_PATH" ] && [ -n "$QTDIR" ]; then
+        export QTIFWDIR=""
+        export VM_QT_PATH="$( dirname "$(dirname "$QTDIR")" )"
+    fi
 fi
