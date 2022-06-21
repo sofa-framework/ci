@@ -80,9 +80,9 @@ RUN python3.8 -m pip install aqtinstall \
     && python3.8 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw
 RUN yum install -y -q libxkbcommon-x11 libwayland-cursor xcb-util-* # deps needed by IFW
 ENV QTDIR="$QT_INSTALLDIR/$QT_VERSION/gcc_64"
+RUN echo "export QTIFWDIR=\"$(ls -d $QT_INSTALLDIR/Tools/QtInstallerFramework/*/ | head -n 1 | sed 's://$::g')\"" >> /etc/bash.bashrc
 ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 ENV PATH="$QTDIR/bin:$QTIFWDIR/bin${PATH:+:${PATH}}"
-ENV VM_QT_PATH="$QT_INSTALLDIR"
 
 # Install Boost
 RUN yum install -y -q boost-devel
