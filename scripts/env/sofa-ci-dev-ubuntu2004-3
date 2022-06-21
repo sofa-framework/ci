@@ -42,8 +42,9 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     fi
 else
     # TMP: force QTIFWDIR reset
-    if [ -z "$VM_QT_PATH" ] && [ -n "$QTDIR" ]; then
-        export QTIFWDIR=""
-        export VM_QT_PATH="$( dirname "$(dirname "$QTDIR")" )"
+    if [ -z "$QTIFWDIR" ] && [ -n "$QTDIR" ]; then
+        qt_root="$( dirname "$(dirname "$QTDIR")" )"
+        export QTIFWDIR="$(ls -d $qt_root/Tools/QtInstallerFramework/*/ | head -n 1 | sed 's://$::g')"
+        export VM_QT_PATH=""
     fi
 fi
