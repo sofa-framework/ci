@@ -66,10 +66,10 @@ load-env-vars "GITHUB" "$BUILD_DIR" # Retrieve GITHUB env vars used during build
 load-env-vars "DASH" "$BUILD_DIR" # Retrieve DASH env vars used during build
 
 echo "Dashboard env vars:"
-env | grep "^DASH_"
+env | grep "^DASH_" | sort
 echo "---------------------"
 echo "GitHub env vars:"
-env | grep "^GITHUB_"
+env | grep "^GITHUB_" | sort
 echo "---------------------"
 
 # Make sure all status are on Dashboard
