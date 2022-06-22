@@ -131,6 +131,9 @@ ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.8"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'
 
+# TMP: fix Boost+CMake issue with a symlink
+RUN ln -s /usr/include /include || true
+
 # Cleanup
 RUN yum clean all \
     && rm -rf /tmp/*
