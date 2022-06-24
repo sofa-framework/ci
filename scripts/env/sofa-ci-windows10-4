@@ -42,6 +42,17 @@ export VM_PYTHON3_EXECUTABLE="C:/Python38/python.exe"
 export VM_PYTHON3_PYTHONPATH="C:/Python38/Lib/site-packages"
 #export VM_PYBIND11_CONFIG_EXECUTABLE="C:/Python38/Scripts/pybind11-config.exe" # TODO: retry this when VS >= 2019
 
+if [[ "$CI_PYTHON3_VERSION" == "3.7" ]] && [[ -e "C:/Python37/python.exe" ]]; then
+    export VM_PYTHON3_EXECUTABLE="C:/Python37/python.exe"
+    export VM_PYTHON3_PYTHONPATH="C:/Python37/Lib/site-packages"
+elif [[ "$CI_PYTHON3_VERSION" == "3.8" ]] && [[ -e "C:/Python38/python.exe" ]]; then
+    export VM_PYTHON3_EXECUTABLE="C:/Python38/python.exe"
+    export VM_PYTHON3_PYTHONPATH="C:/Python38/Lib/site-packages"
+elif [[ "$CI_PYTHON3_VERSION" == "3.9" ]] && [[ -e "C:/Python39/python.exe" ]]; then
+    export VM_PYTHON3_EXECUTABLE="C:/Python39/python.exe"
+    export VM_PYTHON3_PYTHONPATH="C:/Python39/Lib/site-packages"
+fi
+
 export VM_BULLET_PATH=""
 
 export VM_ASSIMP_PATH="C:/assimp"

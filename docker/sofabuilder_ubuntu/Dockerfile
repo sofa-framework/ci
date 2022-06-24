@@ -12,7 +12,8 @@ RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y \
     apt-utils \
     software-properties-common
-RUN add-apt-repository ppa:git-core/ppa
+RUN add-apt-repository ppa:git-core/ppa \
+    && add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update && apt-get upgrade -y
 
 # Install system tools
@@ -48,6 +49,8 @@ RUN apt-get install -y \
 RUN apt-get install -y \
     python2.7-dev \
     python3.8-dev python3-distutils=3.8.\* \
+    python3.7-dev python3.7-distutils \
+    python3.9-dev python3.9-distutils \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
@@ -64,7 +67,15 @@ RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.8 /tmp/get-pip3.py \
     && python3.8 -m pip install --upgrade pip \
-    && python3.8 -m pip install numpy scipy pygame
+    && python3.8 -m pip install numpy scipy
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.7 /tmp/get-pip3.py \
+    && python3.7 -m pip install --upgrade pip \
+    && python3.7 -m pip install numpy scipy
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.9 /tmp/get-pip3.py \
+    && python3.9 -m pip install --upgrade pip \
+    && python3.9 -m pip install numpy scipy
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 

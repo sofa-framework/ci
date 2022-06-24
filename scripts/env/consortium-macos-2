@@ -28,6 +28,20 @@ export VM_PYTHON3_EXECUTABLE="/opt/homebrew/bin/python3.8"
 export VM_PYTHON3_PYTHONPATH="/opt/homebrew/lib/python3.8/site-packages"
 export VM_PYBIND11_CONFIG_EXECUTABLE="pybind11-config-3.8"
 
+if [[ "$CI_PYTHON3_VERSION" == "3.7" ]] && [[ -e "/opt/homebrew/bin/python3.7" ]]; then
+    export VM_PYTHON3_EXECUTABLE="/opt/homebrew/bin/python3.7"
+    export VM_PYTHON3_PYTHONPATH="/opt/homebrew/lib/python3.7/site-packages"
+    export VM_PYBIND11_CONFIG_EXECUTABLE="pybind11-config-3.7"
+elif [[ "$CI_PYTHON3_VERSION" == "3.8" ]] && [[ -e "/opt/homebrew/bin/python3.8" ]]; then
+    export VM_PYTHON3_EXECUTABLE="/opt/homebrew/bin/python3.8"
+    export VM_PYTHON3_PYTHONPATH="/opt/homebrew/lib/python3.8/site-packages"
+    export VM_PYBIND11_CONFIG_EXECUTABLE="pybind11-config-3.8"
+elif [[ "$CI_PYTHON3_VERSION" == "3.9" ]] && [[ -e "/opt/homebrew/bin/python3.9" ]]; then
+    export VM_PYTHON3_EXECUTABLE="/opt/homebrew/bin/python3.9"
+    export VM_PYTHON3_PYTHONPATH="/opt/homebrew/lib/python3.9/site-packages"
+    export VM_PYBIND11_CONFIG_EXECUTABLE="pybind11-config-3.9"
+fi
+
 export PATH="\
 /opt/homebrew/opt/gnu-sed/libexec/gnubin:\
 /opt/homebrew/opt/coreutils/libexec/gnubin:\

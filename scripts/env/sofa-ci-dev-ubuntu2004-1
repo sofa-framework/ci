@@ -41,3 +41,11 @@ if [ ! -f /.dockerenv ]; then # not in Docker
         source /opt/qt512/bin/qt512-env.sh || true
     fi
 fi
+
+if [[ "$CI_PYTHON3_VERSION" == "3.7" ]] && [[ -e "$(command -v python3.7)" ]]; then
+    export VM_PYTHON3_EXECUTABLE="$(which python3.7)"
+elif [[ "$CI_PYTHON3_VERSION" == "3.8" ]] && [[ -e "$(command -v python3.8)" ]]; then
+    export VM_PYTHON3_EXECUTABLE="$(which python3.8)"
+elif [[ "$CI_PYTHON3_VERSION" == "3.9" ]] && [[ -e "$(command -v python3.9)" ]]; then
+    export VM_PYTHON3_EXECUTABLE="$(which python3.9)"
+fi
