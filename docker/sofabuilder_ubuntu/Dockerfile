@@ -48,9 +48,10 @@ RUN apt-get install -y \
 # Install plugins deps
 RUN apt-get install -y \
     python2.7-dev \
-    python3.8-dev python3-distutils=3.8.\* \
     python3.7-dev python3.7-distutils \
+    python3.8-dev python3-distutils=3.8.\* \
     python3.9-dev python3.9-distutils \
+    python3.10-dev python3.10-distutils \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
@@ -60,22 +61,29 @@ RUN apt-get install -y \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev \
     libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+
+# Install pip, numpy, scipy, pybind11
+ARG PYBIND11_VERSION=2.6.2
 RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
     && python2.7 /tmp/get-pip2.py \
     && python2.7 -m pip install --upgrade "pip == 20.3.4" \
     && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.8 /tmp/get-pip3.py \
-    && python3.8 -m pip install --upgrade pip \
-    && python3.8 -m pip install numpy scipy pybind11==2.6.2
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.7 /tmp/get-pip3.py \
     && python3.7 -m pip install --upgrade pip \
-    && python3.7 -m pip install numpy scipy pybind11==2.6.2
+    && python3.7 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.8 /tmp/get-pip3.py \
+    && python3.8 -m pip install --upgrade pip \
+    && python3.8 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.9 /tmp/get-pip3.py \
     && python3.9 -m pip install --upgrade pip \
-    && python3.9 -m pip install numpy scipy pybind11==2.6.2
+    && python3.9 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.10 /tmp/get-pip3.py \
+    && python3.10 -m pip install --upgrade pip \
+    && python3.10 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 
