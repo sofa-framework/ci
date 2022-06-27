@@ -220,7 +220,7 @@ else
         python2_lib=""
         python2_include=""
         for libdir in `$python2_config --ldflags | tr " " "\n" | grep  -o "/.*"`; do
-            lib="$( find $libdir -maxdepth 1 -type l \( -name libpython2*.so -o -name libpython2*.dylib \) )"
+            lib="$( find $libdir -maxdepth 1 -type l \( -name libpython2*.so -o -name libpython2*.dylib \) | head -n 1 )"
             if [ -e "$lib" ]; then
                 python2_lib="$lib"
                 break
@@ -239,7 +239,7 @@ else
         python3_lib=""
         python3_include=""
         for libdir in `$python3_config --ldflags | tr " " "\n" | grep  -o "/.*"`; do
-            lib="$( find $libdir -maxdepth 1 -type l \( -name libpython3*.so -o -name libpython3*.dylib \) )"
+            lib="$( find $libdir -maxdepth 1 -type l \( -name libpython3*.so -o -name libpython3*.dylib \) | head -n 1 )"
             if [ -e "$lib" ]; then
                 python3_lib="$lib"
                 break
