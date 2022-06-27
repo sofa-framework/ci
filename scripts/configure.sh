@@ -253,6 +253,11 @@ else
         done
     fi
 fi
+echo "---------------"
+echo "python3_exec = $python3_exec"
+echo "python3_lib = $python3_lib"
+echo "python3_include = $python3_include"
+echo "---------------"
 if [ -e "$python2_exec" ] && [ -e "$python2_lib" ] && [ -e "$python2_include" ]; then
     add-cmake-option "-DPYTHON_EXECUTABLE=$python2_exec"
     add-cmake-option "-DPYTHON_LIBRARY=$python2_lib"
@@ -438,7 +443,7 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
     if [[ "$BUILD_TYPE_CMAKE" == "Release" ]]; then
         add-cmake-option "-DCMAKE_BUILD_TYPE=MinSizeRel"
     fi
-    if [ -z "$QTIFWDIR"]; then
+    if [ -z "$QTIFWDIR" ]; then
         qt_root="$VM_QT_PATH"
         if [ ! -d "$qt_root" ] && [ -d "$QTDIR" ] && [ -d "$( dirname "$(dirname "$QTDIR")" )" ]; then
             qt_root="$( dirname "$(dirname "$QTDIR")" )"
