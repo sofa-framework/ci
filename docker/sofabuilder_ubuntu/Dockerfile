@@ -67,15 +67,15 @@ RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.8 /tmp/get-pip3.py \
     && python3.8 -m pip install --upgrade pip \
-    && python3.8 -m pip install numpy scipy
+    && python3.8 -m pip install numpy scipy pybind11==2.6.2
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.7 /tmp/get-pip3.py \
     && python3.7 -m pip install --upgrade pip \
-    && python3.7 -m pip install numpy scipy
+    && python3.7 -m pip install numpy scipy pybind11==2.6.2
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.9 /tmp/get-pip3.py \
     && python3.9 -m pip install --upgrade pip \
-    && python3.9 -m pip install numpy scipy
+    && python3.9 -m pip install numpy scipy pybind11==2.6.2
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 
@@ -119,13 +119,6 @@ RUN apt-get install -y nvidia-cuda-toolkit
 ENV VM_HAS_CUDA="true"
 ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-8"
 
-# Install pybind11 (needed by SofaPython3)
-ARG PYBIND11_VERSION=2.4.3
-RUN git clone -b v$PYBIND11_VERSION --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
-    && mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3.8)" -DPYBIND11_TEST=OFF ../src \
-    && make --silent install
-
 # Install NodeEditor (needed by SofaQtQuick)
 ARG NODEEDITOR_VERSION=2.1.3
 RUN git clone -b $NODEEDITOR_VERSION --depth 1 https://github.com/paceholder/nodeeditor.git /tmp/nodeeditor/src \
@@ -147,6 +140,7 @@ ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 ENV VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
 ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.8"
+ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.8 -m pybind11"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'
 

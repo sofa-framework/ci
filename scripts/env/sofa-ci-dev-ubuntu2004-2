@@ -42,10 +42,7 @@ if [ ! -f /.dockerenv ]; then # not in Docker
     fi
 fi
 
-if [[ "$CI_PYTHON3_VERSION" == "3.7" ]] && [[ -e "$(command -v python3.7)" ]]; then
-    export VM_PYTHON3_EXECUTABLE="$(which python3.7)"
-elif [[ "$CI_PYTHON3_VERSION" == "3.8" ]] && [[ -e "$(command -v python3.8)" ]]; then
-    export VM_PYTHON3_EXECUTABLE="$(which python3.8)"
-elif [[ "$CI_PYTHON3_VERSION" == "3.9" ]] && [[ -e "$(command -v python3.9)" ]]; then
-    export VM_PYTHON3_EXECUTABLE="$(which python3.9)"
+if [[ -n "$CI_PYTHON3_VERSION" ]] && [[ -e "$(command -v python$CI_PYTHON3_VERSION)" ]]; then
+    export VM_PYTHON3_EXECUTABLE="$(which python$CI_PYTHON3_VERSION)"
+    export VM_PYBIND11_CONFIG_EXECUTABLE="$VM_PYTHON3_EXECUTABLE -m pybind11"
 fi
