@@ -215,13 +215,12 @@ if vm-is-windows; then # Finding libs on Windows
     fi
 else
     if [[ -e "$VM_PYTHON_EXECUTABLE" ]] && [[ -e "${VM_PYTHON_EXECUTABLE}-config" ]]; then
-        python2_name="$(basename $VM_PYTHON_EXECUTABLE)"
         python2_config="${VM_PYTHON_EXECUTABLE}-config"
         python2_exec="$VM_PYTHON_EXECUTABLE"
         python2_lib=""
         python2_include=""
         for libdir in `$python2_config --ldflags | tr " " "\n" | grep  -o "/.*"`; do
-            lib="$( find $libdir -maxdepth 1 -type l \( -name lib${python2_name}.so -o -name lib${python2_name}.dylib \) )"
+            lib="$( find $libdir -maxdepth 1 -type l \( -name libpython2*.so -o -name libpython2*.dylib \) )"
             if [ -e "$lib" ]; then
                 python2_lib="$lib"
                 break
@@ -235,13 +234,12 @@ else
         done
     fi
     if [[ -e "$VM_PYTHON3_EXECUTABLE" ]] && [[ -e "${VM_PYTHON3_EXECUTABLE}-config" ]]; then
-        python3_name="$(basename $VM_PYTHON3_EXECUTABLE)"
         python3_config="${VM_PYTHON3_EXECUTABLE}-config"
         python3_exec="$VM_PYTHON3_EXECUTABLE"
         python3_lib=""
         python3_include=""
         for libdir in `$python3_config --ldflags | tr " " "\n" | grep  -o "/.*"`; do
-            lib="$( find $libdir -maxdepth 1 -type l \( -name lib${python3_name}.so -o -name lib${python3_name}.dylib \) )"
+            lib="$( find $libdir -maxdepth 1 -type l \( -name libpython3*.so -o -name libpython3*.dylib \) )"
             if [ -e "$lib" ]; then
                 python3_lib="$lib"
                 break
