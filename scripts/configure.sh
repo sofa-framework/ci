@@ -201,7 +201,7 @@ if vm-is-windows; then # Finding libs on Windows
             python2_path="${python2_path}_x86"
         fi
         python2_exec="$python2_path/python.exe"
-        python2_lib="$(ls $python2_path/libs/python[0-9][0-9].lib | head -n 1)"
+        python2_lib="$(ls $python2_path/libs/python[0-9][0-9]*.lib | head -n 1)"
         python2_include="$python2_path/include"
     fi
     if [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
@@ -210,18 +210,17 @@ if vm-is-windows; then # Finding libs on Windows
             python3_path="${python3_path}_x86"
         fi
         python3_exec="$python3_path/python.exe"
-        python3_lib="$(ls $python3_path/libs/python[0-9][0-9].lib | head -n 1)"
+        python3_lib="$(ls $python3_path/libs/python[0-9][0-9]*.lib | head -n 1)"
         python3_include="$python3_path/include"
     fi
 else
     if [[ -e "$VM_PYTHON_EXECUTABLE" ]] && [[ -e "${VM_PYTHON_EXECUTABLE}-config" ]]; then
-        python2_name="$(basename $VM_PYTHON_EXECUTABLE)"
         python2_config="${VM_PYTHON_EXECUTABLE}-config"
         python2_exec="$VM_PYTHON_EXECUTABLE"
         python2_lib=""
         python2_include=""
         for libdir in `$python2_config --ldflags | tr " " "\n" | grep  -o "/.*"`; do
-            lib="$( find $libdir -maxdepth 1 -type l \( -name lib${python2_name}.so -o -name lib${python2_name}.dylib \) )"
+            lib="$( find $libdir -maxdepth 1 -type l \( -name libpython2*.so -o -name libpython2*.dylib \) | head -n 1 )"
             if [ -e "$lib" ]; then
                 python2_lib="$lib"
                 break
@@ -235,13 +234,12 @@ else
         done
     fi
     if [[ -e "$VM_PYTHON3_EXECUTABLE" ]] && [[ -e "${VM_PYTHON3_EXECUTABLE}-config" ]]; then
-        python3_name="$(basename $VM_PYTHON3_EXECUTABLE)"
         python3_config="${VM_PYTHON3_EXECUTABLE}-config"
         python3_exec="$VM_PYTHON3_EXECUTABLE"
         python3_lib=""
         python3_include=""
         for libdir in `$python3_config --ldflags | tr " " "\n" | grep  -o "/.*"`; do
-            lib="$( find $libdir -maxdepth 1 -type l \( -name lib${python3_name}.so -o -name lib${python3_name}.dylib \) )"
+            lib="$( find $libdir -maxdepth 1 -type l \( -name libpython3*.so -o -name libpython3*.dylib \) | head -n 1 )"
             if [ -e "$lib" ]; then
                 python3_lib="$lib"
                 break
@@ -255,6 +253,11 @@ else
         done
     fi
 fi
+echo "---------------"
+echo "python3_exec = $python3_exec"
+echo "python3_lib = $python3_lib"
+echo "python3_include = $python3_include"
+echo "---------------"
 if [ -e "$python2_exec" ] && [ -e "$python2_lib" ] && [ -e "$python2_include" ]; then
     add-cmake-option "-DPYTHON_EXECUTABLE=$python2_exec"
     add-cmake-option "-DPYTHON_LIBRARY=$python2_lib"
@@ -440,7 +443,7 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
     if [[ "$BUILD_TYPE_CMAKE" == "Release" ]]; then
         add-cmake-option "-DCMAKE_BUILD_TYPE=MinSizeRel"
     fi
-    if [ -z "$QTIFWDIR"]; then
+    if [ -z "$QTIFWDIR" ]; then
         qt_root="$VM_QT_PATH"
         if [ ! -d "$qt_root" ] && [ -d "$QTDIR" ] && [ -d "$( dirname "$(dirname "$QTDIR")" )" ]; then
             qt_root="$( dirname "$(dirname "$QTDIR")" )"

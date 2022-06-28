@@ -43,7 +43,10 @@ RUN yum install -y -q \
 # Install plugin deps
 RUN yum install -y -q \
     python2.7 \
+    python3.7 \
     python3.8 \
+    python3.9 \
+    python3.10 \
     libpng-devel libjpeg-turbo-devel libtiff-devel \
     blas-devel \
     lapack-devel \
@@ -52,14 +55,23 @@ RUN yum install -y -q \
     assimp-devel \
     opencascade-devel \
     libXrandr-devel
+
+# Install pip, numpy, scipy, pybind11
+ARG PYBIND11_VERSION=2.6.2
 RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
     && python2.7 /tmp/get-pip2.py \
     && python2.7 -m pip install --upgrade "pip == 20.3.4" \
     && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.7 /tmp/get-pip3.py \
+    && python3.7 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.8 /tmp/get-pip3.py \
-    && python3.8 -m pip install --upgrade pip \
-    && python3.8 -m pip install numpy scipy pygame
+    && python3.8 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
+RUN python3.9 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.10 /tmp/get-pip3.py \
+    && python3.10 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
@@ -106,13 +118,6 @@ RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
     && make --silent install
 ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
-
-# Install pybind11 (needed by SofaPython3)
-ARG PYBIND11_VERSION=2.4.3
-RUN git clone -b v$PYBIND11_VERSION --depth 1 https://github.com/pybind/pybind11.git /tmp/pybind11/src \
-&& mkdir /tmp/pybind11/build && cd /tmp/pybind11/build \
-&& cmake -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE="$(which python3.8)" -DPYBIND11_TEST=OFF ../src \
-&& make --silent install
 
 ###################################
 

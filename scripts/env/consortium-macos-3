@@ -24,9 +24,15 @@ export VM_QT_PATH="/Users/ci/Qt/5.12.6"
 
 export VM_PYTHON_EXECUTABLE=""
 export VM_PYTHON_PYTHONPATH=""
-export VM_PYTHON3_EXECUTABLE="/usr/local/bin/python3.8"
+export VM_PYTHON3_EXECUTABLE="/usr/local/opt/python@3.8/bin/python3"
 export VM_PYTHON3_PYTHONPATH="/usr/local/lib/python3.8/site-packages"
-export VM_PYBIND11_CONFIG_EXECUTABLE="pybind11-config-3.8"
+if [[ -n "$CI_PYTHON3_VERSION" ]] &&
+   [[ -e "/usr/local/opt/python@$CI_PYTHON3_VERSION/bin/python3" ]] &&
+   [[ -e "/usr/local/lib/python$CI_PYTHON3_VERSION/site-packages" ]]; then
+    export VM_PYTHON3_EXECUTABLE="/usr/local/opt/python@$CI_PYTHON3_VERSION/bin/python3"
+    export VM_PYTHON3_PYTHONPATH="/usr/local/lib/python$CI_PYTHON3_VERSION/site-packages"
+fi
+export VM_PYBIND11_CONFIG_EXECUTABLE="$VM_PYTHON3_EXECUTABLE -m pybind11"
 
 export PATH="\
 /usr/local/opt/gnu-sed/libexec/gnubin:\

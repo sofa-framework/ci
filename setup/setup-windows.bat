@@ -39,7 +39,10 @@ pathed /MACHINE /APPEND "C:\Program Files\Git\bin"
 choco install -y --no-progress wget --version=1.20.3.20190531
 choco install -y --no-progress ninja --version=1.10.0
 choco install -y --no-progress cmake --version=3.16.2 --installargs 'ADD_CMAKE_TO_PATH=System'
+choco install -y --no-progress python --version=3.7.9
 choco install -y --no-progress python --version=3.8.10
+choco install -y --no-progress python --version=3.9.13
+choco install -y --no-progress python --version=3.10.5
 call refreshenv && echo OK
 C:\Python38\python.exe -m pip install --upgrade pip
 C:\Python38\python.exe -m pip install numpy scipy
