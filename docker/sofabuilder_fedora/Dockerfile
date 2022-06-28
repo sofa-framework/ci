@@ -133,6 +133,7 @@ ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 ENV VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
 ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.8"
+ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.8 -m pybind11"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'
 
