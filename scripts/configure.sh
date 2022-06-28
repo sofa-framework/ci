@@ -183,6 +183,10 @@ fi
 if [ -d "$VM_QT_PATH" ]; then
     if [ -d "$VM_QT_PATH/${qt_compiler}" ]; then
         add-cmake-option "-DCMAKE_PREFIX_PATH=$VM_QT_PATH/${qt_compiler}"
+    elif find $VM_QT_PATH/*/include/QtCore -type f -name "QtCore" > /dev/null; then
+        # Trying to find a qt compiler directory
+        qt_path_and_compiler="$(ls -d $VM_QT_PATH/*_64 | head -n 1)"
+        add-cmake-option "-DCMAKE_PREFIX_PATH=$qt_path_and_compiler"
     else
         add-cmake-option "-DCMAKE_PREFIX_PATH=$VM_QT_PATH"
     fi

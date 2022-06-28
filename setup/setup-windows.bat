@@ -110,7 +110,7 @@ if exist C:\Qt goto :qt_end
 echo Installing Qt...
 set QT_MAJOR=5
 set QT_MINOR=12
-set QT_PATCH=6
+set QT_PATCH=8
 C:\Python38\python.exe -m pip install aqtinstall
 C:\Python38\python.exe -m aqt install-qt   --outputdir C:\Qt windows desktop %QT_MAJOR%.%QT_MINOR%.%QT_PATCH% win64_msvc2017_64 -m qtcharts qtwebengine
 C:\Python38\python.exe -m aqt install-tool --outputdir C:\Qt windows desktop tools_ifw qt.tools.ifw.43
