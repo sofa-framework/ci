@@ -78,17 +78,17 @@ pathed /MACHINE /APPEND "C:\clcache"
 :clcache_end
 
 
-REM Install Visual Studio Build Tools 2017
+REM Install Visual Studio Build Tools VS2019
 if exist C:\VSBuildTools goto :vs_end
 echo Installing Visual Studio Build Tools...
 REM To see component names, run Visual Studio Installer and play with configuration export.
 REM Use --passive instead of --quiet when testing (GUI will appear with progress bar).
 powershell -Command "Invoke-WebRequest "^
-    "https://aka.ms/vs/15/release/vs_buildtools.exe "^
+    "https://aka.ms/vs/16/release/vs_buildtools.exe "^
     "-OutFile %WORKDIR%\vs_buildtools.exe"
 %WORKDIR%\vs_buildtools.exe ^
     --wait --quiet --norestart --nocache ^
-    --installPath C:\VSBuildTools ^
+    --installPath C:\VSBuildTools\VS2019 ^
     --add Microsoft.VisualStudio.Workload.VCTools ^
     --add microsoft.visualstudio.component.vc.cmake.project ^
     --add microsoft.visualstudio.component.testtools.buildtools ^
@@ -100,8 +100,8 @@ powershell -Command "Invoke-WebRequest "^
    & call %SCRIPTDIR%\wait_process_to_end.bat "vs_buildtools.exe" ^
    & call %SCRIPTDIR%\wait_process_to_end.bat "vs_installer.exe"
 
-setx /M VS150COMNTOOLS C:\VSBuildTools\Common7\Tools\
-setx /M VSINSTALLDIR C:\VSBuildTools\
+setx /M VS160COMNTOOLS C:\VSBuildTools\VS2019\Common7\Tools\
+setx /M VSINSTALLDIR C:\VSBuildTools\VS2019\
 :vs_end
 
 

@@ -98,8 +98,11 @@ get-msvc-comntools() {
             vs-2015) echo "VS140COMNTOOLS" ;;
             vs-2017) echo "VS150COMNTOOLS" ;;
             vs-2019) echo "VS160COMNTOOLS" ;;
+            vs-2022) echo "VS170COMNTOOLS" ;;
+
             vs2017)  echo "VS150COMNTOOLS" ;;
             vs2019)  echo "VS160COMNTOOLS" ;;
+            vs2022)  echo "VS170COMNTOOLS" ;;
         esac
     fi
 }
