@@ -44,8 +44,14 @@ choco install -y --no-progress python --version=3.8.10
 choco install -y --no-progress python --version=3.9.13
 choco install -y --no-progress python --version=3.10.5
 call refreshenv && echo OK
+C:\Python37\python.exe -m pip install --upgrade pip
+C:\Python37\python.exe -m pip install numpy scipy pybind11==2.6.2
 C:\Python38\python.exe -m pip install --upgrade pip
-C:\Python38\python.exe -m pip install numpy scipy
+C:\Python38\python.exe -m pip install numpy scipy pybind11==2.6.2
+C:\Python39\python.exe -m pip install --upgrade pip
+C:\Python39\python.exe -m pip install numpy scipy pybind11==2.6.2
+C:\Python310\python.exe -m pip install --upgrade pip
+C:\Python310\python.exe -m pip install numpy scipy pybind11==2.6.2
 
 
 REM Install plugins dependencies
@@ -122,11 +128,12 @@ REM Install Boost
 if exist C:\boost goto :boost_end
 echo Installing Boost...
 set BOOST_MAJOR=1
-set BOOST_MINOR=69
+set BOOST_MINOR=71
 set BOOST_PATCH=0
 powershell -Command "Invoke-WebRequest "^
-    "https://boost.teeks99.com/bin/%BOOST_MAJOR%.%BOOST_MINOR%.%BOOST_PATCH%/boost_%BOOST_MAJOR%_%BOOST_MINOR%_%BOOST_PATCH%-msvc-14.1-64.exe "^
-    "-OutFile %WORKDIR%\boostinstaller.exe"
+    "https://sourceforge.net/projects/boost/files/boost-binaries/%BOOST_MAJOR%.%BOOST_MINOR%.%BOOST_PATCH%/boost_%BOOST_MAJOR%_%BOOST_MINOR%_%BOOST_PATCH%-msvc-14.2-64.exe "^
+    "-OutFile %WORKDIR%\boostinstaller.exe "^
+    "-UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox"
 %WORKDIR%\boostinstaller.exe /NORESTART /VERYSILENT /DIR=C:\boost
 call %SCRIPTDIR%\wait_process_to_end.bat "boostinstaller.exe"
 :boost_end
@@ -194,28 +201,6 @@ powershell -Command "Invoke-WebRequest "^
 call %SCRIPTDIR%\wait_process_to_end.bat "occinstaller.exe"
 pathed /MACHINE /APPEND "C:\OpenCascade\opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%"
 :occ_end
-
-
-REM Install pybind11
-if DEFINED MINIMAL_INSTALL goto :pybind11_end
-if exist C:\pybind11 goto :pybind11_end
-echo Installing pybind11...
-set PYBIND11_MAJOR=2
-set PYBIND11_MINOR=4
-set PYBIND11_PATCH=2
-set PYBIND11_ROOT=C:\pybind11\%PYBIND11_MAJOR%.%PYBIND11_MINOR%.%PYBIND11_PATCH%
-powershell -Command "Invoke-WebRequest "^
-    "https://github.com/pybind/pybind11/archive/refs/tags/v%PYBIND11_MAJOR%.%PYBIND11_MINOR%.%PYBIND11_PATCH%.zip "^
-    "-OutFile %WORKDIR%\pybind11.zip"
-powershell Expand-Archive %WORKDIR%\pybind11.zip -DestinationPath %PYBIND11_ROOT%
-move %PYBIND11_ROOT%\pybind11-%PYBIND11_MAJOR%.%PYBIND11_MINOR%.%PYBIND11_PATCH% %PYBIND11_ROOT%\src
-mkdir %PYBIND11_ROOT%\build && cd %PYBIND11_ROOT%\build
-%VS150COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
-    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%PYBIND11_ROOT%\install -DPYBIND11_TEST=OFF ..\src ^
-    && ninja install
-pathed /MACHINE /APPEND "%PYBIND11_ROOT%\install"
-setx /M pybind11_ROOT %PYBIND11_ROOT%\install
-:pybind11_end
 
 
 REM Install ZeroMQ
