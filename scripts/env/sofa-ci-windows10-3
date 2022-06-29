@@ -32,7 +32,7 @@ export VM_HAS_OPENCASCADE="false" # TODO: Update FindOpenCascade.cmake in MeshST
 
 export VM_BOOST_PATH="C:/boost"
 
-export VM_QT_PATH="C:/Qt/5.12.6"
+export VM_QT_PATH="C:/Qt/5.12.8"
 
 export PYTHONIOENCODING="UTF-8"
 export PYTHONUSERBASE="C:/tmp/pythonuserbase" && mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
@@ -47,7 +47,7 @@ if [[ -n "$CI_PYTHON3_VERSION_WINDOWS" ]] &&
     export VM_PYTHON3_EXECUTABLE="C:/Python$CI_PYTHON3_VERSION_WINDOWS/python.exe"
     export VM_PYTHON3_PYTHONPATH="C:/Python$CI_PYTHON3_VERSION_WINDOWS/Lib/site-packages"
 fi
-# export VM_PYBIND11_CONFIG_EXECUTABLE="$VM_PYTHON3_EXECUTABLE -m pybind11" # TODO: retry this when VS >= 2019
+export VM_PYBIND11_CONFIG_EXECUTABLE="$VM_PYTHON3_EXECUTABLE -m pybind11"
 
 export VM_BULLET_PATH=""
 
