@@ -44,6 +44,14 @@ choco install -y --no-progress python --version=3.8.10
 choco install -y --no-progress python --version=3.9.13
 choco install -y --no-progress python --version=3.10.5
 call refreshenv && echo OK
+pathed /MACHINE /REMOVE C:\Python37\Scripts\
+pathed /MACHINE /REMOVE C:\Python37\
+pathed /MACHINE /REMOVE C:\Python38\Scripts\
+pathed /MACHINE /REMOVE C:\Python38\
+pathed /MACHINE /REMOVE C:\Python39\Scripts\
+pathed /MACHINE /REMOVE C:\Python39\
+pathed /MACHINE /REMOVE C:\Python310\Scripts\
+pathed /MACHINE /REMOVE C:\Python310\
 C:\Python37\python.exe -m pip install --upgrade pip
 C:\Python37\python.exe -m pip install numpy scipy pybind11==2.6.2
 C:\Python38\python.exe -m pip install --upgrade pip

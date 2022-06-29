@@ -355,10 +355,10 @@ if vm-is-windows && [ -n "$VM_BOOST_PATH" ] && [ -n "$VM_QT_PATH" ] ; then
     qt_compiler="msvc${msvc_year}"
     if [[ "$ARCHITECTURE" == "x86" ]]; then
         cp -rf $VM_BOOST_PATH/lib32*/*.dll $BUILD_DIR/bin
-        cp -rf $VM_QT_PATH/${qt_compiler}/bin/Qt*.dll $BUILD_DIR/bin
+        cp -rf $VM_QT_PATH/msvc*/bin/Qt*.dll $BUILD_DIR/bin
     else
         cp -rf $VM_BOOST_PATH/lib64*/*.dll $BUILD_DIR/bin
-        cp -rf $VM_QT_PATH/${qt_compiler}_64/bin/Qt*.dll $BUILD_DIR/bin
+        cp -rf $VM_QT_PATH/msvc*_64/bin/Qt*.dll $BUILD_DIR/bin
     fi
 fi
 
