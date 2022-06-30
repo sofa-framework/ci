@@ -71,19 +71,19 @@ RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.7 /tmp/get-pip3.py \
     && python3.7 -m pip install --upgrade pip \
-    && python3.7 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
+    && python3.7 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.8 /tmp/get-pip3.py \
     && python3.8 -m pip install --upgrade pip \
-    && python3.8 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
+    && python3.8 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.9 /tmp/get-pip3.py \
     && python3.9 -m pip install --upgrade pip \
-    && python3.9 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
+    && python3.9 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.10 /tmp/get-pip3.py \
     && python3.10 -m pip install --upgrade pip \
-    && python3.10 -m pip install numpy scipy pybind11==$PYBIND11_VERSION
+    && python3.10 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 
