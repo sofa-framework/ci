@@ -26,7 +26,7 @@ export VM_PYTHON_EXECUTABLE=""
 export VM_PYTHON_PYTHONPATH=""
 export VM_PYTHON3_EXECUTABLE="/usr/local/bin/python3.8"
 export VM_PYTHON3_PYTHONPATH="/usr/local/lib/python3.8/site-packages"
-export VM_PYBIND11_CONFIG_EXECUTABLE="pybind11-config-3.8"
+export VM_PYBIND11_CONFIG_EXECUTABLE="$VM_PYTHON3_EXECUTABLE -m pybind11"
 
 export PATH="\
 /usr/local/opt/gnu-sed/libexec/gnubin:\
