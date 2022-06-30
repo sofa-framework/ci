@@ -53,13 +53,13 @@ pathed /MACHINE /REMOVE C:\Python39\
 pathed /MACHINE /REMOVE C:\Python310\Scripts\
 pathed /MACHINE /REMOVE C:\Python310\
 C:\Python37\python.exe -m pip install --upgrade pip
-C:\Python37\python.exe -m pip install numpy scipy pybind11==2.6.2
+C:\Python37\python.exe -m pip install numpy scipy pybind11==2.6.2 matplotlib
 C:\Python38\python.exe -m pip install --upgrade pip
-C:\Python38\python.exe -m pip install numpy scipy pybind11==2.6.2
+C:\Python38\python.exe -m pip install numpy scipy pybind11==2.6.2 matplotlib
 C:\Python39\python.exe -m pip install --upgrade pip
-C:\Python39\python.exe -m pip install numpy scipy pybind11==2.6.2
+C:\Python39\python.exe -m pip install numpy scipy pybind11==2.6.2 matplotlib
 C:\Python310\python.exe -m pip install --upgrade pip
-C:\Python310\python.exe -m pip install numpy scipy pybind11==2.6.2
+C:\Python310\python.exe -m pip install numpy scipy pybind11==2.6.2 matplotlib
 
 
 REM Install plugins dependencies
