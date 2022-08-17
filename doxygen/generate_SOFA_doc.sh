@@ -29,7 +29,7 @@ doxyfile_file="${doxyfile##*/}"
 doxyfile_name="${doxyfile_file%.*}"
 
 if [ ! -d "$sofa_dir/applications" ] ||
-   [ ! -d "$sofa_dir/modules" ]; then
+   [ ! -d "$sofa_dir/Sofa" ]; then
    echo "Error: $sofa_dir does not seem to be a SOFA directory."; exit 1
 fi
 
@@ -117,7 +117,7 @@ echo "Generating SOFA doc ..."
 doxyfile_copy="${output_dir}/${doxyfile_name}_kernel.dox"
 cp "$doxyfile" "$doxyfile_copy"
 $script_dir/doxygen.sh "$doxyfile_copy" "$@" \
-    "INPUT=${output_dir}/plugins.dox ${script_dir}/mainpage.dox ${sofa_dir}/Sofa ${sofa_dir}/Component ${sofa_dir}/modules ${sofa_dir}/SofaKernel/modules" \
+    "INPUT=${output_dir}/plugins.dox ${script_dir}/mainpage.dox ${sofa_dir}/Sofa" \
     "OUTPUT_DIRECTORY=${output_dir}/doc/sofa" \
     "PROJECT_NAME=\"SOFA API\"" \
     "HTML_HEADER=${script_dir}/custom_header.html" \
