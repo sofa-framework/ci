@@ -413,7 +413,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_DIFFUSIONSOLVER=ON"
     add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
     add-cmake-option "-DPLUGIN_GEOMAGIC=ON"
-    add-cmake-option "-DPLUGIN_IMAGE=ON"
+    add-cmake-option "-DPLUGIN_IMAGE=ON -DPLUGIN_IMAGE_COMPILE_SET=full"
     add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON -DSOFA_FETCH_INVERTIBLEFVM=ON"
     add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON -DSOFA_FETCH_MANIFOLDTOPOLOGIES=ON"
     add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
