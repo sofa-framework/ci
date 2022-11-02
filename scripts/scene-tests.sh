@@ -195,7 +195,7 @@ create-directories() {
         while read scene; do
             mkdir -p "$output_dir/$path/$scene"
             if [[ "$CI_TYPE" == "Debug" ]]; then
-                echo 60 > "$output_dir/$path/$scene/timeout.txt" # Default debug timeout, in seconds
+                echo 300 > "$output_dir/$path/$scene/timeout.txt" # Default debug timeout, in seconds
             else
                 echo 30 > "$output_dir/$path/$scene/timeout.txt" # Default release timeout, in seconds
             fi
@@ -228,7 +228,7 @@ parse-options-files() {
                                 echo $scene >> "$output_dir/$path/add-patterns.txt"
                                 mkdir -p "$output_dir/$path/$scene"
                                 if [[ "$CI_TYPE" == "Debug" ]]; then
-                                    echo 60 > "$output_dir/$path/$scene/timeout.txt" # Default debug timeout, in seconds
+                                    echo 300 > "$output_dir/$path/$scene/timeout.txt" # Default debug timeout, in seconds
                                 else
                                     echo 30 > "$output_dir/$path/$scene/timeout.txt" # Default release timeout, in seconds
                                 fi
