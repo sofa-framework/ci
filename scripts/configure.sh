@@ -411,7 +411,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
         add-cmake-option "-DPLUGIN_SOFAASSIMP=OFF"
     fi
     add-cmake-option "-DPLUGIN_DIFFUSIONSOLVER=ON"
-    add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=ON"
     add-cmake-option "-DPLUGIN_GEOMAGIC=ON"
     add-cmake-option "-DPLUGIN_IMAGE=ON"
     add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON -DSOFA_FETCH_INVERTIBLEFVM=ON"
