@@ -324,6 +324,7 @@ add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
 add-cmake-option "-DSOFAGUIQT_ENABLE_QDOCBROWSER=OFF"
 add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=OFF"
+add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=OFF"
 
 # Build regression tests?
 if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
