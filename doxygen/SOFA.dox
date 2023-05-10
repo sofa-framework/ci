@@ -848,6 +848,8 @@ EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = .git/* \
                          .github/* \
                          */*_test/* \
+                         */test/* \
+                         */tests/* \
                          */cmake/* \
                          */extlibs/* \
                          */ps3/* \
