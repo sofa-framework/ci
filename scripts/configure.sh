@@ -393,6 +393,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     fi
     # Plugins
     add-cmake-option "-DPLUGIN_BEAMADAPTER=ON -DSOFA_FETCH_BEAMADAPTER=ON"
+    add-cmake-option "-DPLUGIN_SOFTROBOTS=ON -DSOFA_FETCH_SOFTROBOTS=ON"
     if [[ "$VM_HAS_BULLET" == "true" ]]; then
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
