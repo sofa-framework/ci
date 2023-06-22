@@ -425,7 +425,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
         add-cmake-option "-DPLUGIN_MESHSTEPLOADER=OFF"
     fi
     add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
-    add-cmake-option "-DPLUGIN_OPTITRACKNATNET=ON -DSOFA_FETCH_OPTITRACKNATNET=ON"
     add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON -DSOFA_FETCH_PLUGINEXAMPLE=ON"
     add-cmake-option "-DPLUGIN_REGISTRATION=ON -DSOFA_FETCH_REGISTRATION=ON"
     add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
