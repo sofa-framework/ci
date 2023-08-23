@@ -395,6 +395,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_BEAMADAPTER=ON -DSOFA_FETCH_BEAMADAPTER=ON"
     add-cmake-option "-DPLUGIN_STLIB=ON -DSOFA_FETCH_STLIB=ON"
     add-cmake-option "-DPLUGIN_SOFTROBOTS=ON -DSOFA_FETCH_SOFTROBOTS=ON"
+    add-cmake-option "-DPLUGIN_SHAPEMATCHINGPLUGIN=ON -DSOFA_FETCH_SHAPEMATCHINGPLUGIN=ON"
     if [[ "$VM_HAS_BULLET" == "true" ]]; then
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
