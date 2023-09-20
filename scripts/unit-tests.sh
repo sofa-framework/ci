@@ -47,8 +47,8 @@ fi
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
 export SOFA_ROOT="$build_dir"
 if [[ "$test_type" == "regression-tests" ]]; then
-    export REGRESSION_REFERENCES_DIR="$references_dir/examples"
-    export REGRESSION_SCENES_DIR="$src_dir/examples"
+    export REGRESSION_REFERENCES_DIR="$references_dir/examples:$references_dir/applications/plugins"
+    export REGRESSION_SCENES_DIR="$src_dir/examples:$src_dir/applications/plugins"
 fi
 
 list-tests() {
