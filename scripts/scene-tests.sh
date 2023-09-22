@@ -477,7 +477,7 @@ do-test-all-scenes() {
         elapsed_sec="$(( elapsed_millisec / 1000 )).$(printf "%03d" $elapsed_millisec)"
 
         if [[ -e "$output_dir/$scene/runSofa.timeout" ]]; then
-            echo 'Timeout!'
+            echo "Timeout after $timeout seconds ($elapsed_sec)! $scene"
             echo timeout > "$output_dir/$scene/status.txt"
             echo -e "\n\nINFO: Abort caused by timeout.\n" >> "$output_dir/$scene/output.txt"
             rm -f "$output_dir/$scene/runSofa.timeout"
