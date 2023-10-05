@@ -1,0 +1,1 @@
+./ci/scripts/configure.sh /workspace/build/ /workspace/src/ ubuntu_gcc options "run-regression-tests run-scene-tests run-unit-tests force-full-build build-scope-full build-all-plugins"
