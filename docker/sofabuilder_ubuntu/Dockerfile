@@ -109,13 +109,10 @@ ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 
 # Install CUDA
 ENV DEBIAN_FRONTEND noninteractive
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
-RUN mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
-RUN wget https://developer.download.nvidia.com/compute/cuda/11.8.0/local_installers/cuda-repo-ubuntu2204-11-8-local_11.8.0-520.61.05-1_amd64.deb
-RUN dpkg -i cuda-repo-ubuntu2204-11-8-local_11.8.0-520.61.05-1_amd64.deb
-RUN cp /var/cuda-repo-ubuntu2204-11-8-local/cuda-*-keyring.gpg /usr/share/keyrings/
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
+RUN dpkg -i cuda-keyring_1.0-1_all.deb
 RUN apt-get update
-RUN apt-get -y install cuda
+RUN apt-get -y install cuda-toolkit-11-8
 ENV VM_HAS_CUDA="true"
 ENV PATH=$PATH:/usr/local/cuda/bin
 
