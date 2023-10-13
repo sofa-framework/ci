@@ -1,4 +1,4 @@
-FROM fedora:34
+FROM fedora:36
 
 SHELL ["/bin/bash", "-c"]
 
@@ -14,7 +14,7 @@ ENV HOME="/home/ci"
 # RUN yum install -y -q centos-release-scl-rh
 # RUN yum install -y -q http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-5.el7.noarch.rpm
 # RUN yum install -y -q https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.9-1.x86_64.rpm
-RUN yum install -y -q http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-34.noarch.rpm
+RUN yum install -y -q http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-36.noarch.rpm
 RUN yum update -y && yum upgrade -y && yum clean all
 
 # Install system tools
@@ -43,9 +43,6 @@ RUN yum install -y -q \
 # Install plugin deps
 RUN yum install -y -q \
     python2.7 \
-    python3.7 \
-    python3.8 \
-    python3.9 \
     python3.10 \
     libpng-devel libjpeg-turbo-devel libtiff-devel \
     blas-devel \
@@ -57,21 +54,14 @@ RUN yum install -y -q \
     libXrandr-devel
 
 # Install pip, numpy, scipy, pybind11
-ARG PYBIND11_VERSION=2.6.2
-RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
-    && python2.7 /tmp/get-pip2.py \
-    && python2.7 -m pip install --upgrade "pip == 20.3.4" \
-    && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.7 /tmp/get-pip3.py \
-    && python3.7 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.8 /tmp/get-pip3.py \
-    && python3.8 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
-RUN python3.9 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.10 /tmp/get-pip3.py \
-    && python3.10 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
+ARG PYBIND11_VERSION=2.9.1
+#RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
+#    && python2.7 /tmp/get-pip2.py \
+#    && python2.7 -m pip install --upgrade "pip == 20.3.4" \
+#    && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
+#RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py
+#RUN python3.10 /tmp/get-pip3.py
+RUN python3.10 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
@@ -79,18 +69,18 @@ ENV VM_HAS_OPENCASCADE="true"
 ###################################
 
 # Install CMake
-ARG CMAKE_VERSION=3.16.3
+ARG CMAKE_VERSION=3.22.1
 ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.sh /tmp/cmake.sh
 RUN chmod a+x /tmp/cmake.sh
 RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 
 # Install Qt
-ARG QT_VERSION=5.12.8
+ARG QT_VERSION=5.12.12
 ARG QT_INSTALLDIR="/opt/Qt"
-RUN python3.8 -m pip install aqtinstall \
-    && python3.8 -m aqt install-qt --outputdir $QT_INSTALLDIR linux desktop $QT_VERSION gcc_64 -m qtcharts qtwebengine
+RUN python3.10 -m pip install aqtinstall \
+    && python3.10 -m aqt install-qt --outputdir $QT_INSTALLDIR linux desktop $QT_VERSION gcc_64 -m qtcharts qtwebengine
 RUN yum install -y -q libxkbcommon-x11 libwayland-cursor xcb-util-* \
-    && python3.8 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw \
+    && python3.10 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw \
     || true
 ENV QT_INSTALLDIR="$QT_INSTALLDIR"
 ENV QTDIR="$QT_INSTALLDIR/$QT_VERSION/gcc_64"
@@ -105,8 +95,8 @@ ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
-ARG CGAL_VERSION=5.0.2
-ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-$CGAL_VERSION/CGAL-$CGAL_VERSION.tar.xz /tmp/CGAL.tar.xz
+ARG CGAL_VERSION=5.4.5
+ADD https://github.com/CGAL/cgal/releases/download/v$CGAL_VERSION/CGAL-$CGAL_VERSION.tar.xz /tmp/CGAL.tar.xz
 RUN yum install -y -q gmp-devel mpfr-devel
 RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
     && cd /tmp/CGAL-$CGAL_VERSION \
@@ -132,8 +122,8 @@ ENV PYTHONIOENCODING="UTF-8"
 ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 ENV VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
-ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.8"
-ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.8 -m pybind11"
+ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.10"
+ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.10 -m pybind11"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'
 
