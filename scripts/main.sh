@@ -366,7 +366,7 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS" || in-array "run-scene-tests" "$BU
     github_message="${github_message} FIXME:"
 fi
 
-# Remove SofaCUDA and SofaPython from plugin_list.conf.default
+# Remove SofaCUDA, SofaPython and MeshSTEPLoader from plugin_list.conf.default
 echo "Removing SofaCUDA and SofaPython from plugin_list.conf.default"
 if vm-is-windows; then
     plugin_conf="$BUILD_DIR/bin/plugin_list.conf.default"
@@ -375,6 +375,7 @@ else
 fi
 grep -v "SofaCUDA " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 grep -v "SofaPython " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
+grep -v "MeshSTEPLoader " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
 time_millisec_postbuild_end="$(time-millisec)"
 time_sec_postbuild="$(time-elapsed-sec $time_millisec_postbuild_begin $time_millisec_postbuild_end)"
