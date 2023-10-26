@@ -34,37 +34,22 @@ call refreshenv && echo OK
 
 
 REM Install SOFA dependencies with Chocolatey
-choco install -y --no-progress git --version=2.25.1
+choco install -y --no-progress git --version=2.34.1
 pathed /MACHINE /APPEND "C:\Program Files\Git\bin"
-choco install -y --no-progress wget --version=1.20.3.20190531
-choco install -y --no-progress ninja --version=1.10.0
-choco install -y --no-progress cmake --version=3.16.2 --installargs 'ADD_CMAKE_TO_PATH=System'
-choco install -y --no-progress python --version=3.7.9
-choco install -y --no-progress python --version=3.8.10
-choco install -y --no-progress python --version=3.9.13
-choco install -y --no-progress python --version=3.10.5
+choco install -y --no-progress wget --version=1.21.2
+choco install -y --no-progress ninja --version=1.10.1
+choco install -y --no-progress cmake --version=3.22.1 --installargs 'ADD_CMAKE_TO_PATH=System'
+choco install -y --no-progress python --version=3.10.12
 call refreshenv && echo OK
-pathed /MACHINE /REMOVE C:\Python37\Scripts\
-pathed /MACHINE /REMOVE C:\Python37\
-pathed /MACHINE /REMOVE C:\Python38\Scripts\
-pathed /MACHINE /REMOVE C:\Python38\
-pathed /MACHINE /REMOVE C:\Python39\Scripts\
-pathed /MACHINE /REMOVE C:\Python39\
 pathed /MACHINE /REMOVE C:\Python310\Scripts\
 pathed /MACHINE /REMOVE C:\Python310\
-C:\Python37\python.exe -m pip install --upgrade pip
-C:\Python37\python.exe -m pip install numpy scipy pybind11==2.6.2 matplotlib
-C:\Python38\python.exe -m pip install --upgrade pip
-C:\Python38\python.exe -m pip install numpy scipy pybind11==2.6.2 matplotlib
-C:\Python39\python.exe -m pip install --upgrade pip
-C:\Python39\python.exe -m pip install numpy scipy pybind11==2.6.2 matplotlib
 C:\Python310\python.exe -m pip install --upgrade pip
-C:\Python310\python.exe -m pip install numpy scipy pybind11==2.6.2 matplotlib
+C:\Python310\python.exe -m pip install numpy scipy pybind11==2.9.1 matplotlib
 
 
 REM Install plugins dependencies
 if DEFINED MINIMAL_INSTALL goto :plugindeps_end
-choco install -y --no-progress cuda --version=10.2.89.20191206
+choco install -y --no-progress cuda --version=11.8
 REM Bullet: source code to build: https://github.com/bulletphysics/bullet3/releases
 :plugindeps_end
 
@@ -92,17 +77,17 @@ pathed /MACHINE /APPEND "C:\clcache"
 :clcache_end
 
 
-REM Install Visual Studio Build Tools VS2019
+REM Install Visual Studio Build Tools VS2022
 if exist C:\VSBuildTools goto :vs_end
 echo Installing Visual Studio Build Tools...
 REM To see component names, run Visual Studio Installer and play with configuration export.
 REM Use --passive instead of --quiet when testing (GUI will appear with progress bar).
 powershell -Command "Invoke-WebRequest "^
-    "https://aka.ms/vs/16/release/vs_buildtools.exe "^
+    "https://aka.ms/vs/17/release/vs_buildtools.exe "^
     "-OutFile %WORKDIR%\vs_buildtools.exe"
 %WORKDIR%\vs_buildtools.exe ^
     --wait --quiet --norestart --nocache ^
-    --installPath C:\VSBuildTools\VS2019 ^
+    --installPath C:\VSBuildTools\VS2022 ^
     --add Microsoft.VisualStudio.Workload.VCTools ^
     --add microsoft.visualstudio.component.vc.cmake.project ^
     --add microsoft.visualstudio.component.testtools.buildtools ^
@@ -114,8 +99,8 @@ powershell -Command "Invoke-WebRequest "^
    & call %SCRIPTDIR%\wait_process_to_end.bat "vs_buildtools.exe" ^
    & call %SCRIPTDIR%\wait_process_to_end.bat "vs_installer.exe"
 
-setx /M VS160COMNTOOLS C:\VSBuildTools\VS2019\Common7\Tools\
-setx /M VSINSTALLDIR C:\VSBuildTools\VS2019\
+setx /M VS160COMNTOOLS C:\VSBuildTools\VS2022\Common7\Tools\
+setx /M VSINSTALLDIR C:\VSBuildTools\VS2022\
 :vs_end
 
 
@@ -124,10 +109,10 @@ if exist C:\Qt goto :qt_end
 echo Installing Qt...
 set QT_MAJOR=5
 set QT_MINOR=12
-set QT_PATCH=8
-C:\Python38\python.exe -m pip install aqtinstall
-C:\Python38\python.exe -m aqt install-qt   --outputdir C:\Qt windows desktop %QT_MAJOR%.%QT_MINOR%.%QT_PATCH% win64_msvc2017_64 -m qtcharts qtwebengine
-C:\Python38\python.exe -m aqt install-tool --outputdir C:\Qt windows desktop tools_ifw qt.tools.ifw.43
+set QT_PATCH=12
+C:\Python310\python.exe -m pip install aqtinstall
+C:\Python310\python.exe -m aqt install-qt   --outputdir C:\Qt windows desktop %QT_MAJOR%.%QT_MINOR%.%QT_PATCH% win64_msvc2017_64 -m qtcharts qtwebengine
+C:\Python310\python.exe -m aqt install-tool --outputdir C:\Qt windows desktop tools_ifw qt.tools.ifw.43
 setx /M QTIFWDIR C:\Qt\Tools\QtInstallerFramework\4.3
 :qt_end
 
@@ -136,7 +121,7 @@ REM Install Boost
 if exist C:\boost goto :boost_end
 echo Installing Boost...
 set BOOST_MAJOR=1
-set BOOST_MINOR=71
+set BOOST_MINOR=74
 set BOOST_PATCH=0
 powershell -Command "Invoke-WebRequest "^
     "https://sourceforge.net/projects/boost/files/boost-binaries/%BOOST_MAJOR%.%BOOST_MINOR%.%BOOST_PATCH%/boost_%BOOST_MAJOR%_%BOOST_MINOR%_%BOOST_PATCH%-msvc-14.2-64.exe "^
@@ -151,8 +136,8 @@ REM Install Eigen
 if exist C:\eigen goto :eigen_end
 echo Installing Eigen...
 set EIGEN_MAJOR=3
-set EIGEN_MINOR=3
-set EIGEN_PATCH=7
+set EIGEN_MINOR=4
+set EIGEN_PATCH=0
 powershell -Command "Invoke-WebRequest "^
     "https://gitlab.com/libeigen/eigen/-/archive/%EIGEN_MAJOR%.%EIGEN_MINOR%.%EIGEN_PATCH%/eigen-%EIGEN_MAJOR%.%EIGEN_MINOR%.%EIGEN_PATCH%.zip "^
     "-OutFile %WORKDIR%\eigen.zip"
@@ -164,9 +149,9 @@ REM Install Assimp
 if DEFINED MINIMAL_INSTALL goto :assimp_end
 if exist C:\assimp goto :assimp_end
 echo Installing Assimp...
-set ASSIMP_MAJOR=4
-set ASSIMP_MINOR=1
-set ASSIMP_PATCH=0
+set ASSIMP_MAJOR=5
+set ASSIMP_MINOR=2
+set ASSIMP_PATCH=2
 powershell -Command "Invoke-WebRequest "^
     "https://github.com/assimp/assimp/releases/download/"^
         "v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%/assimp-sdk-%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%-setup.exe "^
@@ -184,8 +169,8 @@ if DEFINED MINIMAL_INSTALL goto :cgal_end
 if exist C:\CGAL goto :cgal_end
 echo Installing CGAL...
 set CGAL_MAJOR=5
-set CGAL_MINOR=0
-set CGAL_PATCH=2
+set CGAL_MINOR=4
+set CGAL_PATCH=1
 powershell -Command "Invoke-WebRequest "^
     "https://github.com/CGAL/cgal/releases/download/releases/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%-Setup.exe "^
     "-OutFile %WORKDIR%\cgalinstaller.exe"
@@ -217,7 +202,7 @@ if exist C:\zeromq goto :zmq_end
 echo Installing ZMQ...
 set ZMQ_MAJOR=4
 set ZMQ_MINOR=3
-set ZMQ_PATCH=2
+set ZMQ_PATCH=4
 set ZMQ_ROOT=C:\zeromq\%ZMQ_MAJOR%.%ZMQ_MINOR%.%ZMQ_PATCH%
 powershell -Command "Invoke-WebRequest "^
     "https://github.com/zeromq/libzmq/releases/download/v%ZMQ_MAJOR%.%ZMQ_MINOR%.%ZMQ_PATCH%/zeromq-%ZMQ_MAJOR%.%ZMQ_MINOR%.%ZMQ_PATCH%.zip "^
