@@ -39,7 +39,7 @@ pathed /MACHINE /APPEND "C:\Program Files\Git\bin"
 choco install -y --no-progress wget --version=1.21.2
 choco install -y --no-progress ninja --version=1.10.1
 choco install -y --no-progress cmake --version=3.22.1 --installargs 'ADD_CMAKE_TO_PATH=System'
-choco install -y --no-progress python --version=3.10.12
+choco install -y --no-progress python --version=3.10.11
 call refreshenv && echo OK
 pathed /MACHINE /REMOVE C:\Python310\Scripts\
 pathed /MACHINE /REMOVE C:\Python310\
@@ -49,7 +49,7 @@ C:\Python310\python.exe -m pip install numpy scipy pybind11==2.9.1 matplotlib
 
 REM Install plugins dependencies
 if DEFINED MINIMAL_INSTALL goto :plugindeps_end
-choco install -y --no-progress cuda --version=11.8
+choco install -y --no-progress cuda --version=12.2
 REM Bullet: source code to build: https://github.com/bulletphysics/bullet3/releases
 :plugindeps_end
 
@@ -152,16 +152,22 @@ echo Installing Assimp...
 set ASSIMP_MAJOR=5
 set ASSIMP_MINOR=2
 set ASSIMP_PATCH=2
+set ASSIMP_ROOT=C:\assimp\%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%
+echo Downloading https://github.com/assimp/assimp/archive/refs/tags/v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%.zip
 powershell -Command "Invoke-WebRequest "^
-    "https://github.com/assimp/assimp/releases/download/"^
-        "v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%/assimp-sdk-%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%-setup.exe "^
-    "-OutFile %WORKDIR%\assimpinstaller.exe"
-%WORKDIR%\assimpinstaller.exe /NORESTART /VERYSILENT /DIR=C:\assimp
-call %SCRIPTDIR%\wait_process_to_start.bat "vc_redist.x64.exe"
-taskkill /F /IM vc_redist.x64.exe
-call %SCRIPTDIR%\wait_process_to_end.bat "assimpinstaller.exe"
-pathed /MACHINE /APPEND "C:\assimp"
+    "https://github.com/assimp/assimp/archive/refs/tags/v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%.zip "^
+    "-OutFile %WORKDIR%\assimp.zip"
+powershell Expand-Archive %WORKDIR%\assimp.zip -DestinationPath %ASSIMP_ROOT%
+move %ASSIMP_ROOT%\assimp-%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH% %ASSIMP_ROOT%\src
+mkdir %ASSIMP_ROOT%\build & cd %ASSIMP_ROOT%\build
+%VS160COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%ASSIMP_ROOT%\install -DBUILD_SHARED_LIBS=ON ..\src ^
+    && ninja install
+pathed /MACHINE /APPEND "%ASSIMP_ROOT%\install"
+setx /M ASSIMP_ROOT %ASSIMP_ROOT%\install
 :assimp_end
+
+
 
 
 REM Install CGAL
