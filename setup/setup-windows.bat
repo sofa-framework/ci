@@ -49,7 +49,7 @@ C:\Python310\python.exe -m pip install numpy scipy pybind11==2.9.1 matplotlib
 
 REM Install plugins dependencies
 if DEFINED MINIMAL_INSTALL goto :plugindeps_end
-choco install -y --no-progress cuda --version=12.2
+choco install -y --no-progress cuda
 REM Bullet: source code to build: https://github.com/bulletphysics/bullet3/releases
 :plugindeps_end
 
@@ -60,8 +60,7 @@ set CLCACHE_MAJOR=4
 set CLCACHE_MINOR=2
 set CLCACHE_PATCH=0
 powershell -Command "Invoke-WebRequest "^
-    "https://github.com/frerich/clcache/releases/download/"^
-        "v%CLCACHE_MAJOR%.%CLCACHE_MINOR%.%CLCACHE_PATCH%/clcache-%CLCACHE_MAJOR%.%CLCACHE_MINOR%.%CLCACHE_PATCH%.zip "^
+    "https://github.com/frerich/clcache/releases/download/v%CLCACHE_MAJOR%.%CLCACHE_MINOR%.%CLCACHE_PATCH%/clcache-%CLCACHE_MAJOR%.%CLCACHE_MINOR%.%CLCACHE_PATCH%.zip "^
     "-OutFile %WORKDIR%\clcache.zip"
 powershell Expand-Archive %WORKDIR%\clcache.zip -DestinationPath C:\clcache
 REM if not exist "J:\clcache\" mkdir "J:\clcache"
@@ -78,7 +77,7 @@ pathed /MACHINE /APPEND "C:\clcache"
 
 
 REM Install Visual Studio Build Tools VS2022
-if exist C:\VSBuildTools goto :vs_end
+if exist C:\VSBuildTools\VS2022 goto :vs22_end
 echo Installing Visual Studio Build Tools...
 REM To see component names, run Visual Studio Installer and play with configuration export.
 REM Use --passive instead of --quiet when testing (GUI will appear with progress bar).
@@ -99,9 +98,9 @@ powershell -Command "Invoke-WebRequest "^
    & call %SCRIPTDIR%\wait_process_to_end.bat "vs_buildtools.exe" ^
    & call %SCRIPTDIR%\wait_process_to_end.bat "vs_installer.exe"
 
-setx /M VS160COMNTOOLS C:\VSBuildTools\VS2022\Common7\Tools\
+setx /M VS170COMNTOOLS C:\VSBuildTools\VS2022\Common7\Tools\
 setx /M VSINSTALLDIR C:\VSBuildTools\VS2022\
-:vs_end
+:vs22_end
 
 
 REM Install Qt
@@ -153,53 +152,47 @@ set ASSIMP_MAJOR=5
 set ASSIMP_MINOR=2
 set ASSIMP_PATCH=2
 set ASSIMP_ROOT=C:\assimp\%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%
-echo Downloading https://github.com/assimp/assimp/archive/refs/tags/v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%.zip
 powershell -Command "Invoke-WebRequest "^
     "https://github.com/assimp/assimp/archive/refs/tags/v%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH%.zip "^
     "-OutFile %WORKDIR%\assimp.zip"
 powershell Expand-Archive %WORKDIR%\assimp.zip -DestinationPath %ASSIMP_ROOT%
 move %ASSIMP_ROOT%\assimp-%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH% %ASSIMP_ROOT%\src
-mkdir %ASSIMP_ROOT%\build & cd %ASSIMP_ROOT%\build
-%VS160COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
-    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%ASSIMP_ROOT%\install -DBUILD_SHARED_LIBS=ON ..\src ^
+mkdir %ASSIMP_ROOT%\build && cd %ASSIMP_ROOT%\build
+%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%ASSIMP_ROOT%\install -DBUILD_STATIC=OFF ..\src ^
     && ninja install
 pathed /MACHINE /APPEND "%ASSIMP_ROOT%\install"
 setx /M ASSIMP_ROOT %ASSIMP_ROOT%\install
+Remove-Item -LiteralPath "%ASSIMP_ROOT%\src" -Force -Recurse
+Remove-Item -LiteralPath "%ASSIMP_ROOT%\build" -Force -Recurse
 :assimp_end
 
 
 
-
 REM Install CGAL
-if DEFINED MINIMAL_INSTALL goto :cgal_end
+REM if DEFINED MINIMAL_INSTALL goto :cgal_end
 if exist C:\CGAL goto :cgal_end
 echo Installing CGAL...
 set CGAL_MAJOR=5
 set CGAL_MINOR=4
 set CGAL_PATCH=1
+set CGAL_ROOT=C:\cgal\%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%
 powershell -Command "Invoke-WebRequest "^
-    "https://github.com/CGAL/cgal/releases/download/releases/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%-Setup.exe "^
-    "-OutFile %WORKDIR%\cgalinstaller.exe"
-%WORKDIR%\cgalinstaller.exe /S /D=C:\CGAL
-call %SCRIPTDIR%\wait_process_to_end.bat "cgalinstaller.exe"
-pathed /MACHINE /APPEND "C:\CGAL"
+    "https://github.com/CGAL/cgal/releases/download/v%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%/CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH%.zip "^
+    "-OutFile %WORKDIR%\cgal.zip"
+powershell Expand-Archive %WORKDIR%\cgal.zip -DestinationPath %CGAL_ROOT%
+move %CGAL_ROOT%\CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH% %CGAL_ROOT%\src
+mkdir %CGAL_ROOT%\build && cd %CGAL_ROOT%\build
+%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%CGAL_ROOT%\install -DBUILD_STATIC=OFF ..\src ^
+    && ninja install
+pathed /MACHINE /APPEND "%CGAL_ROOT%\install"
+setx /M CGAL_ROOT %CGAL_ROOT%\install
+Remove-Item -LiteralPath "%CGAL_ROOT%\src" -Force -Recurse
+Remove-Item -LiteralPath "%CGAL_ROOT%\build" -Force -Recurse
 :cgal_end
 
 
-REM Install OpenCascade
-if DEFINED MINIMAL_INSTALL goto :occ_end
-if exist C:\OpenCascade goto :occ_end
-echo Installing OpenCascade...
-set OCC_MAJOR=7
-set OCC_MINOR=4
-set OCC_PATCH=0
-powershell -Command "Invoke-WebRequest "^
-    "http://transfer.sofa-framework.org/opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%-vc14-64.exe "^
-    "-OutFile %WORKDIR%\occinstaller.exe"
-%WORKDIR%\occinstaller.exe /NORESTART /VERYSILENT /DIR=C:\OpenCascade
-call %SCRIPTDIR%\wait_process_to_end.bat "occinstaller.exe"
-pathed /MACHINE /APPEND "C:\OpenCascade\opencascade-%OCC_MAJOR%.%OCC_MINOR%.%OCC_PATCH%"
-:occ_end
 
 
 REM Install ZeroMQ
@@ -215,18 +208,21 @@ powershell -Command "Invoke-WebRequest "^
     "-OutFile %WORKDIR%\zmq.zip"
 powershell Expand-Archive %WORKDIR%\zmq.zip -DestinationPath %ZMQ_ROOT%
 move %ZMQ_ROOT%\zeromq-%ZMQ_MAJOR%.%ZMQ_MINOR%.%ZMQ_PATCH% %ZMQ_ROOT%\src
-mkdir %ZMQ_ROOT%\build && cd %ZMQ_ROOT%\build
-%VS150COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+mkdir %ZMQ_ROOT%\build
+cd %ZMQ_ROOT%\build
+%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%ZMQ_ROOT%\install -DBUILD_STATIC=OFF ..\src ^
     && ninja install
-powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq.hpp "^
-    "-OutFile %ZMQ_ROOT%\install\include\zmq.hpp"
-powershell -Command "Invoke-WebRequest "^
-    "https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq_addon.hpp "^
-    "-OutFile %ZMQ_ROOT%\install\include\zmq_addon.hpp"
+REM powershell -Command "Invoke-WebRequest "^
+    REM "https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq.hpp "^
+    REM "-OutFile %ZMQ_ROOT%\install\include\zmq.hpp"
+REM powershell -Command "Invoke-WebRequest "^
+    REM "https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq_addon.hpp "^
+    REM "-OutFile %ZMQ_ROOT%\install\include\zmq_addon.hpp"
 pathed /MACHINE /APPEND "%ZMQ_ROOT%\install"
 setx /M ZMQ_ROOT %ZMQ_ROOT%\install
+Remove-Item -LiteralPath "%ZMQ_ROOT%\src" -Force -Recurse
+Remove-Item -LiteralPath "%ZMQ_ROOT%\build" -Force -Recurse
 :zmq_end
 
 
@@ -243,11 +239,13 @@ powershell -Command "Invoke-WebRequest "^
 powershell Expand-Archive %WORKDIR%\vrpn.zip -DestinationPath %VRPN_ROOT%
 move %VRPN_ROOT%\vrpn %VRPN_ROOT%\src
 mkdir %VRPN_ROOT%\build && cd %VRPN_ROOT%\build
-%VS150COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%VRPN_ROOT%\install ..\src ^
     && ninja install
 pathed /MACHINE /APPEND "%VRPN_ROOT%\install"
 setx /M VRPN_ROOT %VRPN_ROOT%\install
+Remove-Item -LiteralPath "%VRPN_ROOT%\src" -Force -Recurse
+Remove-Item -LiteralPath "%VRPN_ROOT%\build" -Force -Recurse
 :vrpn_end
 
 
@@ -265,7 +263,7 @@ powershell -Command "Invoke-WebRequest "^
 powershell Expand-Archive %WORKDIR%\oscpack.zip -DestinationPath %OSC_ROOT%
 move %OSC_ROOT%\oscpack_%OSC_MAJOR%_%OSC_MINOR%_%OSC_PATCH% %OSC_ROOT%\src
 mkdir %OSC_ROOT%\build && cd %OSC_ROOT%\build
-%VS150COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%OSC_ROOT%\install ..\src ^
     && ninja
 Xcopy /E /I %OSC_ROOT%\src\ip %OSC_ROOT%\install\include\oscpack\ip\
@@ -273,6 +271,8 @@ Xcopy /E /I %OSC_ROOT%\src\osc %OSC_ROOT%\install\include\oscpack\osc\
 Xcopy /E /I %OSC_ROOT%\build\oscpack.lib %OSC_ROOT%\install\lib\
 pathed /MACHINE /APPEND "%OSC_ROOT%\install"
 setx /M Oscpack_ROOT %OSC_ROOT%\install
+Remove-Item -LiteralPath "%OSC_ROOT%\src" -Force -Recurse
+Remove-Item -LiteralPath "%OSC_ROOT%\build" -Force -Recurse
 :oscpack_end
 
 
