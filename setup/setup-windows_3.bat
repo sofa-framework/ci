@@ -26,7 +26,7 @@ powershell -Command "Invoke-WebRequest "^
 powershell Expand-Archive %WORKDIR%\assimp.zip -DestinationPath %ASSIMP_ROOT%
 move %ASSIMP_ROOT%\assimp-%ASSIMP_MAJOR%.%ASSIMP_MINOR%.%ASSIMP_PATCH% %ASSIMP_ROOT%\src
 mkdir %ASSIMP_ROOT%\build && cd %ASSIMP_ROOT%\build
-%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%ASSIMP_ROOT%\install -DBUILD_STATIC=OFF ..\src ^
     && ninja install
 pathed /MACHINE /APPEND "%ASSIMP_ROOT%\install"
@@ -51,7 +51,7 @@ powershell -Command "Invoke-WebRequest "^
 powershell Expand-Archive %WORKDIR%\cgal.zip -DestinationPath %CGAL_ROOT%
 move %CGAL_ROOT%\CGAL-%CGAL_MAJOR%.%CGAL_MINOR%.%CGAL_PATCH% %CGAL_ROOT%\src
 mkdir %CGAL_ROOT%\build && cd %CGAL_ROOT%\build
-%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%CGAL_ROOT%\install -DBUILD_STATIC=OFF ..\src ^
     && ninja install
 pathed /MACHINE /APPEND "%CGAL_ROOT%\install"
@@ -76,19 +76,19 @@ powershell -Command "Invoke-WebRequest "^
     "-OutFile %WORKDIR%\zmq.zip"
 powershell Expand-Archive %WORKDIR%\zmq.zip -DestinationPath %ZMQ_ROOT%
 move %ZMQ_ROOT%\zeromq-%ZMQ_MAJOR%.%ZMQ_MINOR%.%ZMQ_PATCH% %ZMQ_ROOT%\src
-mkdir %ZMQ_ROOT%\build
-cd %ZMQ_ROOT%\build
-%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
-    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%ZMQ_ROOT%\install -DBUILD_STATIC=OFF ..\src ^
+mkdir %ZMQ_ROOT%\build && cd %ZMQ_ROOT%\build
+call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release  -DBUILD_STATIC=OFF ..\src ^
     && ninja install
+	REM -DCMAKE_INSTALL_PREFIX=%ZMQ_ROOT%\install
 REM powershell -Command "Invoke-WebRequest "^
     REM "https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq.hpp "^
     REM "-OutFile %ZMQ_ROOT%\install\include\zmq.hpp"
 REM powershell -Command "Invoke-WebRequest "^
     REM "https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq_addon.hpp "^
     REM "-OutFile %ZMQ_ROOT%\install\include\zmq_addon.hpp"
-pathed /MACHINE /APPEND "%ZMQ_ROOT%\install"
-setx /M ZMQ_ROOT %ZMQ_ROOT%\install
+pathed /MACHINE /APPEND "C:\Program Files (x86)\ZeroMQ"
+setx /M ZMQ_ROOT "C:\Program Files (x86)\ZeroMQ"
 Remove-Item -LiteralPath "%ZMQ_ROOT%\src" -Force -Recurse
 Remove-Item -LiteralPath "%ZMQ_ROOT%\build" -Force -Recurse
 :zmq_end
@@ -107,9 +107,10 @@ powershell -Command "Invoke-WebRequest "^
 powershell Expand-Archive %WORKDIR%\vrpn.zip -DestinationPath %VRPN_ROOT%
 move %VRPN_ROOT%\vrpn %VRPN_ROOT%\src
 mkdir %VRPN_ROOT%\build && cd %VRPN_ROOT%\build
-%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%VRPN_ROOT%\install ..\src ^
-    && ninja install
+    && ninja install 
+
 pathed /MACHINE /APPEND "%VRPN_ROOT%\install"
 setx /M VRPN_ROOT %VRPN_ROOT%\install
 Remove-Item -LiteralPath "%VRPN_ROOT%\src" -Force -Recurse
@@ -131,7 +132,7 @@ powershell -Command "Invoke-WebRequest "^
 powershell Expand-Archive %WORKDIR%\oscpack.zip -DestinationPath %OSC_ROOT%
 move %OSC_ROOT%\oscpack_%OSC_MAJOR%_%OSC_MINOR%_%OSC_PATCH% %OSC_ROOT%\src
 mkdir %OSC_ROOT%\build && cd %OSC_ROOT%\build
-%VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%OSC_ROOT%\install ..\src ^
     && ninja
 Xcopy /E /I %OSC_ROOT%\src\ip %OSC_ROOT%\install\include\oscpack\ip\
