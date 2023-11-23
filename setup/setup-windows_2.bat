@@ -28,6 +28,7 @@ call refreshenv && echo OK
 
 
 REM Install SOFA dependencies with Chocolatey
+choco install  -y --no-progress 7zip
 choco install -y --no-progress git --version=2.34.1
 pathed /MACHINE /APPEND "C:\Program Files\Git\bin"
 choco install -y --no-progress wget --version=1.21.2

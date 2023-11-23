@@ -36,7 +36,6 @@ Remove-Item -LiteralPath "%ASSIMP_ROOT%\build" -Force -Recurse
 :assimp_end
 
 
-
 REM Install CGAL
 REM if DEFINED MINIMAL_INSTALL goto :cgal_end
 if exist C:\CGAL goto :cgal_end
@@ -144,6 +143,7 @@ Remove-Item -LiteralPath "%OSC_ROOT%\src" -Force -Recurse
 Remove-Item -LiteralPath "%OSC_ROOT%\build" -Force -Recurse
 :oscpack_end
 
+REM https://github.com/KarypisLab/METIS/archive/refs/tags/v5.1.1-DistDGL-v0.5.zip
 
 REM Finalize environment
 echo Finalizing environment...
