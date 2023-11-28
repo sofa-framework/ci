@@ -31,13 +31,13 @@ call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && ninja install
 pathed /MACHINE /APPEND "%ASSIMP_ROOT%\install"
 setx /M ASSIMP_ROOT %ASSIMP_ROOT%\install
-Remove-Item -LiteralPath "%ASSIMP_ROOT%\src" -Force -Recurse
-Remove-Item -LiteralPath "%ASSIMP_ROOT%\build" -Force -Recurse
+RMDIR /S /Q "%ASSIMP_ROOT%\src"
+RMDIR /S /Q "%ASSIMP_ROOT%\build"
 :assimp_end
 
 
 REM Install CGAL
-REM if DEFINED MINIMAL_INSTALL goto :cgal_end
+if DEFINED MINIMAL_INSTALL goto :cgal_end
 if exist C:\CGAL goto :cgal_end
 echo Installing CGAL...
 set CGAL_MAJOR=5
@@ -55,8 +55,8 @@ call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && ninja install
 pathed /MACHINE /APPEND "%CGAL_ROOT%\install"
 setx /M CGAL_ROOT %CGAL_ROOT%\install
-Remove-Item -LiteralPath "%CGAL_ROOT%\src" -Force -Recurse
-Remove-Item -LiteralPath "%CGAL_ROOT%\build" -Force -Recurse
+RMDIR /S /Q "%CGAL_ROOT%\src"
+RMDIR /S /Q "%CGAL_ROOT%\build"
 :cgal_end
 
 
@@ -88,8 +88,8 @@ REM powershell -Command "Invoke-WebRequest "^
     REM "-OutFile %ZMQ_ROOT%\install\include\zmq_addon.hpp"
 pathed /MACHINE /APPEND "C:\Program Files (x86)\ZeroMQ"
 setx /M ZMQ_ROOT "C:\Program Files (x86)\ZeroMQ"
-Remove-Item -LiteralPath "%ZMQ_ROOT%\src" -Force -Recurse
-Remove-Item -LiteralPath "%ZMQ_ROOT%\build" -Force -Recurse
+RMDIR /S /Q "%ZMQ_ROOT%\src" 
+RMDIR /S /Q "%ZMQ_ROOT%\build" 
 :zmq_end
 
 
@@ -112,8 +112,8 @@ call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
 
 pathed /MACHINE /APPEND "%VRPN_ROOT%\install"
 setx /M VRPN_ROOT %VRPN_ROOT%\install
-Remove-Item -LiteralPath "%VRPN_ROOT%\src" -Force -Recurse
-Remove-Item -LiteralPath "%VRPN_ROOT%\build" -Force -Recurse
+RMDIR /S /Q "%VRPN_ROOT%\src" 
+RMDIR /S /Q "%VRPN_ROOT%\build" 
 :vrpn_end
 
 
@@ -139,11 +139,71 @@ Xcopy /E /I %OSC_ROOT%\src\osc %OSC_ROOT%\install\include\oscpack\osc\
 Xcopy /E /I %OSC_ROOT%\build\oscpack.lib %OSC_ROOT%\install\lib\
 pathed /MACHINE /APPEND "%OSC_ROOT%\install"
 setx /M Oscpack_ROOT %OSC_ROOT%\install
-Remove-Item -LiteralPath "%OSC_ROOT%\src" -Force -Recurse
-Remove-Item -LiteralPath "%OSC_ROOT%\build" -Force -Recurse
+RMDIR /S /Q "%OSC_ROOT%\src" 
+RMDIR /S /Q "%OSC_ROOT%\build" 
 :oscpack_end
 
+
+REM Install METIS
+if DEFINED MINIMAL_INSTALL goto :metis_end
+if exist C:\METIS goto :metis_end
+echo Installing METIS...
+set METIS_MAJOR=5
+set METIS_MINOR=1
+set METIS_PATCH=1
+set METIS_ROOT=C:\METIS\%METIS_MAJOR%.%METIS_MINOR%.%METIS_PATCH%
+mkdir C:\METIS
+mkdir %METIS_ROOT% && cd %METIS_ROOT%
+call git clone https://github.com/KarypisLab/METIS.git
+move METIS src && cd src
+call git checkout v5.1.1-DistDGL-v0.5 && call git submodule init && call git submodule update
+call python %SCRIPTDIR%\UncommentMETISDefine.py %METIS_ROOT%\src\include\metis.h 
+call .\vsgen -G "Visual Studio 17 2022"
+cd %METIS_ROOT%\src\build\windows 
+call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 && cmake -DCMAKE_BUILD_TYPE=Release -DSHARED=TRUE -DGKRAND=ON .
+msbuild METIS.sln /p:Configuration=Release;Platform=x64
+
+REM Packaging
+mkdir %METIS_ROOT%\install
+mkdir %METIS_ROOT%\install\include
+mkdir %METIS_ROOT%\install\lib
+copy %METIS_ROOT%\src\build\windows\libmetis\Release\* %METIS_ROOT%\install\lib
+copy %METIS_ROOT%\src\build\xinclude\metis.h %METIS_ROOT%\install\include\
+copy %SCRIPTDIR%\METISConfig.cmake %METIS_ROOT%\install\
+
+
+pathed /MACHINE /APPEND "%METIS_ROOT%\install"
+setx /M METIS_ROOT %METIS_ROOT%\install
+RMDIR /S /Q "%METIS_ROOT%\src" 
+RMDIR /S /Q "%METIS_ROOT%\build" 
+:metis_end
+
+
+REM Install TINYXML2
+REM if DEFINED MINIMAL_INSTALL goto :tinyxml2_end
+REM if exist C:\TINYXML2 goto :tinyxml2_end
+echo Installing TINYXML2...
+set TINYXML2_MAJOR=9
+set TINYXML2_MINOR=0
+set TINYXML2_PATCH=0
+set TINYXML2_ROOT=C:\TINYXML2\%TINYXML2_MAJOR%.%TINYXML2_MINOR%.%TINYXML2_PATCH%
+mkdir C:\TINYXML2
+mkdir %TINYXML2_ROOT% && cd %TINYXML2_ROOT%
+call git clone https://github.com/leethomason/tinyxml2.git
+move tinyxml2 src && cd src
+call git checkout %TINYXML2_MAJOR%.%TINYXML2_MINOR%.%TINYXML2_PATCH%
+mkdir %TINYXML2_ROOT%\build && mkdir %TINYXML2_ROOT%\install && cd %TINYXML2_ROOT%\build
+call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 && cmake -DCMAKE_INSTALL_PREFIX=%TINYXML2_ROOT%\install -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ../src  && ninja install
+
+pathed /MACHINE /APPEND "%TINYXML2_ROOT%\install"
+setx /M TINYXML2_ROOT %TINYXML2_ROOT%\install
+RMDIR /S /Q "%TINYXML2_ROOT%\src"
+RMDIR /S /Q "%TINYXML2_ROOT%\build"
+:tinyxml2_end
+
 REM https://github.com/KarypisLab/METIS/archive/refs/tags/v5.1.1-DistDGL-v0.5.zip
+
+
 
 REM Finalize environment
 echo Finalizing environment...

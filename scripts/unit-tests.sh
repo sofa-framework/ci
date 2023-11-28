@@ -55,6 +55,9 @@ export SOFA_ROOT="$build_dir"
 if [[ "$test_type" == "regression-tests" ]]; then
     export REGRESSION_REFERENCES_DIR="$references_dir/examples|$references_dir/applications/plugins"
     export REGRESSION_SCENES_DIR="$src_dir/examples|$src_dir/applications/plugins"
+	
+	echo $REGRESSION_REFERENCES_DIR
+	echo $REGRESSION_SCENES_DIR
 fi
 
 list-tests() {
