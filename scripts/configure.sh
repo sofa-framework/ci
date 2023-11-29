@@ -343,7 +343,6 @@ if in-array "build-scope-minimal" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_BUILD_TESTS=OFF"
     add-cmake-option "-DSOFA_FLOATING_POINT_TYPE=double"
     # Plugins (sofa/applications/plugins)
-    add-cmake-option "-DPLUGIN_CIMGPLUGIN=OFF"
     add-cmake-option "-DPLUGIN_SOFAMATRIX=OFF"
     # Pluginized modules (sofa/modules)
     add-cmake-option "-DPLUGIN_SOFADENSESOLVER=OFF"
@@ -392,6 +391,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
         add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=ON"
     fi
     # Plugins
+    add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
     add-cmake-option "-DPLUGIN_BEAMADAPTER=ON -DSOFA_FETCH_BEAMADAPTER=ON"
     add-cmake-option "-DPLUGIN_STLIB=ON -DSOFA_FETCH_STLIB=ON"
     add-cmake-option "-DPLUGIN_SOFTROBOTS=ON -DSOFA_FETCH_SOFTROBOTS=ON"
