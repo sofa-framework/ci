@@ -44,6 +44,8 @@ RUN yum install -y -q \
 RUN yum install -y -q \
     python2.7 \
     python3.10 \
+    python3.11 \
+    python3.12 \
     libpng-devel libjpeg-turbo-devel libtiff-devel \
     blas-devel \
     lapack-devel \
@@ -51,7 +53,8 @@ RUN yum install -y -q \
     ffmpeg-devel \
     assimp-devel \
     opencascade-devel \
-    libXrandr-devel
+    libXrandr-devel \
+    tinyxml2-devel
 
 # Install pip, numpy, scipy, pybind11
 ARG PYBIND11_VERSION=2.9.1
@@ -62,6 +65,12 @@ ARG PYBIND11_VERSION=2.9.1
 #RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py
 #RUN python3.10 /tmp/get-pip3.py
 RUN python3.10 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.11 /tmp/get-pip3.py \
+    && python3.11 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.12 /tmp/get-pip3.py \
+    && python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
@@ -109,6 +118,14 @@ RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
 ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
+
+# Install METIS
+RUN git clone https://github.com/bakpaul/METIS.git \
+    && cd METIS \
+    && git checkout v5.1.1-ModernInstall \
+    && cd .. && mkdir build && cd build \
+    && cmake ../METIS \
+    && make --silent install -j 5
 ###################################
 
 # Disable core dumps

@@ -35,7 +35,7 @@ if [ ! -f /.dockerenv ]; then # not in Docker
 
     export VM_CUDA_ARCH="sm_50"
 
-    export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
+#    export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
 
     # Load Qt environment
     if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
