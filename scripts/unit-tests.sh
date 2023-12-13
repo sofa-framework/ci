@@ -21,6 +21,9 @@ if [ "$#" -ge 3 ]; then
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
+    if vm-is-windows; then
+        src_dir="$(cd $3 && pwd -W)"
+    fi
     test_type="unit-tests"
     if [ -n "$4" ]; then
         test_type="regression-tests"

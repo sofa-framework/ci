@@ -322,7 +322,7 @@ fi
 add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
 add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
-add-cmake-option "-DSOFAGUIQT_ENABLE_QDOCBROWSER=OFF"
+add-cmake-option "-DSOFA_GUI_QT_ENABLE_QDOCBROWSER=OFF"
 add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=OFF"
 add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=OFF"
 
@@ -343,7 +343,6 @@ if in-array "build-scope-minimal" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_BUILD_TESTS=OFF"
     add-cmake-option "-DSOFA_FLOATING_POINT_TYPE=double"
     # Plugins (sofa/applications/plugins)
-    add-cmake-option "-DPLUGIN_CIMGPLUGIN=OFF"
     add-cmake-option "-DPLUGIN_SOFAMATRIX=OFF"
     # Pluginized modules (sofa/modules)
     add-cmake-option "-DPLUGIN_SOFADENSESOLVER=OFF"
@@ -392,10 +391,12 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
         add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=ON"
     fi
     # Plugins
+    add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
     add-cmake-option "-DPLUGIN_BEAMADAPTER=ON -DSOFA_FETCH_BEAMADAPTER=ON"
     add-cmake-option "-DPLUGIN_STLIB=ON -DSOFA_FETCH_STLIB=ON"
     add-cmake-option "-DPLUGIN_SOFTROBOTS=ON -DSOFA_FETCH_SOFTROBOTS=ON"
     add-cmake-option "-DPLUGIN_SHAPEMATCHINGPLUGIN=ON -DSOFA_FETCH_SHAPEMATCHINGPLUGIN=ON"
+    add-cmake-option "-DPLUGIN_CSPARSESOLVERS=ON -DSOFA_FETCH_CSPARSESOLVERS=ON"
     if [[ "$VM_HAS_BULLET" == "true" ]]; then
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
