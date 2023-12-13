@@ -154,22 +154,15 @@ set METIS_PATCH=1
 set METIS_ROOT=C:\METIS\%METIS_MAJOR%.%METIS_MINOR%.%METIS_PATCH%
 mkdir C:\METIS
 mkdir %METIS_ROOT% && cd %METIS_ROOT%
-call git clone https://github.com/KarypisLab/METIS.git
+call git clone https://github.com/bakpaul/METIS.git
 move METIS src && cd src
-call git checkout v5.1.1-DistDGL-v0.5 && call git submodule init && call git submodule update
-call python %SCRIPTDIR%\UncommentMETISDefine.py %METIS_ROOT%\src\include\metis.h 
-call .\vsgen -G "Visual Studio 17 2022"
-cd %METIS_ROOT%\src\build\windows 
-call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 && cmake -DCMAKE_BUILD_TYPE=Release -DSHARED=TRUE -DGKRAND=ON .
-msbuild METIS.sln /p:Configuration=Release;Platform=x64
-
-REM Packaging
+call git checkoutv5.1.1-ModernInstall
 mkdir %METIS_ROOT%\install
-mkdir %METIS_ROOT%\install\include
-mkdir %METIS_ROOT%\install\lib
-copy %METIS_ROOT%\src\build\windows\libmetis\Release\* %METIS_ROOT%\install\lib
-copy %METIS_ROOT%\src\build\xinclude\metis.h %METIS_ROOT%\install\include\
-copy %SCRIPTDIR%\METISConfig.cmake %METIS_ROOT%\install\
+mkdir %METIS_ROOT%\build && cd %METIS_ROOT%\build
+call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
+    && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%METIS_ROOT%\install ..\src ^
+    && ninja install
+
 
 
 pathed /MACHINE /APPEND "%METIS_ROOT%\install"
