@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 SHELL ["/bin/bash", "-c"]
 
@@ -32,26 +32,26 @@ RUN apt-get install -y \
 RUN apt-get install -y \
     build-essential \
     ninja-build=1.10.\* \
-    gcc=4:9.3.\* \
-    g++=4:9.3.\* \
-    clang=1:10.0-\* \
-    ccache=3.7.\*
+    gcc=4:11.\* \
+    g++=4:11.\* \
+    clang=1:14.0-\* \
+    ccache=4.5.\*
 
 # Install core deps
 RUN apt-get install -y \
-    libboost-all-dev=1.71.\* \
-    libglew-dev=2.1.\* \
+    libboost-all-dev=1.74.\* \
+    libglew-dev=2.2.\* \
     freeglut3-dev=2.8.\* \
     zlib1g-dev=1:1.2.\* \
-    libeigen3-dev=3.3.\*
+    libeigen3-dev=3.4.\*
 
 # Install plugins deps
+ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get install -y \
     python2.7-dev \
-    python3.7-dev python3.7-distutils \
-    python3.8-dev python3-distutils=3.8.\* \
-    python3.9-dev python3.9-distutils \
     python3.10-dev python3.10-distutils \
+    python3.11-dev python3.11-distutils \
+    python3.12-dev python3.12-distutils \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
@@ -60,48 +60,45 @@ RUN apt-get install -y \
     libassimp-dev \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev \
-    libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev
+    libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
+    libtinyxml2-dev
 
 # Install pip, numpy, scipy, pybind11
-ARG PYBIND11_VERSION=2.6.2
+ARG PYBIND11_VERSION=2.9.1
 RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
     && python2.7 /tmp/get-pip2.py \
     && python2.7 -m pip install --upgrade "pip == 20.3.4" \
     && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.7 /tmp/get-pip3.py \
-    && python3.7 -m pip install --upgrade pip \
-    && python3.7 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.8 /tmp/get-pip3.py \
-    && python3.8 -m pip install --upgrade pip \
-    && python3.8 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.9 /tmp/get-pip3.py \
-    && python3.9 -m pip install --upgrade pip \
-    && python3.9 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.10 /tmp/get-pip3.py \
     && python3.10 -m pip install --upgrade pip \
     && python3.10 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.11 /tmp/get-pip3.py \
+    && python3.11 -m pip install --upgrade pip \
+    && python3.11 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
+RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
+    && python3.12 /tmp/get-pip3.py \
+    && python3.12 -m pip install --upgrade pip \
+    && python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 
 ###################################
 
 # Install CMake
-ARG CMAKE_VERSION=3.16.3
+ARG CMAKE_VERSION=3.22.1
 ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.sh /tmp/cmake.sh
 RUN chmod a+x /tmp/cmake.sh
 RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 
 # Install Qt
-ARG QT_VERSION=5.12.8
+ARG QT_VERSION=5.12.12
 ARG QT_INSTALLDIR="/opt/Qt"
-RUN python3.8 -m pip install aqtinstall \
-    && python3.8 -m aqt install-qt --outputdir $QT_INSTALLDIR linux desktop $QT_VERSION gcc_64 -m qtcharts qtwebengine
+RUN python3.10 -m pip install aqtinstall \
+    && python3.10 -m aqt install-qt --outputdir $QT_INSTALLDIR linux desktop $QT_VERSION gcc_64 -m qtcharts qtwebengine
 RUN apt-get install -y libxkbcommon-x11-0 libwayland-cursor0 libxcb-* \
-    && python3.8 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw \
+    && python3.10 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw \
     || true
 ENV QT_INSTALLDIR="$QT_INSTALLDIR"
 ENV QTDIR="$QT_INSTALLDIR/$QT_VERSION/gcc_64"
@@ -110,8 +107,8 @@ ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
-ARG CGAL_VERSION=5.0.2
-ADD https://github.com/CGAL/cgal/releases/download/releases/CGAL-$CGAL_VERSION/CGAL-$CGAL_VERSION.tar.xz /tmp/CGAL.tar.xz
+ARG CGAL_VERSION=5.4.5
+ADD https://github.com/CGAL/cgal/releases/download/v$CGAL_VERSION/CGAL-$CGAL_VERSION.tar.xz /tmp/CGAL.tar.xz
 RUN apt-get install -y libgmp-dev libmpfr-dev
 RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
     && cd /tmp/CGAL-$CGAL_VERSION \
@@ -122,13 +119,27 @@ RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
 ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 
+
+# Install METIS
+RUN git clone https://github.com/bakpaul/METIS.git \
+    && cd METIS \
+    && git checkout v5.1.1-ModernInstall \
+    && cd .. && mkdir build && cd build \
+    && cmake ../METIS \
+    && make --silent install -j 5
+
 # Install CUDA
-RUN apt-get install -y nvidia-cuda-toolkit
+ENV DEBIAN_FRONTEND noninteractive
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
+RUN dpkg -i cuda-keyring_1.0-1_all.deb
+RUN apt-get update
+RUN apt-get -y install cuda-toolkit-11-8
 ENV VM_HAS_CUDA="true"
-ENV VM_CUDA_HOST_COMPILER="/usr/bin/gcc-8"
+ENV PATH=$PATH:/usr/local/cuda/bin
+
 
 # Install NodeEditor (needed by SofaQtQuick)
-ARG NODEEDITOR_VERSION=2.1.3
+ARG NODEEDITOR_VERSION=2.2.4
 RUN git clone -b $NODEEDITOR_VERSION --depth 1 https://github.com/paceholder/nodeeditor.git /tmp/nodeeditor/src \
     && mkdir /tmp/nodeeditor/build && cd /tmp/nodeeditor/build \
     && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../src \
@@ -147,8 +158,8 @@ ENV PYTHONIOENCODING="UTF-8"
 ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 ENV VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
-ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.8"
-ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.8 -m pybind11"
+ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.10"
+ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.10 -m pybind11"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'
 

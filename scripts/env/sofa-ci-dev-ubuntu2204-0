@@ -18,8 +18,10 @@ export VM_MAKE_OPTIONS="-j7"
 
 export VM_MAX_PARALLEL_TESTS="7"
 
-export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-8"
+export VM_HAS_CUDA="true"
+
 export VM_CUDA_ARCH="sm_50"
+
 
 if [ ! -f /.dockerenv ]; then # not in Docker
     export VM_HAS_BULLET="false"
@@ -34,7 +36,7 @@ if [ ! -f /.dockerenv ]; then # not in Docker
 
     export VM_CUDA_ARCH="sm_50"
 
-    export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
+#    export VM_CUDA_HOST_COMPILER="/usr/bin/gcc-6"
 
     # Load Qt environment
     if [ -e "/opt/qt512/bin/qt512-env.sh" ]; then
