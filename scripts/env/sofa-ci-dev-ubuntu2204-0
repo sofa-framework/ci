@@ -18,8 +18,6 @@ export VM_MAKE_OPTIONS="-j7"
 
 export VM_MAX_PARALLEL_TESTS="7"
 
-export VM_HAS_CUDA="true"
-
 export VM_CUDA_ARCH="sm_50"
 
 
