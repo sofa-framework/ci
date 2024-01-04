@@ -16,7 +16,7 @@ echo \
 sudo apt-get update
 
 # Install git and docker
-sudo apt-get install -y git docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo apt-get install -y git docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin doxygen
 
 # Docker post install steps
 sudo groupadd docker
