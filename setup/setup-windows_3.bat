@@ -154,9 +154,9 @@ set METIS_PATCH=1
 set METIS_ROOT=C:\METIS\%METIS_MAJOR%.%METIS_MINOR%.%METIS_PATCH%
 mkdir C:\METIS
 mkdir %METIS_ROOT% && cd %METIS_ROOT%
-call git clone https://github.com/bakpaul/METIS.git
+call git clone https://github.com/sofa-framework/METIS.git
 move METIS src && cd src
-call git checkoutv5.1.1-ModernInstall
+call git checkout v5.1.1-ModernInstall
 mkdir %METIS_ROOT%\install
 mkdir %METIS_ROOT%\build && cd %METIS_ROOT%\build
 call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
@@ -173,8 +173,8 @@ RMDIR /S /Q "%METIS_ROOT%\build"
 
 
 REM Install TINYXML2
-REM if DEFINED MINIMAL_INSTALL goto :tinyxml2_end
-REM if exist C:\TINYXML2 goto :tinyxml2_end
+if DEFINED MINIMAL_INSTALL goto :tinyxml2_end
+if exist C:\TINYXML2 goto :tinyxml2_end
 echo Installing TINYXML2...
 set TINYXML2_MAJOR=9
 set TINYXML2_MINOR=0

@@ -35,11 +35,21 @@ choco install -y --no-progress wget --version=1.21.2
 choco install -y --no-progress ninja --version=1.10.1
 choco install -y --no-progress cmake --version=3.22.1 --installargs 'ADD_CMAKE_TO_PATH=System'
 choco install -y --no-progress python --version=3.10.11
+choco install -y --no-progress python --version=3.11.7
+choco install -y --no-progress python --version=3.12.1
 call refreshenv && echo OK
 pathed /MACHINE /REMOVE C:\Python310\Scripts\
 pathed /MACHINE /REMOVE C:\Python310\
+pathed /MACHINE /REMOVE C:\Python311\Scripts\
+pathed /MACHINE /REMOVE C:\Python311\
+pathed /MACHINE /REMOVE C:\Python312\Scripts\
+pathed /MACHINE /REMOVE C:\Python312\
 C:\Python310\python.exe -m pip install --upgrade pip
 C:\Python310\python.exe -m pip install numpy scipy pybind11==2.9.1 matplotlib
+C:\Python311\python.exe -m pip install --upgrade pip
+C:\Python311\python.exe -m pip install numpy scipy pybind11==2.9.1 matplotlib
+C:\Python312\python.exe -m pip install --upgrade pip
+C:\Python312\python.exe -m pip install numpy scipy pybind11==2.9.1 matplotlib
 
 
 REM Install plugins dependencies
