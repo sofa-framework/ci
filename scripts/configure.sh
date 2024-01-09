@@ -371,6 +371,7 @@ elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
 elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     echo "Configuring with as much plugins/modules as possible (scope = full)"
     add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
+    add-cmake-option "-DAPPLICATION_SOFAINFO=ON"
     add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
     add-cmake-option "-DSOFA_BUILD_TESTS=ON"
     add-cmake-option "-DSOFA_DUMP_VISITOR_INFO=ON"
