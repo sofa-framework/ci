@@ -92,24 +92,26 @@ add-cmake-option "-DCMAKE_BUILD_TYPE=$BUILD_TYPE_CMAKE"
 
 # Compiler and cache
 if vm-is-windows; then
+
+	echo "clcache is disabled temporarly"
     # Compiler
     # see comntools usage in call-cmake() for compiler selection on Windows
 
-    # Cache
-    if [ -e "$(command -v clcache)" ]; then
-        export CLCACHE_DIR="J:/clcache"
-        if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
-            export CLCACHE_BASEDIR="$EXECUTOR_LINK_WINDOWS_BUILD"
-        else
-            export CLCACHE_BASEDIR="$BUILD_DIR"
-        fi
-        #export CLCACHE_HARDLINK=1 # this may cause cache corruption. see https://github.com/frerich/clcache/issues/282
-        export CLCACHE_OBJECT_CACHE_TIMEOUT_MS=3600000
-        clcache -M 17179869184 # Set cache size to 1024*1024*1024*16 = 16 GB
+    # Cache //TODO : make clcache work on windows builder
+    # if [ -e "$(command -v clcache)" ]; then
+        # export CLCACHE_DIR="C:/clcache"
+        # if [ -n "$EXECUTOR_LINK_WINDOWS_BUILD" ]; then
+            # export CLCACHE_BASEDIR="$EXECUTOR_LINK_WINDOWS_BUILD"
+        # else
+            # export CLCACHE_BASEDIR="$BUILD_DIR"
+        # fi
+        # #export CLCACHE_HARDLINK=1 # this may cause cache corruption. see https://github.com/frerich/clcache/issues/282
+        # export CLCACHE_OBJECT_CACHE_TIMEOUT_MS=3600000
+        # clcache -M 17179869184 # Set cache size to 1024*1024*1024*16 = 16 GB
 
-        add-cmake-option "-DCMAKE_C_COMPILER=clcache"
-        add-cmake-option "-DCMAKE_CXX_COMPILER=clcache"
-    fi
+        # add-cmake-option "-DCMAKE_C_COMPILER=clcache"
+        # add-cmake-option "-DCMAKE_CXX_COMPILER=clcache"
+    # fi
 else
     # Compiler
     case "$COMPILER" in
@@ -403,7 +405,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
     fi
     if [[ "$VM_HAS_CGAL" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
+        add-cmake-option "-DPLUGIN_CGALPLUGIN=ON -DSOFA_FETCH_CGALPLUGIN=ON"
     else
         add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
     fi

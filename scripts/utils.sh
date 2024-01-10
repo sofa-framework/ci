@@ -85,6 +85,8 @@ get-msvc-year() {
             vs-2019) echo "2019" ;;
             vs2017)  echo "2017" ;;
             vs2019)  echo "2019" ;;
+			vs2022)  echo "2022" ;;
+
         esac
     fi
 }
