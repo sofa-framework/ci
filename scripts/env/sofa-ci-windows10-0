@@ -32,7 +32,7 @@ export VM_HAS_OPENCASCADE="false" # TODO: Update FindOpenCascade.cmake in MeshST
 
 export VM_BOOST_PATH="C:/boost"
 
-export VM_QT_PATH="C:/Qt/5.12.10"
+export VM_QT_PATH="C:/Qt/5.12.12"
 
 export PYTHONIOENCODING="UTF-8"
 export PYTHONUSERBASE="C:/tmp/pythonuserbase" && mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
