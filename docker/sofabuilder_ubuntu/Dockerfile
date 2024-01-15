@@ -121,7 +121,7 @@ ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 
 
 # Install METIS
-RUN git clone https://github.com/bakpaul/METIS.git \
+RUN git clone https://github.com/sofa-framework/METIS.git \
     && cd METIS \
     && git checkout v5.1.1-ModernInstall \
     && cd .. && mkdir build && cd build \
