@@ -123,9 +123,9 @@ ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 # Install METIS
 RUN git clone https://github.com/sofa-framework/METIS.git \
     && cd METIS \
-    && git checkout v5.1.1-ModernInstall \
+    && git checkout v5.2.1-ModernInstall \
     && cd .. && mkdir build && cd build \
-    && cmake ../METIS \
+    && cmake ../METIS && cmake -LAH | grep GKRAND\
     && make --silent install -j 5
 
 # Install CUDA
