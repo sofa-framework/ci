@@ -30,6 +30,7 @@ call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%ASSIMP_ROOT%\install -DBUILD_STATIC=OFF ..\src ^
     && ninja install
 pathed /MACHINE /APPEND "%ASSIMP_ROOT%\install"
+pathed /MACHINE /APPEND "%ASSIMP_ROOT%\install\bin"
 setx /M ASSIMP_ROOT %ASSIMP_ROOT%\install
 RMDIR /S /Q "%ASSIMP_ROOT%\src"
 RMDIR /S /Q "%ASSIMP_ROOT%\build"
@@ -54,6 +55,7 @@ call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=%CGAL_ROOT%\install -DBUILD_STATIC=OFF ..\src ^
     && ninja install
 pathed /MACHINE /APPEND "%CGAL_ROOT%\install"
+pathed /MACHINE /APPEND "%CGAL_ROOT%\install\bin"
 setx /M CGAL_ROOT %CGAL_ROOT%\install
 RMDIR /S /Q "%CGAL_ROOT%\src"
 RMDIR /S /Q "%CGAL_ROOT%\build"
@@ -87,6 +89,7 @@ REM powershell -Command "Invoke-WebRequest "^
     REM "https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq_addon.hpp "^
     REM "-OutFile %ZMQ_ROOT%\install\include\zmq_addon.hpp"
 pathed /MACHINE /APPEND "C:\Program Files (x86)\ZeroMQ"
+pathed /MACHINE /APPEND "C:\Program Files (x86)\ZeroMQ\bin"
 setx /M ZMQ_ROOT "C:\Program Files (x86)\ZeroMQ"
 RMDIR /S /Q "%ZMQ_ROOT%\src" 
 RMDIR /S /Q "%ZMQ_ROOT%\build" 
@@ -111,6 +114,7 @@ call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
     && ninja install 
 
 pathed /MACHINE /APPEND "%VRPN_ROOT%\install"
+pathed /MACHINE /APPEND "%VRPN_ROOT%\install\bin"
 setx /M VRPN_ROOT %VRPN_ROOT%\install
 RMDIR /S /Q "%VRPN_ROOT%\src" 
 RMDIR /S /Q "%VRPN_ROOT%\build" 
@@ -138,6 +142,7 @@ Xcopy /E /I %OSC_ROOT%\src\ip %OSC_ROOT%\install\include\oscpack\ip\
 Xcopy /E /I %OSC_ROOT%\src\osc %OSC_ROOT%\install\include\oscpack\osc\
 Xcopy /E /I %OSC_ROOT%\build\oscpack.lib %OSC_ROOT%\install\lib\
 pathed /MACHINE /APPEND "%OSC_ROOT%\install"
+pathed /MACHINE /APPEND "%OSC_ROOT%\install\bin"
 setx /M Oscpack_ROOT %OSC_ROOT%\install
 RMDIR /S /Q "%OSC_ROOT%\src" 
 RMDIR /S /Q "%OSC_ROOT%\build" 
@@ -166,6 +171,7 @@ call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 ^
 
 
 pathed /MACHINE /APPEND "%METIS_ROOT%\install"
+pathed /MACHINE /APPEND "%METIS_ROOT%\install\bin"
 setx /M METIS_ROOT %METIS_ROOT%\install
 RMDIR /S /Q "%METIS_ROOT%\src" 
 RMDIR /S /Q "%METIS_ROOT%\build" 
@@ -189,6 +195,7 @@ mkdir %TINYXML2_ROOT%\build && mkdir %TINYXML2_ROOT%\install && cd %TINYXML2_ROO
 call %VS170COMNTOOLS%\VsDevCmd -host_arch=amd64 -arch=amd64 && cmake -DCMAKE_INSTALL_PREFIX=%TINYXML2_ROOT%\install -GNinja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ../src  && ninja install
 
 pathed /MACHINE /APPEND "%TINYXML2_ROOT%\install"
+pathed /MACHINE /APPEND "%TINYXML2_ROOT%\install\bin"
 setx /M TINYXML2_ROOT %TINYXML2_ROOT%\install
 RMDIR /S /Q "%TINYXML2_ROOT%\src"
 RMDIR /S /Q "%TINYXML2_ROOT%\build"
