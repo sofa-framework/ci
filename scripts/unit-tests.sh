@@ -28,6 +28,15 @@ if [ "$#" -ge 3 ]; then
     if [ -n "$4" ]; then
         test_type="regression-tests"
         references_dir="$4"
+        if vm-is-windows; then
+            references_dir="$(cd $4 && pwd -W)"
+            #Avoid "libpython3X not found"
+            if [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+                pythonroot="$(dirname $VM_PYTHON3_EXECUTABLE)"
+                pythonroot="$(cd "$pythonroot" && pwd)"
+                export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
+            fi
+        fi
     fi
     output_dir="$test_type"
 else
