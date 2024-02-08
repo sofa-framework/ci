@@ -433,9 +433,9 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
     add-cmake-option "-DPLUGIN_SOFACARVING=ON"
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_SOFACUDA=ON -DSOFA_FETCH_SOFACUDA=ON"
+        add-cmake-option "-DPLUGIN_SOFACUDA=ON -DSOFACUDA_DOUBLE=ON"
     else
-        add-cmake-option "-DPLUGIN_SOFACUDA=OFF -DSOFA_FETCH_SOFACUDA=OFF"
+        add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
     fi
     add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
     add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
