@@ -304,9 +304,7 @@ fi
 if [ -n "$VM_OPENCASCADE_PATH" ]; then
     add-cmake-option "-DSOFA_OPENCASCADE_ROOT=$VM_OPENCASCADE_PATH" # Needed by MeshSTEPLoader/FindOpenCascade.cmake
 fi
-if [ -n "$VM_CUDA_ARCH" ]; then
-    add-cmake-option "-DSOFACUDA_ARCH=$VM_CUDA_ARCH"
-fi
+
 if [ -n "$VM_CUDA_HOST_COMPILER" ]; then
     add-cmake-option "-DCMAKE_CUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
     add-cmake-option "-DCUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
@@ -433,9 +431,14 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
     add-cmake-option "-DPLUGIN_SOFACARVING=ON"
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_SOFACUDA=ON -DSOFA_FETCH_SOFACUDA=ON"
+        add-cmake-option "-DPLUGIN_SOFACUDA=ON -DSOFACUDA_DOUBLE=ON"
+        if in-array "build-release-package" "$BUILD_OPTIONS"; then
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5"
+        else
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;7.5"
+        fi
     else
-        add-cmake-option "-DPLUGIN_SOFACUDA=OFF -DSOFA_FETCH_SOFACUDA=OFF"
+        add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
     fi
     add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
     add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
