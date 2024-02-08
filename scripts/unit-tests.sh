@@ -12,7 +12,7 @@ export SOFA_COLOR_TERMINAL=no
 export PATH_RESET="$PATH"
 
 usage() {
-    echo "Usage: unit-tests.sh (run|print-summary) (unit|regression) <build-dir> <src-dir> [references-dir]"
+    echo "Usage: unit-tests.sh (run|print-summary) (unit|regression) <build-dir> <src-dir>"
 }
 
 if [ "$#" -ge 3 ]; then
@@ -25,6 +25,7 @@ if [ "$#" -ge 3 ]; then
     if vm-is-windows; then
         src_dir="$(cd $4 && pwd -W)"
     fi
+    test_name_min="$2"
     test_type="unit-tests"
     if [ "$2" == "regression" ]; then
         test_type="regression-tests"
@@ -92,7 +93,7 @@ list-tests() {
 }
 
 initialize-unit-tests() {
-    echo "Initializing unit testing."
+    echo "Initializing $test_name_min testing."
     rm -rf "$output_dir"
     mkdir -p "$output_dir/reports"
     list-tests | while read test; do
@@ -268,7 +269,7 @@ do-run-all-tests() {
 }
 
 run-all-tests() {
-    echo "Unit testing in progress..."
+    echo "${test_name_min^} testing in progress..."
 
     # Move SofaPython3 tests out of the list
     cat "$output_dir/${test_type}.txt" | grep "Bindings\." > "$output_dir/${test_type}.SofaPython3.txt"
