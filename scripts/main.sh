@@ -390,18 +390,18 @@ if in-array "run-unit-tests" "$BUILD_OPTIONS"; then
     dashboard-notify "tests_status=$tests_status"
     echo "$tests_status" > "$BUILD_DIR/unit-tests.status"
 
-    "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR"
-    "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR"
+    "$SCRIPT_DIR/unit-tests.sh" run unit "$BUILD_DIR" "$SRC_DIR"
+    "$SCRIPT_DIR/unit-tests.sh" print-summary unit "$BUILD_DIR" "$SRC_DIR"
 
     tests_status="done" # TODO: handle script crash
     echo "$tests_status" > "$BUILD_DIR/unit-tests.status"
 
-    tests_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR)
-    tests_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests $BUILD_DIR $SRC_DIR)
-    tests_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR)
-    tests_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures $BUILD_DIR $SRC_DIR)
-    tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
-    tests_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations $BUILD_DIR $SRC_DIR)
+    tests_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites unit $BUILD_DIR $SRC_DIR)
+    tests_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests unit $BUILD_DIR $SRC_DIR)
+    tests_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled unit $BUILD_DIR $SRC_DIR)
+    tests_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures unit $BUILD_DIR $SRC_DIR)
+    tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors unit $BUILD_DIR $SRC_DIR)
+    tests_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations unit $BUILD_DIR $SRC_DIR)
 
     tests_problems=$(( tests_failures + tests_errors ))
     github_message="${github_message} $tests_problems unit"
@@ -486,18 +486,18 @@ if in-array "run-regression-tests" "$BUILD_OPTIONS" && [ -n "$REGRESSION_DIR" ];
 
     references_dir="$REGRESSION_DIR/references"
 
-    "$SCRIPT_DIR/unit-tests.sh" run "$BUILD_DIR" "$SRC_DIR" "$references_dir"
-    "$SCRIPT_DIR/unit-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" "$references_dir"
+    "$SCRIPT_DIR/unit-tests.sh" run regression "$BUILD_DIR" "$SRC_DIR"
+    "$SCRIPT_DIR/unit-tests.sh" print-summary regression "$BUILD_DIR" "$SRC_DIR"
 
     regressions_status="done" # TODO: handle script crash
     echo "$regressions_status" > "$BUILD_DIR/regression-tests.status"
 
-    regressions_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites $BUILD_DIR $SRC_DIR $references_dir)
-    regressions_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests $BUILD_DIR $SRC_DIR $references_dir)
-    regressions_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled $BUILD_DIR $SRC_DIR $references_dir)
-    regressions_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures $BUILD_DIR $SRC_DIR $references_dir)
-    regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors $BUILD_DIR $SRC_DIR $references_dir)
-    regressions_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations $BUILD_DIR $SRC_DIR $references_dir)
+    regressions_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites regression $BUILD_DIR $SRC_DIR )
+    regressions_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests regression $BUILD_DIR $SRC_DIR )
+    regressions_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled regression $BUILD_DIR $SRC_DIR )
+    regressions_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures regression $BUILD_DIR $SRC_DIR )
+    regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors regression $BUILD_DIR $SRC_DIR )
+    regressions_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations regression $BUILD_DIR $SRC_DIR )
 
     regressions_problems=$(( regressions_failures + regressions_errors ))
     github_message="${github_message}, $regressions_problems regression"
