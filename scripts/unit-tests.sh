@@ -9,9 +9,10 @@
 # Disable colored output to avoid dirtying the log
 export GTEST_COLOR=no
 export SOFA_COLOR_TERMINAL=no
+export PATH_RESET="$PATH"
 
 usage() {
-    echo "Usage: unit-tests.sh (run|print-summary) <build-dir> <src-dir> [references-dir]"
+    echo "Usage: unit-tests.sh (run|print-summary) (unit|regression) <build-dir> <src-dir>"
 }
 
 if [ "$#" -ge 3 ]; then
@@ -19,18 +20,24 @@ if [ "$#" -ge 3 ]; then
     . "$SCRIPT_DIR"/utils.sh
 
     command="$1"
-    build_dir="$(cd $2 && pwd)"
-    src_dir="$(cd $3 && pwd)"
+    build_dir="$(cd $3 && pwd)"
+    src_dir="$(cd $4 && pwd)"
     if vm-is-windows; then
-        src_dir="$(cd $3 && pwd -W)"
+        src_dir="$(cd $4 && pwd -W)"
     fi
+    test_name_min="$2"
     test_type="unit-tests"
-    if [ -n "$4" ]; then
+    if [ "$2" == "regression" ]; then
         test_type="regression-tests"
-        references_dir="$4"
-		if vm-is-windows; then
-			references_dir="$(cd $4 && pwd -W)"
-		fi
+
+        if vm-is-windows; then
+            # Avoid "libpython3X not found"
+            if [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
+                pythonroot="$(dirname $VM_PYTHON3_EXECUTABLE)"
+                pythonroot="$(cd "$pythonroot" && pwd)"
+                export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
+            fi
+        fi
     fi
     output_dir="$test_type"
 else
@@ -53,11 +60,7 @@ fi
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
 export SOFA_ROOT="$build_dir"
 if [[ "$test_type" == "regression-tests" ]]; then
-    export REGRESSION_REFERENCES_DIR="$references_dir/examples|$references_dir/applications/plugins"
     export REGRESSION_SCENES_DIR="$src_dir/examples|$src_dir/applications/plugins"
-	
-	echo $REGRESSION_REFERENCES_DIR
-	echo $REGRESSION_SCENES_DIR
 fi
 
 list-tests() {
@@ -91,7 +94,7 @@ list-tests() {
 }
 
 initialize-unit-tests() {
-    echo "Initializing unit testing."
+    echo "Initializing $test_name_min testing."
     rm -rf "$output_dir"
     mkdir -p "$output_dir/reports"
     list-tests | while read test; do
@@ -267,7 +270,7 @@ do-run-all-tests() {
 }
 
 run-all-tests() {
-    echo "Unit testing in progress..."
+    echo "${test_name_min^} testing in progress..."
 
     # Move SofaPython3 tests out of the list
     cat "$output_dir/${test_type}.txt" | grep "Bindings\." > "$output_dir/${test_type}.SofaPython3.txt"
@@ -400,3 +403,4 @@ elif [[ "$command" = print-summary ]]; then
 else
     usage
 fi
+export PATH="$PATH_RESET"
