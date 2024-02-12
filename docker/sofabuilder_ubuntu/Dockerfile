@@ -133,7 +133,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
 RUN dpkg -i cuda-keyring_1.0-1_all.deb
 RUN apt-get update
-RUN apt-get -y install cuda-toolkit-12-3
+RUN apt-get -y install cuda-toolkit-12-2
 ENV VM_HAS_CUDA="true"
 ENV PATH=$PATH:/usr/local/cuda/bin
 
