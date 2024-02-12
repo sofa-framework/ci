@@ -120,12 +120,12 @@ ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
 
 # Install METIS
-RUN git clone https://github.com/sofa-framework/METIS.git \
-    && cd METIS \
-    && git checkout v5.2.1-ModernInstall \
-    && cd .. && mkdir build && cd build \
-    && cmake ../METIS \
-    && make --silent install -j 5
+#RUN git clone https://github.com/sofa-framework/METIS.git \
+#    && cd METIS \
+#    && git checkout v5.2.1-ModernInstall \
+#    && cd .. && mkdir build && cd build \
+#    && cmake ../METIS \
+#    && make --silent install -j 5
 ###################################
 
 # Disable core dumps

@@ -121,19 +121,19 @@ ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 
 
 # Install METIS
-RUN git clone https://github.com/sofa-framework/METIS.git \
-    && cd METIS \
-    && git checkout v5.2.1-ModernInstall \
-    && cd .. && mkdir build && cd build \
-    && cmake ../METIS && cmake -LAH | grep GKRAND\
-    && make --silent install -j 5
+#RUN git clone https://github.com/sofa-framework/METIS.git \
+#    && cd METIS \
+#    && git checkout v5.2.1-ModernInstall \
+#    && cd .. && mkdir build && cd build \
+#    && cmake ../METIS && cmake -LAH | grep GKRAND\
+#    && make --silent install -j 5
 
 # Install CUDA
 ENV DEBIAN_FRONTEND noninteractive
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
 RUN dpkg -i cuda-keyring_1.0-1_all.deb
 RUN apt-get update
-RUN apt-get -y install cuda-toolkit-11-8
+RUN apt-get -y install cuda-toolkit-12-3
 ENV VM_HAS_CUDA="true"
 ENV PATH=$PATH:/usr/local/cuda/bin
 
