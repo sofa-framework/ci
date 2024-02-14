@@ -270,7 +270,8 @@ do-run-all-tests() {
 }
 
 run-all-tests() {
-    echo "${test_name_min^} testing in progress..."
+
+    echo "Starting all ${test_name_min} tests..."
 
     # Move SofaPython3 tests out of the list
     cat "$output_dir/${test_type}.txt" | grep "Bindings\." > "$output_dir/${test_type}.SofaPython3.txt"
