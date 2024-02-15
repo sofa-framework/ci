@@ -14,7 +14,7 @@
 
 export VM_HAS_REQUIRED_LIBS="true"
 
-export VM_MAKE_OPTIONS="-j5"
+export VM_MAKE_OPTIONS="-j4"
 
 export VM_MAX_PARALLEL_TESTS="7"
 
