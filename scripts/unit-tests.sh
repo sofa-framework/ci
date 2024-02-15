@@ -29,6 +29,7 @@ if [ "$#" -ge 3 ]; then
     test_type="unit-tests"
     if [ "$2" == "regression" ]; then
         test_type="regression-tests"
+
         if vm-is-windows; then
             # Avoid "libpython3X not found"
             if [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
@@ -269,6 +270,7 @@ do-run-all-tests() {
 }
 
 run-all-tests() {
+
     echo "Starting all ${test_name_min} tests..."
 
     # Move SofaPython3 tests out of the list
