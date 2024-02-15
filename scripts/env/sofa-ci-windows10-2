@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Display Name	sofa-ci-windows10-2
-# Name	sofa-ci-windows10-2
+# Display Name	sofa-ci-windows10-0
+# Name	sofa-ci-windows10-0
 # State	Running
 # Template	Windows 10
 # Dynamically Scalable	Yes
@@ -32,7 +32,7 @@ export VM_HAS_OPENCASCADE="false" # TODO: Update FindOpenCascade.cmake in MeshST
 
 export VM_BOOST_PATH="C:/boost"
 
-export VM_QT_PATH="C:/Qt/5.12.8"
+export VM_QT_PATH="C:/Qt/5.12.12"
 
 export PYTHONIOENCODING="UTF-8"
 export PYTHONUSERBASE="C:/tmp/pythonuserbase" && mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
@@ -51,13 +51,13 @@ export VM_PYBIND11_CONFIG_EXECUTABLE="$VM_PYTHON3_EXECUTABLE -m pybind11"
 
 export VM_BULLET_PATH=""
 
-export VM_ASSIMP_PATH="C:/assimp"
+export VM_ASSIMP_PATH="C:/assimp/5.2.2/install"
 
-export VM_CGAL_PATH="C:/CGAL"
+export VM_CGAL_PATH="C:/cgal/5.4.1/install"
 
 export VM_OPENCASCADE_PATH="C:/OpenCascade/opencascade-7.4.0"
 
-export VM_EIGEN3_PATH="C:/eigen/eigen-3.3.7"
+export VM_EIGEN3_PATH="C:/eigen/eigen-3.4.0"
 
 export VM_NODEEDITOR_PATH="C:/NodeEditor/2.1.3/install"
 
