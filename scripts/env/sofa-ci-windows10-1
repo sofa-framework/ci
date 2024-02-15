@@ -38,8 +38,8 @@ export PYTHONIOENCODING="UTF-8"
 export PYTHONUSERBASE="C:/tmp/pythonuserbase" && mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
 export VM_PYTHON_EXECUTABLE="C:/Python27/python.exe"
 export VM_PYTHON_PYTHONPATH="C:/Python27/Lib/site-packages"
-export VM_PYTHON3_EXECUTABLE="C:/Python38/python.exe"
-export VM_PYTHON3_PYTHONPATH="C:/Python38/Lib/site-packages"
+export VM_PYTHON3_EXECUTABLE="C:/Python310/python.exe"
+export VM_PYTHON3_PYTHONPATH="C:/Python310/Lib/site-packages"
 CI_PYTHON3_VERSION_WINDOWS="$(echo "$CI_PYTHON3_VERSION" | sed 's:\.::g')"
 if [[ -n "$CI_PYTHON3_VERSION_WINDOWS" ]] &&
    [[ -e "C:/Python$CI_PYTHON3_VERSION_WINDOWS/python.exe" ]] &&
