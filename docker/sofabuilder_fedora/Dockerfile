@@ -73,7 +73,7 @@ RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
-ENV VM_HAS_OPENCASCADE="true"
+ENV VM_HAS_OPENCASCADE="false"
 
 ###################################
 
