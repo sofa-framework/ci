@@ -26,8 +26,8 @@ x86_root="/usr/local"
 arm_root="/opt/homebrew"
 export VM_PYTHON_EXECUTABLE=""
 export VM_PYTHON_PYTHONPATH=""
-export VM_PYTHON3_EXECUTABLE="$arm_root/opt/python@3.8/bin/python3"
-export VM_PYTHON3_PYTHONPATH="$arm_root/lib/python3.8/site-packages"
+export VM_PYTHON3_EXECUTABLE="$arm_root/opt/python@3.10/bin/python3"
+export VM_PYTHON3_PYTHONPATH="$arm_root/lib/python3.10/site-packages"
 if [[ -n "$CI_PYTHON3_VERSION" ]] &&
    [[ -e "$x86_root/opt/python@$CI_PYTHON3_VERSION/bin/python3" ]] &&
    [[ -e "$x86_root/lib/python$CI_PYTHON3_VERSION/site-packages" ]]; then
