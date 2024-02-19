@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Display Name	sofa-ci-dev-ubuntu2004-3
-# Name	sofa-ci-dev-ubuntu2004-3
+# Display Name	sofa-ci-dev-ubuntu2004-1
+# Name	sofa-ci-dev-ubuntu2004-1
 # State	Running
 # Template	sed-paris-ubuntu-20.04-lts
 # Dynamically Scalable	No
@@ -14,7 +14,7 @@
 
 export VM_HAS_REQUIRED_LIBS="true"
 
-export VM_MAKE_OPTIONS="-j4"
+export VM_MAKE_OPTIONS="-j7"
 
 export VM_MAX_PARALLEL_TESTS="7"
 
