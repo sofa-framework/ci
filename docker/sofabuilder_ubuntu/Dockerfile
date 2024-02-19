@@ -107,7 +107,7 @@ ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
-ARG CGAL_VERSION=5.4.5
+ARG CGAL_VERSION=5.4.1
 ADD https://github.com/CGAL/cgal/releases/download/v$CGAL_VERSION/CGAL-$CGAL_VERSION.tar.xz /tmp/CGAL.tar.xz
 RUN apt-get install -y libgmp-dev libmpfr-dev
 RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
