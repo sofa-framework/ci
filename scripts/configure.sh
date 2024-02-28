@@ -70,7 +70,7 @@ if vm-is-windows && [ ! -d "$SRC_DIR/lib" ]; then
     (
     cd "$SRC_DIR"
     echo "Copying dependency pack in the source tree."
-    curl -L "https://github.com/guparan/ci/raw/tmp_windeppack/setup/WinDepPack.zip" --output dependencies_tmp.zip
+    curl -L "https://www.dropbox.com/scl/fi/v0pdwzmbp7w7ulc98mbxn/SOFA_WinDepPack_20230228.zip?rlkey=zlkd7xzfkt8iiaq37d4lnj18r&dl=1" --output dependencies_tmp.zip
     unzip dependencies_tmp.zip -d dependencies_tmp > /dev/null
     cp -rf dependencies_tmp/*/* "$SRC_DIR"
     rm -rf dependencies_tmp*
