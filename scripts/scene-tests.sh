@@ -150,9 +150,14 @@ list-plugins() {
 }
 
 list-scene-directories() {
-    # Main directory
+    # examples directory
     mkdir -p "$output_dir/examples"
     echo examples >> "$output_dir/directories.txt"
+
+    # share directory
+    mkdir -p "$output_dir/share"
+    echo share >> "$output_dir/directories.txt"
+
     # List directories for compiled plugins only
     list-plugins | while read plugin; do
         local lib="$(get-lib "$plugin")"
