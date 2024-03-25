@@ -438,9 +438,9 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
         add-cmake-option "-DPLUGIN_SOFACUDA=ON -DSOFACUDA_DOUBLE=ON"
         if in-array "build-release-package" "$BUILD_OPTIONS"; then
-            add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5"
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5;8.0;8.6;8.9"
         else
-            add-cmake-option "-DCUDA_ARCH_LIST=6.0;7.5"
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;8.9"
         fi
     else
         add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
