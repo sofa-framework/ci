@@ -19,7 +19,7 @@ fi
 
 echo "--------------------------------------------"
 echo "---- Install system utils"
-brew install cmake ninja ccache coreutils
+brew install cmake ninja ccache coreutils git
 
 echo "--------------------------------------------"
 echo "---- Install SOFA dependencies"
