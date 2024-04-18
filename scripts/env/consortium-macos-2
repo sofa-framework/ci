@@ -20,7 +20,7 @@ export VM_HAS_CUDA="false"
 export VM_HAS_OPENCASCADE="false"
 
 
-export VM_QT_PATH="/User/ci/Qt/5.12.12/clang_64"
+export VM_QT_PATH="/opt/homebrew/Cellar/qt\@5/5.15.13/"
 
 x86_root="/usr/local"
 arm_root="/opt/homebrew"
@@ -49,5 +49,4 @@ export PATH="\
 /opt/homebrew/opt/coreutils/libexec/gnubin:\
 /opt/homebrew/opt/ccache/libexec:\
 /opt/homebrew/bin:/opt/homebrew/lib:\
-/User/ci/Qt/5.12.12/clang_64/lib/cmake:\
 $PATH"
