@@ -47,5 +47,5 @@ export PATH="\
 /opt/homebrew/opt/coreutils/libexec/gnubin:\
 /opt/homebrew/opt/ccache/libexec:\
 /opt/homebrew/bin:/opt/homebrew/lib:\
-/User/ci/Qt/5.12.12/clang_64/bin:\
+/User/ci/Qt/5.12.12/clang_64/lib:\
 $PATH"
