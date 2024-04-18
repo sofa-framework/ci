@@ -20,7 +20,7 @@ export VM_HAS_CUDA="false"
 export VM_HAS_OPENCASCADE="false"
 
 
-export VM_QT_PATH="/opt/homebrew/Cellar/qt\@5/5.15.13/"
+export VM_QT_PATH="/opt/homebrew/Cellar/qt@5/5.15.13/"
 
 x86_root="/usr/local"
 arm_root="/opt/homebrew"
