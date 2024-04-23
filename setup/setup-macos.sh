@@ -45,11 +45,18 @@ brew install python@3.11
 brew unlink python@3.12 || true
 brew unlink python@3.11  || true
 brew unlink python@3.10  || true
-brew unlink python@3.9  || true
 brew link --force python@3.10
-python3 -m pip install --upgrade pip
-python3 -m pip install numpy scipy pygame
-brew install pybind11
+python3.10 -m pip install --upgrade pip
+python3.10 -m pip install numpy scipy pygame pybind11
+
+
+brew unlink python@3.10  || true
+brew link --force python@3.11
+python3.11 -m pip install --upgrade pip
+python3.11 -m pip install numpy scipy pygame pybind11
+
+brew unlink python@3.11  || true
+brew link --force python@3.10
 
 echo "--------------------------------------------"
 echo "---- Install Qt with online installer"
@@ -65,9 +72,9 @@ if [ -d "$QT_INSTALLDIR" ]; then
     echo "Qt install dir already exists: $QT_INSTALLDIR"
     ls -la "$QT_INSTALLDIR"
 else
-    python3 -m pip install aqtinstall
-    python3 -m aqt install-qt   --outputdir $QT_INSTALLDIR mac desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH clang_64 -m qtcharts qtwebengine
-    python3 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw qt.tools.ifw.43
+    python3.10 -m pip install aqtinstall
+    python3.10 -m aqt install-qt   --outputdir $QT_INSTALLDIR mac desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH clang_64 -m qtcharts qtwebengine
+    python3.10 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw qt.tools.ifw.43
 fi
 
 echo "--------------------------------------------"
