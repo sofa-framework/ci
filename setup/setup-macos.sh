@@ -19,7 +19,7 @@ fi
 
 echo "--------------------------------------------"
 echo "---- Install system utils"
-brew install cmake ninja ccache coreutils git
+brew install cmake ninja ccache coreutils git sshpass
 
 echo "--------------------------------------------"
 echo "---- Install SOFA dependencies"
@@ -45,10 +45,16 @@ brew install python@3.11
 brew unlink python@3.12 || true
 brew unlink python@3.11  || true
 brew unlink python@3.10  || true
+brew unlink python@3.9 || true
+
+brew link --force python@3.9
+python3.9 -m pip install --upgrade pip
+python3.9 -m pip install numpy scipy pygame pybind11
+
+brew unlink python@3.9  || true
 brew link --force python@3.10
 python3.10 -m pip install --upgrade pip
 python3.10 -m pip install numpy scipy pygame pybind11
-
 
 brew unlink python@3.10  || true
 brew link --force python@3.11
@@ -74,7 +80,7 @@ if [ -d "$QT_INSTALLDIR" ]; then
 else
     python3.10 -m pip install aqtinstall
     python3.10 -m aqt install-qt   --outputdir $QT_INSTALLDIR mac desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH clang_64 -m qtcharts qtwebengine
-    python3.10 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw qt.tools.ifw.43
+    python3.10 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw qt.tools.ifw.47
 fi
 
 echo "--------------------------------------------"
@@ -83,6 +89,8 @@ brew install assimp
 brew install cgal
 brew install opencascade
 brew install lapack
+brew install tinyxml2
+
 # brew install homebrew/cask-drivers/nvidia-cuda
 
 echo "--------------------------------------------"
