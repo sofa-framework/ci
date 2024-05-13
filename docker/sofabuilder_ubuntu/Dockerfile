@@ -61,7 +61,9 @@ RUN apt-get install -y \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev \
     libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
-    libtinyxml2-dev
+    libtinyxml2-dev \
+    xorg-dev\
+    libgtk-3-dev
 
 # Install pip, numpy, scipy, pybind11
 ARG PYBIND11_VERSION=2.9.1
