@@ -8,6 +8,9 @@ export VM_MAX_PARALLEL_TESTS="4"
 
 export VM_CCACHE_MAXSIZE="16G"
 
+export VM_BUILDS_IMGUI="true"
+
+
 
 export VM_HAS_BULLET="false"
 
