@@ -58,6 +58,8 @@ RUN yum install -y -q \
     xorg-x11-server-devel\
     gtk3-devel
 
+ENV VM_BUILDS_IMGUI="false"
+
 # Install pip, numpy, scipy, pybind11
 ARG PYBIND11_VERSION=2.9.1
 #RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \

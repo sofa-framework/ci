@@ -65,6 +65,7 @@ RUN apt-get install -y \
     xorg-dev\
     libgtk-3-dev
 
+ENV VM_BUILDS_IMGUI="true"
 # Install pip, numpy, scipy, pybind11
 ARG PYBIND11_VERSION=2.9.1
 RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
