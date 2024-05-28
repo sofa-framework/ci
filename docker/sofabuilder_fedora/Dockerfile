@@ -55,8 +55,8 @@ RUN yum install -y -q \
     opencascade-devel \
     libXrandr-devel \
     tinyxml2-devel \
-    xorg-dev\
-    libgtk-3-dev
+    xorg-x11-server-devel\
+    gtk3-devel
 
 # Install pip, numpy, scipy, pybind11
 ARG PYBIND11_VERSION=2.9.1
