@@ -319,6 +319,7 @@ fi
 ######################
 
 # Options common to all configurations
+add-cmake-option "-DSOFA_ENABLE_LEGACY_HEADERS=ON"
 add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
 add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
