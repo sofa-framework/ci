@@ -447,9 +447,9 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     fi
     add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
     add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
-    add-cmake-option "-DPLUGIN_SOFAGLFW=ON"  "-DAPPLICATION_RUNSOFAGLFW=ON" "-DSOFA_FETCH_SOFAGLFW=ON"
+    add-cmake-option "-DPLUGIN_SOFAGLFW=OFF"  "-DAPPLICATION_RUNSOFAGLFW=OFF" "-DSOFA_FETCH_SOFAGLFW=OFF"
     if [[ "$VM_BUILDS_IMGUI" == "true" ]]; then
-		    add-cmake-option "-DPLUGIN_SOFAIMGUI=ON"
+		    add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
 		fi
     add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
     add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
