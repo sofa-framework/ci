@@ -61,7 +61,7 @@ RUN yum install -y -q \
 ENV VM_BUILDS_IMGUI="false"
 
 # Install pip, numpy, scipy, pybind11
-ARG PYBIND11_VERSION=2.9.1
+ARG PYBIND11_VERSION=2.11.1
 #RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
 #    && python2.7 /tmp/get-pip2.py \
 #    && python2.7 -m pip install --upgrade "pip == 20.3.4" \
