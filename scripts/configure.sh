@@ -458,6 +458,10 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_COLLISIONOBBCAPSULE=ON"
     add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=OFF -DSOFA_FETCH_THMPGSPATIALHASHING=ON"
     add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING=ON"
+
+    if [[ "$VM_HAS_CUDA" == "true" ]]; then
+      add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
+    fi
 fi
 
 # Generate binaries?
