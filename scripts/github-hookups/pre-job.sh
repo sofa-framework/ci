@@ -1,10 +1,23 @@
 #!/bin/bash
 
 #Create folder for this run
-BRANCH_NAME=$(echo $GITHUB_REF | awk -F '/' '{print $NF}')
-if [ ! -d $GITHUB_WORKSPACE/$GITHUB_REPOSITORY_OWNER/$BRANCH_NAME/$GITHUB_SHA ]; then
-  mkdir -p $GITHUB_WORKSPACE/$GITHUB_REPOSITORY_OWNER/$BRANCH_NAME/$GITHUB_SHA;
+REF_TYPE=$(echo $GITHUB_REF | awk -F '/' '{print $2}')
+BRANCH_OR_PR_NUMBER=$(echo $GITHUB_REF | awk -F '/' '{print $3}')
+
+if [ "$REF_TYPE" = "pull" ]; then
+    WORK_FOLDER=$GITHUB_WORKSPACE/PR$BRANCH_OR_PR_NUMBER
+else
+    if [ "$GITHUB_REPOSITORY_OWNER" != "sofa-framework" ]; then
+        exit 1
+    else
+        WORK_FOLDER=$GITHUB_WORKSPACE/$BRANCH_OR_PR_NUMBER/$GITHUB_SHA
+    fi
 fi
 
-echo $GITHUB_WORKSPACE/$GITHUB_REPOSITORY_OWNER/$BRANCH_NAME/$GITHUB_SHA > $GITHUB_WORKFLOW_SHA
+
+if [ ! -d  ]; then
+  mkdir -p $WORK_FOLDER
+fi
+
+echo "Work folder set to $WORK_FOLDER"
 
