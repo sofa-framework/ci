@@ -15,9 +15,11 @@ else
 fi
 
 
-if [ ! -d  ]; then
+if [ ! -d  $WORK_FOLDER ]; then
   mkdir -p $WORK_FOLDER
 fi
+
+echo $WORK_FOLDER>$GITHUB_WORKSPACE/$GITHUB_WORKFLOW_SHA
 
 echo "Work folder set to $WORK_FOLDER"
 
