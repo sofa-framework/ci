@@ -5,12 +5,15 @@ REF_TYPE=$(echo $GITHUB_REF | awk -F '/' '{print $2}')
 BRANCH_OR_PR_NUMBER=$(echo $GITHUB_REF | awk -F '/' '{print $3}')
 
 if [ "$REF_TYPE" = "pull" ]; then
+    echo "Setting env for PR #$BRANCH_OR_PR_NUMBER"
     WORK_FOLDER=$GITHUB_WORKSPACE/PR$BRANCH_OR_PR_NUMBER
 else
     if [ "$GITHUB_REPOSITORY_OWNER" != "bakpaul" ]; then
+        echo "This commit doesn't belong to the sofa-framework repository, exiting the job"
         exit 1
     else
-        WORK_FOLDER=$GITHUB_WORKSPACE/$BRANCH_OR_PR_NUMBER/$GITHUB_SHA
+        echo "Setting env for commit $(cut -c -8 <<< "$GITHUB_SHA")"
+        WORK_FOLDER=$GITHUB_WORKSPACE/$BRANCH_OR_PR_NUMBER/$(cut -c -8 <<< "$GITHUB_SHA")
     fi
 fi
 
