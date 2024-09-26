@@ -461,6 +461,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
 
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
       add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
+      add-cmake-option "-DPLUGIN_SOFADISTANCEGRID_CUDA=ON"
     fi
 fi
 
