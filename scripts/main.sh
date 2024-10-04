@@ -373,7 +373,7 @@ if vm-is-windows; then
 else
     plugin_conf="$BUILD_DIR/lib/plugin_list.conf.default"
 fi
-grep -v "SofaCUDA " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
+grep -v "CUDA " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 grep -v "SofaPython " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 grep -v "MeshSTEPLoader " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
 
