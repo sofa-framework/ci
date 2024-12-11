@@ -467,6 +467,7 @@ fi
 
 # Generate binaries?
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
+    add-cmake-option "-DSOFA_WITH_DEVTOOLS=OFF"
     add-cmake-option "-DSOFA_BUILD_RELEASE_PACKAGE=ON"
     if [[ "$BUILD_TYPE_CMAKE" == "Release" ]]; then
         add-cmake-option "-DCMAKE_BUILD_TYPE=MinSizeRel"
