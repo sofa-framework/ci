@@ -51,7 +51,7 @@ RUN apt-get install -y \
     python2.7-dev \
     python3.10-dev python3.10-distutils \
     python3.11-dev python3.11-distutils \
-    python3.12-dev python3.12-distutils \
+    python3.12-dev \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
