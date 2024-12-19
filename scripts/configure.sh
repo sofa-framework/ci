@@ -423,7 +423,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_DIFFUSIONSOLVER=ON"
     add-cmake-option "-DPLUGIN_GEOMAGIC=ON"
     add-cmake-option "-DPLUGIN_IMAGE=ON"
-    add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON -DSOFA_FETCH_INVERTIBLEFVM=ON"
     add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON -DSOFA_FETCH_MANIFOLDTOPOLOGIES=ON"
     add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
     if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
@@ -434,7 +433,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
     add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON -DSOFA_FETCH_PLUGINEXAMPLE=ON"
     add-cmake-option "-DPLUGIN_REGISTRATION=ON -DSOFA_FETCH_REGISTRATION=ON"
-    add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
     add-cmake-option "-DPLUGIN_SOFACARVING=ON"
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
         add-cmake-option "-DPLUGIN_SOFACUDA=ON -DSOFACUDA_DOUBLE=ON"
@@ -453,7 +451,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
 		    add-cmake-option "-DPLUGIN_SOFAIMGUI=ON"
 		fi
     add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
-    add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
     add-cmake-option "-DPLUGIN_SOFASPHFLUID=ON -DSOFA_FETCH_SOFASPHFLUID=ON"
     add-cmake-option "-DPLUGIN_COLLISIONOBBCAPSULE=ON"
     add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=OFF -DSOFA_FETCH_THMPGSPATIALHASHING=ON"
