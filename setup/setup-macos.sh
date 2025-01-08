@@ -45,7 +45,7 @@ brew unlink python@3.8  || true
 brew unlink python@3.7  || true
 brew link --force python@3.8
 python3 -m pip install --upgrade pip
-python3 -m pip install numpy scipy pygame
+python3 -m pip install numpy scipy pygame mypy pybind11-stubgen
 brew install pybind11
 
 echo "--------------------------------------------"
