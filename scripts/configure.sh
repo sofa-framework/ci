@@ -70,7 +70,7 @@ if vm-is-windows && [ ! -d "$SRC_DIR/lib" ]; then
     (
     cd "$SRC_DIR"
     echo "Copying dependency pack in the source tree."
-    curl -L "https://github.com/guparan/ci/raw/tmp_windeppack/setup/WinDepPack.zip" --output dependencies_tmp.zip
+    curl -L "https://www.sofa-framework.org/download/WinDepPack/latest/" --output dependencies_tmp.zip
     unzip dependencies_tmp.zip -d dependencies_tmp > /dev/null
     cp -rf dependencies_tmp/*/* "$SRC_DIR"
     rm -rf dependencies_tmp*
@@ -319,6 +319,7 @@ fi
 ######################
 
 # Options common to all configurations
+add-cmake-option "-DSOFA_ENABLE_LEGACY_HEADERS=ON"
 add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
 add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
 add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
@@ -398,6 +399,9 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_SOFTROBOTS=ON -DSOFA_FETCH_SOFTROBOTS=ON"
     add-cmake-option "-DPLUGIN_SHAPEMATCHINGPLUGIN=ON -DSOFA_FETCH_SHAPEMATCHINGPLUGIN=ON"
     add-cmake-option "-DPLUGIN_CSPARSESOLVERS=ON -DSOFA_FETCH_CSPARSESOLVERS=ON"
+    add-cmake-option "-DPLUGIN_MODELORDERREDUCTION=ON -DSOFA_FETCH_MODELORDERREDUCTION=ON"
+    add-cmake-option "-DPLUGIN_SOFA_METIS=ON -DSOFA_FETCH_SOFA.METIS=ON"
+
     if [[ "$VM_HAS_BULLET" == "true" ]]; then
         add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
     else
@@ -419,7 +423,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_DIFFUSIONSOLVER=ON"
     add-cmake-option "-DPLUGIN_GEOMAGIC=ON"
     add-cmake-option "-DPLUGIN_IMAGE=ON"
-    add-cmake-option "-DPLUGIN_INVERTIBLEFVM=ON -DSOFA_FETCH_INVERTIBLEFVM=ON"
     add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON -DSOFA_FETCH_MANIFOLDTOPOLOGIES=ON"
     add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
     if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
@@ -430,31 +433,38 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
     add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON -DSOFA_FETCH_PLUGINEXAMPLE=ON"
     add-cmake-option "-DPLUGIN_REGISTRATION=ON -DSOFA_FETCH_REGISTRATION=ON"
-    add-cmake-option "-DPLUGIN_SENSABLEEMULATION=ON"
     add-cmake-option "-DPLUGIN_SOFACARVING=ON"
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
         add-cmake-option "-DPLUGIN_SOFACUDA=ON -DSOFACUDA_DOUBLE=ON"
         if in-array "build-release-package" "$BUILD_OPTIONS"; then
-            add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5"
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5;8.0;8.6;8.9"
         else
-            add-cmake-option "-DCUDA_ARCH_LIST=6.0;7.5"
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;8.9"
         fi
     else
         add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
     fi
     add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
     add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
-    add-cmake-option "-DPLUGIN_SOFAGLFW=ON" "-DPLUGIN_SOFAIMGUI=OFF" "-DAPPLICATION_RUNSOFAGLFW=ON" "-DSOFA_FETCH_SOFAGLFW=ON"
+    add-cmake-option "-DPLUGIN_SOFAGLFW=ON"  "-DAPPLICATION_RUNSOFAGLFW=ON" "-DSOFA_FETCH_SOFAGLFW=ON"
+    if [[ "$VM_BUILDS_IMGUI" == "true" ]]; then
+		    add-cmake-option "-DPLUGIN_SOFAIMGUI=ON"
+		fi
     add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
-    add-cmake-option "-DPLUGIN_SOFASIMPLEGUI=ON" # Not sure if worth maintaining
     add-cmake-option "-DPLUGIN_SOFASPHFLUID=ON -DSOFA_FETCH_SOFASPHFLUID=ON"
     add-cmake-option "-DPLUGIN_COLLISIONOBBCAPSULE=ON"
     add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=OFF -DSOFA_FETCH_THMPGSPATIALHASHING=ON"
     add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING=ON"
+
+    if [[ "$VM_HAS_CUDA" == "true" ]]; then
+      add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
+      add-cmake-option "-DPLUGIN_SOFADISTANCEGRID_CUDA=ON"
+    fi
 fi
 
 # Generate binaries?
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
+    add-cmake-option "-DSOFA_WITH_DEVTOOLS=OFF"
     add-cmake-option "-DSOFA_BUILD_RELEASE_PACKAGE=ON"
     if [[ "$BUILD_TYPE_CMAKE" == "Release" ]]; then
         add-cmake-option "-DCMAKE_BUILD_TYPE=MinSizeRel"

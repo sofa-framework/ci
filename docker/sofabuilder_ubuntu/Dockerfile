@@ -51,7 +51,7 @@ RUN apt-get install -y \
     python2.7-dev \
     python3.10-dev python3.10-distutils \
     python3.11-dev python3.11-distutils \
-    python3.12-dev python3.12-distutils \
+    python3.12-dev \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
@@ -61,10 +61,13 @@ RUN apt-get install -y \
     liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev \
     libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
-    libtinyxml2-dev
+    libtinyxml2-dev \
+    xorg-dev\
+    libgtk-3-dev
 
+ENV VM_BUILDS_IMGUI="true"
 # Install pip, numpy, scipy, pybind11
-ARG PYBIND11_VERSION=2.9.1
+ARG PYBIND11_VERSION=2.11.1
 RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
     && python2.7 /tmp/get-pip2.py \
     && python2.7 -m pip install --upgrade "pip == 20.3.4" \
@@ -72,15 +75,15 @@ RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.10 /tmp/get-pip3.py \
     && python3.10 -m pip install --upgrade pip \
-    && python3.10 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
+    && python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.11 /tmp/get-pip3.py \
     && python3.11 -m pip install --upgrade pip \
-    && python3.11 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
+    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.12 /tmp/get-pip3.py \
     && python3.12 -m pip install --upgrade pip \
-    && python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION
+    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 

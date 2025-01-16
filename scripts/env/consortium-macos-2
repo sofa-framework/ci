@@ -8,6 +8,9 @@ export VM_MAX_PARALLEL_TESTS="4"
 
 export VM_CCACHE_MAXSIZE="16G"
 
+export VM_BUILDS_IMGUI="true"
+
+
 
 export VM_HAS_BULLET="false"
 
@@ -20,32 +23,33 @@ export VM_HAS_CUDA="false"
 export VM_HAS_OPENCASCADE="false"
 
 
-export VM_QT_PATH="/opt/homebrew/opt/qt5"
+export VM_QT_PATH="/opt/homebrew/Cellar/qt@5/5.15.13/"
 
 x86_root="/usr/local"
 arm_root="/opt/homebrew"
 export VM_PYTHON_EXECUTABLE=""
 export VM_PYTHON_PYTHONPATH=""
-export VM_PYTHON3_EXECUTABLE="$arm_root/opt/python@3.10/bin/python3"
+export VM_PYTHON3_EXECUTABLE="$arm_root/opt/python@3.10/bin/python3.10"
 export VM_PYTHON3_PYTHONPATH="$arm_root/lib/python3.10/site-packages"
 if [[ -n "$CI_PYTHON3_VERSION" ]] &&
-   [[ -e "$x86_root/opt/python@$CI_PYTHON3_VERSION/bin/python3" ]] &&
+   [[ -e "$x86_root/opt/python@$CI_PYTHON3_VERSION/bin/python$CI_PYTHON3_VERSION" ]] &&
    [[ -e "$x86_root/lib/python$CI_PYTHON3_VERSION/site-packages" ]]; then
-    export VM_PYTHON3_EXECUTABLE="$x86_root/opt/python@$CI_PYTHON3_VERSION/bin/python3"
+    export VM_PYTHON3_EXECUTABLE="$x86_root/opt/python@$CI_PYTHON3_VERSION/bin/python$CI_PYTHON3_VERSION"
     export VM_PYTHON3_PYTHONPATH="$x86_root/lib/python$CI_PYTHON3_VERSION/site-packages"
 fi
 if [[ -n "$CI_PYTHON3_VERSION" ]] &&
-   [[ -e "$arm_root/opt/python@$CI_PYTHON3_VERSION/bin/python3" ]] &&
+   [[ -e "$arm_root/opt/python@$CI_PYTHON3_VERSION/bin/python$CI_PYTHON3_VERSION" ]] &&
    [[ -e "$arm_root/lib/python$CI_PYTHON3_VERSION/site-packages" ]]; then
-    export VM_PYTHON3_EXECUTABLE="$arm_root/opt/python@$CI_PYTHON3_VERSION/bin/python3"
+    export VM_PYTHON3_EXECUTABLE="$arm_root/opt/python@$CI_PYTHON3_VERSION/bin/python$CI_PYTHON3_VERSION"
     export VM_PYTHON3_PYTHONPATH="$arm_root/lib/python$CI_PYTHON3_VERSION/site-packages"
 fi
 export VM_PYBIND11_CONFIG_EXECUTABLE="$VM_PYTHON3_EXECUTABLE -m pybind11"
+
+source ~/.bash_profile
 
 export PATH="\
 /opt/homebrew/opt/gnu-sed/libexec/gnubin:\
 /opt/homebrew/opt/coreutils/libexec/gnubin:\
 /opt/homebrew/opt/ccache/libexec:\
 /opt/homebrew/bin:/opt/homebrew/lib:\
-/opt/homebrew/opt/qt5/bin:\
 $PATH"

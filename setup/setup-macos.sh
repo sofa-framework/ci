@@ -41,6 +41,7 @@ echo "---- Install Python, numpy, scipy, pybind11"
 brew install python@3.9
 brew install python@3.10
 brew install python@3.11
+brew install python@3.12
 
 brew unlink python@3.12 || true
 brew unlink python@3.11  || true
@@ -49,20 +50,26 @@ brew unlink python@3.9 || true
 
 brew link --force python@3.9
 python3.9 -m pip install --upgrade pip
-python3.9 -m pip install numpy scipy pygame pybind11
+python3.9 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen
 
 brew unlink python@3.9  || true
 brew link --force python@3.10
 python3.10 -m pip install --upgrade pip
-python3.10 -m pip install numpy scipy pygame pybind11
+python3.10 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen
 
 brew unlink python@3.10  || true
 brew link --force python@3.11
 python3.11 -m pip install --upgrade pip
-python3.11 -m pip install numpy scipy pygame pybind11
+python3.11 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen
 
 brew unlink python@3.11  || true
+brew link --force python@3.12
+python3.12 -m pip install --upgrade pip
+python3.12 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen --break-system-packages
+
+brew unlink python@3.12  || true
 brew link --force python@3.10
+
 
 echo "--------------------------------------------"
 echo "---- Install Qt with online installer"

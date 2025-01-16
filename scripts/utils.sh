@@ -320,7 +320,10 @@ call-cmake() {
             echo "Calling: $COMSPEC //c \"$vcvarsall && cd $build_dir_windows && $cmake_command $*\""
             $COMSPEC //c "$vcvarsall && cd $build_dir_windows && $cmake_command $*"
         fi
-    else
+    elif vm-is-macos; then
+				echo "Calling: $cmake_command  $@ -DCMAKE_CXX_FLAGS=\"-ffp-contract=off\""
+				cd $build_dir && $cmake_command "$@" -DCMAKE_CXX_FLAGS="-ffp-contract=off"
+		else
         echo "Calling: $cmake_command $@"
         cd $build_dir && $cmake_command "$@"
     fi
@@ -357,11 +360,11 @@ call-make() {
         fi
     else
     	toolname="make" # default
-        if [ -e "$(command -v ninja)" ]; then
-            echo "Using ninja as build system"
-	        toolname="ninja"
-        fi
-        echo "Calling: $toolname $target $VM_MAKE_OPTIONS"
-        cd $build_dir && $toolname $target $VM_MAKE_OPTIONS
+			if [ -e "$(command -v ninja)" ]; then
+					echo "Using ninja as build system"
+				toolname="ninja"
+			fi
+			echo "Calling: $toolname $target $VM_MAKE_OPTIONS"
+			cd $build_dir && $toolname $target $VM_MAKE_OPTIONS
     fi
 }
