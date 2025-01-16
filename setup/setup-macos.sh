@@ -19,7 +19,7 @@ fi
 
 echo "--------------------------------------------"
 echo "---- Install system utils"
-brew install cmake ninja ccache coreutils
+brew install cmake ninja ccache coreutils git sshpass
 
 echo "--------------------------------------------"
 echo "---- Install SOFA dependencies"
@@ -27,26 +27,49 @@ brew install boost eigen libpng libjpeg libtiff glew
 
 echo "--------------------------------------------"
 echo "---- Install Python, numpy, scipy, pybind11"
-# Python 2
-# brew install python@2.7
-if [[ "$(python -V)" == *" 2.7"* ]]; then
-    if [ ! -x "$(python -m pip)" ]; then
-        curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-        sudo python get-pip.py
-    fi
-    sudo python -m pip install --upgrade "pip == 20.3.4"
-    sudo python -m pip install "scipy == 1.2.3" "matplotlib == 2.2.5" # "numpy == 1.16.6"
-fi
+## Python 2
+## brew install python@2.7
+#if [[ "$(python -V)" == *" 2.7"* ]]; then
+#    if [ ! -x "$(python -m pip)" ]; then
+#        curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
+#        sudo python get-pip.py
+#    fi
+#    sudo python -m pip install --upgrade "pip == 20.3.4"
+#    sudo python -m pip install "scipy == 1.2.3" "matplotlib == 2.2.5" # "numpy == 1.16.6"
+#fi
 # Python 3
-brew install python@3.8
-brew unlink python@3.10 || true
+brew install python@3.9
+brew install python@3.10
+brew install python@3.11
+brew install python@3.12
+
+brew unlink python@3.12 || true
+brew unlink python@3.11  || true
+brew unlink python@3.10  || true
+brew unlink python@3.9 || true
+
+brew link --force python@3.9
+python3.9 -m pip install --upgrade pip
+python3.9 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen
+
 brew unlink python@3.9  || true
-brew unlink python@3.8  || true
-brew unlink python@3.7  || true
-brew link --force python@3.8
-python3 -m pip install --upgrade pip
-python3 -m pip install numpy scipy pygame mypy pybind11-stubgen
-brew install pybind11
+brew link --force python@3.10
+python3.10 -m pip install --upgrade pip
+python3.10 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen
+
+brew unlink python@3.10  || true
+brew link --force python@3.11
+python3.11 -m pip install --upgrade pip
+python3.11 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen
+
+brew unlink python@3.11  || true
+brew link --force python@3.12
+python3.12 -m pip install --upgrade pip
+python3.12 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen --break-system-packages
+
+brew unlink python@3.12  || true
+brew link --force python@3.10
+
 
 echo "--------------------------------------------"
 echo "---- Install Qt with online installer"
@@ -55,16 +78,16 @@ echo "---- Install Qt with online installer"
 #  vs 6.2.0: https://download.qt.io/online/qtsdkrepository/mac_x64/desktop/qt6_620/Updates.xml
 QT_MAJOR=5
 QT_MINOR=12
-QT_PATCH=6
+QT_PATCH=12
 QT_COMPILER="clang_64"
 QT_INSTALLDIR="$HOME/Qt"
 if [ -d "$QT_INSTALLDIR" ]; then
     echo "Qt install dir already exists: $QT_INSTALLDIR"
     ls -la "$QT_INSTALLDIR"
 else
-    python3 -m pip install aqtinstall
-    python3 -m aqt install-qt   --outputdir $QT_INSTALLDIR mac desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH clang_64 -m qtcharts qtwebengine
-    python3 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw qt.tools.ifw.43
+    python3.10 -m pip install aqtinstall
+    python3.10 -m aqt install-qt   --outputdir $QT_INSTALLDIR mac desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH clang_64 -m qtcharts qtwebengine
+    python3.10 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw qt.tools.ifw.47
 fi
 
 echo "--------------------------------------------"
@@ -73,6 +96,8 @@ brew install assimp
 brew install cgal
 brew install opencascade
 brew install lapack
+brew install tinyxml2
+
 # brew install homebrew/cask-drivers/nvidia-cuda
 
 echo "--------------------------------------------"
