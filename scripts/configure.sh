@@ -353,11 +353,10 @@ if in-array "build-scope-minimal" "$BUILD_OPTIONS"; then
     add-cmake-option "-DPLUGIN_SOFAPRECONDITIONER=OFF"
     add-cmake-option "-DPLUGIN_SOFAVALIDATION=OFF"
     # GUI
-    add-cmake-option "-DSOFAGUI_QGLVIEWER=OFF"
-    add-cmake-option "-DSOFAGUI_QT=OFF"
-    add-cmake-option "-DSOFAGUI_QTVIEWER=OFF"
-    add-cmake-option "-DSOFA_NO_OPENGL=ON"
     add-cmake-option "-DSOFA_WITH_OPENGL=OFF"
+    add-cmake-option "-DPLUGIN_SOFAGLFW=OFF"
+    add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
+
 
 # Build with the default plugins/modules (scope = standard)
 elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
