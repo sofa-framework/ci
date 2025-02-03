@@ -367,6 +367,7 @@ elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_BUILD_TESTS=ON"
     add-cmake-option "-DSOFA_DUMP_VISITOR_INFO=ON"
     add-cmake-option "-DPLUGIN_SOFAPYTHON3=ON" "-DSOFA_FETCH_SOFAPYTHON3=ON"
+    add-cmake-option "-DPLUGIN_SOFA_QT=ON" "-DSOFA_FETCH_SOFA.QT=ON"
 
 # Build with as much plugins/modules as possible (scope = full)
 elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
@@ -377,6 +378,8 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_BUILD_TESTS=ON"
     add-cmake-option "-DSOFA_DUMP_VISITOR_INFO=ON"
     add-cmake-option "-DPLUGIN_SOFAPYTHON3=ON" "-DSOFA_FETCH_SOFAPYTHON3=ON"
+    add-cmake-option "-DPLUGIN_SOFA_QT=ON" "-DSOFA_FETCH_SOFA.QT=ON"
+
     # HeadlessRecorder (Linux only)
     if [[ "$(uname)" == "Linux" ]]; then
         id="$(cat /etc/*-release | grep "ID")"
