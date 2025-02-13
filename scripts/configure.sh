@@ -337,105 +337,41 @@ fi
 
 # Build with as few plugins/modules as possible (scope = minimal)
 if in-array "build-scope-minimal" "$BUILD_OPTIONS"; then
+    PRESETS="minimal-dev"
+
     echo "Configuring with as few plugins/modules as possible (scope = minimal)"
-    # Settings
-    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=OFF"
-    add-cmake-option "-DSOFA_BUILD_SCENECREATOR=OFF"
-    add-cmake-option "-DSOFA_BUILD_TESTS=OFF"
-    add-cmake-option "-DSOFA_FLOATING_POINT_TYPE=double"
-    # Plugins (sofa/applications/plugins)
-    add-cmake-option "-DPLUGIN_SOFAMATRIX=OFF"
-    # Pluginized modules (sofa/modules)
-    add-cmake-option "-DPLUGIN_SOFADENSESOLVER=OFF"
-    add-cmake-option "-DPLUGIN_SOFAEXPORTER=OFF"
-    add-cmake-option "-DPLUGIN_SOFAHAPTICS=OFF"
-    add-cmake-option "-DPLUGIN_SOFAOPENGLVISUAL=OFF"
-    add-cmake-option "-DPLUGIN_SOFAPRECONDITIONER=OFF"
-    add-cmake-option "-DPLUGIN_SOFAVALIDATION=OFF"
-    # GUI
-    add-cmake-option "-DSOFA_WITH_OPENGL=OFF"
-    add-cmake-option "-DPLUGIN_SOFAGLFW=OFF"
-    add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
 
 
 # Build with the default plugins/modules (scope = standard)
 elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
-    echo "Configuring with the default plugins/modules (scope = standard)"
-    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
-    add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
-    add-cmake-option "-DSOFA_BUILD_TESTS=ON"
-    add-cmake-option "-DSOFA_DUMP_VISITOR_INFO=ON"
-    add-cmake-option "-DPLUGIN_SOFAPYTHON3=ON" "-DSOFA_FETCH_SOFAPYTHON3=ON"
-    add-cmake-option "-DPLUGIN_SOFA_QT=ON" "-DSOFA_FETCH_SOFA.QT=ON"
+    PRESETS="standard-dev"
+    echo "Configuring with the default plugins/modules (scope = standard-dev)"
+
 
 # Build with as much plugins/modules as possible (scope = full)
 elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
-    echo "Configuring with as much plugins/modules as possible (scope = full)"
-    add-cmake-option "-DAPPLICATION_SOFAPHYSICSAPI=ON"
-    add-cmake-option "-DAPPLICATION_SOFAINFO=ON"
-    add-cmake-option "-DSOFA_BUILD_TUTORIALS=ON"
-    add-cmake-option "-DSOFA_BUILD_TESTS=ON"
-    add-cmake-option "-DSOFA_DUMP_VISITOR_INFO=ON"
-    add-cmake-option "-DPLUGIN_SOFAPYTHON3=ON" "-DSOFA_FETCH_SOFAPYTHON3=ON"
-    add-cmake-option "-DPLUGIN_SOFA_QT=ON" "-DSOFA_FETCH_SOFA.QT=ON"
+    PRESETS="full-dev"
+    echo "Configuring with full set of plugins (scope = full-dev)"
 
-    # HeadlessRecorder (Linux only)
-    if [[ "$(uname)" == "Linux" ]]; then
-        id="$(cat /etc/*-release | grep "ID")"
-        if [[ "$id" == *"centos"* ]]; then
-            add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=OFF"
-        else
-            add-cmake-option "-DSOFAGUI_HEADLESS_RECORDER=ON"
-        fi
-    fi
-    # NodeGraph
+    # VM dependent deactivation
     if [ -n "$VM_NODEEDITOR_PATH" ]; then
         add-cmake-option "-DNodeEditor_ROOT=$VM_NODEEDITOR_PATH"
         add-cmake-option "-DNodeEditor_DIR=$VM_NODEEDITOR_PATH/lib/cmake/NodeEditor"
-        add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=ON"
+        add-cmake-option "-DSOFA_QT_ENABLE_NODEGRAPH=ON"
     fi
-    # Plugins
-    add-cmake-option "-DPLUGIN_CIMGPLUGIN=ON"
-    add-cmake-option "-DPLUGIN_BEAMADAPTER=ON -DSOFA_FETCH_BEAMADAPTER=ON"
-    add-cmake-option "-DPLUGIN_STLIB=ON -DSOFA_FETCH_STLIB=ON"
-    add-cmake-option "-DPLUGIN_SOFTROBOTS=ON -DSOFA_FETCH_SOFTROBOTS=ON"
-    add-cmake-option "-DPLUGIN_SHAPEMATCHINGPLUGIN=ON -DSOFA_FETCH_SHAPEMATCHINGPLUGIN=ON"
-    add-cmake-option "-DPLUGIN_CSPARSESOLVERS=ON -DSOFA_FETCH_CSPARSESOLVERS=ON"
-    add-cmake-option "-DPLUGIN_MODELORDERREDUCTION=ON -DSOFA_FETCH_MODELORDERREDUCTION=ON"
-    add-cmake-option "-DPLUGIN_SOFA_METIS=ON -DSOFA_FETCH_SOFA.METIS=ON"
 
-    if [[ "$VM_HAS_BULLET" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=ON"
-    else
-        add-cmake-option "-DPLUGIN_BULLETCOLLISIONDETECTION=OFF"
-    fi
-    if [[ "$VM_HAS_CGAL" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_CGALPLUGIN=ON -DSOFA_FETCH_CGALPLUGIN=ON"
-    else
+    if [[ "$VM_HAS_CGAL" == "false" ]]; then
         add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
     fi
-    if [[ "$VM_HAS_ASSIMP" == "true" ]]; then
-        # INFO: ColladaSceneLoader contains assimp for Windows
-        add-cmake-option "-DPLUGIN_COLLADASCENELOADER=ON"
-        add-cmake-option "-DPLUGIN_SOFAASSIMP=ON"
-    else
+
+    if [[ "$VM_HAS_ASSIMP" == "false" ]]; then
         add-cmake-option "-DPLUGIN_COLLADASCENELOADER=OFF"
         add-cmake-option "-DPLUGIN_SOFAASSIMP=OFF"
     fi
-    add-cmake-option "-DPLUGIN_DIFFUSIONSOLVER=ON"
-    add-cmake-option "-DPLUGIN_GEOMAGIC=ON"
-    add-cmake-option "-DPLUGIN_IMAGE=ON"
-    add-cmake-option "-DPLUGIN_MANIFOLDTOPOLOGIES=ON -DSOFA_FETCH_MANIFOLDTOPOLOGIES=ON"
-    add-cmake-option "-DPLUGIN_MANUALMAPPING=ON"
-    if [[ "$VM_HAS_OPENCASCADE" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_MESHSTEPLOADER=ON"
-    else
+    if [[ "$VM_HAS_OPENCASCADE" == "false" ]]; then
         add-cmake-option "-DPLUGIN_MESHSTEPLOADER=OFF"
     fi
-    add-cmake-option "-DPLUGIN_MULTITHREADING=ON"
-    add-cmake-option "-DPLUGIN_PLUGINEXAMPLE=ON -DSOFA_FETCH_PLUGINEXAMPLE=ON"
-    add-cmake-option "-DPLUGIN_REGISTRATION=ON -DSOFA_FETCH_REGISTRATION=ON"
-    add-cmake-option "-DPLUGIN_SOFACARVING=ON"
+
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
         add-cmake-option "-DPLUGIN_SOFACUDA=ON -DSOFACUDA_DOUBLE=ON"
         if in-array "build-release-package" "$BUILD_OPTIONS"; then
@@ -446,17 +382,10 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     else
         add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
     fi
-    add-cmake-option "-DPLUGIN_SOFADISTANCEGRID=ON"
-    add-cmake-option "-DPLUGIN_SOFAEULERIANFLUID=ON"
-    add-cmake-option "-DPLUGIN_SOFAGLFW=ON"  "-DAPPLICATION_RUNSOFAGLFW=ON" "-DSOFA_FETCH_SOFAGLFW=ON"
-    if [[ "$VM_BUILDS_IMGUI" == "true" ]]; then
-		    add-cmake-option "-DPLUGIN_SOFAIMGUI=ON"
+
+    if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
+		    add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
 		fi
-    add-cmake-option "-DPLUGIN_SOFAIMPLICITFIELD=ON"
-    add-cmake-option "-DPLUGIN_SOFASPHFLUID=ON -DSOFA_FETCH_SOFASPHFLUID=ON"
-    add-cmake-option "-DPLUGIN_COLLISIONOBBCAPSULE=ON"
-    add-cmake-option "-DPLUGIN_THMPGSPATIALHASHING=OFF -DSOFA_FETCH_THMPGSPATIALHASHING=ON"
-    add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING=ON"
 
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
       add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
@@ -464,9 +393,12 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     fi
 fi
 
+add-cmake_options "--presets=$PRESETS"
+
 # Generate binaries?
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_WITH_DEVTOOLS=OFF"
+    add-cmake-option "-DSOFA_DUMP_VISITOR_INFO=OFF"
     add-cmake-option "-DSOFA_BUILD_RELEASE_PACKAGE=ON"
     if [[ "$BUILD_TYPE_CMAKE" == "Release" ]]; then
         add-cmake-option "-DCMAKE_BUILD_TYPE=MinSizeRel"
