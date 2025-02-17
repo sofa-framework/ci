@@ -393,7 +393,7 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     fi
 fi
 
-add-cmake_option "--presets=$PRESETS"
+add-cmake-option "--presets=$PRESETS"
 
 # Generate binaries?
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
