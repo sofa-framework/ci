@@ -357,7 +357,8 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     if [ -n "$VM_NODEEDITOR_PATH" ]; then
         add-cmake-option "-DNodeEditor_ROOT=$VM_NODEEDITOR_PATH"
         add-cmake-option "-DNodeEditor_DIR=$VM_NODEEDITOR_PATH/lib/cmake/NodeEditor"
-        add-cmake-option "-DSOFA_QT_ENABLE_NODEGRAPH=ON"
+    else
+        add-cmake-option "-DSOFA_QT_ENABLE_NODEGRAPH=OFF"
     fi
 
     if [[ "$VM_HAS_CGAL" == "false" ]]; then
