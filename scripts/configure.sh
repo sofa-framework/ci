@@ -336,6 +336,10 @@ elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
     PRESETS="standard-dev"
     echo "Configuring with the default plugins/modules (scope = standard-dev)"
 
+    if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
+        add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
+    fi
+
 
 # Build with as much plugins/modules as possible (scope = full)
 elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
@@ -356,12 +360,14 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     fi
 
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
-        add-cmake-option "-DPLUGIN_SOFACUDA=ON -DSOFACUDA_DOUBLE=ON"
+        add-cmake-option "-DSOFACUDA_DOUBLE=ON"
         if in-array "build-release-package" "$BUILD_OPTIONS"; then
             add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5;8.0;8.6;8.9"
         else
             add-cmake-option "-DCUDA_ARCH_LIST=6.0;8.9"
         fi
+        add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
+        add-cmake-option "-DPLUGIN_SOFADISTANCEGRID_CUDA=ON"
     else
         add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
     fi
@@ -370,10 +376,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
 		    add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
 		fi
 
-    if [[ "$VM_HAS_CUDA" == "true" ]]; then
-      add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
-      add-cmake-option "-DPLUGIN_SOFADISTANCEGRID_CUDA=ON"
-    fi
 fi
 
 add-cmake-option "--preset=$PRESETS"
