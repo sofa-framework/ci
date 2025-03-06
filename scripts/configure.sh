@@ -312,28 +312,17 @@ if [ -n "$VM_CUDA_HOST_COMPILER" ]; then
     add-cmake-option "-DCUDA_HOST_COMPILER=$VM_CUDA_HOST_COMPILER"
 fi
 
+# VM dependent deactivation
+if [ -n "$VM_NODEEDITOR_PATH" ]; then
+    add-cmake-option "-DNodeEditor_ROOT=$VM_NODEEDITOR_PATH"
+    add-cmake-option "-DNodeEditor_DIR=$VM_NODEEDITOR_PATH/lib/cmake/NodeEditor"
+fi
+
 
 
 ######################
 # CMake SOFA options #
 ######################
-
-# Options common to all configurations
-add-cmake-option "-DSOFA_ENABLE_LEGACY_HEADERS=ON"
-add-cmake-option "-DAPPLICATION_GETDEPRECATEDCOMPONENTS=ON"
-add-cmake-option "-DSOFA_BUILD_APP_BUNDLE=OFF" # MacOS
-add-cmake-option "-DSOFA_WITH_DEPRECATED_COMPONENTS=ON"
-add-cmake-option "-DSOFA_GUI_QT_ENABLE_QDOCBROWSER=OFF"
-add-cmake-option "-DSOFAGUIQT_ENABLE_NODEGRAPH=OFF"
-add-cmake-option "-DPLUGIN_EXTERNALBEHAVIORMODEL=OFF"
-
-# Build regression tests?
-if in-array "run-regression-tests" "$BUILD_OPTIONS"; then
-    add-cmake-option "-DAPPLICATION_REGRESSION_TEST=ON" "-DSOFA_FETCH_REGRESSION=ON"
-else
-    # clean eventual cached value
-    add-cmake-option "-DAPPLICATION_REGRESSION_TEST=OFF" "-DSOFA_FETCH_REGRESSION=OFF"
-fi
 
 # Build with as few plugins/modules as possible (scope = minimal)
 if in-array "build-scope-minimal" "$BUILD_OPTIONS"; then
@@ -353,13 +342,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     PRESETS="full-dev"
     echo "Configuring with full set of plugins (scope = full-dev)"
 
-    # VM dependent deactivation
-    if [ -n "$VM_NODEEDITOR_PATH" ]; then
-        add-cmake-option "-DNodeEditor_ROOT=$VM_NODEEDITOR_PATH"
-        add-cmake-option "-DNodeEditor_DIR=$VM_NODEEDITOR_PATH/lib/cmake/NodeEditor"
-    else
-        add-cmake-option "-DSOFA_QT_ENABLE_NODEGRAPH=OFF"
-    fi
 
     if [[ "$VM_HAS_CGAL" == "false" ]]; then
         add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
