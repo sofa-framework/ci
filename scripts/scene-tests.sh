@@ -147,6 +147,15 @@ list-plugins() {
         fi
     done
     popd > /dev/null
+
+    pushd "$build_dir/external_directories/fetched" > /dev/null
+    for plugin in *; do
+        if [[ "$plugin" != *"-temp" ]]; then
+            echo "$plugin"
+        fi
+    done
+    popd > /dev/null
+
 }
 
 list-scene-directories() {
@@ -167,13 +176,25 @@ list-scene-directories() {
             if [ -d "$src_dir/applications/plugins/$plugin/examples" ]; then
                 echo "Plugin $plugin: examples/ directory found." | log
                 mkdir -p "$output_dir/applications/plugins/$plugin/examples"
-                echo "applications/plugins/$plugin/examples"
+                echo "$src_dir/applications/plugins/$plugin/examples"
                 scene_dir_found="true"
             fi
             if [ -d "$src_dir/applications/plugins/$plugin/scenes" ]; then
                 echo "Plugin $plugin: scenes/ directory found." | log
                 mkdir -p "$output_dir/applications/plugins/$plugin/scenes"
-                echo "applications/plugins/$plugin/scenes"
+                echo "$src_dir/applications/plugins/$plugin/scenes"
+                scene_dir_found="true"
+            fi
+            if [ -d "$build_dir/external_directories/fetched/$plugin/examples" ]; then
+                echo "Plugin $plugin: examples/ directory found." | log
+                mkdir -p "$output_dir/applications/plugins/$plugin/examples"
+                echo "$build_dir/external_directories/fetched/$plugin/examples"
+                scene_dir_found="true"
+            fi
+            if [ -d "$build_dir/external_directories/fetched/$plugin/scenes" ]; then
+                echo "Plugin $plugin: scenes/ directory found." | log
+                mkdir -p "$output_dir/applications/plugins/$plugin/scenes"
+                echo "$build_dir/external_directories/fetched/$plugin/examples"
                 scene_dir_found="true"
             fi
             if [[ "$scene_dir_found" != "true" ]]; then
@@ -182,7 +203,16 @@ list-scene-directories() {
         else
             echo "Plugin $plugin: not built" | log
         fi
-    done >> "$output_dir/directories.txt"
+    done >> "$output_dir/directories.txt" #Absolute paths
+}
+
+get-output-relative-dir() {
+  local path="$1"
+  if [[ "$path" != "$src_dir"* ]]; then
+      echo "${path#$src_dir}"
+  else
+      echo "applications/plugins/${path#${build_dir}/external_directories/fetched/}"
+  fi
 }
 
 create-directories() {
@@ -192,21 +222,22 @@ create-directories() {
     # echo "Creating directory structure."
     # List all scenes
     while read path; do
-        rm -f "$output_dir/$path/ignore-patterns.txt"
-        touch "$output_dir/$path/ignore-patterns.txt"
-        rm -f "$output_dir/$path/add-patterns.txt"
-        touch "$output_dir/$path/add-patterns.txt"
-        list-scenes "$src_dir/$path" > "$output_dir/$path/scenes.txt"
+        local subpath=$(get-output-relative-dir $path)
+        rm -f "$output_dir/$subpath/ignore-patterns.txt"
+        touch "$output_dir/$subpath/ignore-patterns.txt"
+        rm -f "$output_dir/$subpath/add-patterns.txt"
+        touch "$output_dir/$subpath/add-patterns.txt"
+        list-scenes "$path" > "$output_dir/$subpath/scenes.txt" # Relative path
         while read scene; do
-            mkdir -p "$output_dir/$path/$scene"
+            mkdir -p "$output_dir/$subpath/$scene"
             if [[ "$CI_TYPE" == "Debug" ]]; then
-                echo 300 > "$output_dir/$path/$scene/timeout.txt" # Default debug timeout, in seconds
+                echo 300 > "$output_dir/$subpath/$scene/timeout.txt" # Default debug timeout, in seconds
             else
-                echo 30 > "$output_dir/$path/$scene/timeout.txt" # Default release timeout, in seconds
+                echo 30 > "$output_dir/$subpath/$scene/timeout.txt" # Default release timeout, in seconds
             fi
-            echo 100 > "$output_dir/$path/$scene/iterations.txt" # Default number of iterations
-            echo "$path/$scene" >> "$output_dir/all-scenes.txt"
-        done < "$output_dir/$path/scenes.txt"
+            echo 100 > "$output_dir/$subpath/$scene/iterations.txt" # Default number of iterations
+            echo "$path/$scene" >> "$output_dir/all-scenes.txt" # Absolute paths
+        done < "$output_dir/$subpath/scenes.txt"
     done < "$output_dir/directories.txt"
 }
 
@@ -214,15 +245,16 @@ create-directories() {
 parse-options-files() {
     # echo "Parsing option files."
     while read path; do
-        if [[ -e "$src_dir/$path/.scene-tests" ]]; then
-            clean-line < "$src_dir/$path/.scene-tests" | while read line; do
+        local subpath=$(get-output-relative-dir $path)
+        if [[ -e "$path/.scene-tests" ]]; then
+            clean-line < "$path/.scene-tests" | while read line; do
                 if option-is-well-formed "$line"; then
                     local option=$(get-option "$line")
                     local args=$(get-args "$line")
                     case "$option" in
                         ignore)
                             if [[ "$(count-args "$args")" = 1 ]]; then
-                                get-arg "$args" 1 >> "$output_dir/$path/ignore-patterns.txt"
+                                get-arg "$args" 1 >> "$output_dir/$subpath/ignore-patterns.txt"
                             else
                                 echo "$path/.scene-tests: warning: 'ignore' expects one argument: ignore <pattern>" | log
                             fi
@@ -230,14 +262,14 @@ parse-options-files() {
                         add)
                             if [[ "$(count-args "$args")" = 1 ]]; then
                                 scene="$(get-arg "$args" 1)"
-                                echo $scene >> "$output_dir/$path/add-patterns.txt"
-                                mkdir -p "$output_dir/$path/$scene"
+                                echo $scene >> "$output_dir/$subpath/add-patterns.txt"
+                                mkdir -p "$output_dir/$subpath/$scene"
                                 if [[ "$CI_TYPE" == "Debug" ]]; then
-                                    echo 300 > "$output_dir/$path/$scene/timeout.txt" # Default debug timeout, in seconds
+                                    echo 300 > "$output_dir/$subpath/$scene/timeout.txt" # Default debug timeout, in seconds
                                 else
-                                    echo 30 > "$output_dir/$path/$scene/timeout.txt" # Default release timeout, in seconds
+                                    echo 30 > "$output_dir/$subpath/$scene/timeout.txt" # Default release timeout, in seconds
                                 fi
-                                echo 100 > "$output_dir/$path/$scene/iterations.txt" # Default number of iterations
+                                echo 100 > "$output_dir/$subpath/$scene/iterations.txt" # Default number of iterations
                             else
                                 echo "$path/.scene-tests: warning: 'add' expects one argument: add <pattern>" | log
                             fi
@@ -245,8 +277,8 @@ parse-options-files() {
                         timeout)
                             if [[ "$(count-args "$args")" = 2 ]]; then
                                 scene="$(get-arg "$args" 1)"
-                                if [[ -e "$src_dir/$path/$scene" ]]; then
-                                    get-arg "$args" 2 > "$output_dir/$path/$scene/timeout.txt"
+                                if [[ -e "$path/$scene" ]]; then
+                                    get-arg "$args" 2 > "$output_dir/$subpath/$scene/timeout.txt"
                                 else
                                     echo "$path/.scene-tests: warning: no such file: $scene" | log
                                 fi
@@ -257,8 +289,8 @@ parse-options-files() {
                         iterations)
                             if [[ "$(count-args "$args")" = 2 ]]; then
                                 scene="$(get-arg "$args" 1)"
-                                if [[ -e "$src_dir/$path/$scene" ]]; then
-                                    get-arg "$args" 2 > "$output_dir/$path/$scene/iterations.txt"
+                                if [[ -e "$path/$scene" ]]; then
+                                    get-arg "$args" 2 > "$output_dir/$subpath/$scene/iterations.txt"
                                 else
                                     echo "$path/.scene-tests: warning: no such file: $scene" | log
                                 fi
@@ -279,26 +311,28 @@ parse-options-files() {
 
     # echo "Listing ignored and added scenes."
     while read path; do
-        grep -f "$output_dir/$path/ignore-patterns.txt" "$output_dir/$path/scenes.txt" > "$output_dir/$path/ignored-scenes.txt" || true
-        if [ -s "$output_dir/$path/ignore-patterns.txt" ]; then
-            grep -v -f "$output_dir/$path/ignore-patterns.txt" "$output_dir/$path/scenes.txt" > "$output_dir/$path/tested-scenes.txt" || true
+        local subpath=$(get-output-relative-dir $path)
+
+        grep -f "$output_dir/$subpath/ignore-patterns.txt" "$output_dir/$subpath/scenes.txt" > "$output_dir/$subpath/ignored-scenes.txt" || true
+        if [ -s "$output_dir/$subpath/ignore-patterns.txt" ]; then
+            grep -v -f "$output_dir/$subpath/ignore-patterns.txt" "$output_dir/$subpath/scenes.txt" > "$output_dir/$subpath/tested-scenes.txt" || true
         else
-            cp  "$output_dir/$path/scenes.txt" "$output_dir/$path/tested-scenes.txt"
+            cp  "$output_dir/$subpath/scenes.txt" "$output_dir/$subpath/tested-scenes.txt"
         fi
 
-        sed -e "s:^:$path/:" "$output_dir/$path/ignored-scenes.txt" >> "$output_dir/all-ignored-scenes.txt"
+        sed -e "s:^:$path/:" "$output_dir/$subpath/ignored-scenes.txt" >> "$output_dir/all-ignored-scenes.txt" #Absolute path
 
         # Add scenes
-        cp "$output_dir/$path/add-patterns.txt" "$output_dir/$path/added-scenes.txt"
-        if [ -s "$output_dir/$path/add-patterns.txt" ]; then
-            cat "$output_dir/$path/add-patterns.txt" \
-                >> "$output_dir/$path/tested-scenes.txt" || true
-            cat "$output_dir/$path/add-patterns.txt" \
-                >> "$output_dir/$path/scenes.txt" || true
+        cp "$output_dir/$subpath/add-patterns.txt" "$output_dir/$subpath/added-scenes.txt"
+        if [ -s "$output_dir/$subpath/add-patterns.txt" ]; then
+            cat "$output_dir/$subpath/add-patterns.txt" \
+                >> "$output_dir/$subpath/tested-scenes.txt" || true
+            cat "$output_dir/$subpath/add-patterns.txt" \
+                >> "$output_dir/$subpath/scenes.txt" || true
         fi
 
-        sed -e "s:^:$path/:" "$output_dir/$path/added-scenes.txt" >> "$output_dir/all-added-scenes.txt"
-        sed -e "s:^:$path/:" "$output_dir/$path/tested-scenes.txt" >> "$output_dir/all-tested-scenes.txt"
+        sed -e "s:^:$path/:" "$output_dir/$subpath/added-scenes.txt" >> "$output_dir/all-added-scenes.txt" #Absolute path
+        sed -e "s:^:$path/:" "$output_dir/$subpath/tested-scenes.txt" >> "$output_dir/all-tested-scenes.txt" #Absolute path
     done < "$output_dir/directories.txt"
 
     # Clean output files
@@ -315,33 +349,32 @@ ignore-scenes-with-deprecated-components() {
     getDeprecatedComponents="$(ls "$build_dir/bin/getDeprecatedComponents"{,d,_d} 2> /dev/null || true)"
     $getDeprecatedComponents > "$output_dir/deprecatedcomponents.txt"
     (
-        cd "$src_dir"
         while read component; do
             component="$(echo "$component" | tr -d '\n' | tr -d '\r')"
-            grep -r "$component" --include=\*.{scn,py,pyscn} | cut -f1 -d":" | sort | uniq > "$base_dir/$output_dir/grep.tmp"
+            grep -r "$component" --include=\*.{scn,py,pyscn} | cut -f1 -d":" | sort | uniq > "$output_dir/grep.tmp"
             while read scene; do
-                if grep -q "$scene" "$base_dir/$output_dir/all-tested-scenes.txt"; then
-                    grep -v "$scene" "$base_dir/$output_dir/all-tested-scenes.txt" > "$base_dir/$output_dir/all-tested-scenes.tmp"
-                    mv "$base_dir/$output_dir/all-tested-scenes.tmp" "$base_dir/$output_dir/all-tested-scenes.txt"
-                    rm -f "$base_dir/$output_dir/all-tested-scenes.tmp"
-                    if ! grep -q "$scene" "$base_dir/$output_dir/all-ignored-scenes.txt"; then
+                if grep -q "$scene" "$output_dir/all-tested-scenes.txt"; then
+                    grep -v "$scene" "$output_dir/all-tested-scenes.txt" > "$output_dir/all-tested-scenes.tmp"
+                    mv "$output_dir/all-tested-scenes.tmp" "$output_dir/all-tested-scenes.txt"
+                    rm -f "$output_dir/all-tested-scenes.tmp"
+                    if ! grep -q "$scene" "$output_dir/all-ignored-scenes.txt"; then
                         echo "  ignore $scene: deprecated component \"$component\""
-                        echo "$scene" >> "$base_dir/$output_dir/all-ignored-scenes.txt"
+                        echo "$scene" >> "$output_dir/all-ignored-scenes.txt"
                     fi
                 fi
-            done < "$base_dir/$output_dir/grep.tmp"
-        done < "$base_dir/$output_dir/deprecatedcomponents.txt"
-        rm -f "$base_dir/$output_dir/grep.tmp"
+            done < "$output_dir/grep.tmp"
+        done < "$output_dir/deprecatedcomponents.txt"
+        rm -f "$output_dir/grep.tmp"
     )
     echo "Searching for deprecated components: done."
 }
 
 ignore-scenes-with-missing-plugins() {
     echo "Searching for missing plugins..."
-    # Only search in $src_dir/examples because all plugin scenes are already ignored if plugin not built (see list-scene-directories)
+
     while read scene; do
-        if grep -q '^[	 ]*<[	 ]*RequiredPlugin' "$src_dir/$scene"; then
-            grep '^[	 ]*<[	 ]*RequiredPlugin' "$src_dir/$scene" > "$output_dir/grep.tmp"
+        if grep -q '^[	 ]*<[	 ]*RequiredPlugin' "$scene"; then
+            grep '^[	 ]*<[	 ]*RequiredPlugin' "$scene" > "$output_dir/grep.tmp"
             while read match; do
                 if echo "$match" | grep -q 'pluginName'; then
                     plugin="$(echo "$match" | sed -e "s:.*pluginName[	 ]*=[	 ]*[\'\"]\([^\'\"]*\)[\'\"].*:\1:g")"
@@ -372,19 +405,17 @@ ignore-scenes-with-missing-plugins() {
 
 ignore-scenes-python-without-createscene() {
     echo "Searching for unwanted python scripts..."
-    base_dir="$(pwd)"
     (
-        cd "$src_dir"
-        grep '.py$' "$base_dir/$output_dir/all-tested-scenes.txt" | while read scene; do
+        grep '.py$' "$output_dir/all-tested-scenes.txt" | while read scene; do
             if ! grep -q "def createScene" "$scene"; then
                 # Remove the scene from all-tested-scenes
-                grep -v "$scene" "$base_dir/$output_dir/all-tested-scenes.txt" > "$base_dir/$output_dir/all-tested-scenes.tmp"
-                mv "$base_dir/$output_dir/all-tested-scenes.tmp" "$base_dir/$output_dir/all-tested-scenes.txt"
-                rm -f "$base_dir/$output_dir/all-tested-scenes.tmp"
+                grep -v "$scene" "$output_dir/all-tested-scenes.txt" > "$output_dir/all-tested-scenes.tmp"
+                mv "$output_dir/all-tested-scenes.tmp" "$output_dir/all-tested-scenes.txt"
+                rm -f "$output_dir/all-tested-scenes.tmp"
                 # Add the scene in all-ignored-scenes
-                if ! grep -q "$scene" "$base_dir/$output_dir/all-ignored-scenes.txt"; then
+                if ! grep -q "$scene" "$output_dir/all-ignored-scenes.txt"; then
                     echo "  ignore $scene: createScene function not found."
-                    echo "$scene" >> "$base_dir/$output_dir/all-ignored-scenes.txt"
+                    echo "$scene" >> "$output_dir/all-ignored-scenes.txt"
                 fi
             fi
         done
@@ -420,8 +451,10 @@ do-test-all-scenes() {
     local tested_scenes_count="$(cat "$tested_scenes" | wc -l)"
     current_scene_count=0
     while read scene; do
+        local subpath=$(get-output-relative-dir $scene)
+
         current_scene_count=$(( current_scene_count + 1 ))
-        local iterations=$(cat "$output_dir/$scene/iterations.txt")
+        local iterations=$(cat "$output_dir/$subpath/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
 
         # Try to guess if a python scene needs SofaPython or SofaPython3
@@ -429,9 +462,9 @@ do-test-all-scenes() {
         if [[ "$scene" == *".py" ]] || [[ "$scene" == *".pyscn" ]]; then
             pythonPlugin="SofaPython3"
             if [[ "$scene" == *"/SofaPython/"* ]]        ||
-                grep -q 'createChild' "$src_dir/$scene"  ||
-                grep -q 'createObject' "$src_dir/$scene" ||
-                grep -q 'print "' "$src_dir/$scene"; then
+                grep -q 'createChild' "$scene"  ||
+                grep -q 'createObject' "$scene" ||
+                grep -q 'print "' "$scene"; then
                     pythonPlugin="SofaPython"
             fi
             options="$options -l $pythonPlugin"
@@ -460,9 +493,9 @@ do-test-all-scenes() {
             fi
         fi
 
-        local runSofa_cmd="$runSofa $options $src_dir/$scene >> $output_dir/$scene/output.txt 2>&1"
-        local timeout=$(cat "$output_dir/$scene/timeout.txt")
-        echo "$runSofa_cmd" > "$output_dir/$scene/command.txt"
+        local runSofa_cmd="$runSofa $options $scene >> $output_dir/$subpath/output.txt 2>&1"
+        local timeout=$(cat "$output_dir/$subpath/timeout.txt")
+        echo "$runSofa_cmd" > "$output_dir/$subpath/command.txt"
 
         echo "- $scene (thread $thread_num/$VM_MAX_PARALLEL_TESTS ; scene $current_scene_count/$tested_scenes_count)"
 
@@ -472,31 +505,31 @@ do-test-all-scenes() {
           echo "Running scene-test $scene" &&
           echo 'Calling: "'$SCRIPT_DIR'/timeout.sh" "'$output_dir'/'$scene'/runSofa" "'$runSofa_cmd'" '$timeout &&
           echo ""
-        ) > "$output_dir/$scene/output.txt"
+        ) > "$output_dir/$subpath/output.txt"
 
         begin_millisec="$(time-millisec)"
-        "$SCRIPT_DIR/timeout.sh" "$output_dir/$scene/runSofa" "$runSofa_cmd" $timeout
+        "$SCRIPT_DIR/timeout.sh" "$output_dir/$subpath/runSofa" "$runSofa_cmd" $timeout
         end_millisec="$(time-millisec)"
 
         elapsed_millisec="$(( end_millisec - begin_millisec ))"
         elapsed_sec="$(( elapsed_millisec / 1000 )).$(printf "%03d" $elapsed_millisec)"
 
-        if [[ -e "$output_dir/$scene/runSofa.timeout" ]]; then
+        if [[ -e "$output_dir/$subpath/runSofa.timeout" ]]; then
             echo "Timeout after $timeout seconds ($elapsed_sec)! $scene"
-            echo timeout > "$output_dir/$scene/status.txt"
-            echo -e "\n\nINFO: Abort caused by timeout.\n" >> "$output_dir/$scene/output.txt"
-            rm -f "$output_dir/$scene/runSofa.timeout"
-            cat "$output_dir/$scene/timeout.txt" > "$output_dir/$scene/duration.txt"
+            echo timeout > "$output_dir/$subpath/status.txt"
+            echo -e "\n\nINFO: Abort caused by timeout.\n" >> "$output_dir/$subpath/output.txt"
+            rm -f "$output_dir/$subpath/runSofa.timeout"
+            cat "$output_dir/$subpath/timeout.txt" > "$output_dir/$subpath/duration.txt"
         else
-            cat "$output_dir/$scene/runSofa.exit_code" > "$output_dir/$scene/status.txt"
-            elapsed_sec_real="$(grep "iterations done in" "$output_dir/$scene/output.txt" | head -n 1 | sed 's#.*done in \([0-9\.]*\) s.*#\1#')"
+            cat "$output_dir/$subpath/runSofa.exit_code" > "$output_dir/$subpath/status.txt"
+            elapsed_sec_real="$(grep "iterations done in" "$output_dir/$subpath/output.txt" | head -n 1 | sed 's#.*done in \([0-9\.]*\) s.*#\1#')"
             if [ -n "$elapsed_sec_real" ]; then
-                echo "$elapsed_sec_real" > "$output_dir/$scene/duration.txt"
+                echo "$elapsed_sec_real" > "$output_dir/$subpath/duration.txt"
             else
-                echo "$elapsed_sec" > "$output_dir/$scene/duration.txt"
+                echo "$elapsed_sec" > "$output_dir/$subpath/duration.txt"
             fi
         fi
-        rm -f "$output_dir/$scene/runSofa.exit_code"
+        rm -f "$output_dir/$subpath/runSofa.exit_code"
     done < "$tested_scenes"
 }
 
@@ -531,9 +564,11 @@ test-all-scenes() {
 extract-warnings() {
     echo "Extracting warnings..."
     while read scene; do
-        if [[ -e "$output_dir/$scene/output.txt" ]]; then
+        local subpath=$(get-output-relative-dir $scene)
+
+        if [[ -e "$output_dir/$subpath/output.txt" ]]; then
             sed -ne "/^\[WARNING\] [^]]*/s:\([^]]*\):$scene\: \1:p \
-                " "$output_dir/$scene/output.txt"
+                " "$output_dir/$subpath/output.txt"
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/warnings.tmp"
     sort "$output_dir/reports/warnings.tmp" | uniq > "$output_dir/reports/warnings.txt"
@@ -544,9 +579,11 @@ extract-warnings() {
 extract-errors() {
     echo "Extracting errors..."
     while read scene; do
-        if [[ -e "$output_dir/$scene/output.txt" ]]; then
+        local subpath=$(get-output-relative-dir $scene)
+
+        if [[ -e "$output_dir/$subpath/output.txt" ]]; then
             sed -ne "/^\[ERROR\] [^]]*/s:\([^]]*\):$scene\: \1:p \
-                " "$output_dir/$scene/output.txt"
+                " "$output_dir/$subpath/output.txt"
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/errors.tmp"
     sort "$output_dir/reports/errors.tmp" | uniq > "$output_dir/reports/errors.txt"
@@ -559,15 +596,17 @@ extract-crashes() {
     rm -rf "$output_dir/archive"
     mkdir "$output_dir/archive"
     while read scene; do
+        local subpath=$(get-output-relative-dir $scene)
+
         if [[ -e "$output_dir/$scene/status.txt" ]]; then
-            local status="$(cat "$output_dir/$scene/status.txt")"
+            local status="$(cat "$output_dir/$subpath/status.txt")"
             if [[ "$status" != 0 ]]; then
                 echo "$scene: error: $status"
-                scene_path="$(dirname "$scene")"
+                scene_path="$(dirname "$subpath")"
                 if [ ! -d "$output_dir/archive/$scene_path" ]; then
                     mkdir -p "$output_dir/archive/$scene_path"
                 fi
-                cp -Rf "$output_dir/$scene" "$output_dir/archive/$scene_path" # to be archived for log access
+                cp -Rf "$output_dir/$subpath" "$output_dir/archive/$scene_path" # to be archived for log access
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
@@ -577,10 +616,12 @@ extract-crashes() {
 extract-successes() {
     echo "Extracting successes..."
     while read scene; do
-        if [[ -e "$output_dir/$scene/status.txt" ]]; then
-            local status="$(cat "$output_dir/$scene/status.txt")"
+        local subpath=$(get-output-relative-dir $scene)
+
+        if [[ -e "$output_dir/$subpath/status.txt" ]]; then
+            local status="$(cat "$output_dir/$subpath/status.txt")"
             if [[ "$status" == 0 ]]; then
-                grep --silent "\[ERROR\]" "$output_dir/$scene/output.txt" || echo "$scene"
+                grep --silent "\[ERROR\]" "$output_dir/$subpath/output.txt" || echo "$scene"
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/successes.tmp"
@@ -597,7 +638,9 @@ count-durations() {
     local python_exe="$(find-python)"
     total=0
     while read scene; do
-        duration="$(cat "$output_dir/$scene/duration.txt" 2>/dev/null || echo "0")"
+        local subpath=$(get-output-relative-dir $scene)
+
+        duration="$(cat "$output_dir/$subpath/duration.txt" 2>/dev/null || echo "0")"
         total="$( $python_exe -c "print($total + $duration)" )"
     done < "$output_dir/all-tested-scenes.txt"
     echo "$total"
@@ -677,8 +720,9 @@ print-summary() {
     echo "- $(count-crashes) crash(es)"
     if [[ "$crashes" != 0 ]]; then
         while read scene; do
-            if [[ -e "$output_dir/$scene/status.txt" ]]; then
-                local status="$(cat "$output_dir/$scene/status.txt")"
+            local subpath=$(get-output-relative-dir $scene)
+            if [[ -e "$output_dir/$subpath/status.txt" ]]; then
+                local status="$(cat "$output_dir/$subpath/status.txt")"
                     case "$status" in
                     "timeout")
                         echo "  - Timeout: $scene"
@@ -691,7 +735,7 @@ print-summary() {
                         fi
                         ;;
                     *)
-                        echo "Error: unexpected value in $output_dir/$scene/status.txt: $status"
+                        echo "Error: unexpected value in $output_dir/$subpath/status.txt: $status"
                         ;;
                 esac
             fi
@@ -709,10 +753,12 @@ export-to-junit-xml() {
     cat "$output_dir/reports/errors.txt" | sed 's#:.*##' | sort | uniq
     cat "$output_dir/reports/crashes.txt" | sed 's#:.*##' | sort | uniq
     ) | sort | uniq | while read scene; do
-        scene_path="$(dirname $scene)" # scene path
+        local subpath=$(get-output-relative-dir $scene)
+
+        scene_path="$(dirname $subpath)" # scene path
         scene_name="$(basename $scene)" # scene name
         scene_name_noext="${scene_name%.*}" # scene name without extension
-        elapsed_sec="$(cat "$output_dir/$scene/duration.txt" || echo "0")"
+        elapsed_sec="$(cat "$output_dir/$subpath/duration.txt" || echo "0")"
 
         echo '
         <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">'
@@ -721,7 +767,7 @@ export-to-junit-xml() {
             crash_msg_short="$(echo $crash_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g ; s/</\&lt;/g ; s/>/\&gt;/g ; s/"/\&quot;/g')"
             echo '
             <error message="'$crash_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
+<![CDATA['"$(cat $output_dir/$subpath/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$subpath/output.txt\". See logs for details.")"' ]]>
             </error>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/crashes.txt" )
 
@@ -729,7 +775,7 @@ export-to-junit-xml() {
             error_msg_short="$(echo $error_msg | sed 's#^[^: ]*: ##' | sed 's/&/\&amp;/g ; s/</\&lt;/g ; s/>/\&gt;/g ; s/"/\&quot;/g')"
             echo '
             <failure message="'$error_msg_short'">
-<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
+<![CDATA['"$(cat $output_dir/$subpath/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$subpath/output.txt\". See logs for details.")"' ]]>
             </failure>'
         done < <( grep -o "${scene}.*" "$output_dir/reports/errors.txt" )
 
@@ -740,17 +786,19 @@ export-to-junit-xml() {
     ( # get list of scenes with success
     cat "$output_dir/reports/successes.txt" | sed 's#:.*##' | sort | uniq
     ) | sort | uniq | while read scene; do
-        scene_path="$(dirname $scene)" # scene path
+        local subpath=$(get-output-relative-dir $scene)
+
+        scene_path="$(dirname $subpath)" # scene path
         scene_name="$(basename $scene)" # scene name
         scene_name_noext="${scene_name%.*}" # scene name without extension
-        elapsed_sec="$(cat "$output_dir/$scene/duration.txt" || echo "0")"
+        elapsed_sec="$(cat "$output_dir/$subpath/duration.txt" || echo "0")"
 
         echo '
         <testcase name="'$scene_name'" type_param="" status="run" time="'$elapsed_sec'" classname="SceneTests.'$scene_path'">'
 
         echo '
         <system-out>
-<![CDATA['"$(cat $output_dir/$scene/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$scene/output.txt\". See logs for details.")"' ]]>
+<![CDATA['"$(cat $output_dir/$subpath/output.txt || echo "export-to-junit-xml: error while running \"cat $output_dir/$subpath/output.txt\". See logs for details.")"' ]]>
         </system-out>'
 
         echo '
