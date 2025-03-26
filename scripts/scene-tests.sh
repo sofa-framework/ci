@@ -208,13 +208,9 @@ list-scene-directories() {
 
 get-output-relative-dir() {
   local path="$1"
-  if [[ "$path" != "$src_dir"* ]]; then
-      echo "build_dir : ${src_dir}" | log
-      echo "path : ${path}" | log
+  if [[ "$path" == "$src_dir"* ]]; then
       echo "${path#$src_dir}"
   else
-      echo "build_dir : ${build_dir}" | log
-      echo "path : ${path}" | log
       echo "applications/plugins/${path#${build_dir}/external_directories/fetched/}"
   fi
 }
