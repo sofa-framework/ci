@@ -257,6 +257,8 @@ if [ -n "$DASH_COMMIT_BRANCH" ] && [ -n "$GITHUB_COMMIT_HASH" ] && [ -n "$GITHUB
 fi
 
 
+ci_depends_on_cmake_flags=""
+
 # Handle [ci-depends-on]
 if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     # Get info about this PR from GitHub API
@@ -277,18 +279,26 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         dependency_project_url="$(github-get-pr-project-url "$dependency_json")"
         dependency_merge_commit="$(github-get-pr-merge-commit "$dependency_json")"
 
-        external_project_file="$(find "$SRC_DIR" -wholename "*/$dependency_project_name/ExternalProjectConfig.cmake.in")"
-        if [ -e "$external_project_file" ]; then
-            # Force replace GIT_REPOSITORY and GIT_TAG
-            sed -i'.bak' 's,GIT_REPOSITORY .*,GIT_REPOSITORY '"$dependency_project_url"',g' "$external_project_file" && rm -f "$external_project_file.bak"
-            sed -i'.bak' 's,GIT_TAG .*,GIT_TAG '"$dependency_merge_commit"',g' "$external_project_file" && rm -f "$external_project_file.bak"
-        fi
-        echo "[ci-depends-on] Replacing $external_project_file with"
-        echo "    GIT_REPOSITORY $dependency_project_url"
-        echo "    GIT_TAG $dependency_merge_commit"
-    done < <( echo "$pr_description" | grep '\[ci-depends-on' )
-fi
+        # Format the CMake flags for this key and append to the result
+        flag_repository="-D$(echo "$dependency_project_name" | gsub("\\.";"_" | ascii_upcase)_GIT_REPOSITORY=\"$dependency_project_url\")"
+        flag_tag="-D$(echo "$dependency_project_name" | gsub("\\.";"_" | ascii_upcase)_GIT_TAG=\"$dependency_merge_commit\")"
 
+
+        echo "[ci-depends-on] Adding following flags to cmake"
+        echo "    $flag_repository"
+        echo "    $flag_tag"
+
+        ci_depends_on_cmake_flags="$ci_depends_on_cmake_flags $flag_repository $flag_tag"
+    done < <( echo "$pr_description" | grep '\[ci-depends-on' )
+
+fi
+if [ -n "$ci_depends_on_cmake_flags" ]; then
+    echo "[ci-depends-on] Finished ! "
+    echo "    The followings flags will be added for the cmake call : '$ci_depends_on_cmake_flags' "
+else
+    echo "No [ci-depends-on] detected. "
+    ci_depends_on_cmake_flags="no-ci-depends-on"
+fi
 
 time_millisec_git_end="$(time-millisec)"
 time_sec_git="$(time-elapsed-sec $time_millisec_git_begin $time_millisec_git_end)"
@@ -298,7 +308,7 @@ echo "[END] Git work ($(time-date)) - took $time_sec_git seconds"
 # Configure
 echo "[BEGIN] Configure ($(time-date))"
 time_millisec_configure_begin="$(time-millisec)"
-. "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CONFIG" "$BUILD_TYPE" "$BUILD_OPTIONS"
+. "$SCRIPT_DIR/configure.sh" "$BUILD_DIR" "$SRC_DIR" "$CONFIG" "$ci_depends_on_cmake_flags" "$BUILD_TYPE" "$BUILD_OPTIONS"
 time_millisec_configure_end="$(time-millisec)"
 time_sec_configure="$(time-elapsed-sec $time_millisec_configure_begin $time_millisec_configure_end)"
 echo "[END] Configure ($(time-date)) - took $time_sec_configure seconds"
