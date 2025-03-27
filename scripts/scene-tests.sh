@@ -598,7 +598,7 @@ extract-crashes() {
     while read scene; do
         local subpath=$(get-output-relative-dir $scene)
 
-        if [[ -e "$output_dir/$scene/status.txt" ]]; then
+        if [[ -e "$output_dir/$subpath/status.txt" ]]; then
             local status="$(cat "$output_dir/$subpath/status.txt")"
             if [[ "$status" != 0 ]]; then
                 echo "$scene: error: $status"
