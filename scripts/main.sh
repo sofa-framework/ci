@@ -280,8 +280,9 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         dependency_merge_commit="$(github-get-pr-merge-commit "$dependency_json")"
 
         # Format the CMake flags for this key and append to the result
-        flag_repository="-D$(echo "$dependency_project_name" | gsub("\\.";"_" | ascii_upcase)_GIT_REPOSITORY=\"$dependency_project_url\")"
-        flag_tag="-D$(echo "$dependency_project_name" | gsub("\\.";"_" | ascii_upcase)_GIT_TAG=\"$dependency_merge_commit\")"
+        fixed_name=$(echo "$dependency_project_name" |  awk '{gsub(/\./, "_"); print toupper($0)}')
+        flag_repository="-D${fixed_name}_GIT_REPOSITORY=\"$dependency_project_url\""
+        flag_tag="-D${fixed_name}_GIT_TAG=\"$dependency_merge_commit\""
 
 
         echo "[ci-depends-on] Adding following flags to cmake"
