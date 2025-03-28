@@ -63,9 +63,9 @@ if [[ "$test_type" == "regression-tests" ]]; then
     export REGRESSION_SCENES_DIR="$src_dir/examples|$src_dir/applications/plugins"
     pushd "$build_dir/external_directories/fetched" > /dev/null
     for plugin in *; do
-        if [ "$plugin" != *"-temp" ]; then
+        if [[ "$plugin" != *"-temp" ]]; then
             regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
-            if [ "$regressionPath" != "" ]; then
+            if [[ "$regressionPath" != "" ]]; then
                 REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$build_dir/external_directories/fetched/$(find "$plugin" -type f -name "utils.sh" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
             fi
         fi
