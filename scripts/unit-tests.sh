@@ -69,8 +69,9 @@ if [[ "$test_type" == "regression-tests" ]]; then
     for plugin in *; do
           regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
           if [[ "$regressionPath" != "" ]]; then
-              echo " --> Found one here : $build_dir/external_directories/fetched/$(find "$plugin" -type f -name "utils.sh" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
-              REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$src_dir/applications/plugins/$(find "$plugin" -type f -name "utils.sh" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
+              subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
+              echo " --> Found one here : $build_dir/external_directories/fetched/$subpath"
+              REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$src_dir/applications/plugins/$subpath"
           fi
     done
     popd > /dev/null
@@ -79,8 +80,9 @@ if [[ "$test_type" == "regression-tests" ]]; then
         if [[ "$plugin" != *"-temp" ]]; then
             regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
             if [[ "$regressionPath" != "" ]]; then
-                echo " --> Found one here : $build_dir/external_directories/fetched/$(find "$plugin" -type f -name "utils.sh" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
-                REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$build_dir/external_directories/fetched/$(find "$plugin" -type f -name "utils.sh" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
+                subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
+                echo " --> Found one here : $build_dir/external_directories/fetched/$subpath"
+                REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$build_dir/external_directories/fetched/$subpath"
             fi
         fi
     done
