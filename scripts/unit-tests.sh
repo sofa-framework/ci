@@ -70,7 +70,7 @@ if [[ "$test_type" == "regression-tests" ]]; then
           regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
           if [[ "$regressionPath" != "" ]]; then
               subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
-              echo " --> Found one here : $build_dir/external_directories/fetched/$subpath"
+              echo " --> Found one in $plugin here : $build_dir/external_directories/fetched/$subpath"
               REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$src_dir/applications/plugins/$subpath"
           fi
     done
@@ -81,7 +81,7 @@ if [[ "$test_type" == "regression-tests" ]]; then
             regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
             if [[ "$regressionPath" != "" ]]; then
                 subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
-                echo " --> Found one here : $build_dir/external_directories/fetched/$subpath"
+                echo " --> Found one in $plugin here : $build_dir/external_directories/fetched/$subpath"
                 REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$build_dir/external_directories/fetched/$subpath"
             fi
         fi
