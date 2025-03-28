@@ -82,29 +82,12 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         echo "dependency_merge_commit = $dependency_merge_commit"
         echo "dependency_merge_branch = $dependency_merge_branch"
 
-        if [[ "$dependency_is_merged" == [Tt]"rue" ]]; then # this dependency is a merged PR
-            #echo "pr_diff = $pr_diff"
-            pr_diff_for_dependency="$(echo "$pr_diff" | grep -v '^-' | sed -n -e '/'$dependency_project_name'\/ExternalProjectConfig\.cmake\.in/,/diff --git/p')"
-            echo "pr_diff_for_dependency = $pr_diff_for_dependency"
-            dependency_git_repository="$(echo "$pr_diff_for_dependency" | grep -o "GIT_REPOSITORY .*" || true)"
-            echo "dependency_git_repository = $dependency_git_repository"
-            dependency_git_tag="$(echo "$pr_diff_for_dependency" | grep -o "GIT_TAG .*" || true)"
-            echo "dependency_git_tag = $dependency_git_tag"
-            # The diff (without removals), taken only for ProjectName/ExternalProjectConfig.cmake.in, DOES NOT contain the correct GIT_REPOSITORY and GIT_TAG
-            if [ -n "$dependency_git_repository" ] && [[ "$dependency_git_repository" != *"$dependency_project_url"* ]] ||
-               [ -n "$dependency_git_tag" ] && [[ "$dependency_git_tag" != *"$dependency_merge_branch"* ]] && [[ "$dependency_git_tag" != *"$dependency_merge_commit"* ]]; then
-                pr_is_mergeable="false"
-                github_comment_body=$github_comment_body'\n- **Edit '$dependency_project_name'/ExternalProjectConfig.cmake.in** with'
-                if [ -n "$dependency_git_repository" ] && [[ "$dependency_git_repository" != *"$dependency_project_url"* ]]; then
-                    github_comment_body=$github_comment_body'\nGIT_REPOSITORY '$dependency_project_url
-                fi
-                if [ -n "$dependency_git_tag" ] && [[ "$dependency_git_tag" != *"$dependency_merge_branch"* ]] && [[ "$dependency_git_tag" != *"$dependency_merge_commit"* ]]; then
-                    github_comment_body=$github_comment_body'\nGIT_TAG origin/'$dependency_merge_branch
-                    pr_is_mergeable="false"
-                fi
-            fi
-        else
-            github_comment_body=$github_comment_body'\n- **Merge or close '$dependency_url'**\n_For this build, '$dependency_project_name'/ExternalProjectConfig.cmake.in will be edited by builders with\nGIT_REPOSITORY '$dependency_project_url'\nGIT_TAG '$dependency_merge_commit'_'
+        fixed_name=$(echo "$dependency_project_name" |  awk '{gsub(/\./, "_"); print toupper($0)}')
+        flag_repository="-D${fixed_name}_GIT_REPOSITORY=\"$dependency_project_url\""
+        flag_tag="-D${fixed_name}_GIT_TAG=\"$dependency_merge_commit\""
+
+        if [[ "$dependency_is_merged" != [Tt]"rue" ]]; then # this dependency is a merged PR
+            github_comment_body=$github_comment_body'\n- **Merge or close '$dependency_url'**\n_For this build, the following CMake flags will be set\n'${flag_repository}'\n'${flag_tag}'_'
             pr_is_mergeable="false"
         fi
     done < <( echo "$pr_description" | grep '\[ci-depends-on' )
@@ -112,7 +95,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     if [[ "$pr_has_dependencies" == "true" ]]; then
         if [[ "$pr_is_mergeable" == "true" ]]; then
             # PR has dependencies that are all closed/merged and ExternalProject pointers are up-to-date
-            github_comment_body='\n\n All dependencies are merged/closed and all ExternalProject pointers are up-to-date. Congrats! :+1:'
+            github_comment_body='\n\n All dependencies are merged/closed. Congrats! :+1:'
             github-notify "success" "Dependencies are OK."
             github-post-pr-comment "$pr_id" "$github_comment_header $github_comment_body"
         else
