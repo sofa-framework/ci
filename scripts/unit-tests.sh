@@ -60,12 +60,26 @@ fi
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
 export SOFA_ROOT="$build_dir"
 if [[ "$test_type" == "regression-tests" ]]; then
-    export REGRESSION_SCENES_DIR="$src_dir/examples|$src_dir/applications/plugins"
+    echo "Regression testing starting... Looking for regression-test files : " | log
+
+    echo " --> Adding SOFA examples : $src_dir/examples" | log
+    export REGRESSION_SCENES_DIR="$src_dir/examples"
+
+    pushd "$src_dir/applications/plugins" > /dev/null
+    for plugin in *; do
+          regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
+          if [[ "$regressionPath" != "" ]]; then
+              echo " --> Found one here : $build_dir/external_directories/fetched/$(find "$plugin" -type f -name "utils.sh" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')" | log
+              REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$src_dir/applications/plugins/$(find "$plugin" -type f -name "utils.sh" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
+          fi
+    done
+    popd > /dev/null
     pushd "$build_dir/external_directories/fetched" > /dev/null
     for plugin in *; do
         if [[ "$plugin" != *"-temp" ]]; then
             regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
             if [[ "$regressionPath" != "" ]]; then
+                echo " --> Found one here : $build_dir/external_directories/fetched/$(find "$plugin" -type f -name "utils.sh" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')" | log
                 REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$build_dir/external_directories/fetched/$(find "$plugin" -type f -name "utils.sh" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
             fi
         fi
@@ -73,6 +87,9 @@ if [[ "$test_type" == "regression-tests" ]]; then
     popd > /dev/null
     export REGRESSION_REFERENCES_DIR="$build_dir/external_directories/fetched/Regression/references/examples"
 
+    echo "Regression testing environement variables : " | log
+    echo "    REGRESSION_SCENES_DIR=\"${REGRESSION_SCENES_DIR}\"" | log
+    echo "    REGRESSION_REFERENCES_DIR=\"${REGRESSION_REFERENCES_DIR}\"" | log
 fi
 
 list-tests() {
