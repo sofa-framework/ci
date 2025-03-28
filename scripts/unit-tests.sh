@@ -60,9 +60,9 @@ fi
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
 export SOFA_ROOT="$build_dir"
 if [[ "$test_type" == "regression-tests" ]]; then
-    echo "Regression testing starting... Looking for regression-test files : " | log
+    echo "Regression testing starting... Looking for regression-test files : "
 
-    echo " --> Adding SOFA examples : $src_dir/examples" | log
+    echo " --> Adding SOFA examples : $src_dir/examples"
     export REGRESSION_SCENES_DIR="$src_dir/examples"
 
     pushd "$src_dir/applications/plugins" > /dev/null
@@ -87,9 +87,9 @@ if [[ "$test_type" == "regression-tests" ]]; then
     popd > /dev/null
     export REGRESSION_REFERENCES_DIR="$build_dir/external_directories/fetched/Regression/references/examples"
 
-    echo "Regression testing environement variables : " | log
-    echo "    REGRESSION_SCENES_DIR=\"${REGRESSION_SCENES_DIR}\"" | log
-    echo "    REGRESSION_REFERENCES_DIR=\"${REGRESSION_REFERENCES_DIR}\"" | log
+    echo "Regression testing environement variables : "
+    echo "    REGRESSION_SCENES_DIR=\"${REGRESSION_SCENES_DIR}\""
+    echo "    REGRESSION_REFERENCES_DIR=\"${REGRESSION_REFERENCES_DIR}\""
 fi
 
 list-tests() {
