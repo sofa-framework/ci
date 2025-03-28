@@ -90,11 +90,12 @@ if [[ "$test_type" == "regression-tests" ]]; then
         fi
     done
     popd > /dev/null
-    export REGRESSION_REFERENCES_DIR="$build_dir/external_directories/fetched/Regression/references/examples"
+
+    export REGRESSION_DIR="$build_dir/external_directories/fetched/Regression"
 
     echo "Regression testing environement variables : "
     echo "    REGRESSION_SCENES_DIR=\"${REGRESSION_SCENES_DIR}\""
-    echo "    REGRESSION_REFERENCES_DIR=\"${REGRESSION_REFERENCES_DIR}\""
+    echo "    REGRESSION_DIR=\"${REGRESSION_DIR}\""
 fi
 
 list-tests() {
