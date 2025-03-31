@@ -62,8 +62,8 @@ export SOFA_ROOT="$build_dir"
 if [[ "$test_type" == "regression-tests" ]]; then
     echo "Regression testing starting... Looking for regression-test files : "
 
-    echo " --> Adding SOFA examples : $src_dir/examples"
-    export REGRESSION_SCENES_DIR="$src_dir/examples"
+    echo " --> Adding SOFA examples : $src_dir/examples/"
+    export REGRESSION_SCENES_DIR="$src_dir/examples/"
 
     pushd "$src_dir/applications/plugins" > /dev/null
     for plugin in *; do
@@ -73,8 +73,10 @@ if [[ "$test_type" == "regression-tests" ]]; then
               if [[ "$plugin" == "RegressionStateScenes.regression-tests" ]]; then
                   plugin="applications/plugins"
               fi
-              echo " --> Found one in $plugin here : $src_dir/applications/plugins/$subpath"
-              REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$src_dir/applications/plugins/$subpath"
+              #Remove double slashes // if any
+              completePath=$(echo "$src_dir/applications/plugins/$subpath" | tr -s '/' )
+              echo " --> Found one in $plugin here : $completePath"
+              REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$completePath"
           fi
     done
     popd > /dev/null
@@ -84,14 +86,19 @@ if [[ "$test_type" == "regression-tests" ]]; then
             regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
             if [[ "$regressionPath" != "" ]]; then
                 subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
-                echo " --> Found one in $plugin here : $build_dir/external_directories/fetched/$subpath"
-                REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$build_dir/external_directories/fetched/$subpath"
+                #Remove double slashes // if any
+                completePath=$(echo "$build_dir/external_directories/fetched/$subpath" | tr -s '/' )
+                echo " --> Found one in $plugin here : $completePath"
+                REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$completePath"
             fi
         fi
     done
     popd > /dev/null
 
-    export REGRESSION_DIR="$build_dir/external_directories/fetched/Regression"
+    if [ "$REGRESSION_DIR" == "" ]; then
+        echo "Setting REGRESSION_DIR to default '$build_dir/external_directories/fetched/Regression'"
+        export REGRESSION_DIR="$build_dir/external_directories/fetched/Regression"
+    fi
 
     echo "Regression testing environement variables : "
     echo "    REGRESSION_SCENES_DIR=\"${REGRESSION_SCENES_DIR}\""
