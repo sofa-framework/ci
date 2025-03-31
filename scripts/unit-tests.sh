@@ -59,7 +59,7 @@ fi
 
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
 export SOFA_ROOT="$build_dir"
-if [[ "$test_type" == "regression-tests" ]]; then
+if [[ "$test_type" == "regression-tests" ]] && [[ "$command" == "run" ]]; then
     echo "Regression testing starting... Looking for regression-test files : "
 
     echo " --> Adding SOFA examples : $src_dir/examples/"
