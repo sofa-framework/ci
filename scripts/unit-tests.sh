@@ -73,8 +73,12 @@ if [[ "$test_type" == "regression-tests" ]] && [[ "$command" == "run" ]]; then
               if [[ "$plugin" == "RegressionStateScenes.regression-tests" ]]; then
                   plugin="applications/plugins"
               fi
-              #Remove double slashes // if any
-              completePath=$(echo "$src_dir/applications/plugins/$subpath" | tr -s '/' )
+              if vm-is-windows; then
+                  completePath=$( cd $subpath && pwd -W )
+              else
+                  #Remove double slashes // if any
+                  completePath=$(echo "$src_dir/applications/plugins/$subpath" | tr -s '/' )
+              fi
               echo " --> Found one in $plugin here : $completePath"
               REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$completePath"
           fi
@@ -86,8 +90,12 @@ if [[ "$test_type" == "regression-tests" ]] && [[ "$command" == "run" ]]; then
             regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
             if [[ "$regressionPath" != "" ]]; then
                 subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
-                #Remove double slashes // if any
-                completePath=$(echo "$build_dir/external_directories/fetched/$subpath" | tr -s '/' )
+                if vm-is-windows; then
+                    completePath=$( cd $subpath && pwd -W )
+                else
+                    #Remove double slashes // if any
+                    completePath=$(echo "$build_dir/external_directories/fetched/$subpath" | tr -s '/' )
+                fi
                 echo " --> Found one in $plugin here : $completePath"
                 REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$completePath"
             fi
