@@ -318,11 +318,11 @@ echo "[END] Configure ($(time-date)) - took $time_sec_configure seconds"
 # Regression dir
 # WARNING: source files exist only after configure, they are fetched by CMake
 if in-array "run-regression-tests" "$BUILD_OPTIONS"; then # Jenkins
-    if [ -n "$WORKSPACE" ] && [ -d "$SRC_DIR/applications/projects/Regression" ]; then
+    if [ -n "$WORKSPACE" ] && [ -d "$BUILD_DIR/external_directories/fetched/Regression" ]; then
         if vm-is-windows; then
-            export REGRESSION_DIR="$(cd "$SRC_DIR/applications/projects/Regression" && pwd -W)"
+            export REGRESSION_DIR="$(cd "$BUILD_DIR/external_directories/fetched/Regression" && pwd -W)"
         else
-            export REGRESSION_DIR="$(cd "$SRC_DIR/applications/projects/Regression" && pwd)"
+            export REGRESSION_DIR="$(cd "$BUILD_DIR/external_directories/fetched/Regression" && pwd)"
         fi
     elif [ -z "$REGRESSION_DIR" ]; then # not Jenkins and no REGRESSION_DIR
         echo "WARNING: run-regression-tests option needs REGRESSION_DIR env var, regression tests will NOT be performed."

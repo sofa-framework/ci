@@ -59,8 +59,58 @@ fi
 
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
 export SOFA_ROOT="$build_dir"
-if [[ "$test_type" == "regression-tests" ]]; then
-    export REGRESSION_SCENES_DIR="$src_dir/examples|$src_dir/applications/plugins"
+if [[ "$test_type" == "regression-tests" ]] && [[ "$command" == "run" ]]; then
+    echo "Regression testing starting... Looking for regression-test files : "
+
+    echo " --> Adding SOFA examples : $src_dir/examples/"
+    export REGRESSION_SCENES_DIR="$src_dir/examples/"
+
+    pushd "$src_dir/applications/plugins" > /dev/null
+    for plugin in *; do
+          regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
+          if [[ "$regressionPath" != "" ]]; then
+              subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
+              if [[ "$plugin" == "RegressionStateScenes.regression-tests" ]]; then
+                  plugin="applications/plugins"
+              fi
+              if vm-is-windows; then
+                  completePath=$( cd $subpath && pwd -W )
+              else
+                  #Remove double slashes // if any
+                  completePath=$(echo "$src_dir/applications/plugins/$subpath" | tr -s '/' )
+              fi
+              echo " --> Found one in $plugin here : $completePath"
+              REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$completePath"
+          fi
+    done
+    popd > /dev/null
+    pushd "$build_dir/external_directories/fetched" > /dev/null
+    for plugin in *; do
+        if [[ "$plugin" != *"-temp" ]]; then
+            regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
+            if [[ "$regressionPath" != "" ]]; then
+                subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
+                if vm-is-windows; then
+                    completePath=$( cd $subpath && pwd -W )
+                else
+                    #Remove double slashes // if any
+                    completePath=$(echo "$build_dir/external_directories/fetched/$subpath" | tr -s '/' )
+                fi
+                echo " --> Found one in $plugin here : $completePath"
+                REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$completePath"
+            fi
+        fi
+    done
+    popd > /dev/null
+
+    if [ "$REGRESSION_DIR" == "" ]; then
+        echo "Setting REGRESSION_DIR to default '$build_dir/external_directories/fetched/Regression'"
+        export REGRESSION_DIR="$build_dir/external_directories/fetched/Regression"
+    fi
+
+    echo "Regression testing environement variables : "
+    echo "    REGRESSION_SCENES_DIR=\"${REGRESSION_SCENES_DIR}\""
+    echo "    REGRESSION_DIR=\"${REGRESSION_DIR}\""
 fi
 
 list-tests() {
@@ -246,7 +296,7 @@ run-single-test() {
     echo "$test_cmd" > "$output_dir/$test/command.txt"
     echo "$status" > "$output_dir/$test/status.txt"
 
-    # Log on stdout
+    # Z on stdout
     echo "$( printf "\n\n" && cat "$output_dir/$test/output.txt" )"
 
     if [ -f "$output_file" ]; then
