@@ -14,11 +14,12 @@ set -o errexit # Exit on error
 # - CC and CXX
 # - COMPILER               # important for Visual Studio paths (vs-2012, vs-2013 or vs-2015)
 
+# Input <ci-depends-on-flags> adds cmake flags for configure to handle ci-depends-on. If no ci-depends-on is used, then the string should be equal to "no-ci-depends-on"
 
 ## Checks
 
 usage() {
-    echo "Usage: configure.sh <build-dir> <src-dir> <config> <build-type> <build-options>"
+    echo "Usage: configure.sh <build-dir> <src-dir> <config> <ci-depends-on-flags> <build-type> <build-options>"
 }
 
 if [ "$#" -ge 4 ]; then
@@ -31,9 +32,13 @@ if [ "$#" -ge 4 ]; then
     PLATFORM="$(get-platform-from-config "$CONFIG")"
     COMPILER="$(get-compiler-from-config "$CONFIG")"
     ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
-    BUILD_TYPE="$4"
+    CI_DEPENDS_ON_FLAGS="$4"
+    if [ "$CI_DEPENDS_ON_FLAGS" == "no-ci-depends-on" ]; then
+        CI_DEPENDS_ON_FLAGS=""
+    fi
+    BUILD_TYPE="$5"
     BUILD_TYPE_CMAKE="$(get-build-type-cmake "$BUILD_TYPE")"
-    BUILD_OPTIONS="${*:5}"
+    BUILD_OPTIONS="${*:6}"
     if [ -z "$BUILD_OPTIONS" ]; then
         BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi
@@ -77,7 +82,7 @@ if vm-is-windows && [ ! -d "$SRC_DIR/lib" ]; then
     )
 fi
 
-cmake_options=""
+cmake_options="$CI_DEPENDS_ON_FLAGS"
 add-cmake-option() {
     cmake_options="$cmake_options $*"
 }
