@@ -28,7 +28,7 @@ github-notify() {
 
         response="$(curl --silent --header "Authorization: token $GITHUB_SOFABOT_TOKEN" --data "$request" "https://api.github.com/repos/$GITHUB_REPOSITORY/statuses/$GITHUB_COMMIT_HASH")"
         if [ -n "$response" ]; then
-            notify="sent"
+            echo "GitHub reponse: $response"
         fi
     fi
     set -$options
@@ -294,7 +294,7 @@ github-post-pr-comment() {
         request="${request%$'\r'}"
         response="$(curl --silent -H "Authorization: token $GITHUB_SOFABOT_TOKEN" -X POST -d "$request" "https://api.github.com/repos/${GITHUB_REPOSITORY}/issues/${pr_id}/comments")"
         if [ -n "$response" ]; then
-            notify="sent"
+            echo "GitHub reponse: $response"
         fi
     fi
     set -$options

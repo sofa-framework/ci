@@ -83,11 +83,11 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         echo "dependency_merge_branch = $dependency_merge_branch"
 
         fixed_name=$(echo "$dependency_project_name" |  awk '{gsub(/\./, "_"); print toupper($0)}')
-        flag_repository="-D${fixed_name}_GIT_REPOSITORY=\"$dependency_project_url\""
-        flag_tag="-D${fixed_name}_GIT_TAG=\"$dependency_merge_commit\""
+        flag_repository="-D${fixed_name}_GIT_REPOSITORY='$dependency_project_url'"
+        flag_tag="-D${fixed_name}_GIT_TAG='$dependency_merge_commit'"
 
         if [[ "$dependency_is_merged" != [Tt]"rue" ]]; then # this dependency is a merged PR
-            github_comment_body=$github_comment_body'\n- **Merge or close '$dependency_url'**\n_For this build, the following CMake flags will be set\n'${flag_repository}'\n'${flag_tag}'_'
+            github_comment_body=$github_comment_body'\n- **Merge or close '$dependency_url'**\n_For this build, the following CMake flags will be set_\n'${flag_repository}'\n'${flag_tag}
             pr_is_mergeable="false"
         fi
     done < <( echo "$pr_description" | grep '\[ci-depends-on' )
