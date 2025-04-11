@@ -346,6 +346,33 @@ elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
     fi
 
 
+
+# Build with the default plugins/modules (scope = standard)
+elif in-array "build-scope-supported-plugins" "$BUILD_OPTIONS"; then
+    PRESETS="supported-plugins-dev"
+    echo "Configuring with the supported plugins/modules (scope = supported-plugins-dev)"
+
+    if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
+        add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
+    fi
+
+    if [[ "$VM_HAS_CGAL" == "false" ]]; then
+        add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
+    fi
+
+    if [[ "$VM_HAS_CUDA" == "true" ]]; then
+        add-cmake-option "-DSOFACUDA_DOUBLE=ON"
+        if in-array "build-release-package" "$BUILD_OPTIONS"; then
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5;8.0;8.6;8.9"
+        else
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;8.9"
+        fi
+        add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
+        add-cmake-option "-DPLUGIN_SOFADISTANCEGRID_CUDA=ON"
+    else
+        add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
+    fi
+
 # Build with as much plugins/modules as possible (scope = full)
 elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     PRESETS="full-dev"
