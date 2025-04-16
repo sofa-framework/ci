@@ -1,4 +1,5 @@
 #!/bin/bash
+set -o errexit # Exit on error
 
 usage() {
     echo "Usage: configure-and-build.sh <build-dir> <src-dir> <script-dir> <node-name> <build-type> <config> <python-version> <preset> <generate-binaries> <ci-depends-on-flags>"
@@ -15,9 +16,6 @@ if [ "$#" -ge 4 ]; then
     PRESET="$8"
     GENERATE_BINARIES="$9"
     CI_DEPENDS_ON_FLAGS="$10"
-    if [ "$CI_DEPENDS_ON_FLAGS" == "no-ci-depends-on" ]; then
-        CI_DEPENDS_ON_FLAGS=""
-    fi
 else
     usage; exit 1
 fi
