@@ -21,6 +21,20 @@ else
 fi
 
 
+echo "--------------- configure-and-build.sh vars ---------------"
+echo "BUILD_DIR = $BUILD_DIR"
+echo "SRC_DIR = $SRC_DIR"
+echo "SCRIPT_DIR = $SCRIPT_DIR"
+echo "NODE_NAME = $NODE_NAME"
+echo "BUILD_TYPE = $BUILD_TYPE"
+echo "CONFIG = $CONFIG"
+echo "PYTHON_VERSION = $PYTHON_VERSION"
+echo "PRESET = $PRESET"
+echo "GENERATE_BINARIES = $GENERATE_BINARIES"
+echo "CI_DEPENDS_ON_FLAGS = $CI_DEPENDS_ON_FLAGS"
+echo "-----------------------------------------------"
+
+
 # Setup variables for following calls
 
 . ${SCRIPT_DIR}/utils.sh
