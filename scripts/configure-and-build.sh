@@ -2,6 +2,7 @@
 
 usage() {
     echo "Usage: configure-and-build.sh <build-dir> <src-dir> <script-dir> <node-name> <build-type> <config> <python-version> <preset> <generate-binaries> <ci-depends-on-flags>"
+}
 
 if [ "$#" -ge 4 ]; then
     BUILD_DIR="$(cd "$1" && pwd)"
