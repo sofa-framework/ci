@@ -15,7 +15,7 @@ if [ "$#" -ge 4 ]; then
     PYTHON_VERSION="$7"
     PRESET="$8"
     GENERATE_BINARIES="$9"
-    CI_DEPENDS_ON_FLAGS="$10"
+    CI_DEPENDS_ON_FLAGS="${10}"
 else
     usage; exit 1
 fi
