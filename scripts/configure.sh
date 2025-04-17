@@ -33,7 +33,7 @@ if [ "$#" -ge 4 ]; then
     COMPILER="$(get-compiler-from-config "$CONFIG")"
     ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
     CI_DEPENDS_ON_FLAGS="$4"
-    if [ "$CI_DEPENDS_ON_FLAGS" == "no-ci-depends-on" ]; then
+    if [ "$CI_DEPENDS_ON_FLAGS" == "no-additionnal-cmake-flags" ]; then
         CI_DEPENDS_ON_FLAGS=""
     fi
     BUILD_TYPE="$5"
