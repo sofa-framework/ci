@@ -477,7 +477,7 @@ echo "$cmake_options" | tr -s " " "\n" | grep "MODULE_" | grep "=OFF" | sort
 echo "$cmake_options" | tr -s " " "\n" | grep "PLUGIN_" | grep "=OFF" | sort
 
 
-if [ -z "$( ls -A '${BUILD_DIR}' )" ]; then
+if [ -z "$( ls -A "$BUILD_DIR" )" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
     call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
 else

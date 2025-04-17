@@ -51,4 +51,4 @@ fi
 . ${SCRIPT_DIR}/configure.sh "$BUILD_DIR" "$SRC_DIR" "$CONFIG" "$CI_DEPENDS_ON_FLAGS" "$BUILD_TYPE" "$BUILD_OPTIONS" 
 
 ## Call to build 
-${SCRIPT_DIR}/compile.sh "$BUILD_DIR" "$CONFIG" "$BUILD_OPTIONS"
+. ${SCRIPT_DIR}/compile.sh "$BUILD_DIR" "$CONFIG" "$BUILD_OPTIONS"
