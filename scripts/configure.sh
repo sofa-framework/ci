@@ -33,7 +33,7 @@ if [ "$#" -ge 4 ]; then
     COMPILER="$(get-compiler-from-config "$CONFIG")"
     ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
     CI_DEPENDS_ON_FLAGS="$4"
-    if [ "$CI_DEPENDS_ON_FLAGS" == "no-ci-depends-on" ]; then
+    if [ "$CI_DEPENDS_ON_FLAGS" == "no-additionnal-cmake-flags" ]; then
         CI_DEPENDS_ON_FLAGS=""
     fi
     BUILD_TYPE="$5"
@@ -59,6 +59,7 @@ echo "CONFIG = $CONFIG"
 echo "PLATFORM = $PLATFORM"
 echo "COMPILER = $COMPILER"
 echo "ARCHITECTURE = $ARCHITECTURE"
+echo "CI_DEPENDS_ON_FLAGS = $CI_DEPENDS_ON_FLAGS"
 echo "BUILD_TYPE = $BUILD_TYPE"
 echo "BUILD_TYPE_CMAKE = $BUILD_TYPE_CMAKE"
 echo "BUILD_OPTIONS = $BUILD_OPTIONS"
@@ -346,6 +347,33 @@ elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
     fi
 
 
+
+# Build with the default plugins/modules (scope = standard)
+elif in-array "build-scope-supported-plugins" "$BUILD_OPTIONS"; then
+    PRESETS="supported-plugins-dev"
+    echo "Configuring with the supported plugins/modules (scope = supported-plugins-dev)"
+
+    if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
+        add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
+    fi
+
+    if [[ "$VM_HAS_CGAL" == "false" ]]; then
+        add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
+    fi
+
+    if [[ "$VM_HAS_CUDA" == "true" ]]; then
+        add-cmake-option "-DSOFACUDA_DOUBLE=ON"
+        if in-array "build-release-package" "$BUILD_OPTIONS"; then
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5;8.0;8.6;8.9"
+        else
+            add-cmake-option "-DCUDA_ARCH_LIST=6.0;8.9"
+        fi
+        add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
+        add-cmake-option "-DPLUGIN_SOFADISTANCEGRID_CUDA=ON"
+    else
+        add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
+    fi
+
 # Build with as much plugins/modules as possible (scope = full)
 elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     PRESETS="full-dev"
@@ -448,7 +476,8 @@ echo "Disabled modules and plugins:"
 echo "$cmake_options" | tr -s " " "\n" | grep "MODULE_" | grep "=OFF" | sort
 echo "$cmake_options" | tr -s " " "\n" | grep "PLUGIN_" | grep "=OFF" | sort
 
-if [ -n "$full_build" ]; then
+
+if [ -z "$( ls -A "$BUILD_DIR" )" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
     call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
 else
