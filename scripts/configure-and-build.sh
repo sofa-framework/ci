@@ -38,7 +38,6 @@ echo "-----------------------------------------------"
 # Setup variables for following calls
 
 . ${SCRIPT_DIR}/utils.sh
-NODE_NAME="$(hostname)" # Needed by load-vm-env --> TODO: be able to get hostname multiplatform
 CI_PYTHON3_VERSION=${PYTHON_VERSION} # Needed by load-vm-env, might need to run this inside the docker env
 
 ## Setup env variables
