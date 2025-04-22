@@ -12,7 +12,7 @@ export SOFA_COLOR_TERMINAL=no
 export PATH_RESET="$PATH"
 
 usage() {
-    echo "Usage: unit-tests.sh (run|print-summary) (unit|regression) <build-dir> <src-dir>"
+    echo "Usage: unit-tests.sh (run|print-summary) (unit|regression) <build-dir> <src-dir> <max_parallel-tests>"
 }
 
 if [ "$#" -ge 3 ]; then
@@ -25,21 +25,21 @@ if [ "$#" -ge 3 ]; then
     if vm-is-windows; then
         src_dir="$(cd $4 && pwd -W)"
     fi
+
+    if [ "$#" -eq 5 ]; then
+        MAX_PARALLEL_TESTS=$5
+    else 
+        MAX_PARALLEL_TESTS=1
+    fi
+
     test_name_min="$2"
     test_type="unit-tests"
+
     if [ "$2" == "regression" ]; then
         test_type="regression-tests"
-
-        if vm-is-windows; then
-            # Avoid "libpython3X not found"
-            if [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
-                pythonroot="$(dirname $VM_PYTHON3_EXECUTABLE)"
-                pythonroot="$(cd "$pythonroot" && pwd)"
-                export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
-            fi
-        fi
     fi
     output_dir="$test_type"
+
 else
     usage; exit 1
 fi
@@ -52,9 +52,6 @@ if [[ ! -d "$build_dir/lib/" ]]; then
 elif [[ ! -d "$src_dir/applications/plugins" ]]; then
     echo "Error: '$src_dir' does not look like a Sofa source tree."
     usage; exit 1
-fi
-if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
-    VM_MAX_PARALLEL_TESTS=1
 fi
 
 # export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
@@ -332,7 +329,7 @@ run-all-tests() {
         echo "$(shuf $output_dir/${test_type}.txt)" > "$output_dir/${test_type}.txt"
     fi
     local total_lines="$(cat "$output_dir/${test_type}.txt" | wc -l)"
-    local lines_per_thread=$((total_lines / VM_MAX_PARALLEL_TESTS + 1))
+    local lines_per_thread=$((total_lines / MAX_PARALLEL_TESTS + 1))
     split -l $lines_per_thread "$output_dir/${test_type}.txt" "$output_dir/${test_type}_part-"
 
     # Add SofaPython3 tests in first part
@@ -349,9 +346,9 @@ run-all-tests() {
     # wait for all pids
     thread=0
     for file in "$output_dir/${test_type}_part-"*; do
-        echo "Waiting for thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
+        echo "Waiting for thread $(( thread + 1 ))/$MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
         wait ${pids[$thread]}
-        echo "Thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
+        echo "Thread $(( thread + 1 ))/$MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
         thread=$(( thread + 1 ))
     done
     echo "Done."

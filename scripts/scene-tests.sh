@@ -19,7 +19,7 @@
 # set -o errexit
 
 usage() {
-    echo "Usage: scene-tests.sh [run|count-warnings|count-errors|print-summary] <build-dir> <src-dir>"
+    echo "Usage: scene-tests.sh [run|count-warnings|count-errors|print-summary] <build-dir> <src-dir>  <max_parallel-tests>"
 }
 
 if [ "$#" -ge 3 ]; then
@@ -30,6 +30,13 @@ if [ "$#" -ge 3 ]; then
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
     output_dir="scene-tests"
+
+
+    if [ "$#" -eq 4 ]; then
+        MAX_PARALLEL_TESTS=$4
+    else 
+        MAX_PARALLEL_TESTS=1
+    fi
 else
     usage; exit 1
 fi
@@ -42,9 +49,6 @@ if [[ ! -d "$build_dir/lib/" ]]; then
 elif [[ ! -d "$src_dir/applications/plugins" ]]; then
     echo "Error: '$src_dir' does not look like a Sofa source tree."
     usage; exit 1
-fi
-if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
-    VM_MAX_PARALLEL_TESTS=1
 fi
 
 export SOFA_ROOT="$build_dir"
@@ -457,47 +461,17 @@ do-test-all-scenes() {
         local iterations=$(cat "$output_dir/$subpath/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
 
-        # Try to guess if a python scene needs SofaPython or SofaPython3
-        export PYTHONPATH=""
+        # Try to guess if a python scene needs SofaPython3
         if [[ "$scene" == *".py" ]] || [[ "$scene" == *".pyscn" ]]; then
             pythonPlugin="SofaPython3"
-            if [[ "$scene" == *"/SofaPython/"* ]]        ||
-                grep -q 'createChild' "$scene"  ||
-                grep -q 'createObject' "$scene" ||
-                grep -q 'print "' "$scene"; then
-                    pythonPlugin="SofaPython"
-            fi
             options="$options -l $pythonPlugin"
-
-            if [[ "$pythonPlugin" == 'SofaPython3' ]]; then
-                if [ -e "$VM_PYTHON3_PYTHONPATH" ]; then
-                    export PYTHONPATH="$(cd $VM_PYTHON3_PYTHONPATH && pwd):$PYTHONPATH"
-                fi
-                if [ -e "$build_dir/python3/site-packages" ]; then
-                    export PYTHONPATH="$build_dir/python3/site-packages:$PYTHONPATH"
-                fi
-                if vm-is-windows && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
-                    pythonroot="$(dirname $VM_PYTHON3_EXECUTABLE)"
-                    pythonroot="$(cd "$pythonroot" && pwd)"
-                    export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
-                fi
-            elif [[ "$pythonPlugin" == 'SofaPython' ]]; then
-                if [ -e "$VM_PYTHON_PYTHONPATH" ]; then
-                    export PYTHONPATH="$(cd $VM_PYTHON_PYTHONPATH && pwd):$PYTHONPATH"
-                fi
-                if vm-is-windows && [ -e "$VM_PYTHON_EXECUTABLE" ]; then
-                    pythonroot="$(dirname $VM_PYTHON_EXECUTABLE)"
-                    pythonroot="$(cd "$pythonroot" && pwd)"
-                    export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
-                fi
-            fi
         fi
 
         local runSofa_cmd="$runSofa $options $scene >> $output_dir/$subpath/output.txt 2>&1"
         local timeout=$(cat "$output_dir/$subpath/timeout.txt")
         echo "$runSofa_cmd" > "$output_dir/$subpath/command.txt"
 
-        echo "- $scene (thread $thread_num/$VM_MAX_PARALLEL_TESTS ; scene $current_scene_count/$tested_scenes_count)"
+        echo "- $scene (thread $thread_num/$MAX_PARALLEL_TESTS ; scene $current_scene_count/$tested_scenes_count)"
 
         ( echo "" &&
           echo "------------------------------------------" &&
@@ -539,7 +513,7 @@ test-all-scenes() {
         echo "$(shuf $output_dir/all-tested-scenes.txt)" > "$output_dir/all-tested-scenes.txt"
     fi
     local total_lines="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"
-    local lines_per_thread=$(( total_lines / VM_MAX_PARALLEL_TESTS + 1 ))
+    local lines_per_thread=$(( total_lines / MAX_PARALLEL_TESTS + 1 ))
     split -l $lines_per_thread "$output_dir/all-tested-scenes.txt" "$output_dir/all-tested-scenes_part-"
     thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
@@ -553,9 +527,9 @@ test-all-scenes() {
     # wait child processes
     thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
-        echo "Waiting for thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
+        echo "Waiting for thread $(( thread + 1 ))/$MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
         wait ${pids[$thread]}
-        echo "Thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
+        echo "Thread $(( thread + 1 ))/$MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
         thread=$(( thread + 1 ))
     done
     echo "Done."
