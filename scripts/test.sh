@@ -42,7 +42,7 @@ fi
 if vm-is-windows && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
     pythonroot="$(dirname $VM_PYTHON3_EXECUTABLE)"
     pythonroot="$(cd "$pythonroot" && pwd)"
-    export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
+    export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH"
 fi
 
 # Setup SOFA_ROOT
