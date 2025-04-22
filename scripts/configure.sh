@@ -332,15 +332,15 @@ fi
 
 # Build with as few plugins/modules as possible (scope = minimal)
 if in-array "build-scope-minimal" "$BUILD_OPTIONS"; then
-    PRESETS="minimal-dev"
+    PRESETS="minimal"
 
     echo "Configuring with as few plugins/modules as possible (scope = minimal)"
 
 
 # Build with the default plugins/modules (scope = standard)
 elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
-    PRESETS="standard-dev"
-    echo "Configuring with the default plugins/modules (scope = standard-dev)"
+    PRESETS="standard"
+    echo "Configuring with the default plugins/modules (scope = standard)"
 
     if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
         add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
@@ -350,8 +350,8 @@ elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
 
 # Build with the default plugins/modules (scope = standard)
 elif in-array "build-scope-supported-plugins" "$BUILD_OPTIONS"; then
-    PRESETS="supported-plugins-dev"
-    echo "Configuring with the supported plugins/modules (scope = supported-plugins-dev)"
+    PRESETS="supported-plugins"
+    echo "Configuring with the supported plugins/modules (scope = supported-plugins)"
 
     if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
         add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
@@ -376,8 +376,8 @@ elif in-array "build-scope-supported-plugins" "$BUILD_OPTIONS"; then
 
 # Build with as much plugins/modules as possible (scope = full)
 elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
-    PRESETS="full-dev"
-    echo "Configuring with full set of plugins (scope = full-dev)"
+    PRESETS="full"
+    echo "Configuring with full set of plugins (scope = full)"
 
 
     if [[ "$VM_HAS_CGAL" == "false" ]]; then
@@ -411,13 +411,16 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
 
 fi
 
-add-cmake-option "--preset=$PRESETS"
 
 # Generate binaries?
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
     add-cmake-option "-DSOFA_WITH_DEVTOOLS=OFF"
     add-cmake-option "-DSOFA_DUMP_VISITOR_INFO=OFF"
     add-cmake-option "-DSOFA_BUILD_RELEASE_PACKAGE=ON"
+    #If in release, do not activate dev tools but activate Regression anyway. 
+    add-cmake-option "-DSOFA_FETCH_REGRESSION=ON"
+    add-cmake-option "-DAPPLICATION_REGRESSION_TEST=ON"
+
     if [[ "$BUILD_TYPE_CMAKE" == "Release" ]]; then
         add-cmake-option "-DCMAKE_BUILD_TYPE=MinSizeRel"
     fi
@@ -454,7 +457,15 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
         add-cmake-option "-DCPACK_GENERATOR=ZIP"
         add-cmake-option "-DCPACK_BINARY_ZIP=ON"
     fi
+
+else
+    #If not in release activate DEV tools
+    PRESETS=${PRESETS}-dev
 fi
+
+
+add-cmake-option "--preset=$PRESETS"
+
 
 # Options passed via the environnement
 if [ -n "$CI_CMAKE_OPTIONS" ]; then
