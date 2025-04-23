@@ -482,7 +482,7 @@ do-test-all-scenes() {
         ) > "$output_dir/$subpath/output.txt"
 
         begin_millisec="$(time-millisec)"
-        "$SCRIPT_DIR/timeout.sh" "$output_dir/$subpath/runSofa" "$runSofa_cmd" $timeout
+        /bin/bash "$SCRIPT_DIR/timeout.sh" "$output_dir/$subpath/runSofa" "$runSofa_cmd" $timeout
         end_millisec="$(time-millisec)"
 
         elapsed_millisec="$(( end_millisec - begin_millisec ))"

@@ -2,7 +2,7 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: test.sh <build-dir> <src-dir> <script-dir> <node-name> <python-version>"
+    echo "Usage: test.sh <build-dir> <src-dir> <script-dir> <node-name> <python-version> <run-all-tests>"
 }
 
 if [ "$#" -ge 4 ]; then
@@ -11,6 +11,7 @@ if [ "$#" -ge 4 ]; then
     SCRIPT_DIR="$(cd "$3" && pwd)"
     NODE_NAME="$4"
     PYTHON_VERSION="$5"
+        ="$6"
 else
     usage; exit 1
 fi
@@ -53,25 +54,31 @@ export SOFA_ROOT=$BUILD_DIR
 /bin/bash "$SCRIPT_DIR/unit-tests.sh" run unit "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
 /bin/bash "$SCRIPT_DIR/unit-tests.sh" print-summary unit "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
 
-tests_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites unit $BUILD_DIR $SRC_DIR)
-tests_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests unit $BUILD_DIR $SRC_DIR)
-tests_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled unit $BUILD_DIR $SRC_DIR)
-tests_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures unit $BUILD_DIR $SRC_DIR)
-tests_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors unit $BUILD_DIR $SRC_DIR)
-tests_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations unit $BUILD_DIR $SRC_DIR)
+echo "tests_suites=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-test-suites unit $BUILD_DIR $SRC_DIR)" > $BUILD_DIR/unit-tests/unit-tests_results.txt
+echo "tests_total=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-tests unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
+echo "tests_disabled=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-disabled unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
+echo "tests_failures=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-failures unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
+echo "tests_errors=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-errors unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
+echo "tests_duration=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-durations unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
+
+
+
 ############
 
+if [[ "$ALL_TESTS" == "false" ]]; then
+   exit 0 
+fi 
 
 #############
 # Scene tests
 /bin/bash "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
 /bin/bash "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
 
-scenes_total=$(/bin/bash $SCRIPT_DIR/scene-tests.sh count-tested-scenes $BUILD_DIR $SRC_DIR)
-scenes_successes=$("$SCRIPT_DIR/scene-tests.sh" count-successes $BUILD_DIR $SRC_DIR)
-scenes_errors=$("$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)
-scenes_crashes=$("$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)
-scenes_duration=$("$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR)
+echo "scenes_total=$(/bin/bash $SCRIPT_DIR/scene-tests.sh count-tested-scenes $BUILD_DIR $SRC_DIR)" > $BUILD_DIR/scene-tests/scene-tests_results.txt
+echo "scenes_successes=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-successes $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
+echo "scenes_errors=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
+echo "scenes_crashes=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
+echo "scenes_duration=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
 
 # Clamping warning and error files to avoid Jenkins overflow
 /bin/bash "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
@@ -84,11 +91,12 @@ scenes_duration=$("$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_D
 /bin/bash "$SCRIPT_DIR/unit-tests.sh" run regression "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
 /bin/bash "$SCRIPT_DIR/unit-tests.sh" print-summary regression "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
 
-regressions_suites=$("$SCRIPT_DIR/unit-tests.sh" count-test-suites regression $BUILD_DIR $SRC_DIR )
-regressions_total=$("$SCRIPT_DIR/unit-tests.sh" count-tests regression $BUILD_DIR $SRC_DIR )
-regressions_disabled=$("$SCRIPT_DIR/unit-tests.sh" count-disabled regression $BUILD_DIR $SRC_DIR )
-regressions_failures=$("$SCRIPT_DIR/unit-tests.sh" count-failures regression $BUILD_DIR $SRC_DIR )
-regressions_errors=$("$SCRIPT_DIR/unit-tests.sh" count-errors regression $BUILD_DIR $SRC_DIR )
-regressions_duration=$("$SCRIPT_DIR/unit-tests.sh" count-durations regression $BUILD_DIR $SRC_DIR )
+echo "regressions_suites=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-test-suites regression $BUILD_DIR $SRC_DIR )" > $BUILD_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_total=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-tests regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_disabled=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-disabled regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_failures=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-failures regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_errors=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-errors regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_duration=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-durations regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
+
 ##################
 
