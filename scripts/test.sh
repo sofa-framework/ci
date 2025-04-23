@@ -11,7 +11,7 @@ if [ "$#" -ge 4 ]; then
     SCRIPT_DIR="$(cd "$3" && pwd)"
     NODE_NAME="$4"
     PYTHON_VERSION="$5"
-        ="$6"
+    ALL_TESTS="$6"
 else
     usage; exit 1
 fi
