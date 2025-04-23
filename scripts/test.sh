@@ -37,7 +37,7 @@ export PYTHONPATH=""
 if [ -e "$VM_PYTHON3_PYTHONPATH" ]; then
     export PYTHONPATH="$(cd $VM_PYTHON3_PYTHONPATH && pwd):$PYTHONPATH"
 fi
-if [ -e "$BUILD_DIR/python3/site-packages" ]; then
+if [ -e "$BUILD_DIR/lib/python3/site-packages" ]; then
     export PYTHONPATH="$BUILD_DIR/python3/site-packages:$PYTHONPATH"
 fi
 if vm-is-windows && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
@@ -45,6 +45,18 @@ if vm-is-windows && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
     pythonroot="$(cd "$pythonroot" && pwd)"
     export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH"
 fi
+
+
+# Remove SofaCUDA, and MeshSTEPLoader from plugin_list.conf.default
+echo "Removing SofaCUDA and SofaPython from plugin_list.conf.default"
+if vm-is-windows; then
+    plugin_conf="$BUILD_DIR/bin/plugin_list.conf.default"
+else
+    plugin_conf="$BUILD_DIR/lib/plugin_list.conf.default"
+fi
+grep -v "CUDA " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
+grep -v "MeshSTEPLoader " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_conf}.tmp" "$plugin_conf"
+
 
 # Setup SOFA_ROOT
 export SOFA_ROOT=$BUILD_DIR
@@ -79,10 +91,6 @@ echo "scenes_successes=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-successes 
 echo "scenes_errors=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
 echo "scenes_crashes=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
 echo "scenes_duration=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
-
-# Clamping warning and error files to avoid Jenkins overflow
-/bin/bash "$SCRIPT_DIR/scene-tests.sh" clamp-warnings "$BUILD_DIR" "$SRC_DIR" 5000
-/bin/bash "$SCRIPT_DIR/scene-tests.sh" clamp-errors "$BUILD_DIR" "$SRC_DIR" 5000
 #############
 
 

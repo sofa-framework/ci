@@ -541,8 +541,18 @@ extract-warnings() {
         local subpath=$(get-output-relative-dir $scene)
 
         if [[ -e "$output_dir/$subpath/output.txt" ]]; then
-            sed -ne "/^\[WARNING\] [^]]*/s:\([^]]*\):$scene\: \1:p \
-                " "$output_dir/$subpath/output.txt"
+            warnings="$(sed -ne "/^\[WARNING\] [^]]*/s:\([^]]*\):\1:p " "$output_dir/$subpath/output.txt")" 
+            if [[ -n "$warnings" ]]; then
+
+                scene_path="$(dirname "$subpath")"
+                if [ ! -d "$output_dir/archive/warnings/$scene_path" ]; then
+                    mkdir -p "$output_dir/archive/warnings/$scene_path"
+                fi
+                cp -Rf "$output_dir/$subpath" "$output_dir/archive/warnings/$scene_path" # to be archived for log access
+
+                echo "$warnings" > $output_dir/$subpath/warnings.txt
+                echo "$scene: $warnings"
+            fi 
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/warnings.tmp"
     sort "$output_dir/reports/warnings.tmp" | uniq > "$output_dir/reports/warnings.txt"
@@ -556,8 +566,19 @@ extract-errors() {
         local subpath=$(get-output-relative-dir $scene)
 
         if [[ -e "$output_dir/$subpath/output.txt" ]]; then
-            sed -ne "/^\[ERROR\] [^]]*/s:\([^]]*\):$scene\: \1:p \
-                " "$output_dir/$subpath/output.txt"
+            errors="$(sed -ne "/^\[ERROR\] [^]]*/s:\([^]]*\):\1:p " "$output_dir/$subpath/output.txt")" 
+            if [[ -n "$errors" ]]; then
+
+                scene_path="$(dirname "$subpath")"
+                if [ ! -d "$output_dir/archive/errors/$scene_path" ]; then
+                    mkdir -p "$output_dir/archive/errors/$scene_path"
+                fi
+                cp -Rf "$output_dir/$subpath" "$output_dir/archive/errors/$scene_path" # to be archived for log access
+
+
+                echo "$errors" > $output_dir/$subpath/errors.txt
+                echo "$scene: $errors"
+            fi 
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/errors.tmp"
     sort "$output_dir/reports/errors.tmp" | uniq > "$output_dir/reports/errors.txt"
@@ -577,10 +598,10 @@ extract-crashes() {
             if [[ "$status" != 0 ]]; then
                 echo "$scene: error: $status"
                 scene_path="$(dirname "$subpath")"
-                if [ ! -d "$output_dir/archive/$scene_path" ]; then
-                    mkdir -p "$output_dir/archive/$scene_path"
+                if [ ! -d "$output_dir/archive/crashes/$scene_path" ]; then
+                    mkdir -p "$output_dir/archive/crashes/$scene_path"
                 fi
-                cp -Rf "$output_dir/$subpath" "$output_dir/archive/$scene_path" # to be archived for log access
+                cp -Rf "$output_dir/$subpath" "$output_dir/archive/crashes/$scene_path" # to be archived for log access
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
