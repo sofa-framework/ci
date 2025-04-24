@@ -147,21 +147,25 @@ get-lib() {
 }
 
 list-plugins() {
-    pushd "$src_dir/applications/plugins" > /dev/null
-    for plugin in *; do
-        if [ -e "$plugin/CMakeLists.txt" ]; then
-            echo "$plugin"
-        fi
-    done
-    popd > /dev/null
+    if [[ -d "$src_dir/applications/plugins" ]]; then 
+        pushd "$src_dir/applications/plugins" > /dev/null
+        for plugin in *; do
+            if [ -e "$plugin/CMakeLists.txt" ]; then
+                echo "$plugin"
+            fi
+        done
+        popd > /dev/null
+    fi
 
-    pushd "$build_dir/external_directories/fetched" > /dev/null
-    for plugin in *; do
-        if [[ "$plugin" != *"-temp" ]]; then
-            echo "$plugin"
-        fi
-    done
-    popd > /dev/null
+    if [[ -d "$build_dir/external_directories/fetched" ]]; then 
+        pushd "$build_dir/external_directories/fetched" > /dev/null
+        for plugin in *; do
+            if [[ "$plugin" != *"-temp" ]]; then
+                echo "$plugin"
+            fi
+        done
+        popd > /dev/null
+    fi
 
 }
 
