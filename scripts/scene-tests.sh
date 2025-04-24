@@ -16,6 +16,8 @@
 # timeout "path/to/file.scn" "number-of-seconds"
 # iterations "path/to/file.scn" "number-of-iterations"
 
+# IMPORTANT this script will relay on the env variable SOFA_PLUGIN_PATH to find out all of the plugins that are loadable by runSofa
+
 # set -o errexit
 
 usage() {
@@ -129,8 +131,19 @@ list-scenes() {
 
 get-lib() {
     pushd "$build_dir/lib/" > /dev/null
-    ls {lib,}"$1"{,d,_d}.{dylib,so,lib}* 2> /dev/null | xargs echo
+    ls {lib,}"$1"{,d,_d}.{dylib,so,lib,dll}* 2> /dev/null | xargs echo
     popd > /dev/null
+
+    if vm-is-windows; then
+        target_dir=${SOFA_PLUGIN_PATH/;/ }
+    else
+        target_dir=${SOFA_PLUGIN_PATH/:/ }
+    fi
+    for directory in $target_dir; do
+        pushd "$directory" > /dev/null
+        ls {lib,}"$1"{,d,_d}.{dylib,so,lib,dll}* 2> /dev/null | xargs echo
+        popd > /dev/null
+    done
 }
 
 list-plugins() {
