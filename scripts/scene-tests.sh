@@ -43,15 +43,6 @@ fi
 
 cd "$build_dir"
 
-if [[ ! -d "$build_dir/lib/" ]]; then
-    echo "Error: '$build_dir' does not look like a Sofa build."
-    usage; exit 1
-elif [[ ! -d "$src_dir/applications/plugins" ]]; then
-    echo "Error: '$src_dir' does not look like a Sofa source tree."
-    usage; exit 1
-fi
-
-export SOFA_ROOT="$build_dir"
 PATH_RESET="$PATH"
 
 ### Utils
