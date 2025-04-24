@@ -61,19 +61,22 @@ grep -v "MeshSTEPLoader " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_
 # Setup SOFA_ROOT
 export SOFA_ROOT=$BUILD_DIR
 
+RESULTS_DIR=$BUILD_DIR/tests_results
+if [[ ! -d "$RESULTS_DIR" ]]; then
+    mkdir -p "$RESULTS_DIR"
+fi
+
 ############
 # Unit tests
-/bin/bash "$SCRIPT_DIR/unit-tests.sh" run unit "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
-/bin/bash "$SCRIPT_DIR/unit-tests.sh" print-summary unit "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
+/bin/bash "$SCRIPT_DIR/unit-tests.sh" run unit "$BUILD_DIR" "$SRC_DIR" "$RESULTS_DIR" $VM_MAX_PARALLEL_TESTS
+/bin/bash "$SCRIPT_DIR/unit-tests.sh" print-summary unit "$BUILD_DIR" "$SRC_DIR" "$RESULTS_DIR" $VM_MAX_PARALLEL_TESTS
 
-echo "tests_suites=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-test-suites unit $BUILD_DIR $SRC_DIR)" > $BUILD_DIR/unit-tests/unit-tests_results.txt
-echo "tests_total=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-tests unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
-echo "tests_disabled=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-disabled unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
-echo "tests_failures=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-failures unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
-echo "tests_errors=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-errors unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
-echo "tests_duration=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-durations unit $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/unit-tests/unit-tests_results.txt
-
-
+echo "tests_suites=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-test-suites unit $BUILD_DIR $SRC_DIR $RESULTS_DIR)" > $RESULTS_DIR/unit-tests/unit-tests_results.txt
+echo "tests_total=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-tests unit $BUILD_DIR $SRC_DIR $RESULTS_DIR)" >> $RESULTS_DIR/unit-tests/unit-tests_results.txt
+echo "tests_disabled=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-disabled unit $BUILD_DIR $SRC_DIR $RESULTS_DIR)" >> $RESULTS_DIR/unit-tests/unit-tests_results.txt
+echo "tests_failures=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-failures unit $BUILD_DIR $SRC_DIR $RESULTS_DIR)" >> $RESULTS_DIR/unit-tests/unit-tests_results.txt
+echo "tests_errors=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-errors unit $BUILD_DIR $SRC_DIR $RESULTS_DIR)" >> $RESULTS_DIR/unit-tests/unit-tests_results.txt
+echo "tests_duration=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-durations unit $BUILD_DIR $SRC_DIR $RESULTS_DIR)" >> $RESULTS_DIR/unit-tests/unit-tests_results.txt
 
 ############
 
@@ -83,28 +86,28 @@ fi
 
 #############
 # Scene tests
-/bin/bash "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
-/bin/bash "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
+/bin/bash "$SCRIPT_DIR/scene-tests.sh" run "$BUILD_DIR" "$SRC_DIR" "$RESULTS_DIR" $VM_MAX_PARALLEL_TESTS
+/bin/bash "$SCRIPT_DIR/scene-tests.sh" print-summary "$BUILD_DIR" "$SRC_DIR" "$RESULTS_DIR" $VM_MAX_PARALLEL_TESTS
 
-echo "scenes_total=$(/bin/bash $SCRIPT_DIR/scene-tests.sh count-tested-scenes $BUILD_DIR $SRC_DIR)" > $BUILD_DIR/scene-tests/scene-tests_results.txt
-echo "scenes_successes=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-successes $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
-echo "scenes_errors=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
-echo "scenes_crashes=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
-echo "scenes_duration=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR)" >> $BUILD_DIR/scene-tests/scene-tests_results.txt
+echo "scenes_total=$(/bin/bash $SCRIPT_DIR/scene-tests.sh count-tested-scenes $BUILD_DIR $SRC_DIR  $RESULTS_DIR)" >  $RESULTS_DIR/scene-tests/scene-tests_results.txt
+echo "scenes_successes=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-successes $BUILD_DIR $SRC_DIR  $RESULTS_DIR)" >>  $RESULTS_DIR/scene-tests/scene-tests_results.txt
+echo "scenes_errors=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-errors $BUILD_DIR $SRC_DIR  $RESULTS_DIR)" >>  $RESULTS_DIR/scene-tests/scene-tests_results.txt
+echo "scenes_crashes=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR  $RESULTS_DIR)" >>  $RESULTS_DIR/scene-tests/scene-tests_results.txt
+echo "scenes_duration=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR  $RESULTS_DIR)" >>  $RESULTS_DIR/scene-tests/scene-tests_results.txt
 #############
 
 
 ##################
 # Regression tests
-/bin/bash "$SCRIPT_DIR/unit-tests.sh" run regression "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
-/bin/bash "$SCRIPT_DIR/unit-tests.sh" print-summary regression "$BUILD_DIR" "$SRC_DIR" $VM_MAX_PARALLEL_TESTS
+/bin/bash "$SCRIPT_DIR/unit-tests.sh" run regression "$BUILD_DIR" "$SRC_DIR" "$RESULTS_DIR" $VM_MAX_PARALLEL_TESTS
+/bin/bash "$SCRIPT_DIR/unit-tests.sh" print-summary regression "$BUILD_DIR" "$SRC_DIR" "$RESULTS_DIR" $VM_MAX_PARALLEL_TESTS
 
-echo "regressions_suites=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-test-suites regression $BUILD_DIR $SRC_DIR )" > $BUILD_DIR/regression-tests/regression-tests_results.txt
-echo "regressions_total=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-tests regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
-echo "regressions_disabled=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-disabled regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
-echo "regressions_failures=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-failures regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
-echo "regressions_errors=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-errors regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
-echo "regressions_duration=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-durations regression $BUILD_DIR $SRC_DIR )" >> $BUILD_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_suites=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-test-suites regression $BUILD_DIR $SRC_DIR $RESULTS_DIR )" > $RESULTS_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_total=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-tests regression $BUILD_DIR $SRC_DIR $RESULTS_DIR )" >> $RESULTS_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_disabled=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-disabled regression $BUILD_DIR $SRC_DIR $RESULTS_DIR )" >> $RESULTS_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_failures=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-failures regression $BUILD_DIR $SRC_DIR $RESULTS_DIR )" >> $RESULTS_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_errors=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-errors regression $BUILD_DIR $SRC_DIR $RESULTS_DIR )" >> $RESULTS_DIR/regression-tests/regression-tests_results.txt
+echo "regressions_duration=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-durations regression $BUILD_DIR $SRC_DIR $RESULTS_DIR )" >> $RESULTS_DIR/regression-tests/regression-tests_results.txt
 
 ##################
 

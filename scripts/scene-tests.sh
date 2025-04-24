@@ -19,7 +19,7 @@
 # set -o errexit
 
 usage() {
-    echo "Usage: scene-tests.sh [run|count-warnings|count-errors|print-summary] <build-dir> <src-dir>  <max_parallel-tests>"
+    echo "Usage: scene-tests.sh [run|count-warnings|count-errors|print-summary] <build-dir> <src-dir> <output_dir> <max_parallel-tests>"
 }
 
 if [ "$#" -ge 3 ]; then
@@ -29,11 +29,11 @@ if [ "$#" -ge 3 ]; then
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
-    output_dir="scene-tests"
+    output_dir="$4/scene-tests"
 
 
-    if [ "$#" -eq 4 ]; then
-        MAX_PARALLEL_TESTS=$4
+    if [ "$#" -eq 5 ]; then
+        MAX_PARALLEL_TESTS=$5
     else 
         MAX_PARALLEL_TESTS=1
     fi
@@ -41,7 +41,6 @@ else
     usage; exit 1
 fi
 
-cd "$build_dir"
 
 PATH_RESET="$PATH"
 

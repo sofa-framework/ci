@@ -12,7 +12,7 @@ export SOFA_COLOR_TERMINAL=no
 export PATH_RESET="$PATH"
 
 usage() {
-    echo "Usage: unit-tests.sh (run|print-summary) (unit|regression) <build-dir> <src-dir> <max_parallel-tests>"
+    echo "Usage: unit-tests.sh (run|print-summary) (unit|regression) <build-dir> <src-dir> <output_dir> <max_parallel-tests>"
 }
 
 if [ "$#" -ge 3 ]; then
@@ -26,11 +26,6 @@ if [ "$#" -ge 3 ]; then
         src_dir="$(cd $4 && pwd -W)"
     fi
 
-    if [ "$#" -eq 5 ]; then
-        MAX_PARALLEL_TESTS=$5
-    else 
-        MAX_PARALLEL_TESTS=1
-    fi
 
     test_name_min="$2"
     test_type="unit-tests"
@@ -38,13 +33,20 @@ if [ "$#" -ge 3 ]; then
     if [ "$2" == "regression" ]; then
         test_type="regression-tests"
     fi
-    output_dir="$test_type"
+    output_dir="$5/$test_type"
+
+
+    if [ "$#" -eq 6 ]; then
+        MAX_PARALLEL_TESTS=$6
+    else 
+        MAX_PARALLEL_TESTS=1
+    fi
+
 
 else
     usage; exit 1
 fi
 
-cd "$build_dir"
 
 
 if [[ "$test_type" == "regression-tests" ]] && [[ "$command" == "run" ]]; then
