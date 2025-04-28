@@ -37,8 +37,8 @@ for file in files:
     tree = ET.parse(os.path.join(sys.argv[1],file))
     subTree = tree.getroot()
 
-    recursiveFindFaultyTestTree(faileTests,subTree,None,"failure",file.split('.')[0])
-    recursiveFindFaultyTestTree(errorTests,subTree,None,"error",file.split('.')[0])
+    recursiveFindFaultyTestTree(faileTests,subTree,None,"failure",'.'.join(file.split('.')[:-1]))
+    recursiveFindFaultyTestTree(errorTests,subTree,None,"error",'.'.join(file.split('.')[:-1]))
 
 if len(faileTests) > 0:
     with open(sys.argv[2] + "_failures", "w") as f:
@@ -47,7 +47,8 @@ if len(faileTests) > 0:
             f.write(f"---\n{test.execName}:\n")
             f.write(f" - Test suite: '{test.testSuite}'\n")
             f.write(f" - Test name: '{test.testName}'\n\n")
-            f.write(f"{test.message.replace('\n\n','\n')}---\n\n")
+            test.message.replace('\n\n','\n')
+            f.write(f"{test.message}---\n\n")
 
 if len(errorTests) > 0:
     with open(sys.argv[2] + "_errors", "w") as f:

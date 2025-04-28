@@ -548,7 +548,7 @@ extract-warnings() {
         local subpath=$(get-output-relative-dir $scene)
 
         if [[ -e "$output_dir/$subpath/output.txt" ]]; then
-            warnings="$(sed -ne "/^\[WARNING\] [^]]*/s:\([^]]*\):\1:p " "$output_dir/$subpath/output.txt")" 
+            warnings="$(sed -ne "/^\[WARNING\] [^]]*/s:\([^]]*\):\1:p " "$output_dir/$subpath/output.txt")\n" 
             if [[ -n "$warnings" ]]; then
 
                 scene_path="$(dirname "$subpath")"
@@ -573,7 +573,7 @@ extract-errors() {
         local subpath=$(get-output-relative-dir $scene)
 
         if [[ -e "$output_dir/$subpath/output.txt" ]]; then
-            errors="$(sed -ne "/^\[ERROR\] [^]]*/s:\([^]]*\):\1:p " "$output_dir/$subpath/output.txt")" 
+            errors="$(sed -ne "/^\[ERROR\] [^]]*/s:\([^]]*\):\1:p " "$output_dir/$subpath/output.txt")\n" 
             if [[ -n "$errors" ]]; then
 
                 scene_path="$(dirname "$subpath")"
@@ -603,7 +603,7 @@ extract-crashes() {
         if [[ -e "$output_dir/$subpath/status.txt" ]]; then
             local status="$(cat "$output_dir/$subpath/status.txt")"
             if [[ "$status" != 0 ]]; then
-                echo "$scene: error: $status"
+                echo "$scene: error: $status\n"
                 scene_path="$(dirname "$subpath")"
                 if [ ! -d "$output_dir/archive/crashes/$scene_path" ]; then
                     mkdir -p "$output_dir/archive/crashes/$scene_path"
