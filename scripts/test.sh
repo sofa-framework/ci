@@ -78,7 +78,7 @@ echo "tests_failures=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-failures unit
 echo "tests_errors=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-errors unit $BUILD_DIR $SRC_DIR $RESULTS_DIR)" >> $RESULTS_DIR/unit-tests/unit-tests_results.txt
 echo "tests_duration=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-durations unit $BUILD_DIR $SRC_DIR $RESULTS_DIR)" >> $RESULTS_DIR/unit-tests/unit-tests_results.txt
 
-python3 "$SCRIPT_DIR/exctractErrorFromXML.py $RESULTS_DIR/unit-tests/reports $RESULTS_DIR/unit-tests/unit-tests
+python3 "$SCRIPT_DIR/exctractErrorFromXML.py" "$RESULTS_DIR/unit-tests/reports" "$RESULTS_DIR/unit-tests"
 ############
 
 if [[ "$ALL_TESTS" == "false" ]]; then
@@ -111,7 +111,7 @@ echo "regressions_failures=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-failure
 echo "regressions_errors=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-errors regression $BUILD_DIR $SRC_DIR $RESULTS_DIR )" >> $RESULTS_DIR/regression-tests/regression-tests_results.txt
 echo "regressions_duration=$(/bin/bash "$SCRIPT_DIR/unit-tests.sh" count-durations regression $BUILD_DIR $SRC_DIR $RESULTS_DIR )" >> $RESULTS_DIR/regression-tests/regression-tests_results.txt
 
-python3 "$SCRIPT_DIR/exctractErrorFromXML.py $RESULTS_DIR/regression-tests/reports $RESULTS_DIR/unit-tests/unit-tests
+python3 "$SCRIPT_DIR/exctractErrorFromXML.py" "$RESULTS_DIR/regression-tests/reports" "$RESULTS_DIR/regression-tests"
 
 ##################
 
