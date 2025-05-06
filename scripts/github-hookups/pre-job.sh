@@ -22,7 +22,17 @@ if [ ! -d  $WORK_FOLDER ]; then
   mkdir -p $WORK_FOLDER
 fi
 
+echo "Work folder set to $WORK_FOLDER"
+
+
+if [ "$RUNNER_OS" = "Windows" ]; then
+	#Use symbolic link to reduce path length
+	cmd //c "mklink /D C:\sl-gha\ ${WORK_FOLDER//\//\\}" > /dev/null
+	WORK_FOLDER=/c/sl-gha
+	echo "Using simlink '$WORK_FOLDER' to reduce path length problem on Windows"
+fi
+
+
 echo $WORK_FOLDER>$GITHUB_WORKSPACE/$GITHUB_WORKFLOW_SHA
 
-echo "Work folder set to $WORK_FOLDER"
 
