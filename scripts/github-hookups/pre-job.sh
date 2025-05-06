@@ -26,9 +26,13 @@ echo "Work folder set to $WORK_FOLDER"
 
 
 if [ "$RUNNER_OS" = "Windows" ]; then
+	WORK_FOLDER=/c/sl-gha
+
+    if [ -d "/c/sl-gha" ]; then
+	    cmd //c "rmdir C:\sl-gha" > /dev/null
+    fi
 	#Use symbolic link to reduce path length
 	cmd //c "mklink /D C:\sl-gha\ ${WORK_FOLDER//\//\\}" > /dev/null
-	WORK_FOLDER=/c/sl-gha
 	echo "Using simlink '$WORK_FOLDER' to reduce path length problem on Windows"
 fi
 
