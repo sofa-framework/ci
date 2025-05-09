@@ -12,7 +12,7 @@ export SOFA_COLOR_TERMINAL=no
 export PATH_RESET="$PATH"
 
 usage() {
-    echo "Usage: unit-tests.sh (run|print-summary) (unit|regression) <build-dir> <src-dir>"
+    echo "Usage: unit-tests.sh (run|print-summary) (unit|regression) <build-dir> <src-dir> <output_dir> <max_parallel-tests>"
 }
 
 if [ "$#" -ge 3 ]; then
@@ -25,83 +25,77 @@ if [ "$#" -ge 3 ]; then
     if vm-is-windows; then
         src_dir="$(cd $4 && pwd -W)"
     fi
+
+
     test_name_min="$2"
     test_type="unit-tests"
+
     if [ "$2" == "regression" ]; then
         test_type="regression-tests"
-
-        if vm-is-windows; then
-            # Avoid "libpython3X not found"
-            if [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
-                pythonroot="$(dirname $VM_PYTHON3_EXECUTABLE)"
-                pythonroot="$(cd "$pythonroot" && pwd)"
-                export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
-            fi
-        fi
     fi
-    output_dir="$test_type"
+    output_dir="$5/$test_type"
+
+
+    if [ "$#" -eq 6 ]; then
+        MAX_PARALLEL_TESTS=$6
+    else 
+        MAX_PARALLEL_TESTS=1
+    fi
+
+
 else
     usage; exit 1
 fi
 
-cd "$build_dir"
 
-if [[ ! -d "$build_dir/lib/" ]]; then
-    echo "Error: '$build_dir' does not look like a Sofa build."
-    usage; exit 1
-elif [[ ! -d "$src_dir/applications/plugins" ]]; then
-    echo "Error: '$src_dir' does not look like a Sofa source tree."
-    usage; exit 1
-fi
-if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
-    VM_MAX_PARALLEL_TESTS=1
-fi
 
-# export SOFA_DATA_PATH="$src_dir:$src_dir/examples:$src_dir/share"
-export SOFA_ROOT="$build_dir"
 if [[ "$test_type" == "regression-tests" ]] && [[ "$command" == "run" ]]; then
     echo "Regression testing starting... Looking for regression-test files : "
 
     echo " --> Adding SOFA examples : $src_dir/examples/"
     export REGRESSION_SCENES_DIR="$src_dir/examples/"
 
-    pushd "$src_dir/applications/plugins" > /dev/null
-    for plugin in *; do
-          regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
-          if [[ "$regressionPath" != "" ]]; then
-              subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
-              if [[ "$plugin" == "RegressionStateScenes.regression-tests" ]]; then
-                  plugin="applications/plugins"
-              fi
-              if vm-is-windows; then
-                  completePath=$( cd $subpath && pwd -W )
-              else
-                  #Remove double slashes // if any
-                  completePath=$(echo "$src_dir/applications/plugins/$subpath" | tr -s '/' )
-              fi
-              echo " --> Found one in $plugin here : $completePath"
-              REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$completePath"
-          fi
-    done
-    popd > /dev/null
-    pushd "$build_dir/external_directories/fetched" > /dev/null
-    for plugin in *; do
-        if [[ "$plugin" != *"-temp" ]]; then
+    if [[ -d "$src_dir/applications/plugins" ]]; then 
+        pushd "$src_dir/applications/plugins" > /dev/null
+        for plugin in *; do
             regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
             if [[ "$regressionPath" != "" ]]; then
                 subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
+                if [[ "$plugin" == "RegressionStateScenes.regression-tests" ]]; then
+                    plugin="applications/plugins"
+                fi
                 if vm-is-windows; then
                     completePath=$( cd $subpath && pwd -W )
                 else
                     #Remove double slashes // if any
-                    completePath=$(echo "$build_dir/external_directories/fetched/$subpath" | tr -s '/' )
+                    completePath=$(echo "$src_dir/applications/plugins/$subpath" | tr -s '/' )
                 fi
                 echo " --> Found one in $plugin here : $completePath"
                 REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$completePath"
             fi
-        fi
-    done
-    popd > /dev/null
+        done
+        popd > /dev/null
+    fi
+    if [[ -d "$src_dir/applications/plugins" ]]; then 
+        pushd "$build_dir/external_directories/fetched" > /dev/null
+        for plugin in *; do
+            if [[ "$plugin" != *"-temp" ]]; then
+                regressionPath=$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests")
+                if [[ "$regressionPath" != "" ]]; then
+                    subpath="$(find "$plugin" -type f -name "RegressionStateScenes.regression-tests" | awk  -F'/' 'BEGIN{OFS="/"} {NF--; print $0 "/"}')"
+                    if vm-is-windows; then
+                        completePath=$( cd $subpath && pwd -W )
+                    else
+                        #Remove double slashes // if any
+                        completePath=$(echo "$build_dir/external_directories/fetched/$subpath" | tr -s '/' )
+                    fi
+                    echo " --> Found one in $plugin here : $completePath"
+                    REGRESSION_SCENES_DIR="${REGRESSION_SCENES_DIR}|$completePath"
+                fi
+            fi
+        done
+        popd > /dev/null
+    fi
 
     if [ "$REGRESSION_DIR" == "" ]; then
         echo "Setting REGRESSION_DIR to default '$build_dir/external_directories/fetched/Regression'"
@@ -332,7 +326,7 @@ run-all-tests() {
         echo "$(shuf $output_dir/${test_type}.txt)" > "$output_dir/${test_type}.txt"
     fi
     local total_lines="$(cat "$output_dir/${test_type}.txt" | wc -l)"
-    local lines_per_thread=$((total_lines / VM_MAX_PARALLEL_TESTS + 1))
+    local lines_per_thread=$((total_lines / MAX_PARALLEL_TESTS + 1))
     split -l $lines_per_thread "$output_dir/${test_type}.txt" "$output_dir/${test_type}_part-"
 
     # Add SofaPython3 tests in first part
@@ -349,9 +343,9 @@ run-all-tests() {
     # wait for all pids
     thread=0
     for file in "$output_dir/${test_type}_part-"*; do
-        echo "Waiting for thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
+        echo "Waiting for thread $(( thread + 1 ))/$MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
         wait ${pids[$thread]}
-        echo "Thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
+        echo "Thread $(( thread + 1 ))/$MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
         thread=$(( thread + 1 ))
     done
     echo "Done."

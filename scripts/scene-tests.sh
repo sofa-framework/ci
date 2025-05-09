@@ -16,10 +16,12 @@
 # timeout "path/to/file.scn" "number-of-seconds"
 # iterations "path/to/file.scn" "number-of-iterations"
 
+# IMPORTANT this script will relay on the env variable SOFA_PLUGIN_PATH to find out all of the plugins that are loadable by runSofa
+
 # set -o errexit
 
 usage() {
-    echo "Usage: scene-tests.sh [run|count-warnings|count-errors|print-summary] <build-dir> <src-dir>"
+    echo "Usage: scene-tests.sh [run|count-warnings|count-errors|print-summary] <build-dir> <src-dir> <output_dir> <max_parallel-tests>"
 }
 
 if [ "$#" -ge 3 ]; then
@@ -29,25 +31,19 @@ if [ "$#" -ge 3 ]; then
     command="$1"
     build_dir="$(cd $2 && pwd)"
     src_dir="$(cd $3 && pwd)"
-    output_dir="scene-tests"
+    output_dir="$4/scene-tests"
+
+
+    if [ "$#" -eq 5 ]; then
+        MAX_PARALLEL_TESTS=$5
+    else 
+        MAX_PARALLEL_TESTS=1
+    fi
 else
     usage; exit 1
 fi
 
-cd "$build_dir"
 
-if [[ ! -d "$build_dir/lib/" ]]; then
-    echo "Error: '$build_dir' does not look like a Sofa build."
-    usage; exit 1
-elif [[ ! -d "$src_dir/applications/plugins" ]]; then
-    echo "Error: '$src_dir' does not look like a Sofa source tree."
-    usage; exit 1
-fi
-if [ -z "$VM_MAX_PARALLEL_TESTS" ]; then
-    VM_MAX_PARALLEL_TESTS=1
-fi
-
-export SOFA_ROOT="$build_dir"
 PATH_RESET="$PATH"
 
 ### Utils
@@ -135,26 +131,41 @@ list-scenes() {
 
 get-lib() {
     pushd "$build_dir/lib/" > /dev/null
-    ls {lib,}"$1"{,d,_d}.{dylib,so,lib}* 2> /dev/null | xargs echo
+    ls {lib,}"$1"{,d,_d}.{dylib,so,lib,dll}* 2> /dev/null | xargs echo
     popd > /dev/null
+
+    if vm-is-windows; then
+        target_dir=${SOFA_PLUGIN_PATH/;/ }
+    else
+        target_dir=${SOFA_PLUGIN_PATH/:/ }
+    fi
+    for directory in $target_dir; do
+        pushd "$directory" > /dev/null
+        ls {lib,}"$1"{,d,_d}.{dylib,so,lib,dll}* 2> /dev/null | xargs echo
+        popd > /dev/null
+    done
 }
 
 list-plugins() {
-    pushd "$src_dir/applications/plugins" > /dev/null
-    for plugin in *; do
-        if [ -e "$plugin/CMakeLists.txt" ]; then
-            echo "$plugin"
-        fi
-    done
-    popd > /dev/null
+    if [[ -d "$src_dir/applications/plugins" ]]; then 
+        pushd "$src_dir/applications/plugins" > /dev/null
+        for plugin in *; do
+            if [ -e "$plugin/CMakeLists.txt" ]; then
+                echo "$plugin"
+            fi
+        done
+        popd > /dev/null
+    fi
 
-    pushd "$build_dir/external_directories/fetched" > /dev/null
-    for plugin in *; do
-        if [[ "$plugin" != *"-temp" ]]; then
-            echo "$plugin"
-        fi
-    done
-    popd > /dev/null
+    if [[ -d "$build_dir/external_directories/fetched" ]]; then 
+        pushd "$build_dir/external_directories/fetched" > /dev/null
+        for plugin in *; do
+            if [[ "$plugin" != *"-temp" ]]; then
+                echo "$plugin"
+            fi
+        done
+        popd > /dev/null
+    fi
 
 }
 
@@ -457,47 +468,17 @@ do-test-all-scenes() {
         local iterations=$(cat "$output_dir/$subpath/iterations.txt")
         local options="-g batch -s dag -n $iterations" # -z test
 
-        # Try to guess if a python scene needs SofaPython or SofaPython3
-        export PYTHONPATH=""
+        # Try to guess if a python scene needs SofaPython3
         if [[ "$scene" == *".py" ]] || [[ "$scene" == *".pyscn" ]]; then
             pythonPlugin="SofaPython3"
-            if [[ "$scene" == *"/SofaPython/"* ]]        ||
-                grep -q 'createChild' "$scene"  ||
-                grep -q 'createObject' "$scene" ||
-                grep -q 'print "' "$scene"; then
-                    pythonPlugin="SofaPython"
-            fi
             options="$options -l $pythonPlugin"
-
-            if [[ "$pythonPlugin" == 'SofaPython3' ]]; then
-                if [ -e "$VM_PYTHON3_PYTHONPATH" ]; then
-                    export PYTHONPATH="$(cd $VM_PYTHON3_PYTHONPATH && pwd):$PYTHONPATH"
-                fi
-                if [ -e "$build_dir/python3/site-packages" ]; then
-                    export PYTHONPATH="$build_dir/python3/site-packages:$PYTHONPATH"
-                fi
-                if vm-is-windows && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
-                    pythonroot="$(dirname $VM_PYTHON3_EXECUTABLE)"
-                    pythonroot="$(cd "$pythonroot" && pwd)"
-                    export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
-                fi
-            elif [[ "$pythonPlugin" == 'SofaPython' ]]; then
-                if [ -e "$VM_PYTHON_PYTHONPATH" ]; then
-                    export PYTHONPATH="$(cd $VM_PYTHON_PYTHONPATH && pwd):$PYTHONPATH"
-                fi
-                if vm-is-windows && [ -e "$VM_PYTHON_EXECUTABLE" ]; then
-                    pythonroot="$(dirname $VM_PYTHON_EXECUTABLE)"
-                    pythonroot="$(cd "$pythonroot" && pwd)"
-                    export PATH="$pythonroot:$pythonroot/DLLs:$pythonroot/Lib:$PATH_RESET"
-                fi
-            fi
         fi
 
         local runSofa_cmd="$runSofa $options $scene >> $output_dir/$subpath/output.txt 2>&1"
         local timeout=$(cat "$output_dir/$subpath/timeout.txt")
         echo "$runSofa_cmd" > "$output_dir/$subpath/command.txt"
 
-        echo "- $scene (thread $thread_num/$VM_MAX_PARALLEL_TESTS ; scene $current_scene_count/$tested_scenes_count)"
+        echo "- $scene (thread $thread_num/$MAX_PARALLEL_TESTS ; scene $current_scene_count/$tested_scenes_count)"
 
         ( echo "" &&
           echo "------------------------------------------" &&
@@ -508,7 +489,7 @@ do-test-all-scenes() {
         ) > "$output_dir/$subpath/output.txt"
 
         begin_millisec="$(time-millisec)"
-        "$SCRIPT_DIR/timeout.sh" "$output_dir/$subpath/runSofa" "$runSofa_cmd" $timeout
+        /bin/bash "$SCRIPT_DIR/timeout.sh" "$output_dir/$subpath/runSofa" "$runSofa_cmd" $timeout
         end_millisec="$(time-millisec)"
 
         elapsed_millisec="$(( end_millisec - begin_millisec ))"
@@ -539,7 +520,7 @@ test-all-scenes() {
         echo "$(shuf $output_dir/all-tested-scenes.txt)" > "$output_dir/all-tested-scenes.txt"
     fi
     local total_lines="$(cat "$output_dir/all-tested-scenes.txt" | wc -l)"
-    local lines_per_thread=$(( total_lines / VM_MAX_PARALLEL_TESTS + 1 ))
+    local lines_per_thread=$(( total_lines / MAX_PARALLEL_TESTS + 1 ))
     split -l $lines_per_thread "$output_dir/all-tested-scenes.txt" "$output_dir/all-tested-scenes_part-"
     thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
@@ -553,9 +534,9 @@ test-all-scenes() {
     # wait child processes
     thread=0
     for file in "$output_dir/all-tested-scenes_part-"*; do
-        echo "Waiting for thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
+        echo "Waiting for thread $(( thread + 1 ))/$MAX_PARALLEL_TESTS (PID ${pids[$thread]}) to finish..."
         wait ${pids[$thread]}
-        echo "Thread $(( thread + 1 ))/$VM_MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
+        echo "Thread $(( thread + 1 ))/$MAX_PARALLEL_TESTS (PID ${pids[$thread]}) is done."
         thread=$(( thread + 1 ))
     done
     echo "Done."
@@ -567,8 +548,18 @@ extract-warnings() {
         local subpath=$(get-output-relative-dir $scene)
 
         if [[ -e "$output_dir/$subpath/output.txt" ]]; then
-            sed -ne "/^\[WARNING\] [^]]*/s:\([^]]*\):$scene\: \1:p \
-                " "$output_dir/$subpath/output.txt"
+            warnings="$(sed -ne "/^\[WARNING\] [^]]*/s:\([^]]*\):\1:p " "$output_dir/$subpath/output.txt")" 
+            if [[ -n "$warnings" ]]; then
+
+                scene_path="$(dirname "$subpath")"
+                if [ ! -d "$output_dir/archive/warnings/$scene_path" ]; then
+                    mkdir -p "$output_dir/archive/warnings/$scene_path"
+                fi
+                cp -Rf "$output_dir/$subpath" "$output_dir/archive/warnings/$scene_path" # to be archived for log access
+
+                echo "$warnings" > $output_dir/$subpath/warnings.txt
+                echo "$scene: $warnings"
+            fi 
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/warnings.tmp"
     sort "$output_dir/reports/warnings.tmp" | uniq > "$output_dir/reports/warnings.txt"
@@ -582,8 +573,19 @@ extract-errors() {
         local subpath=$(get-output-relative-dir $scene)
 
         if [[ -e "$output_dir/$subpath/output.txt" ]]; then
-            sed -ne "/^\[ERROR\] [^]]*/s:\([^]]*\):$scene\: \1:p \
-                " "$output_dir/$subpath/output.txt"
+            errors="$(sed -ne "/^\[ERROR\] [^]]*/s:\([^]]*\):\1:p " "$output_dir/$subpath/output.txt")" 
+            if [[ -n "$errors" ]]; then
+
+                scene_path="$(dirname "$subpath")"
+                if [ ! -d "$output_dir/archive/errors/$scene_path" ]; then
+                    mkdir -p "$output_dir/archive/errors/$scene_path"
+                fi
+                cp -Rf "$output_dir/$subpath" "$output_dir/archive/errors/$scene_path" # to be archived for log access
+
+
+                echo "$errors" > $output_dir/$subpath/errors.txt
+                echo "$scene: $errors"
+            fi 
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/errors.tmp"
     sort "$output_dir/reports/errors.tmp" | uniq > "$output_dir/reports/errors.txt"
@@ -603,10 +605,10 @@ extract-crashes() {
             if [[ "$status" != 0 ]]; then
                 echo "$scene: error: $status"
                 scene_path="$(dirname "$subpath")"
-                if [ ! -d "$output_dir/archive/$scene_path" ]; then
-                    mkdir -p "$output_dir/archive/$scene_path"
+                if [ ! -d "$output_dir/archive/crashes/$scene_path" ]; then
+                    mkdir -p "$output_dir/archive/crashes/$scene_path"
                 fi
-                cp -Rf "$output_dir/$subpath" "$output_dir/archive/$scene_path" # to be archived for log access
+                cp -Rf "$output_dir/$subpath" "$output_dir/archive/crashes/$scene_path" # to be archived for log access
             fi
         fi
     done < "$output_dir/all-tested-scenes.txt" > "$output_dir/reports/crashes.txt"
