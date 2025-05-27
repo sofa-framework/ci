@@ -88,13 +88,21 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         flag_tag="-D${fixed_name}_GIT_TAG='$dependency_merge_commit'"
 
         if [[ "$dependency_merge_commit" == "null" ]]; then 
-            github_comment_body=$github_comment_body'\n- **Please fix merging issues of '$dependency_url'. This build is aborted until these issues are fixed.**
+            github_comment_body=$github_comment_body'\n- **Please fix merging issues of '$dependency_url'. This build is aborted until these issues are fixed.**'
             pr_is_broken="true"
         elif [[ "$dependency_is_merged" != [Tt]"rue" ]]; then # this dependency is a merged PR
             github_comment_body=$github_comment_body'\n- **Merge or close '$dependency_url'**\n_For this build, the following CMake flags will be set_\n'${flag_repository}'\n'${flag_tag}
             pr_is_mergeable="false"
         fi
     done < <( echo "$pr_description" | grep '\[ci-depends-on' )
+
+    if [[ "$pr_is_broken" == "true" ]]; the
+            github-notify "success" "Dependencies are OK."
+            github-post-pr-comment "$pr_id" "$github_comment_header $github_comment_body"
+            echo "WARNING: Pr dependencies cannot be automatically merged, this builld is skipped."
+            echo "true" > "$output_dir/skip-this-build" # will be searched by Groovy script on launcher
+            exit 0
+    fi
 
     if [[ "$pr_has_dependencies" == "true" ]]; then
         if [[ "$pr_is_mergeable" == "true" ]]; then
