@@ -367,9 +367,9 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
         add-cmake-option "-DSOFACUDA_DOUBLE=ON"
         if in-array "build-release-package" "$BUILD_OPTIONS"; then
-            add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5;8.0;8.6;8.9"
+            add-cmake-option "-DCMAKE_CUDA_ARCHITECTURES=60;61;70;75;80;86;89"
         else
-            add-cmake-option "-DCUDA_ARCH_LIST=6.0;8.9"
+            add-cmake-option "-DCMAKE_CUDA_ARCHITECTURES=60;89"
         fi
         add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
         add-cmake-option "-DPLUGIN_SOFADISTANCEGRID_CUDA=ON"
