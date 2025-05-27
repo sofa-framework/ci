@@ -54,6 +54,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
     export GITHUB_CONTEXT="[ci-depends-on]" # edit
     pr_has_dependencies="false"
     pr_is_mergeable="true"
+    pr_is_broken="false"
     github_comment_header='**[ci-depends-on]** detected during [build #'$BUILD_NUMBER']('$BUILD_URL').'
     github_comment_body='\n\n To unlock the merge button, you must'
 
@@ -86,7 +87,10 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         flag_repository="-D${fixed_name}_GIT_REPOSITORY='$dependency_project_url'"
         flag_tag="-D${fixed_name}_GIT_TAG='$dependency_merge_commit'"
 
-        if [[ "$dependency_is_merged" != [Tt]"rue" ]]; then # this dependency is a merged PR
+        if [[ "$dependency_merge_commit" == "null" ]]; then 
+            github_comment_body=$github_comment_body'\n- **Please fix merging issues of '$dependency_url'. This build is aborted until these issues are fixed.**
+            pr_is_broken="true"
+        elif [[ "$dependency_is_merged" != [Tt]"rue" ]]; then # this dependency is a merged PR
             github_comment_body=$github_comment_body'\n- **Merge or close '$dependency_url'**\n_For this build, the following CMake flags will be set_\n'${flag_repository}'\n'${flag_tag}
             pr_is_mergeable="false"
         fi
