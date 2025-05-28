@@ -96,7 +96,7 @@ if [[ "$DASH_COMMIT_BRANCH" == *"/PR-"* ]]; then
         fi
     done < <( echo "$pr_description" | grep '\[ci-depends-on' )
 
-    if [[ "$pr_is_broken" == "true" ]]; the
+    if [[ "$pr_is_broken" == "true" ]]; then
             github-notify "success" "Dependencies are OK."
             github-post-pr-comment "$pr_id" "$github_comment_header $github_comment_body"
             echo "WARNING: Pr dependencies cannot be automatically merged, this builld is skipped."
