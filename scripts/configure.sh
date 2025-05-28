@@ -354,6 +354,8 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
 
     if [[ "$VM_HAS_CGAL" == "false" ]]; then
         add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
+    elif  vm-is-ubuntu || vm-is-centos; then
+        add-cmake-option "-DSOFA_CGALPLUGIN_LIMIT_NINJA_JOB_POOL=ON"
     fi
 
     if [[ "$VM_HAS_ASSIMP" == "false" ]]; then
