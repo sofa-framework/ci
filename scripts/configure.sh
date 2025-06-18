@@ -376,7 +376,9 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
         add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
         add-cmake-option "-DPLUGIN_SOFADISTANCEGRID_CUDA=ON"
     else
-        add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
+	add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
+    	#Deactivate all CUDA modules based on naming convention 'XXX.CUDA" that creates a CMake flag "PLUGIN_XXX_CUDA" thus the double grep 
+ 	add-cmake-option "$(cat $SRC_DIR/CMakePresets.json | grep PLUGIN_ | grep _CUDA | awk -F'"' '{ print "-D"$2"=OFF" }' | sort | uniq)"
     fi
 
     if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
