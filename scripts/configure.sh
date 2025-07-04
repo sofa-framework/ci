@@ -341,10 +341,6 @@ elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
     PRESETS="standard-dev"
     echo "Configuring with the default plugins/modules (scope = standard-dev)"
 
-    if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
-        add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
-    fi
-
 
 # Build with as much plugins/modules as possible (scope = full)
 elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
@@ -380,10 +376,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     	#Deactivate all CUDA modules based on naming convention 'XXX.CUDA" that creates a CMake flag "PLUGIN_XXX_CUDA" thus the double grep 
  	add-cmake-option "$(cat $SRC_DIR/CMakePresets.json | grep PLUGIN_ | grep _CUDA | awk -F'"' '{ print "-D"$2"=OFF" }' | sort | uniq)"
     fi
-
-    if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
-		    add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
-		fi
 
 fi
 
