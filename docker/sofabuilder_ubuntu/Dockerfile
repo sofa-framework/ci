@@ -79,11 +79,11 @@ RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.11 /tmp/get-pip3.py \
     && python3.11 -m pip install --upgrade pip \
-    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
+    && python3.11 -m pip install numpy==2.2.2 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.12 /tmp/get-pip3.py \
     && python3.12 -m pip install --upgrade pip \
-    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
+    && python3.12 -m pip install numpy==2.2.2 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 
