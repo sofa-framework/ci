@@ -9,12 +9,12 @@
 #################
 
 usage() {
-    echo "Usage: ubuntu.sh <install-dir> <github-package-full-version (e.g. 2.328.0)> <configure-token>"
+    echo "Usage: unix.sh <install-dir> <github-package-full-version (e.g. 2.328.0)> <configure-token>"
     echo "<github-package-full-version> and <configure-token> can be found on https://github.com/bakpaul/sofa/settings/actions/runners/new"
 }
 
 
-if [ "$#" -ge 4 ]; then
+if [ "$#" -eq 3 ]; then
     INSTALL_DIR="$(cd "$1" && pwd)"
     GITHUB_VERSION="$2"
     CONFIGURE_TOKEN="$3"    
