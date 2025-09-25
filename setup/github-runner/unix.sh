@@ -45,11 +45,11 @@ tar xzf ./actions-runner-${OS}-${GITHUB_VERSION}.tar.gz
 
 
 
-## SOFA ci scripts
-cd "$INSTALL_DIR"
-git clone https://www.github.com/bakpaul/ci.git
-cd ci 
-git checkout jenkins_gha_migration
+## SOFA ci scripts this is normally already done on the builder to be able to launch this
+#cd "$INSTALL_DIR"
+#git clone https://www.github.com/bakpaul/ci.git
+#cd ci 
+#git checkout jenkins_gha_migration
 
 
 #### Setup crontab and environment 
