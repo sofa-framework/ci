@@ -55,7 +55,7 @@ tar xzf ./actions-runner-${OS}-${GITHUB_VERSION}.tar.gz
 #### Setup crontab and environment 
 ## crontab. No need to add a reboot action as it will be done through a job 
 (crontab -l 2>/dev/null; echo "* * * * * cd \"${INSTALL_DIR}/ci\" && git pull -r") | crontab -
-(crontab -l 2>/dev/null; echo "0 0 * * * rm -rf \"${INSTALL_DIR}/github-workspace/_work\"") | crontab -
+(crontab -l 2>/dev/null; echo "@reboot rm -rf \"${INSTALL_DIR}/github-workspace/_work\"") | crontab -
 if [[ "$(uname)" == "Linux" ]]; then
     (crontab -l 2>/dev/null; echo "@reboot docker system prune -a -f") | crontab -
 fi
