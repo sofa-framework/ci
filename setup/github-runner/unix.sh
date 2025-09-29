@@ -26,9 +26,11 @@ if [[ "$(uname)" == "Linux" ]]; then
     OS="linux-x64"
     LABELS="sh-ubuntu_gcc_release,sh-ubuntu_clang_release,sh-ubuntu_clang_debug,sh-fedora_clang_release"
 else
-    OS="osx-64"
+    OS="osx-x64"
     LABELS="sh-macos_clang_release"
 fi
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 cd "$INSTALL_DIR"
 
@@ -54,12 +56,21 @@ tar xzf ./actions-runner-${OS}-${GITHUB_VERSION}.tar.gz
 
 #### Setup crontab and environment 
 ## crontab. No need to add a reboot action as it will be done through a job 
-(crontab -l 2>/dev/null; echo "* * * * * cd \"${INSTALL_DIR}/ci\" && git pull -r") | crontab -
-(crontab -l 2>/dev/null; echo "@reboot rm -rf \"${INSTALL_DIR}/github-workspace/_work\"") | crontab -
 if [[ "$(uname)" == "Linux" ]]; then
+
+    (crontab -l 2>/dev/null; echo "* * * * * cd \"${INSTALL_DIR}/ci\" && git pull -r") | crontab -
+    (crontab -l 2>/dev/null; echo "@reboot rm -rf \"${INSTALL_DIR}/github-workspace/_work\"") | crontab -
     (crontab -l 2>/dev/null; echo "@reboot docker system prune -a -f") | crontab -
+    (crontab -l 2>/dev/null; echo "@reboot \"${INSTALL_DIR}/github-workspace/run.sh\"") | crontab -
+else
+    tempFolder=$(mktemp -d)
+    cp ${SCRIPT_DIR}/*.pdist ${tempFolder}/
+    for filename in ${tempFolder}/*.pdist; do
+        sed -i "s/INSTALL_DIR/${INSTALL_DIR//"/"/"\\/"}/g" $filename
+        mv $filename ~/Library/LaunchAgents/
+    done
+    launchctl enable gui/`id -u`/local.job
 fi
-(crontab -l 2>/dev/null; echo "@reboot \"${INSTALL_DIR}/github-workspace/run.sh\"") | crontab -
 
 ## environement
 echo "ACTIONS_RUNNER_HOOK_JOB_COMPLETED=\"${INSTALL_DIR}/ci/scripts/github-hookups/post-job.sh\"" >> "${INSTALL_DIR}/github-workspace/.env"
