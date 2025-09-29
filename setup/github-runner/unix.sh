@@ -70,6 +70,7 @@ else
         mv $filename ~/Library/LaunchAgents/
     done
     launchctl enable gui/`id -u`/local.job
+    rm -rf ${tempFolder}
 fi
 
 ## environement
