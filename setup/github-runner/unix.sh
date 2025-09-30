@@ -64,9 +64,9 @@ if [[ "$(uname)" == "Linux" ]]; then
     (crontab -l 2>/dev/null; echo "@reboot \"${INSTALL_DIR}/github-workspace/run.sh\"") | crontab -
 else
     tempFolder=$(mktemp -d)
-    cp ${SCRIPT_DIR}/*.pdist ${tempFolder}/
-    for filename in ${tempFolder}/*.pdist; do
-        sed -i "s/INSTALL_DIR/${INSTALL_DIR//"/"/"\\/"}/g" $filename
+    cp ${SCRIPT_DIR}/*.plist ${tempFolder}/
+    for filename in ${tempFolder}/*.plist; do
+        sed -i "s/INSTALL_DIR/${INSTALL_DIR//\//\\/}/g" $filename
         mv $filename ~/Library/LaunchAgents/
     done
     launchctl enable gui/`id -u`/local.job
