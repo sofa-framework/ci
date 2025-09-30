@@ -66,7 +66,7 @@ else
     tempFolder=$(mktemp -d)
     cp ${SCRIPT_DIR}/*.plist ${tempFolder}/
     for filename in ${tempFolder}/*.plist; do
-        sed -i "s/INSTALL_DIR/${INSTALL_DIR//\//\\/}/g" $filename
+        sed -i '' "s/INSTALL_DIR/${INSTALL_DIR//\//\\/}/g" $filename
         mv $filename ~/Library/LaunchAgents/
     done
     launchctl enable gui/`id -u`/local.job
