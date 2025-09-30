@@ -24,9 +24,11 @@ fi
 
 if [[ "$(uname)" == "Linux" ]]; then
     OS="linux-x64"
+    NAME="$(hostname)"
     LABELS="sh-ubuntu_gcc_release,sh-ubuntu_clang_release,sh-ubuntu_clang_debug,sh-fedora_clang_release"
 else
     OS="osx-x64"
+    NAME="$(scutil --get LocalHostName)"
     LABELS="sh-macos_clang_release"
 fi
 
@@ -63,6 +65,9 @@ if [[ "$(uname)" == "Linux" ]]; then
     (crontab -l 2>/dev/null; echo "@reboot docker system prune -a -f") | crontab -
     (crontab -l 2>/dev/null; echo "@reboot \"${INSTALL_DIR}/github-workspace/run.sh\"") | crontab -
 else
+    if [ ! -d "~/Library/LaunchAgents/" ]; then 
+        mkdir -p ~/Library/LaunchAgents/
+    fi
     tempFolder=$(mktemp -d)
     cp ${SCRIPT_DIR}/*.plist ${tempFolder}/
     for filename in ${tempFolder}/*.plist; do
@@ -81,7 +86,7 @@ echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=\"${INSTALL_DIR}/ci/scripts/github-hookups
 
 ## Final configuration
 cd "$INSTALL_DIR/github-workspace"
-./config.sh --unattended --url "https://github.com/bakpaul/sofa" --token "${CONFIGURE_TOKEN}" --name "$(hostname)" --labels "$(hostname),${LABELS}"
+./config.sh --unattended --url "https://github.com/bakpaul/sofa" --token "${CONFIGURE_TOKEN}" --name "${NAME}" --labels "${NAME},${LABELS}"
 
 
 echo "Everything is setup in $INSTALL_DIR. Rebooting to launch the worker... "
