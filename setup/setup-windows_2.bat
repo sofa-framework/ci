@@ -45,11 +45,11 @@ pathed /MACHINE /REMOVE C:\Python311\
 pathed /MACHINE /REMOVE C:\Python312\Scripts\
 pathed /MACHINE /REMOVE C:\Python312\
 C:\Python310\python.exe -m pip install --upgrade pip
-C:\Python310\python.exe -m pip install numpy scipy pybind11==2.9.1 matplotlib mypy pybind11-stubgen
+C:\Python310\python.exe -m pip install numpy scipy pybind11==2.12.0 matplotlib mypy pybind11-stubgen rpyc
 C:\Python311\python.exe -m pip install --upgrade pip
-C:\Python311\python.exe -m pip install numpy scipy pybind11==2.9.1 matplotlib mypy pybind11-stubgen
+C:\Python311\python.exe -m pip install numpy scipy pybind11==2.12.0 matplotlib mypy pybind11-stubgen rpyc
 C:\Python312\python.exe -m pip install --upgrade pip
-C:\Python312\python.exe -m pip install numpy scipy pybind11==2.9.1 matplotlib mypy pybind11-stubgen
+C:\Python312\python.exe -m pip install numpy scipy pybind11==2.12.0 matplotlib mypy pybind11-stubgen rpyc
 
 
 REM Install plugins dependencies

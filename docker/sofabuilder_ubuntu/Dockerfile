@@ -67,7 +67,7 @@ RUN apt-get install -y \
 
 ENV VM_BUILDS_IMGUI="true"
 # Install pip, numpy, scipy, pybind11
-ARG PYBIND11_VERSION=2.11.1
+ARG PYBIND11_VERSION=2.12.0
 RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
     && python2.7 /tmp/get-pip2.py \
     && python2.7 -m pip install --upgrade "pip == 20.3.4" \
@@ -75,15 +75,15 @@ RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.10 /tmp/get-pip3.py \
     && python3.10 -m pip install --upgrade pip \
-    && python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
+    && python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.11 /tmp/get-pip3.py \
     && python3.11 -m pip install --upgrade pip \
-    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
+    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.12 /tmp/get-pip3.py \
     && python3.12 -m pip install --upgrade pip \
-    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen
+    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 

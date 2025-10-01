@@ -342,36 +342,31 @@ elif in-array "build-scope-standard" "$BUILD_OPTIONS"; then
     PRESETS="standard"
     echo "Configuring with the default plugins/modules (scope = standard)"
 
-    if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
-        add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
-    fi
-
-
 
 # Build with the default plugins/modules (scope = standard)
 elif in-array "build-scope-supported-plugins" "$BUILD_OPTIONS"; then
     PRESETS="supported-plugins"
     echo "Configuring with the supported plugins/modules (scope = supported-plugins)"
 
-    if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
-        add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
-    fi
-
     if [[ "$VM_HAS_CGAL" == "false" ]]; then
         add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
+    elif  vm-is-ubuntu || vm-is-centos; then
+        add-cmake-option "-DSOFA_CGALPLUGIN_LIMIT_NINJA_JOB_POOL=ON"
     fi
 
     if [[ "$VM_HAS_CUDA" == "true" ]]; then
         add-cmake-option "-DSOFACUDA_DOUBLE=ON"
         if in-array "build-release-package" "$BUILD_OPTIONS"; then
-            add-cmake-option "-DCUDA_ARCH_LIST=6.0;6.1;7.0;7.5;8.0;8.6;8.9"
+            add-cmake-option "-DCMAKE_CUDA_ARCHITECTURES=60;61;70;75;80;86;89"
         else
-            add-cmake-option "-DCUDA_ARCH_LIST=6.0;8.9"
+            add-cmake-option "-DCMAKE_CUDA_ARCHITECTURES=60;89"
         fi
         add-cmake-option "-DPLUGIN_VOLUMETRICRENDERING_CUDA=ON"
         add-cmake-option "-DPLUGIN_SOFADISTANCEGRID_CUDA=ON"
     else
         add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
+        #Deactivate all CUDA modules based on naming convention 'XXX.CUDA" that creates a CMake flag "PLUGIN_XXX_CUDA" thus the double grep 
+     	add-cmake-option "$(cat $SRC_DIR/CMakePresets.json | grep PLUGIN_ | grep _CUDA | awk -F'"' '{ print "-D"$2"=OFF" }' | sort | uniq)"
     fi
 
 # Build with as much plugins/modules as possible (scope = full)
@@ -382,6 +377,8 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
 
     if [[ "$VM_HAS_CGAL" == "false" ]]; then
         add-cmake-option "-DPLUGIN_CGALPLUGIN=OFF -DSOFA_FETCH_CGALPLUGIN=OFF"
+    elif  vm-is-ubuntu || vm-is-centos; then
+        add-cmake-option "-DSOFA_CGALPLUGIN_LIMIT_NINJA_JOB_POOL=ON"
     fi
 
     if [[ "$VM_HAS_ASSIMP" == "false" ]]; then
@@ -404,10 +401,6 @@ elif in-array "build-scope-full" "$BUILD_OPTIONS"; then
     else
         add-cmake-option "-DPLUGIN_SOFACUDA=OFF"
     fi
-
-    if [[ "$VM_BUILDS_IMGUI" == "false" ]]; then
-		    add-cmake-option "-DPLUGIN_SOFAIMGUI=OFF"
-		fi
 
 fi
 
