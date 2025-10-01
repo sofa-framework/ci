@@ -64,6 +64,12 @@ if [[ "$(uname)" == "Linux" ]]; then
     (crontab -l 2>/dev/null; echo "@reboot rm -rf \"${INSTALL_DIR}/github-workspace/_work\"") | crontab -
     (crontab -l 2>/dev/null; echo "@reboot docker system prune -a -f") | crontab -
     (crontab -l 2>/dev/null; echo "@reboot \"${INSTALL_DIR}/github-workspace/run.sh\"") | crontab -
+
+
+    ## environement
+    echo "ACTIONS_RUNNER_HOOK_JOB_COMPLETED=\"${INSTALL_DIR}/ci/scripts/github-hookups/post-job.sh\"" >> "${INSTALL_DIR}/github-workspace/.env"
+    echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=\"${INSTALL_DIR}/ci/scripts/github-hookups/pre-job.sh\"" >> "${INSTALL_DIR}/github-workspace/.env"
+
 else
     if [ ! -d "~/Library/LaunchAgents/" ]; then 
         mkdir -p ~/Library/LaunchAgents/
@@ -76,12 +82,10 @@ else
     done
     launchctl enable gui/`id -u`/local.job
     rm -rf ${tempFolder}
+
+    ## environement
+    # Directly set in com.github.runner.launch.plist 
 fi
-
-## environement
-echo "ACTIONS_RUNNER_HOOK_JOB_COMPLETED=\"${INSTALL_DIR}/ci/scripts/github-hookups/post-job.sh\"" >> "${INSTALL_DIR}/github-workspace/.env"
-echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=\"${INSTALL_DIR}/ci/scripts/github-hookups/pre-job.sh\"" >> "${INSTALL_DIR}/github-workspace/.env"
-
 
 
 ## Final configuration

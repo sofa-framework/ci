@@ -3,7 +3,7 @@
 <plist version="1.0">
     <dict>
         <key>Label</key>
-        <string>com.github.runner.cleanoldbuild</string>
+        <string>com.github.runner.updateci</string>
         <key>WorkingDirectory</key>
         <string>INSTALL_DIR/ci</string>
         <key>ProgramArguments</key>

@@ -3,10 +3,17 @@
 <plist version="1.0">
     <dict>
         <key>Label</key>
-        <string>com.github.runner.cleanoldbuild</string>
+        <string>com.github.runner.launch</string>
         <key>Program</key>
         <string>INSTALL_DIR/github-workspace/run.sh</string>
         <key>RunAtLoad</key>
         <true/>
+        <key>EnvironmentVariables</key>
+        <dict>
+                <key>ACTIONS_RUNNER_HOOK_JOB_STARTED</key>
+                <string>INSTALL_DIR/ci/scripts/github-hookups/pre-job.sh</string>
+                <key>ACTIONS_RUNNER_HOOK_JOB_COMPLETED</key>
+                <string>INSTALL_DIR/ci/scripts/github-hookups/post-job.sh</string>
+        </dict>
     </dict>
 </plist>
