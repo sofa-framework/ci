@@ -36,7 +36,10 @@ if [ "$RUNNER_OS" = "Windows" ]; then
 	echo "Using simlink '$WORK_FOLDER' to reduce path length problem on Windows"
 fi
 
+echo "Current environement is:"
+env 
+
 
 echo $WORK_FOLDER>$GITHUB_WORKSPACE/$GITHUB_WORKFLOW_SHA
 
-exit 0
+exit 0 
