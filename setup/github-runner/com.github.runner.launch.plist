@@ -10,6 +10,8 @@
         <true/>
         <key>EnvironmentVariables</key>
         <dict>
+                <key>PATH</key>
+                <string>/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin</string>
                 <key>ACTIONS_RUNNER_HOOK_JOB_STARTED</key>
                 <string>INSTALL_DIR/ci/scripts/github-hookups/pre-job.sh</string>
                 <key>ACTIONS_RUNNER_HOOK_JOB_COMPLETED</key>
