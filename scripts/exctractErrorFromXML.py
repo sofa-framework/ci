@@ -42,7 +42,6 @@ for file in files:
 
 if len(faileTests) > 0:
     with open(sys.argv[2] + "_failures", "w") as f:
-        f.write("FAILED TESTS: \n\n")
         for test in faileTests:
             f.write(f"---\n{test.execName}:\n")
             f.write(f" - Test suite: '{test.testSuite}'\n")
@@ -52,7 +51,6 @@ if len(faileTests) > 0:
 
 if len(errorTests) > 0:
     with open(sys.argv[2] + "_errors", "w") as f:
-        f.write("TESTS WITH ERROR:\n\n---\n")
         for test in errorTests:
             f.write(f"{test.execName}:")
             f.write(f"{test.execName}:\n")
