@@ -197,6 +197,49 @@ def extract_ci_depends_on():
     return dependency_dict, is_merged_dict
 
 
+def publish_github_message(message, prNB):
+    """
+    Publish a comment message on a GitHub pull request.
+    Args:
+        message (str): The message to post.
+        prNB (str or int): The pull request number.
+    """
+    url = f"{API_URL}/issues/{prNB}/comments"
+    payload = {"body": message}
+
+    response = requests.post(url, headers=HEADERS, json=payload)
+
+    if response.status_code == 201:
+        print(f"✅ Comment successfully posted to PR #{prNB}")
+        return response.json()
+    else:
+        print(f"❌ Failed to post comment to PR #{prNB}")
+        print(f"Status: {response.status_code} | Response: {response.text}")
+        return None
+
+def check_ci_depends_on():
+    dependency_dict, is_merged_dict = extract_ci_depends_on()
+    message = "**[ci-depends-on]** detected."
+
+    PRReady = True
+    for key in is_merged_dict:
+        PRReady = PRReady and is_merged_dict[key]
+    
+    if PRReady:
+        message += "\n\n All dependencies are merged/closed. Congrats! :+1:"
+    else:
+        message += "\n\n To unlock the merge button, you must"
+        for key in dependency_dict:
+            if not is_merged_dict[key]:
+                fixedDepName = key.upper().replace('.','_')
+                flag_repository="-D$" + f"{fixedDepName}" + f"_GIT_REPOSITORY='{dependency_dict[key]["repo_url"]}'"
+                flag_tag="-D$" + f"{fixedDepName}" + f"_GIT_TAG='{dependency_dict[key]["branch_name"]}'"
+                message += f"\n- **Merge or close '{dependency_dict[key]["repo_url"]}'**\n_For this build, the following CMake flags will be set_\n'{flag_repository}'\n'{flag_tag}"
+    
+    publish_github_message(message, PR_NUMBER)
+
+
+
 # ========================================================================
 # Script core
 # ========================================================================
