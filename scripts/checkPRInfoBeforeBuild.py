@@ -220,7 +220,10 @@ def publish_github_message(message, prNB):
 def check_ci_depends_on():
     dependency_dict, is_merged_dict = extract_ci_depends_on()
     message = "**[ci-depends-on]** detected."
-
+    
+    if len(dependency_dict) == 0:
+        return 
+    
     PRReady = True
     for key in is_merged_dict:
         PRReady = PRReady and is_merged_dict[key]
