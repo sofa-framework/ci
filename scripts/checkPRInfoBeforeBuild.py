@@ -301,7 +301,7 @@ if __name__ == "__main__":
 
             ci_depends_on_str = f"{dependency_dict}".replace("'", "\\\"")
             env_file.write(f"CI_DEPENDS_ON={ci_depends_on_str}\n")
-            env_file.write(f'BUILDER_OS=["sh-ubuntu_gcc_release","sh-fedora_clang_release","sh-windows_vs2022_release","sh-macos_clang_release"]')
+            env_file.write(f'BUILDER_OS=["sh-ubuntu_gcc_release","sh-fedora_clang_release","sh-macos_clang_release"]')
 
 
     # ========================================================================
