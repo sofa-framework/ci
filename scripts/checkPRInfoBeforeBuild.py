@@ -180,7 +180,7 @@ def extract_ci_depends_on():
             dependency_dict[key] = {
                 "repo_url": repo_url,
                 "branch_name": branch_name,
-                "pr_url": f"https://github.com/{owner}/{repo}/pulls/{pull_number}"
+                "pr_url": f"https://github.com/{owner}/{repo}/pull/{pull_number}"
             }
 
             is_merged_dict[key] = is_merged
@@ -234,7 +234,7 @@ def check_ci_depends_on(dependency_dict = None, is_merged_dict = None):
                 fixedDepName = key.upper().replace('.','_')
                 flag_repository="-D" + f"{fixedDepName}" + f"_GIT_REPOSITORY='{dependency_dict[key]["repo_url"]}'"
                 flag_tag="-D" + f"{fixedDepName}" + f"_GIT_TAG='{dependency_dict[key]["branch_name"]}'"
-                message += f"\n- **Merge or close '{dependency_dict[key]["pr_url"]}'**\n_For this build, the following CMake flags will be set_\n{flag_repository}\n{flag_tag}"
+                message += f"\n- **Merge or close {dependency_dict[key]["pr_url"]}**\n_For this build, the following CMake flags will be set_\n{flag_repository}\n{flag_tag}"
 
         if OnePRMerged:
             message += "\n\n Already satisfied dependencies : "
