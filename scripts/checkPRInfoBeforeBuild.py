@@ -121,6 +121,8 @@ def export_pr_info():
         env_file.write(f"PR_OWNER_URL={pr_url}\n")
         env_file.write(f"PR_BRANCH_NAME={pr_branch_name}\n")
         env_file.write(f"PR_COMMIT_SHA={pr_commit_sha}\n")
+    
+    return pr_commit_sha
 
     ## TODO : pr_data.get('mergeable', False) could also let us know if it is mergeable
 
@@ -180,7 +182,7 @@ def extract_ci_depends_on():
             dependency_dict[key] = {
                 "repo_url": repo_url,
                 "branch_name": branch_name,
-                "pr_url": f"https://github.com/{owner}/{repo}/pull/{pull_number}"
+                "pr_url": f"https://github.com/{owner}/{repo}/pull/{pull_number}", 
             }
 
             is_merged_dict[key] = is_merged
@@ -210,13 +212,28 @@ def publish_github_message(message, prNB):
         print(f"❌ Failed to post comment to PR #{prNB}")
         print(f"Status: {response.status_code} | Response: {response.text}")
         return None
+    
+def update_action_status(statusesUrl, context, state, description, target_url=None):
+    payload = {"context": context, "state": state, "description": description}
+    if target_url is not None:
+        payload["target_url"] = target_url
+    response = requests.post(statusesUrl, headers=HEADERS, json=payload)
+    if response.status_code == 201:
+        print(f"✅ Status correctly updated")
+        return response.json()
+    else:
+        print(f"❌ Failed to update status")
+        print(f"Status: {response.status_code} | Response: {response.text}")
+        return None
+    return
 
-def check_ci_depends_on(dependency_dict = None, is_merged_dict = None):
+def check_ci_depends_on(pr_sha, dependency_dict = None, is_merged_dict = None):
     if dependency_dict is None or is_merged_dict is None:
         dependency_dict, is_merged_dict = extract_ci_depends_on()
     message = "**[ci-depends-on]** detected."
     
     if len(dependency_dict) == 0:
+        update_action_status(f"https://api.github.com/repos/bakpaul/sofa/statuses/{pr_sha}", "[ci-depends-on]", "success", "No dependency found in description.")
         return 
     
     PRReady = True
@@ -227,6 +244,7 @@ def check_ci_depends_on(dependency_dict = None, is_merged_dict = None):
     
     if PRReady:
         message += "\n\n All dependencies are merged/closed. Congrats! :+1:"
+        update_action_status(f"https://api.github.com/repos/bakpaul/sofa/statuses/{pr_sha}", "[ci-depends-on]", "success", "Dependencies are OK.")
     else:
         message += "\n\n To unlock the merge button, you must"
         for key in dependency_dict:
@@ -241,6 +259,9 @@ def check_ci_depends_on(dependency_dict = None, is_merged_dict = None):
             for key in dependency_dict:
                 if  is_merged_dict[key]:
                     message += f"\n- {dependency_dict[key]["pr_url"]}"
+
+        update_action_status(f"https://api.github.com/repos/bakpaul/sofa/statuses/{pr_sha}", "[ci-depends-on]", "failure", "Please follow instructions in comments.")
+    
         
 
 
@@ -262,7 +283,7 @@ if __name__ == "__main__":
     # Trigger the build if conditions are met
     if to_review_label_found and not is_draft_pr:
         # Export PR information (url, name, sha)
-        export_pr_info()
+        pr_sha = export_pr_info()
 
         # Check compilation options in PR comments
         check_comments()
@@ -271,7 +292,7 @@ if __name__ == "__main__":
         dependency_dict, is_merged_dict = extract_ci_depends_on()
 
         # Publish ci depends on message and set action status
-        check_ci_depends_on(dependency_dict=dependency_dict, is_merged_dict=is_merged_dict)
+        check_ci_depends_on(pr_sha, dependency_dict=dependency_dict, is_merged_dict=is_merged_dict)
 
         # Export all environment variables specific to pull-requests
         with open(os.environ["GITHUB_ENV"], "a") as env_file:
