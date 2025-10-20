@@ -4,20 +4,14 @@ import os, re, requests
 
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
 PR_NUMBER = os.getenv('PR_NUMBER')
-OWNER_NAME = os.getenv('OWNER_NAME')
-PR_COMMIT_SHA = os.getenv('PR_COMMIT_SHA')
 
 
-if (not GITHUB_TOKEN) or (not PR_NUMBER) or (not OWNER_NAME) or (not PR_COMMIT_SHA):
+if (not GITHUB_TOKEN) or (not PR_NUMBER):
     print("Error: Missing required environment variables.")
     if (not GITHUB_TOKEN):
         print("     - Missing GITHUB_TOKEN")
     if (not PR_NUMBER):
         print("     - Missing PR_NUMBER")
-    if (not OWNER_NAME):
-        print("     - Missing OWNER_NAME")
-    if (not PR_COMMIT_SHA):
-        print("     - Missing PR_COMMIT_SHA")
     exit(1)
 
 
@@ -162,7 +156,6 @@ def extract_ci_depends_on():
             # Ensure the URL is in the expected dependency format, e.g. https://github.com/sofa-framework/Sofa.Qt/pull/6
             parts = dependency.split('/')
             if len(parts) != 7 or parts[0] != 'https:' or parts[1] != '' or parts[2] != 'github.com':
-                raise ValueError("")
                 print(f"Invalid URL ci-depends-on format: {dependency}")
                 exit(1)
 
@@ -182,11 +175,12 @@ def extract_ci_depends_on():
             key = dependency_pr_data['base']['repo']['name'] #Sofa.Qt
             repo_url = dependency_pr_data['head']['repo']['html_url'] #https://github.com/{remote from which pr comes}/Sofa.Qt
             branch_name = dependency_pr_data['head']['ref'] #my_feature_branch
-            is_merged = dependency_pr_data['merged']
+            is_merged = dependency_pr_data['state'] == "closed"
 
             dependency_dict[key] = {
                 "repo_url": repo_url,
-                "branch_name": branch_name
+                "branch_name": branch_name,
+                "pr_url": f"https://github.com/{owner}/{repo}/pulls/{pull_number}"
             }
 
             is_merged_dict[key] = is_merged
@@ -217,16 +211,19 @@ def publish_github_message(message, prNB):
         print(f"Status: {response.status_code} | Response: {response.text}")
         return None
 
-def check_ci_depends_on():
-    dependency_dict, is_merged_dict = extract_ci_depends_on()
+def check_ci_depends_on(dependency_dict = None, is_merged_dict = None):
+    if dependency_dict is None or is_merged_dict is None:
+        dependency_dict, is_merged_dict = extract_ci_depends_on()
     message = "**[ci-depends-on]** detected."
     
     if len(dependency_dict) == 0:
         return 
     
     PRReady = True
+    OnePRMerged = False
     for key in is_merged_dict:
         PRReady = PRReady and is_merged_dict[key]
+        OnePRMerged = OnePRMerged or is_merged_dict[key]
     
     if PRReady:
         message += "\n\n All dependencies are merged/closed. Congrats! :+1:"
@@ -235,10 +232,19 @@ def check_ci_depends_on():
         for key in dependency_dict:
             if not is_merged_dict[key]:
                 fixedDepName = key.upper().replace('.','_')
-                flag_repository="-D$" + f"{fixedDepName}" + f"_GIT_REPOSITORY='{dependency_dict[key]["repo_url"]}'"
-                flag_tag="-D$" + f"{fixedDepName}" + f"_GIT_TAG='{dependency_dict[key]["branch_name"]}'"
-                message += f"\n- **Merge or close '{dependency_dict[key]["repo_url"]}'**\n_For this build, the following CMake flags will be set_\n'{flag_repository}'\n'{flag_tag}"
-    
+                flag_repository="-D" + f"{fixedDepName}" + f"_GIT_REPOSITORY='{dependency_dict[key]["repo_url"]}'"
+                flag_tag="-D" + f"{fixedDepName}" + f"_GIT_TAG='{dependency_dict[key]["branch_name"]}'"
+                message += f"\n- **Merge or close '{dependency_dict[key]["pr_url"]}'**\n_For this build, the following CMake flags will be set_\n{flag_repository}\n{flag_tag}"
+
+        if OnePRMerged:
+            message += "\n\n Already satisfied dependencies : "
+            for key in dependency_dict:
+                if  is_merged_dict[key]:
+                    message += f"\n- {dependency_dict[key]["pr_url"]}"
+        
+
+
+
     publish_github_message(message, PR_NUMBER)
 
 
@@ -262,7 +268,10 @@ if __name__ == "__main__":
         check_comments()
         
         # Extract dependency repositories
-        dependency_dict, _ = extract_ci_depends_on()
+        dependency_dict, is_merged_dict = extract_ci_depends_on()
+
+        # Publish ci depends on message and set action status
+        check_ci_depends_on(dependency_dict=dependency_dict, is_merged_dict=is_merged_dict)
 
         # Export all environment variables specific to pull-requests
         with open(os.environ["GITHUB_ENV"], "a") as env_file:
