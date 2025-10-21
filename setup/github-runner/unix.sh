@@ -69,9 +69,9 @@ if [[ "$(uname)" == "Linux" ]]; then
 
 
     ## environement
-    echo "ACTIONS_RUNNER_HOOK_JOB_COMPLETED=\"${INSTALL_DIR}/ci/scripts/github-hookups/post-job.sh\"" >> "${INSTALL_DIR}/github-workspace/.env"
-    echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=\"${INSTALL_DIR}/ci/scripts/github-hookups/pre-job.sh\"" >> "${INSTALL_DIR}/github-workspace/.env"
-    echo "DOCKERHUB_TOKEN=\"${DOCKERHUB_TOKEN}\"" >> "${INSTALL_DIR}/github-workspace/.env"
+    echo "ACTIONS_RUNNER_HOOK_JOB_COMPLETED=${INSTALL_DIR}/ci/scripts/github-hookups/post-job.sh" >> "${INSTALL_DIR}/github-workspace/.env"
+    echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=${INSTALL_DIR}/ci/scripts/github-hookups/pre-job.sh" >> "${INSTALL_DIR}/github-workspace/.env"
+    echo "DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}" >> "${INSTALL_DIR}/github-workspace/.env"
 else
     if [ ! -d "~/Library/LaunchAgents/" ]; then 
         mkdir -p ~/Library/LaunchAgents/
