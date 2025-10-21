@@ -39,8 +39,9 @@ fi
 if [[ -z "$DOCKERHUB_TOKEN" && "$RUNNER_OS" == "Linux" ]]; then
     echo "The environement variable DOCKERHUB_TOKEN should be defined as a read token for docker hub"
     exit 1
+elif [[ "$RUNNER_OS" == "Linux" ]]; then
+    echo "::add-mask::$DOCKERHUB_TOKEN"
 fi
-#echo "::add-mask::$DOCKERHUB_TOKEN"
 
 echo "Current environement is:"
 env 
