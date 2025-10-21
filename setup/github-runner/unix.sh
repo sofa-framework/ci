@@ -9,15 +9,17 @@
 #################
 
 usage() {
-    echo "Usage: unix.sh <install-dir> <github-package-full-version (e.g. 2.328.0)> <configure-token>"
+    echo "Usage: unix.sh <install-dir> <github-package-full-version (e.g. 2.328.0)> <configure-token> <dockerhub-token>"
     echo "<github-package-full-version> and <configure-token> can be found on https://github.com/bakpaul/sofa/settings/actions/runners/new"
+    echo "<dockerhub-token> should be a read access right to github hub, used by the actions ot pull images"
 }
 
 
-if [ "$#" -eq 3 ]; then
+if [ "$#" -eq 4 ]; then
     INSTALL_DIR="$(cd "$1" && pwd)"
     GITHUB_VERSION="$2"
-    CONFIGURE_TOKEN="$3"    
+    CONFIGURE_TOKEN="$3"  
+    DOCKERHUB_TOKEN="$4"  
 else
     usage; exit 1
 fi
@@ -69,7 +71,7 @@ if [[ "$(uname)" == "Linux" ]]; then
     ## environement
     echo "ACTIONS_RUNNER_HOOK_JOB_COMPLETED=\"${INSTALL_DIR}/ci/scripts/github-hookups/post-job.sh\"" >> "${INSTALL_DIR}/github-workspace/.env"
     echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=\"${INSTALL_DIR}/ci/scripts/github-hookups/pre-job.sh\"" >> "${INSTALL_DIR}/github-workspace/.env"
-
+    echo "DOCKERHUB_TOKEN=\"${DOCKERHUB_TOKEN}\"" >> "${INSTALL_DIR}/github-workspace/.env"
 else
     if [ ! -d "~/Library/LaunchAgents/" ]; then 
         mkdir -p ~/Library/LaunchAgents/
@@ -78,6 +80,7 @@ else
     cp ${SCRIPT_DIR}/*.plist ${tempFolder}/
     for filename in ${tempFolder}/*.plist; do
         sed -i '' "s/INSTALL_DIR/${INSTALL_DIR//\//\\/}/g" $filename
+        sed -i '' "s/DOCKERHUB_TOKEN_VALUE/${DOCKERHUB_TOKEN}/g" $filename
         mv $filename ~/Library/LaunchAgents/
     done
     launchctl enable gui/`id -u`/local.job
@@ -91,6 +94,5 @@ fi
 ## Final configuration
 cd "$INSTALL_DIR/github-workspace"
 ./config.sh --unattended --url "https://github.com/bakpaul/sofa" --token "${CONFIGURE_TOKEN}" --name "${NAME}" --labels "${NAME},${LABELS}"
-
 
 echo "Everything is setup in $INSTALL_DIR. Rebooting to launch the worker... "

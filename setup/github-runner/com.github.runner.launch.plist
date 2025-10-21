@@ -16,6 +16,8 @@
                 <string>INSTALL_DIR/ci/scripts/github-hookups/pre-job.sh</string>
                 <key>ACTIONS_RUNNER_HOOK_JOB_COMPLETED</key>
                 <string>INSTALL_DIR/ci/scripts/github-hookups/post-job.sh</string>
+                <key>DOCKERHUB_TOKEN</key>
+                <string>DOCKERHUB_TOKEN_VALUE</string>
         </dict>
     </dict>
 </plist>

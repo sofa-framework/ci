@@ -36,6 +36,12 @@ if [ "$RUNNER_OS" = "Windows" ]; then
 	echo "Using simlink '$WORK_FOLDER' to reduce path length problem on Windows"
 fi
 
+if [[ -z "$DOCKERHUB_TOKEN" ]]; then
+    echo "The environement variable DOCKERHUB_TOKEN should be defined as a read token for docker hub"
+    exit 1
+fi
+echo "::add-mask::$DOCKERHUB_TOKEN"
+
 echo "Current environement is:"
 env 
 
