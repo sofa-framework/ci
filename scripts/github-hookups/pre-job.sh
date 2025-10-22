@@ -46,10 +46,9 @@ fi
 echo "Current environement is:"
 env 
 
-echo "Installed packages in current Python3 env"
+echo "Python3 env details"
+python3 --version
 python3 -m pip list
-
-echo "Python3 sites"
 python3 -m site
 
 
