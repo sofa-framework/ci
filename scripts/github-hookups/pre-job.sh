@@ -46,6 +46,12 @@ fi
 echo "Current environement is:"
 env 
 
+echo "Installed packages in current Python3 env"
+python3 -m pip list
+
+echo "Python3 sites"
+python -m site
+
 
 echo $WORK_FOLDER>$GITHUB_WORKSPACE/$GITHUB_WORKFLOW_SHA
 

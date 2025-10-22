@@ -28,7 +28,7 @@
 
 # Add Docker's official GPG key:
 sudo apt-get update
-sudo apt-get install -y ca-certificates curl gnupg
+sudo apt-get install -y ca-certificates curl gnupg python3-pip 
 sudo install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 sudo chmod a+r /etc/apt/keyrings/docker.gpg
@@ -48,3 +48,5 @@ sudo groupadd docker
 sudo usermod -aG docker $USER
 
 docker pull sofaframework/sofabuilder_ubuntu:latest
+
+python3 -m pip install prettytable --break-system-packages
