@@ -5,7 +5,7 @@
         <key>Label</key>
         <string>com.github.runner.launch</string>
         <key>Program</key>
-        <string>INSTALL_DIR/github-workspace/run.sh</string>
+        <string>INSTALL_DIR/GITHUB_WORKSPACE/run.sh</string>
         <key>RunAtLoad</key>
         <true/>
         <key>EnvironmentVariables</key>
