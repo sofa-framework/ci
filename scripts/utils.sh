@@ -321,11 +321,11 @@ call-cmake() {
             $COMSPEC //c "$vcvarsall && cd $build_dir_windows && $cmake_command $*"
         fi
     elif vm-is-macos; then
-				echo "Calling: $cmake_command  $@ -DCMAKE_CXX_FLAGS=\"-ffp-contract=off\"" 
-				cd $build_dir && $cmake_command "$@" -DCMAKE_CXX_FLAGS="-ffp-contract=off" 
+				echo "Calling: $cmake_command  $@ -DCMAKE_CXX_FLAGS=\"-ffp-contract=off\""
+				cd $build_dir && $cmake_command "$@" -DCMAKE_CXX_FLAGS="-ffp-contract=off"
 		else
-        echo "Calling: $cmake_command $@"    | tee -a "$build_dir/cmake-output.txt"
-        cd $build_dir && $cmake_command "$@" | tee -a "$build_dir/cmake-output.txt"
+        echo "Calling: $cmake_command $@"
+        cd $build_dir && $cmake_command "$@"
     fi
 }
 
