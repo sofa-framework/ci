@@ -485,7 +485,6 @@ echo "$cmake_options" | tr -s " " "\n" | grep "PLUGIN_" | grep "=OFF" | sort    
 
 if [ -z "$( ls -A "$BUILD_DIR" )" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
-    (call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src") | tee -a "$BUILD_DIR/cmake-output.txt"
+    call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
 else
-    (call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options . )  | tee -a "$BUILD_DIR/cmake-output.txt"
-fi
+    call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options . 
