@@ -67,7 +67,7 @@ tar xzf ./actions-runner-${OS}-${GITHUB_VERSION}.tar.gz
 ## crontab. No need to add a reboot action as it will be done through a job 
 if [[ "$(uname)" == "Linux" ]]; then
 
-    if [[ "$SUFFIX" == "-0" ]]; then
+    if [[ "$SUFFIX" == "-0" || -z "$SUFFIX" ]]; then
         (crontab -l 2>/dev/null; echo "* * * * * cd \"${INSTALL_DIR}/ci\" && git pull -r") | crontab -
         (crontab -l 2>/dev/null; echo "@reboot docker system prune -a -f") | crontab -
     fi
@@ -92,7 +92,7 @@ else
 
     for filename in ${tempFolder}/*.plist; do
         #Only for builder specific plist except if it is id==0
-        if [[ "filename" != "${tempFolder}/com.github.runner.updateci.plist" || "$SUFFIX" == "-0" ]]; then
+        if [[ "filename" != "${tempFolder}/com.github.runner.updateci.plist" || "$SUFFIX" == "-0" || -z "$SUFFIX" ]]; then
             sed -i '' "s/INSTALL_DIR/${INSTALL_DIR//\//\\/}/g" $filename
             sed -i '' "s/GITHUB_WORKSPACE/github-workspace$SUFFIX/g" $filename
             sed -i '' "s/DOCKERHUB_TOKEN_VALUE/${DOCKERHUB_TOKEN}/g" $filename
