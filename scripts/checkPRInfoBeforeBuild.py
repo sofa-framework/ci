@@ -76,24 +76,25 @@ def check_if_draft():
 # ========================================================================
 
 # Check PR comments for "[with-all-tests]" and "[force-full-build]"
-def check_comments():
+def check_body_for_tags():
     global with_all_tests_found
     global force_full_build_found
-    comments_url = f"{API_URL}/issues/{PR_NUMBER}/comments"
-    response = requests.get(comments_url, headers=HEADERS)
+    pr_url = f"{API_URL}/pulls/{PR_NUMBER}"
+    response = requests.get(pr_url, headers=HEADERS)
 
     if response.status_code != 200:
-        print(f"Failed to fetch comments: {response.status_code}")
+        print(f"Failed to fetch pull request details: {response.status_code}")
         exit(1)
 
-    comments = [comment['body'].lower() for comment in response.json()]
+    # Extract the PR description and look for [with-all-tests] and [force-full-build] patterns
+    body_lines = response.json().get("body", "").splitlines()
 
-    if any("[with-all-tests]" in comment for comment in comments):
+    if any("[with-all-tests]" in line for line in body_lines):
         with_all_tests_found = True
-        print("Found a comment containing 'with-all-tests'.")
-    if any("[force-full-build]" in comment for comment in comments):
+        print("[with-all-tests] found in pr body.")
+    if any("[force-full-build]" in line for line in body_lines):
         force_full_build_found = True
-        print("Found a comment containing 'with-all-tests'.")
+        print("[force-full-build] found in pr body.")
 
 
 # ========================================================================
@@ -285,8 +286,8 @@ if __name__ == "__main__":
         # Export PR information (url, name, sha)
         pr_sha = export_pr_info()
 
-        # Check compilation options in PR comments
-        check_comments()
+        # Check compilation options in PR body
+        check_body_for_tags()
         
         # Extract dependency repositories
         dependency_dict, is_merged_dict = extract_ci_depends_on()
