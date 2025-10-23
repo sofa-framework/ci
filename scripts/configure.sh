@@ -19,7 +19,7 @@ set -o errexit # Exit on error
 ## Checks
 
 usage() {
-    echo "Usage: configure.sh <build-dir> <src-dir> <config> <ci-depends-on-flags> <build-type> <build-options>"
+    echo "Usage: configure.sh <build-dir> <src-dir> <log-dir> <config> <ci-depends-on-flags> <build-type> <build-options>"
 }
 
 if [ "$#" -ge 4 ]; then
@@ -28,17 +28,18 @@ if [ "$#" -ge 4 ]; then
 
     BUILD_DIR="$(cd "$1" && pwd)"
     SRC_DIR="$(cd "$2" && pwd)"
-    CONFIG="$3"
+    LOG_DIR="$(cd "$3" && pwd)"
+    CONFIG="$4"
     PLATFORM="$(get-platform-from-config "$CONFIG")"
     COMPILER="$(get-compiler-from-config "$CONFIG")"
     ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
-    CI_DEPENDS_ON_FLAGS="$4"
+    CI_DEPENDS_ON_FLAGS="$5"
     if [ "$CI_DEPENDS_ON_FLAGS" == "no-additionnal-cmake-flags" ]; then
         CI_DEPENDS_ON_FLAGS=""
     fi
-    BUILD_TYPE="$5"
+    BUILD_TYPE="$6"
     BUILD_TYPE_CMAKE="$(get-build-type-cmake "$BUILD_TYPE")"
-    BUILD_OPTIONS="${*:6}"
+    BUILD_OPTIONS="${*:7}"
     if [ -z "$BUILD_OPTIONS" ]; then
         BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi
@@ -485,7 +486,7 @@ echo "$cmake_options" | tr -s " " "\n" | grep "PLUGIN_" | grep "=OFF" | sort
 
 if [ -z "$( ls -A "$BUILD_DIR" )" ]; then
     relative_src="$(realpath --relative-to="$BUILD_DIR" "$SRC_DIR")"
-    call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src"
+    call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options "$relative_src" | tee -a "$LOG_DIR/cmake-output.txt"
 else
-    call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options .
+    call-cmake "$BUILD_DIR" -G"$(generator)" $cmake_options .  | tee -a "$LOG_DIR/cmake-output.txt"
 fi

@@ -13,7 +13,7 @@ set -o errexit # Exit on error
 ### Checks
 
 usage() {
-    echo "Usage: compile.sh <build-dir> <config> <build-options>"
+    echo "Usage: compile.sh <build-dir> <log-dir> <config> <build-options>"
 }
 
 if [ "$#" -ge 2 ]; then
@@ -21,11 +21,12 @@ if [ "$#" -ge 2 ]; then
     . "$SCRIPT_DIR"/utils.sh
 
     BUILD_DIR="$(cd "$1" && pwd)"
-    CONFIG="$2"
+    LOG_DIR="$(cd "$2" && pwd)"
+    CONFIG="$3"
     PLATFORM="$(get-platform-from-config "$CONFIG")"
     COMPILER="$(get-compiler-from-config "$CONFIG")"
     ARCHITECTURE="$(get-architecture-from-config "$CONFIG")"
-    BUILD_OPTIONS="${*:3}"
+    BUILD_OPTIONS="${*:4}"
     if [ -z "$BUILD_OPTIONS" ]; then
         BUILD_OPTIONS="$(get-build-options)" # use env vars (Jenkins)
     fi
@@ -49,18 +50,18 @@ echo "-----------------------------------------------"
 # The output of make is saved to a file, to check for warnings later. Since make
 # is inside a pipe, errors will go undetected, thus we create a file
 # 'make-failed' when make fails, to check for errors.
-rm -f "$BUILD_DIR/make-failed"
+rm -f "$LOG_DIR/make-failed"
 
-( call-make "$BUILD_DIR" "all" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee "$BUILD_DIR/make-output.txt"
+( call-make "$BUILD_DIR" "all" 2>&1 || touch "$LOG_DIR/make-failed" ) | tee "$LOG_DIR/make-output.txt"
 
 if in-array "build-release-package" "$BUILD_OPTIONS"; then
-    echo "-------------- Start packaging --------------" | tee -a "$BUILD_DIR/make-output.txt"
-    ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$BUILD_DIR/make-failed" ) | tee -a "$BUILD_DIR/make-output.txt"
-    echo "--------------- End packaging ---------------" | tee -a "$BUILD_DIR/make-output.txt"
+    echo "-------------- Start packaging --------------" | tee -a "$LOG_DIR/make-output.txt"
+    ( call-make "$BUILD_DIR" "package" 2>&1 || touch "$LOG_DIR/make-failed" ) | tee -a "$LOG_DIR/make-output.txt"
+    echo "--------------- End packaging ---------------" | tee -a "$LOG_DIR/make-output.txt"
 fi
 
-if [ -e "$BUILD_DIR/make-failed" ]; then
-    echo "ERROR: Detected $BUILD_DIR/make-failed"
-    echo "       See $BUILD_DIR/make-output.txt"
+if [ -e "$LOG_DIR/make-failed" ]; then
+    echo "ERROR: Detected $LOG_DIR/make-failed"
+    echo "       See $LOG_DIR/make-output.txt"
     exit 1
 fi

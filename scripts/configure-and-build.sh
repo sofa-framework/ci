@@ -2,20 +2,21 @@
 set -o errexit # Exit on error
 
 usage() {
-    echo "Usage: configure-and-build.sh <build-dir> <src-dir> <script-dir> <node-name> <build-type> <config> <python-version> <preset> <generate-binaries> <ci-depends-on-flags>"
+    echo "Usage: configure-and-build.sh <build-dir> <src-dir> <script-dir> <log-dir> <node-name> <build-type> <config> <python-version> <preset> <generate-binaries> <ci-depends-on-flags>"
 }
 
-if [ "$#" -ge 4 ]; then
+if [ "$#" -ge 11 ]; then
     BUILD_DIR="$(cd "$1" && pwd)"
     SRC_DIR="$(cd "$2" && pwd)"
     SCRIPT_DIR="$(cd "$3" && pwd)"
-    NODE_NAME="$4"
-    BUILD_TYPE="$5"
-    CONFIG="$6"
-    PYTHON_VERSION="$7"
-    PRESET="$8"
-    GENERATE_BINARIES="$9"
-    CI_DEPENDS_ON_FLAGS="${10}"
+    LOG_DIR="$(cd "$4" && pwd)"
+    NODE_NAME="$5"
+    BUILD_TYPE="$6"
+    CONFIG="$7"
+    PYTHON_VERSION="$8"
+    PRESET="$9"
+    GENERATE_BINARIES="${10}"
+    CI_DEPENDS_ON_FLAGS="${11}"
 else
     usage; exit 1
 fi
@@ -48,7 +49,7 @@ if [ "${GENERATE_BINARIES}" == "true" ]; then
     BUILD_OPTIONS="$BUILD_OPTIONS build-release-package"
 fi
 
-. ${SCRIPT_DIR}/configure.sh "$BUILD_DIR" "$SRC_DIR" "$CONFIG" "$CI_DEPENDS_ON_FLAGS" "$BUILD_TYPE" "$BUILD_OPTIONS" 
+. ${SCRIPT_DIR}/configure.sh "$BUILD_DIR" "$SRC_DIR" "$LOG_DIR" "$CONFIG" "$CI_DEPENDS_ON_FLAGS" "$BUILD_TYPE" "$BUILD_OPTIONS" 
 
 ## Call to build 
-. ${SCRIPT_DIR}/compile.sh "$BUILD_DIR" "$CONFIG" "$BUILD_OPTIONS"
+. ${SCRIPT_DIR}/compile.sh "$BUILD_DIR" "$LOG_DIR" "$CONFIG" "$BUILD_OPTIONS"
