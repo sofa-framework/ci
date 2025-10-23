@@ -324,8 +324,8 @@ call-cmake() {
 				echo "Calling: $cmake_command  $@ -DCMAKE_CXX_FLAGS=\"-ffp-contract=off\"" 
 				cd $build_dir && $cmake_command "$@" -DCMAKE_CXX_FLAGS="-ffp-contract=off" 
 		else
-        echo "Calling: $cmake_command $@"   
-        cd $build_dir && $cmake_command "$@"
+        echo "Calling: $cmake_command $@"    | tee -a "$build_dir/cmake-output.txt"
+        cd $build_dir && $cmake_command "$@" | tee -a "$build_dir/cmake-output.txt"
     fi
 }
 
