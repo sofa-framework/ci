@@ -75,15 +75,15 @@ RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.10 /tmp/get-pip3.py \
     && python3.10 -m pip install --upgrade pip \
-    && python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable
+    && python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.11 /tmp/get-pip3.py \
     && python3.11 -m pip install --upgrade pip \
-    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable
+    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.12 /tmp/get-pip3.py \
     && python3.12 -m pip install --upgrade pip \
-    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable
+    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 

@@ -67,13 +67,13 @@ ARG PYBIND11_VERSION=2.11.1
 #    && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
 #RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py
 #RUN python3.10 /tmp/get-pip3.py
-RUN python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable
+RUN python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable Cheetah3
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.11 /tmp/get-pip3.py \
-    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable
+    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable Cheetah3
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.12 /tmp/get-pip3.py \
-    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable
+    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable Cheetah3
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="false"
