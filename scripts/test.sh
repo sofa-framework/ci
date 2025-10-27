@@ -99,10 +99,10 @@ if [[ "$TEST_TYPE" == *"SCENE"* ]]; then
     echo "scenes_crashes=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-crashes $BUILD_DIR $SRC_DIR  $RESULTS_DIR)" >>  $RESULTS_DIR/scene-tests/scene-tests_results.txt
     echo "scenes_duration=$(/bin/bash "$SCRIPT_DIR/scene-tests.sh" count-durations $BUILD_DIR $SRC_DIR  $RESULTS_DIR)" >>  $RESULTS_DIR/scene-tests/scene-tests_results.txt
 
-    if [[ -f "$RESULTS_DIR/scene-tests/reports/crashes.txt" ]]; then
+    if [[ -f "$RESULTS_DIR/scene-tests/reports/crashes.txt" && "$(cat "$RESULTS_DIR/scene-tests/reports/crashes.txt")" != "" ]]; then
         cp $RESULTS_DIR/scene-tests/reports/crashes.txt $RESULTS_DIR/scene-tests_crashes
     fi
-    if [[ -f "$RESULTS_DIR/scene-tests/reports/errors.txt" ]]; then
+    if [[ -f "$RESULTS_DIR/scene-tests/reports/errors.txt" && "$(cat "$RESULTS_DIR/scene-tests/reports/errors.txt")" != "" ]]; then
         cp $RESULTS_DIR/scene-tests/reports/errors.txt $RESULTS_DIR/scene-tests_errors
     fi
 fi
