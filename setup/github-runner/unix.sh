@@ -1,16 +1,8 @@
 #!/bin/bash
 
-#################
-#### WARNING 
-#### Parts of this script is meant to be changed for the real deployement
-#### - https://github.com/bakpaul/sofa --> https://github.com/sofa-framework/sofa
-#### - https://github.com/bakpaul/ci --> https://github.com/sofa-framework/ci
-#### - remove checking out jenkins_gha_migration branch of ci repository.
-#################
-
 usage() {
     echo "Usage: unix.sh <install-dir> <github-package-full-version (e.g. 2.328.0)> <configure-token> <dockerhub-token> <builder-id>"
-    echo "<github-package-full-version> and <configure-token> can be found on https://github.com/bakpaul/sofa/settings/actions/runners/new"
+    echo "<github-package-full-version> and <configure-token> can be found on https://github.com/sofa-framework/sofa/settings/actions/runners/new"
     echo "<dockerhub-token> should be a read access right to github hub, used by the actions ot pull images"
     echo "<builder-id> option to install multiple builder on same host. If id == 0, common scripts and crontab will be installed (like ci related script), otherwise, only builder related stuff will be installed"
 }
@@ -58,9 +50,9 @@ tar xzf ./actions-runner-${OS}-${GITHUB_VERSION}.tar.gz
 
 ## SOFA ci scripts this is normally already done on the builder to be able to launch this
 #cd "$INSTALL_DIR"
-#git clone https://www.github.com/bakpaul/ci.git
+#git clone https://www.github.com/sofa-framework/ci.git
 #cd ci 
-#git checkout jenkins_gha_migration
+#git checkout master
 
 
 #### Setup crontab and environment 
@@ -75,10 +67,13 @@ if [[ "$(uname)" == "Linux" ]]; then
     (crontab -l 2>/dev/null; echo "@reboot rm -rf \"${INSTALL_DIR}/github-workspace$SUFFIX/_work\"") | crontab -
     (crontab -l 2>/dev/null; echo "@reboot \"${INSTALL_DIR}/github-workspace$SUFFIX/run.sh\"") | crontab -
 
+    mkdir -p $INSTALL_DIR/cache
+
     ## environement
     echo "ACTIONS_RUNNER_HOOK_JOB_COMPLETED=${INSTALL_DIR}/ci/scripts/github-hookups/post-job.sh" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
     echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=${INSTALL_DIR}/ci/scripts/github-hookups/pre-job.sh" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
     echo "DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
+    echo "BUILDER_CACHE_DIR=$INSTALL_DIR/cache" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
 else
     if [ ! -d "~/Library/LaunchAgents/" ]; then 
         mkdir -p ~/Library/LaunchAgents/
@@ -109,6 +104,6 @@ fi
 
 ## Final configuration
 cd "$INSTALL_DIR/github-workspace$SUFFIX"
-./config.sh --unattended --url "https://github.com/bakpaul/sofa" --token "${CONFIGURE_TOKEN}" --name "${NAME}" --labels "${NAME},${LABELS}"
+./config.sh --unattended --url "https://github.com/sofa-framework/sofa" --token "${CONFIGURE_TOKEN}" --name "${NAME}" --labels "${NAME},${LABELS}"
 
 echo "Everything is setup in $INSTALL_DIR. Rebooting to launch the worker... "
