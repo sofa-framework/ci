@@ -44,7 +44,13 @@ CI_PYTHON3_VERSION=${PYTHON_VERSION} # Needed by load-vm-env, might need to run 
 ## Setup env variables
 load-vm-env
 
-BUILD_OPTIONS="build-scope-${PRESET}"
+if [[ "${PRESET}" == *"-dev" ]]; then
+    BUILD_OPTIONS="activate-tests build-scope-$( echo "${PRESET}" | awk -F'-' '{print $1}' )"
+else
+    BUILD_OPTIONS="build-scope-${PRESET}"
+fi
+
+
 if [ "${GENERATE_BINARIES}" == "true" ]; then
     BUILD_OPTIONS="$BUILD_OPTIONS build-release-package"
 fi

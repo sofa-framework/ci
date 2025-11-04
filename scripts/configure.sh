@@ -453,8 +453,9 @@ if in-array "build-release-package" "$BUILD_OPTIONS"; then
         add-cmake-option "-DCPACK_GENERATOR=ZIP"
         add-cmake-option "-DCPACK_BINARY_ZIP=ON"
     fi
+fi
 
-else
+if in-array "activate-tests" "$BUILD_OPTIONS"; then
     #If not in release activate DEV tools
     PRESETS=${PRESETS}-dev
 fi
