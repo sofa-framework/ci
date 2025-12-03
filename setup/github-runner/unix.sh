@@ -16,7 +16,7 @@ if [ "$#" -ge 4 ]; then
     if [ "$#" -eq 5 ]; then
         SUFFIX="-$5"
     fi
-then 
+ 
 else
     usage; exit 1
 fi
