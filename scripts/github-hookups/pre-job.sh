@@ -8,7 +8,7 @@ if [ "$REF_TYPE" = "pull" ]; then
     echo "Setting env for PR #$BRANCH_OR_PR_NUMBER"
     WORK_FOLDER=$GITHUB_WORKSPACE/PR$BRANCH_OR_PR_NUMBER
 else
-    if [ "$GITHUB_REPOSITORY_OWNER" != "bakpaul" ]; then
+    if [ "$GITHUB_REPOSITORY_OWNER" != "sofa-framework" ]; then
         echo "This commit doesn't belong to the sofa-framework repository, exiting the job"
         exit 1
     else
