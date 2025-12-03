@@ -104,6 +104,6 @@ fi
 
 ## Final configuration
 cd "$INSTALL_DIR/github-workspace$SUFFIX"
-./config.sh --unattended --url "https://github.com/sofa-framework/sofa" --token "${CONFIGURE_TOKEN}" --name "${NAME}" --labels "${NAME},${LABELS}"
+./config.sh --unattended --url "https://github.com/sofa-framework" --token "${CONFIGURE_TOKEN}" --name "${NAME}" --labels "${NAME},${LABELS}"
 
 echo "Everything is setup in $INSTALL_DIR. Rebooting to launch the worker... "
