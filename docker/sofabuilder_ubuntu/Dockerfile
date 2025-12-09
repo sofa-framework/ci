@@ -32,8 +32,8 @@ RUN apt-get install -y \
 RUN apt-get install -y \
     build-essential \
     ninja-build=1.10.\* \
-    gcc-12 \
-    g++-12 \
+    gcc=4:11.\* \
+    g++=4:11.\* \
     clang=1:14.0-\* \
     ccache=4.5.\*
 
