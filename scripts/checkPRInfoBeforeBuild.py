@@ -26,7 +26,7 @@ HEADERS = {
 
 
 # Flags to determine actions
-to_review_label_found = False
+to_review_or_ready_label_found = False
 is_draft_pr = False
 with_all_tests_found = False
 force_full_build_found = False
@@ -35,7 +35,7 @@ force_full_build_found = False
 
 # Check PR labels
 def check_labels():
-    global to_review_label_found
+    global to_review_or_ready_label_found
     labels_url = f"{API_URL}/issues/{PR_NUMBER}/labels"
     response = requests.get(labels_url, headers=HEADERS)
 
@@ -46,9 +46,9 @@ def check_labels():
     labels = [label['name'].lower() for label in response.json()]
     print(f"Labels found: {labels}.")
 
-    if "pr: status to review" in labels:
-        to_review_label_found = True
-        print("PR is marked as 'to review'.")
+    if ("pr: status to review" in labels) or ("pr: status ready" in labels):
+        to_review_or_ready_label_found = True
+        print("PR is marked as 'to review' or 'ready'.")
     else:
         print(f"Flag to review has not been found. CI will stop.")
         exit(1)
@@ -282,7 +282,7 @@ if __name__ == "__main__":
     check_if_draft()
 
     # Trigger the build if conditions are met
-    if to_review_label_found and not is_draft_pr:
+    if to_review_or_ready_label_found and not is_draft_pr:
         # Export PR information (url, name, sha)
         pr_sha = export_pr_info()
 
