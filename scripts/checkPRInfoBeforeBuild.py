@@ -16,7 +16,7 @@ if (not GITHUB_TOKEN) or (not PR_NUMBER):
 
 
 # GitHub API base URL
-API_URL = f"https://api.github.com/repos/sofa-framework/sofa"
+API_URL = f"https://api.github.com/repos/bakpaul/sofa"
 
 # Headers for authentication
 HEADERS = {
@@ -234,7 +234,7 @@ def check_ci_depends_on(pr_sha, dependency_dict = None, is_merged_dict = None):
     message = "**[ci-depends-on]** detected."
     
     if len(dependency_dict) == 0:
-        update_action_status(f"https://api.github.com/repos/sofa-framework/sofa/statuses/{pr_sha}", "[ci-depends-on]", "success", "No dependency found in description.")
+        update_action_status(f"{API_URL}/statuses/{pr_sha}", "[ci-depends-on]", "success", "No dependency found in description.")
         return 
     
     PRReady = True
@@ -245,7 +245,7 @@ def check_ci_depends_on(pr_sha, dependency_dict = None, is_merged_dict = None):
     
     if PRReady:
         message += "\n\n All dependencies are merged/closed. Congrats! :+1:"
-        update_action_status(f"https://api.github.com/repos/sofa-framework/sofa/statuses/{pr_sha}", "[ci-depends-on]", "success", "Dependencies are OK.")
+        update_action_status(f"{API_URL}/statuses/{pr_sha}", "[ci-depends-on]", "success", "Dependencies are OK.")
     else:
         message += "\n\n To unlock the merge button, you must"
         for key in dependency_dict:
@@ -261,7 +261,7 @@ def check_ci_depends_on(pr_sha, dependency_dict = None, is_merged_dict = None):
                 if  is_merged_dict[key]:
                     message += f"\n- {dependency_dict[key]["pr_url"]}"
 
-        update_action_status(f"https://api.github.com/repos/sofa-framework/sofa/statuses/{pr_sha}", "[ci-depends-on]", "failure", "Please follow instructions in comments.")
+        update_action_status(f"{API_URL}/statuses/{pr_sha}", "[ci-depends-on]", "failure", "Please follow instructions in comments.")
     
         
 
