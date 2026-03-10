@@ -174,9 +174,11 @@ list-scene-directories() {
     mkdir -p "$output_dir/examples"
     echo "$src_dir/examples" >> "$output_dir/directories.txt"
 
-    # share directory
-    mkdir -p "$output_dir/share"
-    echo "$src_dir/share" >> "$output_dir/directories.txt"
+    if [ -d "$src_dir/share" ]; then
+        # share directory
+        mkdir -p "$output_dir/share"
+        echo "$src_dir/share" >> "$output_dir/directories.txt"
+    fi
 
     # List directories for compiled plugins only
     list-plugins | while read plugin; do
