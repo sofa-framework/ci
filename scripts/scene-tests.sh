@@ -386,6 +386,7 @@ ignore-scenes-with-missing-plugins() {
     echo "Searching for missing plugins..."
 
     while read scene; do
+        # XML scenes (.scn): parse <RequiredPlugin> tags
         if grep -q '^[	 ]*<[	 ]*RequiredPlugin' "$scene"; then
             grep '^[	 ]*<[	 ]*RequiredPlugin' "$scene" > "$output_dir/grep.tmp"
             while read match; do
@@ -397,6 +398,25 @@ ignore-scenes-with-missing-plugins() {
                     echo "  Warning: unknown RequiredPlugin found in $scene"
                     break
                 fi
+                local lib="$(get-lib "$plugin")"
+                if [ -z "$lib" ]; then
+                    if grep -q "$scene" "$output_dir/all-tested-scenes.txt"; then
+                        grep -v "$scene" "$output_dir/all-tested-scenes.txt" > "$output_dir/all-tested-scenes.tmp"
+                        mv "$output_dir/all-tested-scenes.tmp" "$output_dir/all-tested-scenes.txt"
+                        rm -f "$output_dir/all-tested-scenes.tmp"
+                        if ! grep -q "$scene" "$output_dir/all-ignored-scenes.txt"; then
+                            echo "  ignore $scene: missing plugin \"$plugin\""
+                            echo "$scene" >> "$output_dir/all-ignored-scenes.txt"
+                        fi
+                    fi
+                fi
+            done < "$output_dir/grep.tmp"
+            rm -f "$output_dir/grep.tmp"
+        # Python scenes (.py, .pyscn): parse addObject('RequiredPlugin', ...) calls
+        elif grep -q "addObject(['\"]RequiredPlugin['\"]" "$scene"; then
+            grep "addObject(['\"]RequiredPlugin['\"]" "$scene" > "$output_dir/grep.tmp"
+            while read match; do
+                plugin="$(echo "$match" | sed -e "s:.*name[	 ]*=[	 ]*[\'\"]\([^\'\"]*\)[\'\"].*:\1:g")"
                 local lib="$(get-lib "$plugin")"
                 if [ -z "$lib" ]; then
                     if grep -q "$scene" "$output_dir/all-tested-scenes.txt"; then
