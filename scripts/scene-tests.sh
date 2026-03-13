@@ -416,7 +416,14 @@ ignore-scenes-with-missing-plugins() {
         elif grep -q "addObject(['\"]RequiredPlugin['\"]" "$scene"; then
             grep "addObject(['\"]RequiredPlugin['\"]" "$scene" > "$output_dir/grep.tmp"
             while read match; do
-                plugin="$(echo "$match" | sed -e "s:.*name[	 ]*=[	 ]*[\'\"]\([^\'\"]*\)[\'\"].*:\1:g")"
+                if echo "$match" | grep -q 'pluginName'; then
+                    plugin="$(echo "$match" | sed -e "s:.*pluginName[	 ]*=[	 ]*[\'\"]\([^\'\"]*\)[\'\"].*:\1:g")"
+                elif echo "$match" | grep -q 'name'; then
+                    plugin="$(echo "$match" | sed -e "s:.*name[	 ]*=[	 ]*[\'\"]\([^\'\"]*\)[\'\"].*:\1:g")"
+                else
+                    echo "  Warning: unknown RequiredPlugin found in $scene"
+                    break
+                fi
                 local lib="$(get-lib "$plugin")"
                 if [ -z "$lib" ]; then
                     if grep -q "$scene" "$output_dir/all-tested-scenes.txt"; then
