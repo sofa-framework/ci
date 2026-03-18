@@ -110,7 +110,7 @@ def export_pr_info():
 
     pr_data = response.json()
 
-    pr_url = str(pr_data['user']['html_url']) + "/" + str(pr_data['base']['repo']['name'])
+    pr_url = str(pr_data['head']['user']['html_url']) + "/" + str(pr_data['head']['repo']['name'])
     pr_branch_name = pr_data['head']['ref']
     pr_commit_sha = pr_data['head']['sha']
 
