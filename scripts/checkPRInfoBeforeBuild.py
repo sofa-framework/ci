@@ -282,10 +282,9 @@ if __name__ == "__main__":
 
     # Execute the checks
     check_labels()
-    check_if_draft()
 
     # Trigger the build if conditions are met
-    if to_review_or_ready_label_found and not is_draft_pr:
+    if to_review_or_ready_label_found:
         # Export PR information (url, name, sha)
         pr_sha = export_pr_info()
 
@@ -308,4 +307,4 @@ if __name__ == "__main__":
             env_file.write(f'BUILDER_OS=["sh-ubuntu_gcc_release","sh-fedora_clang_release","sh-macos_clang_release"]')
 
 
-    # ========================================================================
+# ========================================================================
