@@ -87,14 +87,17 @@ def check_body_for_tags():
         exit(1)
 
     # Extract the PR description and look for [with-all-tests] and [force-full-build] patterns
-    body_lines = response.json().get("body", "").splitlines()
+    body = response.json().get("body", "")
 
-    if any("[with-all-tests]" in line for line in body_lines):
-        with_all_tests_found = True
-        print("[with-all-tests] found in pr body.")
-    if any("[force-full-build]" in line for line in body_lines):
-        force_full_build_found = True
-        print("[force-full-build] found in pr body.")
+    if body is not None:
+        body_lines = body.splitlines()
+
+        if any("[with-all-tests]" in line for line in body_lines):
+            with_all_tests_found = True
+            print("[with-all-tests] found in pr body.")
+        if any("[force-full-build]" in line for line in body_lines):
+            force_full_build_found = True
+            print("[force-full-build] found in pr body.")
 
 
 # ========================================================================
