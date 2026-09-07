@@ -69,10 +69,6 @@ RUN apt-get install -y \
 ENV VM_BUILDS_IMGUI="true"
 # Install pip, numpy, scipy, pybind11
 ARG PYBIND11_VERSION=2.12.0
-RUN curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output /tmp/get-pip2.py \
-    && python2.7 /tmp/get-pip2.py \
-    && python2.7 -m pip install --upgrade "pip == 20.3.4" \
-    && python2.7 -m pip install "numpy == 1.16.6" "scipy == 1.2.3" "matplotlib == 2.2.5"
 RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
     && python3.10 /tmp/get-pip3.py \
     && python3.10 -m pip install --upgrade pip \
@@ -96,18 +92,6 @@ ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CM
 RUN chmod a+x /tmp/cmake.sh
 RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 
-# Install Qt
-ARG QT_VERSION=5.12.12
-ARG QT_INSTALLDIR="/opt/Qt"
-RUN python3.10 -m pip install aqtinstall \
-    && python3.10 -m aqt install-qt --outputdir $QT_INSTALLDIR linux desktop $QT_VERSION gcc_64 -m qtcharts qtwebengine
-RUN apt-get install -y libxkbcommon-x11-0 libwayland-cursor0 libxcb-* \
-    && python3.10 -m aqt install-tool --outputdir $QT_INSTALLDIR linux desktop tools_ifw \
-    || true
-ENV QT_INSTALLDIR="$QT_INSTALLDIR"
-ENV QTDIR="$QT_INSTALLDIR/$QT_VERSION/gcc_64"
-ENV LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-ENV PATH="$QTDIR/bin${PATH:+:${PATH}}"
 
 # Install CGAL
 # Due to dependencies on Boost and Qt, we have to build CGAL
@@ -123,15 +107,6 @@ RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
 ENV VM_HAS_CGAL="true"
 ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
 
-
-# Install METIS
-#RUN git clone https://github.com/sofa-framework/METIS.git \
-#    && cd METIS \
-#    && git checkout v5.2.1-ModernInstall \
-#    && cd .. && mkdir build && cd build \
-#    && cmake ../METIS && cmake -LAH | grep GKRAND\
-#    && make --silent install -j 5
-
 # Install CUDA
 ENV DEBIAN_FRONTEND noninteractive
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
@@ -141,13 +116,6 @@ RUN apt-get -y install cuda-toolkit-12-2
 ENV VM_HAS_CUDA="true"
 ENV PATH=$PATH:/usr/local/cuda/bin
 
-
-# Install NodeEditor (needed by SofaQtQuick)
-ARG NODEEDITOR_VERSION=2.2.4
-RUN git clone -b $NODEEDITOR_VERSION --depth 1 https://github.com/paceholder/nodeeditor.git /tmp/nodeeditor/src \
-    && mkdir /tmp/nodeeditor/build && cd /tmp/nodeeditor/build \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=OFF -DBUILD_TESTING=OFF ../src \
-    && make --silent install
 
 ###################################
 
