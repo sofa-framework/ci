@@ -19,6 +19,7 @@ RUN apt-get update && apt-get upgrade -y
 # Install system tools
 RUN apt-get install -y \
     git \
+    gh \
     net-tools \
     vim \
     wget \

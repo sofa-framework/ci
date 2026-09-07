@@ -21,6 +21,7 @@ RUN yum update -y && yum upgrade -y && yum clean all
 RUN yum install -y -q \
     dnf-utils \
     git \
+    gh \
     wget \
     curl \
     ca-certificates \
