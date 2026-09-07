@@ -62,14 +62,12 @@ RUN yum install -y -q \
 
 # Install pip, numpy, scipy, pybind11
 ARG PYBIND11_VERSION=2.11.1
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.10 /tmp/get-pip3.py \
+RUN python3.10 -m ensurepip --upgrade \
     && python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.11 /tmp/get-pip3.py \
+RUN python3.11  -m ensurepip --upgrade \
     && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable Cheetah3
 RUN python3.12 -m ensurepip --upgrade \
-    && python3.12 -m pip install numpy==1.26.4 
+    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable Cheetah3
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="false"
