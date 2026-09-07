@@ -43,6 +43,12 @@ elif [[ "$RUNNER_OS" == "Linux" ]]; then
     echo "::add-mask::$DOCKERHUB_TOKEN"
 fi
 
+#Hide the Github token if it exists in the env
+if [[ -n "$GH_TOKEN" ]]; then
+    echo "::add-mask::$GH_TOKEN"
+fi
+
+
 echo "Current environement is:"
 env 
 
