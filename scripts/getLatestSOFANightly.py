@@ -68,8 +68,7 @@ if __name__ == "__main__" :
     parser.add_argument('--os', nargs='+', default=['ubuntu', 'macos', 'windows'])
     parser.add_argument('-n', dest='numbers', default=2, type=int)
     parser.add_argument('-b', dest='branch', default='master')
-    parser.add_argument('-e', dest='event', default='schedule')
+    parser.add_argument('-e', dest='event', choices=['schedule', 'push', 'workflow_dispatch'], default='schedule')
     args = parser.parse_args()
 
-    downloadArchives(args.github_token, "sofa-framework", "sofa", "nightly-generate-binaries.yml", args.dest_directory, args.numbers, args.branch, args.event, args.os)
-
+    downloadArchives(args.github_token, "sofa-framework", "sofa", "CI_nightly_generate_binaries.yml", args.dest_directory, args.numbers, args.branch, args.event, args.os)
