@@ -1,0 +1,1 @@
+scipy matplotlib mypy pybind11-stubgen rpyc prettytable Cheetah3
