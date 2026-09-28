@@ -20,7 +20,7 @@ def downloadArchives(github_token, owner, repo, workflow_file, dest_directory, n
 
     absDestPath =  os.path.abspath(dest_directory)
 
-    if int(JS['total_count']) != numbers:
+    if int(JS['total_count']) < numbers:
         raise ValueError("Not enough binaries found")
 
     cat = ['latest', 'previous']
