@@ -29,14 +29,19 @@ CI_PYTHON3_VERSION=${PYTHON_VERSION} # Needed by load-vm-env, might need to run 
 ## Setup env variables
 load-vm-env
 
-# Setup PYTHONPATH
+_prepend_pythonpath() {
+    local dir
+    dir="$(cd "$1" 2>/dev/null && { vm-is-windows && pwd -W || pwd; })" || return 0
+    local sep=":"
+    vm-is-windows && sep=";"
+    export PYTHONPATH="$dir${PYTHONPATH:+$sep$PYTHONPATH}"
+}
+
 export PYTHONPATH=""
-if [ -e "$VM_PYTHON3_PYTHONPATH" ]; then
-    export PYTHONPATH="$(cd $VM_PYTHON3_PYTHONPATH && pwd):$PYTHONPATH"
-fi
-if [ -e "$BUILD_DIR/lib/python3/site-packages" ]; then
-    export PYTHONPATH="$BUILD_DIR/python3/site-packages:$PYTHONPATH"
-fi
+[ -e "$VM_PYTHON3_PYTHONPATH" ] && _prepend_pythonpath "$VM_PYTHON3_PYTHONPATH"
+[ -e "$BUILD_DIR/lib/python3/site-packages" ] && _prepend_pythonpath "$BUILD_DIR/lib/python3/site-packages"
+
+
 if vm-is-windows && [ -e "$VM_PYTHON3_EXECUTABLE" ]; then
     pythonroot="$(dirname $VM_PYTHON3_EXECUTABLE)"
     pythonroot="$(cd "$pythonroot" && pwd)"
