@@ -61,9 +61,9 @@ grep -v "MeshSTEPLoader " "$plugin_conf" > "${plugin_conf}.tmp" && mv "${plugin_
 
 
 # Setup SOFA_ROOT
-export SOFA_ROOT=$BUILD_DIR
+export SOFA_ROOT="$(cd "$BUILD_DIR" 2>/dev/null && { vm-is-windows && pwd -W || pwd; })"
 
-export RESULTS_DIR=$BUILD_DIR/tests_results
+export RESULTS_DIR=$SOFA_ROOT/tests_results
 if [[ ! -d "$RESULTS_DIR" ]]; then
     mkdir -p "$RESULTS_DIR"
 fi
