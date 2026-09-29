@@ -86,8 +86,7 @@ def downloadArchives(github_token, owner, repo, workflow_file, dest_directory, n
             is_this_run_suited = is_this_run_suited and avail
 
         if is_this_run_suited:
-            logs.msg_log(f'Run {JS['workflow_runs'][i]["html_url"]} is suited for the requested OS.')
-
+            logs.msg_log(f"Run {JS['workflow_runs'][i]['html_url']} is suited for the requested OS.")
             for j in range(int(binaries_JS[i]['total_count'])):
                 if 'binaries_' in binaries_JS[i]['artifacts'][j]['name']:
                     osName = binaries_JS[i]['artifacts'][j]['name'].split('-')[1].split('_')[0]
@@ -116,7 +115,7 @@ def downloadArchives(github_token, owner, repo, workflow_file, dest_directory, n
                         else:
                             logs.msg_error(f'Request returned with error code {r.status_code}')
         else:
-            logs.msg_warning(f'Run {JS['workflow_runs'][i]["html_url"]} is NOT suited for the requested OS. Missing OS are : {[os_name for os_name in os_avail if not os_avail[os_name]]}')
+            logs.msg_warning(f"Run {JS['workflow_runs'][i]['html_url']} is NOT suited for the requested OS. Missing OS are : {[os_name for os_name in os_avail if not os_avail[os_name]]}")
     if(downloaded != len(os_names) * numbers):
         logs.msg_error(f"All the requested archives couldn't be found.")
         exit(1)
