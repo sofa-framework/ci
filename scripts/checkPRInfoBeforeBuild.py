@@ -125,7 +125,7 @@ def export_pr_info():
         env_file.write(f"PR_OWNER_URL={pr_url}\n")
         env_file.write(f"PR_BRANCH_NAME={pr_branch_name}\n")
         env_file.write(f"PR_COMMIT_SHA={pr_commit_sha}\n")
-    
+
     return pr_commit_sha
 
     ## TODO : pr_data.get('mergeable', False) could also let us know if it is mergeable
@@ -186,7 +186,7 @@ def extract_ci_depends_on():
             dependency_dict[key] = {
                 "repo_url": repo_url,
                 "branch_name": branch_name,
-                "pr_url": f"https://github.com/{owner}/{repo}/pull/{pull_number}", 
+                "pr_url": f"https://github.com/{owner}/{repo}/pull/{pull_number}",
             }
 
             is_merged_dict[key] = is_merged
@@ -195,6 +195,35 @@ def extract_ci_depends_on():
         if match:
             with_all_tests_found = True
     return dependency_dict, is_merged_dict
+
+def query_pr_files():
+    pr_url = f"{API_URL}/pulls/{PR_NUMBER}/files"
+    files, page = [], 1
+    while True:
+        r = requests.get(pr_url, headers=HEADERS, params={"per_page": 100, "page": page})
+        r.raise_for_status()
+        batch = r.json()
+        files.extend(f["filename"] for f in batch)
+        if len(batch) < 100:
+            break
+        page += 1
+    return files
+
+def check_for_pixi_modification():
+    files = query_pr_files()
+    fileId = 0
+    only_pixi_file_touched = True
+    pixi_file_touched = False
+
+    for file in files:
+        if "pixi." in file:
+            pixi_file_touched = True
+        else:
+            only_pixi_file_touched = False
+
+    only_pixi_file_touched = only_pixi_file_touched & pixi_file_touched
+
+    return pixi_file_touched, only_pixi_file_touched
 
 
 def publish_github_message(message, prNB):
@@ -216,7 +245,7 @@ def publish_github_message(message, prNB):
         print(f"❌ Failed to post comment to PR #{prNB}")
         print(f"Status: {response.status_code} | Response: {response.text}")
         return None
-    
+
 def update_action_status(statusesUrl, context, state, description, target_url=None):
     payload = {"context": context, "state": state, "description": description}
     if target_url is not None:
@@ -235,17 +264,17 @@ def check_ci_depends_on(pr_sha, dependency_dict = None, is_merged_dict = None):
     if dependency_dict is None or is_merged_dict is None:
         dependency_dict, is_merged_dict = extract_ci_depends_on()
     message = "**[ci-depends-on]** detected."
-    
+
     if len(dependency_dict) == 0:
         update_action_status(f"https://api.github.com/repos/sofa-framework/sofa/statuses/{pr_sha}", "[ci-depends-on]", "success", "No dependency found in description.")
-        return 
-    
+        return
+
     PRReady = True
     OnePRMerged = False
     for key in is_merged_dict:
         PRReady = PRReady and is_merged_dict[key]
         OnePRMerged = OnePRMerged or is_merged_dict[key]
-    
+
     if PRReady:
         message += "\n\n All dependencies are merged/closed. Congrats! :+1:"
         update_action_status(f"https://api.github.com/repos/sofa-framework/sofa/statuses/{pr_sha}", "[ci-depends-on]", "success", "Dependencies are OK.")
@@ -265,8 +294,8 @@ def check_ci_depends_on(pr_sha, dependency_dict = None, is_merged_dict = None):
                     message += f"\n- {dependency_dict[key]["pr_url"]}"
 
         update_action_status(f"https://api.github.com/repos/sofa-framework/sofa/statuses/{pr_sha}", "[ci-depends-on]", "failure", "Please follow instructions in comments.")
-    
-        
+
+
 
 
 
@@ -290,12 +319,15 @@ if __name__ == "__main__":
 
         # Check compilation options in PR body
         check_body_for_tags()
-        
+
         # Extract dependency repositories
         dependency_dict, is_merged_dict = extract_ci_depends_on()
 
         # Publish ci depends on message and set action status
         check_ci_depends_on(pr_sha, dependency_dict=dependency_dict, is_merged_dict=is_merged_dict)
+
+        # Check wether this PR touhces a pixi file and if it has been made by the bot
+        pixi_file_touched, only_pixi_file_touched = check_for_pixi_modification()
 
         # Export all environment variables specific to pull-requests
         with open(os.environ["GITHUB_ENV"], "a") as env_file:
@@ -304,7 +336,17 @@ if __name__ == "__main__":
 
             ci_depends_on_str = f"{dependency_dict}".replace("'", "\\\"")
             env_file.write(f"CI_DEPENDS_ON={ci_depends_on_str}\n")
-            env_file.write(f'BUILDER_OS=["sh-ubuntu_gcc_release","sh-fedora_clang_release","sh-macos_clang_release"]')
+
+
+            env_file.write(f'SH_BUILDER_OS=["sh-ubuntu_gcc_release","sh-fedora_clang_release","sh-macos_clang_release"]')
+
+            if pixi_file_touched :
+                env_file.write(f'PIXI_BUILDER_OS=["ubuntu-latest", "macos-latest", "macos-15-intel", "windows-latest"]')
+                if only_pixi_file_touched:
+                    env_file.write(f'SH_BUILDER_OS=[]')
+            else:
+                env_file.write(f'PIXI_BUILDER_OS=["windows-latest"]')
+
 
 
     # ========================================================================
