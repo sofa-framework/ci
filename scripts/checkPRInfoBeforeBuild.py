@@ -196,6 +196,31 @@ def extract_ci_depends_on():
             with_all_tests_found = True
     return dependency_dict, is_merged_dict
 
+# Extract repositories from ci-force-builder
+def extract_ci_force_builder():
+    pr_url = f"{API_URL}/pulls/{PR_NUMBER}"
+    response = requests.get(pr_url, headers=HEADERS)
+
+    if response.status_code != 200:
+        print(f"Failed to fetch pull request details: {response.status_code}")
+        exit(1)
+
+    pr_data = response.json()
+
+    # Extract the PR description and look for [ci-depends-on ...] patterns
+    pr_body = pr_data.get("body", "")
+    ci_force_builder = []
+
+    # Search in each line for the pattern "[ci-depends-on ...]"
+    for line in pr_body.splitlines():
+        match = re.search(r'\[ci-force-builder (.+?)\]', line)
+        if match:
+            dependency = match.group(1).strip()
+            ci_force_builder.append(dependency)
+            print(f"Found ci-force-builder : {dependency}")
+
+    return ci_force_builder
+
 def query_pr_files():
     pr_url = f"{API_URL}/pulls/{PR_NUMBER}/files"
     files, page = [], 1
@@ -338,14 +363,42 @@ if __name__ == "__main__":
             env_file.write(f"CI_DEPENDS_ON={ci_depends_on_str}\n")
 
 
-            env_file.write(f'SH_BUILDER_OS=["sh-ubuntu_gcc_release","sh-fedora_clang_release","sh-macos_clang_release"]\n')
+            forced_builders = extract_ci_force_builder()
+            if len(forced_builders) > 0:
+                pixi_builder_names=["ubuntu-latest", "macos-latest", "macos-15-intel", "windows-latest"]
 
-            if pixi_file_touched :
-                env_file.write(f'PIXI_BUILDER_OS=["ubuntu-latest", "macos-latest", "macos-15-intel", "windows-latest"]\n')
-                if only_pixi_file_touched:
+                pixi_labels = []
+                sh_labels = []
+
+                for builder in forced_builders:
+                    if builder in pixi_builder_names:
+                        pixi_labels.append(builder)
+                    else:
+                        sh_labels.append(builder)
+
+                pixi_string = "\",\"".join(pixi_labels)
+                if(pixi_string != ""):
+                    env_file.write(f'PIXI_BUILDER_OS=[]\n')
+                else:
+                    env_file.write(f'PIXI_BUILDER_OS=[\"{pixi_string}\"]\n')
+
+                sh_string = "\",\"".join(sh_labels)
+                if(sh_string != ""):
                     env_file.write(f'SH_BUILDER_OS=[]\n')
+                else:
+                    env_file.write(f'SH_BUILDER_OS=[\"{sh_string}\"]\n')
+
+
+
             else:
-                env_file.write(f'PIXI_BUILDER_OS=["windows-latest"]\n')
+                env_file.write(f'SH_BUILDER_OS=["sh-ubuntu_gcc_release","sh-fedora_clang_release","sh-macos_clang_release"]\n')
+
+                if pixi_file_touched :
+                    env_file.write(f'PIXI_BUILDER_OS=["ubuntu-latest", "macos-latest", "macos-15-intel", "windows-latest"]\n')
+                    if only_pixi_file_touched:
+                        env_file.write(f'SH_BUILDER_OS=[]\n')
+                else:
+                    env_file.write(f'PIXI_BUILDER_OS=["windows-latest"]\n')
 
 
 
