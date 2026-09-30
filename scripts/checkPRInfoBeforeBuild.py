@@ -338,14 +338,14 @@ if __name__ == "__main__":
             env_file.write(f"CI_DEPENDS_ON={ci_depends_on_str}\n")
 
 
-            env_file.write(f'SH_BUILDER_OS=["sh-ubuntu_gcc_release","sh-fedora_clang_release","sh-macos_clang_release"]')
+            env_file.write(f'SH_BUILDER_OS=["sh-ubuntu_gcc_release","sh-fedora_clang_release","sh-macos_clang_release"]\n')
 
             if pixi_file_touched :
-                env_file.write(f'PIXI_BUILDER_OS=["ubuntu-latest", "macos-latest", "macos-15-intel", "windows-latest"]')
+                env_file.write(f'PIXI_BUILDER_OS=["ubuntu-latest", "macos-latest", "macos-15-intel", "windows-latest"]\n')
                 if only_pixi_file_touched:
-                    env_file.write(f'SH_BUILDER_OS=[]')
+                    env_file.write(f'SH_BUILDER_OS=[]\n')
             else:
-                env_file.write(f'PIXI_BUILDER_OS=["windows-latest"]')
+                env_file.write(f'PIXI_BUILDER_OS=["windows-latest"]\n')
 
 
 
