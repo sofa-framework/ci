@@ -96,12 +96,11 @@ def downloadArchives(github_token, owner, repo, workflow_file, dest_directory, n
                         if possible_OS_name in binaries_JS[i]['artifacts'][j]['name']:
                             osName = possible_OS_name
                     if osName in os_names:
-                        binaryName = '_'.join(binaries_JS[i]['artifacts'][j]['name'].split('-')[1].split('_')[:2])
                         binaryAdress = binaries_JS[i]['artifacts'][j]['archive_download_url']
                         binaryCreaterDate = date.fromisoformat(binaries_JS[i]['artifacts'][j]['updated_at'].split('T')[0])
                         binaryExpiredDate = date.fromisoformat(binaries_JS[i]['artifacts'][j]['expires_at'].split('T')[0])
 
-                        extract_dir = f"{absDestPath}/{cat[i]}/{binaryName}"
+                        extract_dir = f"{absDestPath}/{cat[i]}/{osName}"
                         if not os.path.isdir(extract_dir):
                             os.makedirs(extract_dir)
 
