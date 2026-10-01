@@ -13,35 +13,6 @@ RUN add-apt-repository ppa:git-core/ppa \
     && add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update && apt-get upgrade -y
 
-RUN apt-get install -y curl
-
-ENV DEBIAN_FRONTEND noninteractive
-RUN add-apt-repository ppa:deadsnakes/ppa \
-    && apt update
-
-RUN apt-get install -y \
-    python3.12-dev \
-    python3-pip \
-    python3.13 \
-    python3.13-dev \
-    python3.14 \
-    python3.14-dev
-
-ENV VM_BUILDS_IMGUI="true"
-# Install pip, numpy, scipy, pybind11
-ARG PYBIND11_VERSION=3.0.1
-RUN python3.12 -m pip install --upgrade pip --break-system-packages
-#     && python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3 --break-system-packages
-# RUN python3.13 /tmp/get-pip3.py \
-#     && python3.13 -m pip install --upgrade pip --break-system-packages\
-#     && python3.13 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3 --break-system-packages
-# RUN python3.13 /tmp/get-pip3.py \
-#     && python3.13 -m pip install --upgrade pip --break-system-packages\
-#     && python3.13 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3 --break-system-packages
-# ENV VM_HAS_ASSIMP="true"
-# ENV VM_HAS_OPENCASCADE="true"
-
-
 # Install system tools
 RUN apt-get install -y \
     git \
@@ -77,7 +48,10 @@ RUN apt-get install -y \
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get install -y \
     python3.12-dev \
+    python3-pip \
+    python3.13 \
     python3.13-dev \
+    python3.14 \
     python3.14-dev \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
@@ -90,6 +64,17 @@ RUN apt-get install -y \
     libtinyxml2-dev \
     xorg-dev\
     libgtk-3-dev
+
+
+
+ENV VM_BUILDS_IMGUI="true"
+# Install pip, numpy, scipy, pybind11
+ARG PYBIND11_VERSION=3.0.1
+RUN python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
+RUN python3.13 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
+RUN python3.14 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
+ENV VM_HAS_ASSIMP="true"
+ENV VM_HAS_OPENCASCADE="true"
 
 
 ###################################
