@@ -1,11 +1,8 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 SHELL ["/bin/bash", "-c"]
 
 ADD "https://www.sofa-framework.org/rand/" ForceNoCache
-
-RUN useradd --no-log-init ci --uid 1000 --home /home/ci --create-home --shell /bin/bash
-ENV HOME="/home/ci"
 
 # Install APT tools and repos
 RUN apt-get update && apt-get upgrade -y
@@ -15,6 +12,35 @@ RUN apt-get install -y \
 RUN add-apt-repository ppa:git-core/ppa \
     && add-apt-repository ppa:deadsnakes/ppa
 RUN apt-get update && apt-get upgrade -y
+
+RUN apt-get install -y curl
+
+ENV DEBIAN_FRONTEND noninteractive
+RUN add-apt-repository ppa:deadsnakes/ppa \
+    && apt update
+
+RUN apt-get install -y \
+    python3.12-dev \
+    python3-pip \
+    python3.13 \
+    python3.13-dev \
+    python3.14 \
+    python3.14-dev
+
+ENV VM_BUILDS_IMGUI="true"
+# Install pip, numpy, scipy, pybind11
+ARG PYBIND11_VERSION=3.0.1
+RUN python3.12 -m pip install --upgrade pip --break-system-packages
+#     && python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3 --break-system-packages
+# RUN python3.13 /tmp/get-pip3.py \
+#     && python3.13 -m pip install --upgrade pip --break-system-packages\
+#     && python3.13 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3 --break-system-packages
+# RUN python3.13 /tmp/get-pip3.py \
+#     && python3.13 -m pip install --upgrade pip --break-system-packages\
+#     && python3.13 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3 --break-system-packages
+# ENV VM_HAS_ASSIMP="true"
+# ENV VM_HAS_OPENCASCADE="true"
+
 
 # Install system tools
 RUN apt-get install -y \
@@ -27,92 +53,53 @@ RUN apt-get install -y \
     ca-certificates \
     zip \
     unzip \
+    cmake \
     patchelf
 
 # Install build tools
 RUN apt-get install -y \
     build-essential \
-    ninja-build=1.10.\* \
-    gcc=4:11.\* \
-    g++=4:11.\* \
-    clang=1:14.0-\* \
-    ccache=4.5.\*
+    ninja-build=1.11.\* \
+    gcc=4:13.\* \
+    g++=4:13.\* \
+    clang=1:18.0-\* \
+    ccache
 
 # Install core deps
 RUN apt-get install -y \
-    libboost-all-dev=1.74.\* \
+    libboost-all-dev=1.83.\* \
     libglew-dev=2.2.\* \
-    freeglut3-dev=2.8.\* \
-    zlib1g-dev=1:1.2.\* \
+    freeglut3-dev=3.4.\* \
+    zlib1g-dev=1:1.3.\* \
     libeigen3-dev=3.4.\*
 
 # Install plugins deps
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get install -y \
-    python2.7-dev \
-    python3.10-dev python3.10-distutils \
-    python3.11-dev python3.11-distutils \
     python3.12-dev \
+    python3.13-dev \
+    python3.14-dev \
     libpng-dev libjpeg-dev libtiff-dev \
     libblas-dev \
     liblapack-dev \
     libsuitesparse-dev \
     libavcodec-dev libavformat-dev libavutil-dev libswscale-dev \
     libassimp-dev \
-    liboce-ocaf-dev \
     libzmq3-dev liboscpack-dev \
     libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev \
     libtinyxml2-dev \
     xorg-dev\
     libgtk-3-dev
 
-ENV VM_BUILDS_IMGUI="true"
-# Install pip, numpy, scipy, pybind11
-ARG PYBIND11_VERSION=2.12.0
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.10 /tmp/get-pip3.py \
-    && python3.10 -m pip install --upgrade pip \
-    && python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.11 /tmp/get-pip3.py \
-    && python3.11 -m pip install --upgrade pip \
-    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3
-RUN curl -L https://bootstrap.pypa.io/pip/get-pip.py --output /tmp/get-pip3.py \
-    && python3.12 /tmp/get-pip3.py \
-    && python3.12 -m pip install --upgrade pip \
-    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3
-ENV VM_HAS_ASSIMP="true"
-ENV VM_HAS_OPENCASCADE="true"
 
 ###################################
-
-# Install CMake
-ARG CMAKE_VERSION=3.22.1
-ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.sh /tmp/cmake.sh
-RUN chmod a+x /tmp/cmake.sh
-RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
-
-
-# Install CGAL
-# Due to dependencies on Boost and Qt, we have to build CGAL
-ARG CGAL_VERSION=5.4.5
-ADD https://github.com/CGAL/cgal/releases/download/v$CGAL_VERSION/CGAL-$CGAL_VERSION.tar.xz /tmp/CGAL.tar.xz
-RUN apt-get install -y libgmp-dev libmpfr-dev
-RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
-    && cd /tmp/CGAL-$CGAL_VERSION \
-    && mkdir build \
-    && cd build \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
-    && make --silent install
-ENV VM_HAS_CGAL="true"
-ENV VM_CGAL_PATH="/usr/local/lib/cmake/CGAL"
-
+#
 # Install CUDA
 ENV DEBIAN_FRONTEND noninteractive
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
-RUN dpkg -i cuda-keyring_1.0-1_all.deb
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb
+RUN dpkg -i cuda-keyring_1.1-1_all.deb
 RUN apt-get update
-RUN apt-get -y install cuda-toolkit-12-2
+RUN apt-get -y install cuda-toolkit-12-9
 ENV VM_HAS_CUDA="true"
 ENV PATH=$PATH:/usr/local/cuda/bin
 
