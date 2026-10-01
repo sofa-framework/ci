@@ -377,13 +377,13 @@ if __name__ == "__main__":
                         sh_labels.append(builder)
 
                 pixi_string = "\",\"".join(pixi_labels)
-                if(pixi_string != ""):
+                if(pixi_string == ""):
                     env_file.write(f'PIXI_BUILDER_OS=[]\n')
                 else:
                     env_file.write(f'PIXI_BUILDER_OS=[\"{pixi_string}\"]\n')
 
                 sh_string = "\",\"".join(sh_labels)
-                if(sh_string != ""):
+                if(sh_string == ""):
                     env_file.write(f'SH_BUILDER_OS=[]\n')
                 else:
                     env_file.write(f'SH_BUILDER_OS=[\"{sh_string}\"]\n')
