@@ -57,7 +57,9 @@ def downloadArchives(github_token, owner, repo, workflow_file, dest_directory, n
     res = requests.get(url)
     JS = res.json()
 
-
+    if res.status_code != 200:
+        logs.msg_error(f"Server request returned with error code {res.status_code} : {JS['message']}")
+        exit(1)
 
     absDestPath =  os.path.abspath(dest_directory)
 
