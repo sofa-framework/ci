@@ -77,6 +77,12 @@ ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="true"
 
 
+# Install CMake
+ARG CMAKE_VERSION=3.28.3
+ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.sh /tmp/cmake.sh
+RUN chmod a+x /tmp/cmake.sh
+RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
+
 ###################################
 #
 # Install CUDA
@@ -101,9 +107,8 @@ WORKDIR /builds
 ENV PYTHONIOENCODING="UTF-8"
 ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
-ENV VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
-ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.10"
-ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.10 -m pybind11"
+ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.12"
+ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.12 -m pybind11"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'
 

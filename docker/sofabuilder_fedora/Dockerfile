@@ -1,24 +1,22 @@
-FROM fedora:36
+FROM fedora:40
 
 SHELL ["/bin/bash", "-c"]
 
 ADD "https://www.sofa-framework.org/rand/" ForceNoCache
 
-RUN useradd --no-log-init ci --uid 1000 --home /home/ci --create-home --shell /bin/bash
-ENV HOME="/home/ci"
 
-# Install yum repositories
-# RUN yum install -y -q deltarpm
-# RUN yum install -y -q epel-release
-# RUN yum install -y -q centos-release-scl
-# RUN yum install -y -q centos-release-scl-rh
-# RUN yum install -y -q http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-5.el7.noarch.rpm
-# RUN yum install -y -q https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.9-1.x86_64.rpm
-RUN yum install -y -q http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-36.noarch.rpm
-RUN yum update -y && yum upgrade -y && yum clean all
+# Install dnf repositories
+# RUN dnf install -y -q deltarpm
+# RUN dnf install -y -q epel-release
+# RUN dnf install -y -q centos-release-scl
+# RUN dnf install -y -q centos-release-scl-rh
+# RUN dnf install -y -q http://repo.okay.com.mx/centos/7/x86_64/release/okay-release-1-5.el7.noarch.rpm
+# RUN dnf install -y -q https://packages.endpoint.com/rhel/7/os/x86_64/endpoint-repo-1.9-1.x86_64.rpm
+RUN dnf install -y -q http://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm
+RUN dnf update -y && dnf upgrade -y && dnf clean all
 
 # Install system tools
-RUN yum install -y -q \
+RUN dnf install -y -q \
     dnf-utils \
     git \
     gh \
@@ -28,25 +26,28 @@ RUN yum install -y -q \
     vim
 
 # Install build tools
-RUN yum install -y -q \
+RUN dnf install -y -q \
     ninja-build \
     clang \
     ccache \
     libXdamage
 
 # Install core deps
-RUN yum install -y -q \
+RUN dnf install -y -q \
     glew-devel \
     freeglut-devel \
     zlib-devel \
     eigen3-devel
 
 # Install plugin deps
-RUN yum install -y -q \
-    python2.7 \
-    python3.10 \
-    python3.11 \
-    python3.12 \
+RUN dnf install -y -q \
+    python3.12-devel \
+    python3-pip \
+    python3.13 \
+    python3.13-devel \
+    python3.13-pip \
+    python3.14 \
+    python3.14-devel \
     libpng-devel libjpeg-turbo-devel libtiff-devel \
     blas-devel \
     lapack-devel \
@@ -62,12 +63,11 @@ RUN yum install -y -q \
 
 # Install pip, numpy, scipy, pybind11
 ARG PYBIND11_VERSION=2.11.1
-RUN python3.10 -m ensurepip --upgrade \
-    && python3.10 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable Cheetah3
-RUN python3.11  -m ensurepip --upgrade \
-    && python3.11 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable Cheetah3
-RUN python3.12 -m ensurepip --upgrade \
-    && python3.12 -m pip install numpy==1.26.4 scipy matplotlib pybind11==$PYBIND11_VERSION rpyc prettytable Cheetah3
+RUN python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
+RUN python3.13 -m pip ensurepip
+RUN python3.13 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
+RUN python3.14 -m pip ensurepip
+RUN python3.14 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
 ENV VM_HAS_OPENCASCADE="false"
@@ -75,32 +75,17 @@ ENV VM_HAS_OPENCASCADE="false"
 ###################################
 
 # Install CMake
-ARG CMAKE_VERSION=3.22.1
+ARG CMAKE_VERSION=3.28.3
 ADD https://github.com/Kitware/CMake/releases/download/v$CMAKE_VERSION/cmake-$CMAKE_VERSION-Linux-x86_64.sh /tmp/cmake.sh
 RUN chmod a+x /tmp/cmake.sh
 RUN /tmp/cmake.sh --skip-license --prefix=/usr/local
 
 # Install Boost
-RUN yum install -y -q boost-devel
+RUN dnf install -y -q boost-devel
 ENV BOOST_INCLUDEDIR="/usr/include"
 ENV BOOST_LIBRARYDIR="/usr/lib64/boost"
 ENV LD_LIBRARY_PATH="${BOOST_LIBRARYDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 
-# Install CGAL
-# Due to dependencies on Boost and Qt, we have to build CGAL
-ARG CGAL_VERSION=5.4.5
-ADD https://github.com/CGAL/cgal/releases/download/v$CGAL_VERSION/CGAL-$CGAL_VERSION.tar.xz /tmp/CGAL.tar.xz
-RUN yum install -y -q gmp-devel mpfr-devel
-RUN tar -xJf /tmp/CGAL.tar.xz --directory /tmp \
-    && cd /tmp/CGAL-$CGAL_VERSION \
-    && mkdir build \
-    && cd build \
-    && source /opt/rh/devtoolset-7/enable || true \
-    && source /opt/rh/llvm-toolset-7/enable || true \
-    && cmake -DCMAKE_BUILD_TYPE=Release -DWITH_CGAL_Core=TRUE -DWITH_CGAL_ImageIO=TRUE -DWITH_CGAL_Qt5=TRUE .. \
-    && make --silent install
-ENV VM_HAS_CGAL="true"
-ENV VM_CGAL_PATH="/usr/local/lib64/cmake/CGAL"
 
 ###################################
 
@@ -114,9 +99,8 @@ WORKDIR /builds
 ENV PYTHONIOENCODING="UTF-8"
 ENV PYTHONUSERBASE="/tmp/pythonuserbase"
 RUN mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
-ENV VM_PYTHON_EXECUTABLE="/usr/bin/python2.7"
-ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.10"
-ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.10 -m pybind11"
+ENV VM_PYTHON3_EXECUTABLE="/usr/bin/python3.12"
+ENV VM_PYBIND11_CONFIG_EXECUTABLE="/usr/bin/python3.12 -m pybind11"
 RUN git config --system user.name 'SOFA Bot' || git config --global user.name 'SOFA Bot'
 RUN git config --system user.email '<>' || git config --global user.email '<>'
 
@@ -124,7 +108,7 @@ RUN git config --system user.email '<>' || git config --global user.email '<>'
 RUN ln -s /usr/include /include || true
 
 # Cleanup
-RUN yum clean all \
+RUN dnf clean all \
     && rm -rf /tmp/*
 
 # In-process env settings
