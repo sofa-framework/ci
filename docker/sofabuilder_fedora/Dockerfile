@@ -45,7 +45,6 @@ RUN dnf install -y -q \
     python3-pip \
     python3.13 \
     python3.13-devel \
-    python3.13-pip \
     python3.14 \
     python3.14-devel \
     libpng-devel libjpeg-turbo-devel libtiff-devel \
@@ -62,11 +61,11 @@ RUN dnf install -y -q \
 
 
 # Install pip, numpy, scipy, pybind11
-ARG PYBIND11_VERSION=2.11.1
+ARG PYBIND11_VERSION=3.0.1
 RUN python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
-RUN python3.13 -m pip ensurepip
+RUN python3.13 -m ensurepip
 RUN python3.13 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
-RUN python3.14 -m pip ensurepip
+RUN python3.14 -m ensurepip
 RUN python3.14 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
 ENV PYTHONPATH=""
 ENV VM_HAS_ASSIMP="true"
