@@ -1,4 +1,4 @@
-FROM fedora:40
+FROM fedora:41
 
 SHELL ["/bin/bash", "-c"]
 
@@ -62,6 +62,7 @@ RUN dnf install -y -q \
 
 # Install pip, numpy, scipy, pybind11
 ARG PYBIND11_VERSION=3.0.1
+RUN python3.12 -m ensurepip
 RUN python3.12 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
 RUN python3.13 -m ensurepip
 RUN python3.13 -m pip install numpy scipy matplotlib pybind11==$PYBIND11_VERSION mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
