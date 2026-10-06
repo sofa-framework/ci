@@ -98,8 +98,15 @@ def run_binaries(selected, is_windows, results_dir, timeout, verbose ):
 
     logs = Logs()
 
-    while len(selected) > 0 :
-        test_name, binary_path = selected.pop()
+    while True:
+        # Popping under try/except rather than after an emptiness check: on the
+        # last item two threads can both pass such a check, and the loser would
+        # otherwise crash on IndexError. `list.pop` itself is atomic, so letting
+        # it raise and catching it here is safe (mirrors sofa_scene_tests.runner).
+        try:
+            test_name, binary_path = selected.pop()
+        except IndexError:
+            return
 
         status = run_binary(
             test_name,
