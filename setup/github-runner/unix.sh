@@ -11,12 +11,12 @@ usage() {
 if [ "$#" -ge 4 ]; then
     INSTALL_DIR="$(cd "$1" && pwd)"
     GITHUB_VERSION="$2"
-    CONFIGURE_TOKEN="$3"  
-    DOCKERHUB_TOKEN="$4" 
+    CONFIGURE_TOKEN="$3"
+    DOCKERHUB_TOKEN="$4"
     if [ "$#" -eq 5 ]; then
         SUFFIX="-$5"
     fi
- 
+
 else
     usage; exit 1
 fi
@@ -51,12 +51,12 @@ tar xzf ./actions-runner-${OS}-${GITHUB_VERSION}.tar.gz
 ## SOFA ci scripts this is normally already done on the builder to be able to launch this
 #cd "$INSTALL_DIR"
 #git clone https://www.github.com/sofa-framework/ci.git
-#cd ci 
+#cd ci
 #git checkout master
 
 
-#### Setup crontab and environment 
-## crontab. No need to add a reboot action as it will be done through a job 
+#### Setup crontab and environment
+## crontab. No need to add a reboot action as it will be done through a job
 if [[ "$(uname)" == "Linux" ]]; then
 
     if [[ "$SUFFIX" == "-0" || -z "$SUFFIX" ]]; then
@@ -75,7 +75,7 @@ if [[ "$(uname)" == "Linux" ]]; then
     echo "DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
     echo "BUILDER_CACHE_DIR=$INSTALL_DIR/cache" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
 else
-    if [ ! -d "~/Library/LaunchAgents/" ]; then 
+    if [ ! -d "~/Library/LaunchAgents/" ]; then
         mkdir -p ~/Library/LaunchAgents/
     else
         #Disable temporarly, they will be re enabled at the end of the script
@@ -98,8 +98,13 @@ else
     rm -rf ${tempFolder}
 
     ## environement
-    # Directly set in com.github.runner.launch.plist 
+    # Directly set in com.github.runner.launch.plist
 fi
+
+## ad-hoc Setup and dep installation
+python3 -m pip install prettytable --break-system-packages
+git config --global user.name "sofabot"
+git config --global user.email "<>"
 
 
 ## Final configuration
