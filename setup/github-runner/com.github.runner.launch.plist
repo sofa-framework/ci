@@ -18,6 +18,8 @@
                 <string>INSTALL_DIR/ci/scripts/github-hookups/post-job.sh</string>
                 <key>DOCKERHUB_TOKEN</key>
                 <string>DOCKERHUB_TOKEN_VALUE</string>
+                <key>GH_TOKEN</key>
+                <string>GH_TOKEN_VALUE</string>
         </dict>
     </dict>
 </plist>

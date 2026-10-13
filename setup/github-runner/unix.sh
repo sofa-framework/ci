@@ -1,20 +1,21 @@
 #!/bin/bash
 
 usage() {
-    echo "Usage: unix.sh <install-dir> <github-package-full-version (e.g. 2.328.0)> <configure-token> <dockerhub-token> <builder-id>"
+    echo "Usage: unix.sh <install-dir> <github-package-full-version (e.g. 2.328.0)> <configure-token> <dockerhub-token> <github-token> <builder-id>"
     echo "<github-package-full-version> and <configure-token> can be found on https://github.com/sofa-framework/sofa/settings/actions/runners/new"
     echo "<dockerhub-token> should be a read access right to github hub, used by the actions ot pull images"
     echo "<builder-id> option to install multiple builder on same host. If id == 0, common scripts and crontab will be installed (like ci related script), otherwise, only builder related stuff will be installed"
 }
 
 
-if [ "$#" -ge 4 ]; then
+if [ "$#" -ge 5 ]; then
     INSTALL_DIR="$(cd "$1" && pwd)"
     GITHUB_VERSION="$2"
     CONFIGURE_TOKEN="$3"
     DOCKERHUB_TOKEN="$4"
-    if [ "$#" -eq 5 ]; then
-        SUFFIX="-$5"
+    GITHUB_TOKEN="$5"
+    if [ "$#" -eq 6 ]; then
+        SUFFIX="-$6"
     fi
 
 else
@@ -73,6 +74,7 @@ if [[ "$(uname)" == "Linux" ]]; then
     echo "ACTIONS_RUNNER_HOOK_JOB_COMPLETED=${INSTALL_DIR}/ci/scripts/github-hookups/post-job.sh" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
     echo "ACTIONS_RUNNER_HOOK_JOB_STARTED=${INSTALL_DIR}/ci/scripts/github-hookups/pre-job.sh" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
     echo "DOCKERHUB_TOKEN=${DOCKERHUB_TOKEN}" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
+    echo "GH_TOKEN=${GITHUB_TOKEN}" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
     echo "BUILDER_CACHE_DIR=$INSTALL_DIR/cache" >> "${INSTALL_DIR}/github-workspace$SUFFIX/.env"
 else
     if [ ! -d "~/Library/LaunchAgents/" ]; then
@@ -91,6 +93,7 @@ else
             sed -i '' "s/INSTALL_DIR/${INSTALL_DIR//\//\\/}/g" $filename
             sed -i '' "s/GITHUB_WORKSPACE/github-workspace$SUFFIX/g" $filename
             sed -i '' "s/DOCKERHUB_TOKEN_VALUE/${DOCKERHUB_TOKEN}/g" $filename
+            sed -i '' "s/GH_TOKEN_VALUE/${GITHUB_TOKEN}/g" $filename
             mv $filename ~/Library/LaunchAgents/
         fi
     done
