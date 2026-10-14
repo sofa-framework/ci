@@ -33,6 +33,22 @@ force_full_build_found = False
 
 # ========================================================================
 
+# Generic get PR request response
+def fetch_pr_data():
+    """Fetch the PR payload once and cache it."""
+    if not hasattr(fetch_pr_data, "_cache"):
+        pr_url = f"{API_URL}/pulls/{PR_NUMBER}"
+        response = requests.get(pr_url, headers=HEADERS)
+    
+        if response.status_code != 200:
+            print(f"Failed to fetch pull request details: {response.status_code}")
+            exit(1)
+        
+        fetch_pr_data._cache = response.json()
+    return fetch_pr_data._cache
+
+# ========================================================================
+
 # Check PR labels
 def check_labels():
     global to_review_or_ready_label_found
@@ -57,16 +73,8 @@ def check_labels():
 # ========================================================================
 
 # Check the PR draft status
-def check_if_draft():
+def check_if_draft(pr_data):
     global is_draft_pr
-    pr_url = f"{API_URL}/pulls/{PR_NUMBER}"
-    response = requests.get(pr_url, headers=HEADERS)
-
-    if response.status_code != 200:
-        print(f"Failed to fetch pull request details: {response.status_code}")
-        exit(1)
-
-    pr_data = response.json()
     is_draft_pr = pr_data.get('draft', False)
 
     if is_draft_pr:
@@ -76,18 +84,12 @@ def check_if_draft():
 # ========================================================================
 
 # Check PR comments for "[with-all-tests]" and "[force-full-build]"
-def check_body_for_tags():
+def check_body_for_tags(pr_data):
     global with_all_tests_found
     global force_full_build_found
-    pr_url = f"{API_URL}/pulls/{PR_NUMBER}"
-    response = requests.get(pr_url, headers=HEADERS)
-
-    if response.status_code != 200:
-        print(f"Failed to fetch pull request details: {response.status_code}")
-        exit(1)
 
     # Extract the PR description and look for [with-all-tests] and [force-full-build] patterns
-    body = response.json().get("body", "")
+    body = pr_data.get("body")
 
     if body is not None:
         body_lines = body.splitlines()
@@ -103,16 +105,7 @@ def check_body_for_tags():
 # ========================================================================
 
 # Export all needed PR information
-def export_pr_info():
-    pr_url = f"{API_URL}/pulls/{PR_NUMBER}"
-    response = requests.get(pr_url, headers=HEADERS)
-
-    if response.status_code != 200:
-        print(f"Failed to fetch pull request details: {response.status_code}")
-        exit(1)
-
-    pr_data = response.json()
-
+def export_pr_sha(pr_data):
     pr_url = str(pr_data['head']['user']['html_url']) + "/" + str(pr_data['head']['repo']['name'])
     pr_branch_name = pr_data['head']['ref']
     pr_commit_sha = pr_data['head']['sha']
@@ -134,21 +127,12 @@ def export_pr_info():
 # ========================================================================
 
 # Extract repositories from ci-depends-on
-def extract_ci_depends_on():
+def extract_ci_depends_on(pr_data):
     dependency_dict = {}
     is_merged_dict = {}
 
-    pr_url = f"{API_URL}/pulls/{PR_NUMBER}"
-    response = requests.get(pr_url, headers=HEADERS)
-
-    if response.status_code != 200:
-        print(f"Failed to fetch pull request details: {response.status_code}")
-        exit(1)
-
-    pr_data = response.json()
-
     # Extract the PR description and look for [ci-depends-on ...] patterns
-    pr_body = pr_data.get("body", "")
+    pr_body = pr_data.get("body") or ""
     ci_depends_on = []
 
     # Search in each line for the pattern "[ci-depends-on ...]"
@@ -181,7 +165,7 @@ def extract_ci_depends_on():
             key = dependency_pr_data['base']['repo']['name'] #Sofa.Qt
             repo_url = dependency_pr_data['head']['repo']['html_url'] #https://github.com/{remote from which pr comes}/Sofa.Qt
             branch_name = dependency_pr_data['head']['ref'] #my_feature_branch
-            is_merged = dependency_pr_data['state'] == "closed"
+            mark_as_merged = dependency_pr_data['state'] == "closed"
 
             dependency_dict[key] = {
                 "repo_url": repo_url,
@@ -189,26 +173,21 @@ def extract_ci_depends_on():
                 "pr_url": f"https://github.com/{owner}/{repo}/pull/{pull_number}",
             }
 
-            is_merged_dict[key] = is_merged
+            is_merged_dict[key] = mark_as_merged
 
-        match = re.search(r'\[with-all-tests\]', line)
-        if match:
-            with_all_tests_found = True
+        # Not needed - already checked in function = check_body_for_tags
+        # match = re.search(r'\[with-all-tests\]', line)
+        # if match:
+        #     with_all_tests_found = True
+    
     return dependency_dict, is_merged_dict
 
+# ========================================================================
+
 # Extract repositories from ci-force-builder
-def extract_ci_force_builder():
-    pr_url = f"{API_URL}/pulls/{PR_NUMBER}"
-    response = requests.get(pr_url, headers=HEADERS)
-
-    if response.status_code != 200:
-        print(f"Failed to fetch pull request details: {response.status_code}")
-        exit(1)
-
-    pr_data = response.json()
-
+def extract_ci_force_builder(pr_data):
     # Extract the PR description and look for [ci-depends-on ...] patterns
-    pr_body = pr_data.get("body", "")
+    pr_body = pr_data.get("body") or ""
     ci_force_builder = []
 
     # Search in each line for the pattern "[ci-depends-on ...]"
@@ -220,6 +199,8 @@ def extract_ci_force_builder():
             print(f"Found ci-force-builder : {dependency}")
 
     return ci_force_builder
+
+# ========================================================================
 
 def query_pr_files():
     pr_url = f"{API_URL}/pulls/{PR_NUMBER}/files"
@@ -234,9 +215,10 @@ def query_pr_files():
         page += 1
     return files
 
+# ========================================================================
+
 def check_for_pixi_modification():
     files = query_pr_files()
-    fileId = 0
     only_pixi_file_touched = True
     pixi_file_touched = False
 
@@ -250,6 +232,7 @@ def check_for_pixi_modification():
 
     return pixi_file_touched, only_pixi_file_touched
 
+# ========================================================================
 
 def publish_github_message(message, prNB):
     """
@@ -271,6 +254,8 @@ def publish_github_message(message, prNB):
         print(f"Status: {response.status_code} | Response: {response.text}")
         return None
 
+# ========================================================================
+
 def update_action_status(statusesUrl, context, state, description, target_url=None):
     payload = {"context": context, "state": state, "description": description}
     if target_url is not None:
@@ -283,11 +268,12 @@ def update_action_status(statusesUrl, context, state, description, target_url=No
         print(f"❌ Failed to update status")
         print(f"Status: {response.status_code} | Response: {response.text}")
         return None
-    return
 
-def check_ci_depends_on(pr_sha, dependency_dict = None, is_merged_dict = None):
+# ========================================================================
+
+def check_ci_depends_on(pr_data, pr_sha, dependency_dict = None, is_merged_dict = None):
     if dependency_dict is None or is_merged_dict is None:
-        dependency_dict, is_merged_dict = extract_ci_depends_on()
+        dependency_dict, is_merged_dict = extract_ci_depends_on(pr_data)
     message = "**[ci-depends-on]** detected."
 
     if len(dependency_dict) == 0:
@@ -307,25 +293,26 @@ def check_ci_depends_on(pr_sha, dependency_dict = None, is_merged_dict = None):
         message += "\n\n To unlock the merge button, you must"
         for key in dependency_dict:
             if not is_merged_dict[key]:
-                fixedDepName = key.upper().replace('.','_')
-                flag_repository="-D" + f"{fixedDepName}" + f"_GIT_REPOSITORY='{dependency_dict[key]["repo_url"]}'"
-                flag_tag="-D" + f"{fixedDepName}" + f"_GIT_TAG='{dependency_dict[key]["branch_name"]}'"
-                message += f"\n- **Merge or close {dependency_dict[key]["pr_url"]}**\n_For this build, the following CMake flags will be set_\n{flag_repository}\n{flag_tag}"
+                dep = dependency_dict[key]
+                fixedDepName = key.upper().replace('.', '_')
+                flag_repository = f"-D{fixedDepName}_GIT_REPOSITORY='{dep['repo_url']}'"
+                flag_tag = f"-D{fixedDepName}_GIT_TAG='{dep['branch_name']}'"
+                message += (
+                    f"\n- **Merge or close {dep['pr_url']}**"
+                    f"\n_For this build, the following CMake flags will be set_"
+                    f"\n{flag_repository}\n{flag_tag}"
+                )
 
         if OnePRMerged:
             message += "\n\n Already satisfied dependencies : "
             for key in dependency_dict:
-                if  is_merged_dict[key]:
-                    message += f"\n- {dependency_dict[key]["pr_url"]}"
+                if is_merged_dict[key]:
+                    dep = dependency_dict[key]
+                    message += f"\n- {dep['pr_url']}"
 
         update_action_status(f"https://api.github.com/repos/sofa-framework/sofa/statuses/{pr_sha}", "[ci-depends-on]", "failure", "Please follow instructions in comments.")
 
-
-
-
-
     publish_github_message(message, PR_NUMBER)
-
 
 
 # ========================================================================
@@ -338,18 +325,26 @@ if __name__ == "__main__":
     check_labels()
 
     # Trigger the build if conditions are met
-    if to_review_or_ready_label_found:
+    if to_review_or_ready_label_found :
+        # Export PR information
+        pr_data = fetch_pr_data()
+
+        # check_if_draft(pr_data)    # Uncomment to de-activate CI on draft PR
+        # if is_draft_pr :           # ---
+        #                            # Give insight here ..
+        #    exit(0)                 # ---
+        
         # Export PR information (url, name, sha)
-        pr_sha = export_pr_info()
+        pr_sha = export_pr_sha(pr_data)
 
         # Check compilation options in PR body
-        check_body_for_tags()
+        check_body_for_tags(pr_data)
 
         # Extract dependency repositories
-        dependency_dict, is_merged_dict = extract_ci_depends_on()
+        dependency_dict, is_merged_dict = extract_ci_depends_on(pr_data)
 
         # Publish ci depends on message and set action status
-        check_ci_depends_on(pr_sha, dependency_dict=dependency_dict, is_merged_dict=is_merged_dict)
+        check_ci_depends_on(pr_data, pr_sha, dependency_dict=dependency_dict, is_merged_dict=is_merged_dict)
 
         # Check wether this PR touhces a pixi file and if it has been made by the bot
         pixi_file_touched, only_pixi_file_touched = check_for_pixi_modification()
@@ -363,7 +358,7 @@ if __name__ == "__main__":
             env_file.write(f"CI_DEPENDS_ON={ci_depends_on_str}\n")
 
 
-            forced_builders = extract_ci_force_builder()
+            forced_builders = extract_ci_force_builder(pr_data)
             if len(forced_builders) > 0:
                 pixi_builder_names=["ubuntu-latest", "macos-latest", "macos-15-intel", "windows-latest"]
 
