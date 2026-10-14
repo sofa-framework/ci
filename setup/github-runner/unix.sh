@@ -105,7 +105,7 @@ else
 fi
 
 ## ad-hoc Setup and dep installation
-python3 -m pip install prettytable --break-system-packages
+python3 -m pip install prettytable
 git config --global user.name "sofabot"
 git config --global user.email "<>"
 

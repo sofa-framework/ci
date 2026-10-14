@@ -48,7 +48,7 @@ python3.13 -m pip install numpy scipy pygame pybind11==3.0.1 mypy pybind11-stubg
 brew unlink python@3.13  || true
 brew link --force python@3.14
 python3.14 -m pip install --upgrade pip
-python3.14 -m pip install numpy scipy pygame pybind11==3.0.1 mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
+python3.14 -m pip install numpy scipy pygame-ce pybind11==3.0.1 mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
 
 brew unlink python@3.14  || true
 brew link --force python@3.12
