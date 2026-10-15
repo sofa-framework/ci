@@ -5,6 +5,9 @@ SHELL ["/bin/bash", "-c"]
 ADD "https://www.sofa-framework.org/rand/" ForceNoCache
 
 
+RUN useradd --no-log-init ci --uid 1000 --home /home/ci --create-home --shell /bin/bash
+ENV HOME=/home/ci
+
 # Install dnf repositories
 # RUN dnf install -y -q deltarpm
 # RUN dnf install -y -q epel-release

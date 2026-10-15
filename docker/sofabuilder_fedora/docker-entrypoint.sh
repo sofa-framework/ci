@@ -2,6 +2,7 @@
 #set -e
 
 ulimit -c 0 # disable core dumps
+umask 002
 
 for dir in "$QT_INSTALLDIR/Tools/QtInstallerFramework/"*; do
     if [ -d "$dir" ]; then

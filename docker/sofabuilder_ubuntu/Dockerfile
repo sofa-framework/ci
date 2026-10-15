@@ -4,6 +4,12 @@ SHELL ["/bin/bash", "-c"]
 
 ADD "https://www.sofa-framework.org/rand/" ForceNoCache
 
+
+RUN userdel -r ubuntu \
+    && useradd --no-log-init ci --uid 1000 --home /home/ci --create-home --shell /bin/bash
+ENV HOME=/home/ci
+
+
 # Install APT tools and repos
 RUN apt-get update && apt-get upgrade -y
 RUN apt-get install -y \
