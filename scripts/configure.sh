@@ -290,7 +290,7 @@ if [ -e "$python3_exec" ] && [ -e "$python3_lib" ] && [ -e "$python3_include" ];
     add-cmake-option "-DPython3_INCLUDE_DIR=$python3_include"
 fi
 if [ -n "$VM_PYBIND11_CONFIG_EXECUTABLE" ]; then
-    pybind11_cmakedir="$($VM_PYBIND11_CONFIG_EXECUTABLE --cmakedir)"
+    pybind11_cmakedir="$("$VM_PYTHON3_EXECUTABLE" -c "import pybind11; print(pybind11.get_cmake_dir())")"
     if vm-is-windows; then
         pybind11_cmakedir="$(cd "$pybind11_cmakedir" && pwd -W)"
     fi

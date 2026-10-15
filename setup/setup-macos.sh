@@ -27,68 +27,33 @@ brew install boost eigen libpng libjpeg libtiff glew
 
 echo "--------------------------------------------"
 echo "---- Install Python, numpy, scipy, pybind11"
-## Python 2
-## brew install python@2.7
-#if [[ "$(python -V)" == *" 2.7"* ]]; then
-#    if [ ! -x "$(python -m pip)" ]; then
-#        curl -L https://bootstrap.pypa.io/pip/2.7/get-pip.py --output get-pip.py
-#        sudo python get-pip.py
-#    fi
-#    sudo python -m pip install --upgrade "pip == 20.3.4"
-#    sudo python -m pip install "scipy == 1.2.3" "matplotlib == 2.2.5" # "numpy == 1.16.6"
-#fi
 # Python 3
-brew install python@3.9
-brew install python@3.10
-brew install python@3.11
 brew install python@3.12
+brew install python@3.13
+brew install python@3.14
 
-brew unlink python@3.12 || true
-brew unlink python@3.11  || true
-brew unlink python@3.10  || true
-brew unlink python@3.9 || true
+brew unlink python@3.14 || true
+brew unlink python@3.13  || true
+brew unlink python@3.12  || true
 
-brew link --force python@3.9
-python3.9 -m pip install --upgrade pip
-python3.9 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen rpyc prettytable
-
-brew unlink python@3.9  || true
-brew link --force python@3.10
-python3.10 -m pip install --upgrade pip
-python3.10 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen rpyc prettytable
-
-brew unlink python@3.10  || true
-brew link --force python@3.11
-python3.11 -m pip install --upgrade pip
-python3.11 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen rpyc prettytable
-
-brew unlink python@3.11  || true
 brew link --force python@3.12
 python3.12 -m pip install --upgrade pip
-python3.12 -m pip install numpy scipy pygame pybind11==2.12.0 mypy pybind11-stubgen rpyc prettytable --break-system-packages
+python3.12 -m pip install numpy scipy pygame pybind11==3.0.1 mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
 
 brew unlink python@3.12  || true
-brew link --force python@3.10
+brew link --force python@3.13
+python3.13 -m pip install --upgrade pip
+python3.13 -m pip install numpy scipy pygame pybind11==3.0.1 mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
+
+brew unlink python@3.13  || true
+brew link --force python@3.14
+python3.14 -m pip install --upgrade pip
+python3.14 -m pip install numpy scipy pygame-ce pybind11==3.0.1 mypy pybind11-stubgen rpyc prettytable ct3 --break-system-packages
+
+brew unlink python@3.14  || true
+brew link --force python@3.12
 
 
-echo "--------------------------------------------"
-echo "---- Install Qt with online installer"
-# Minimal Qt online version compatible with arm64: 6.2.0
-# see 6.1.3: https://download.qt.io/online/qtsdkrepository/mac_x64/desktop/qt6_613/Updates.xml
-#  vs 6.2.0: https://download.qt.io/online/qtsdkrepository/mac_x64/desktop/qt6_620/Updates.xml
-QT_MAJOR=5
-QT_MINOR=12
-QT_PATCH=12
-QT_COMPILER="clang_64"
-QT_INSTALLDIR="$HOME/Qt"
-if [ -d "$QT_INSTALLDIR" ]; then
-    echo "Qt install dir already exists: $QT_INSTALLDIR"
-    ls -la "$QT_INSTALLDIR"
-else
-    python3.10 -m pip install aqtinstall
-    python3.10 -m aqt install-qt   --outputdir $QT_INSTALLDIR mac desktop $QT_MAJOR.$QT_MINOR.$QT_PATCH clang_64 -m qtcharts qtwebengine
-    python3.10 -m aqt install-tool --outputdir $QT_INSTALLDIR mac desktop tools_ifw qt.tools.ifw.47
-fi
 
 echo "--------------------------------------------"
 echo "---- Install plugins dependencies"
@@ -97,6 +62,7 @@ brew install cgal
 brew install opencascade
 brew install lapack
 brew install tinyxml2
+brew install gh
 
 # brew install homebrew/cask-drivers/nvidia-cuda
 
@@ -107,18 +73,12 @@ echo '
 export PYTHONIOENCODING="UTF-8"
 export PYTHONUSERBASE="/tmp/pythonuserbase"
 mkdir -p "$PYTHONUSERBASE" && chmod -R 777 "$PYTHONUSERBASE"
-# Qt env vars
-export QTDIR="'$QT_INSTALLDIR'/'$QT_MAJOR'.'$QT_MINOR'.'$QT_PATCH'/clang_64"
-export QTIFWDIR="'$QT_INSTALLDIR'/Tools/QtInstallerFramework/4.3"
-export LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 # Add direct access to system utils in PATH
 export PATH="\
 /usr/local/opt/gnu-sed/libexec/gnubin:\
 /usr/local/opt/coreutils/libexec/gnubin:\
 /usr/local/opt/ccache/libexec:\
 /usr/local/bin:/usr/local/lib:\
-$QTDIR/bin:\
-$QTIFWDIR/bin:\
 $PATH"
 ' | sudo tee -a ~/.bash_profile
 
