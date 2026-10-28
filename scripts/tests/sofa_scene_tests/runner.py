@@ -44,6 +44,7 @@ def _build_env(config) -> dict[str, str]:
     """
     env = os.environ.copy()
     env["SOFA_ROOT"] = str(config.build_dir)
+    env.setdefault("PYTHONIOENCODING", "utf-8")
     sep = ";" if sys.platform == "win32" else ":"
     site_packages = str(config.build_dir / "lib" / "python3" / "site-packages")
     existing_py = env.get("PYTHONPATH", "")
