@@ -68,18 +68,14 @@ def _build_command(config, plan: ScenePlan) -> list[str]:
     return cmd
 
 
-def _kill_tree_posix(pid: int) -> None:
+def _kill_tree_posix(pgid: int) -> None:
     """SIGTERM the process group, wait 5 s, then SIGKILL if still running (§5.3)."""
-    try:
-        pgid = os.getpgid(pid)
-        os.killpg(pgid, signal.SIGTERM)
-    except ProcessLookupError:
-        return
-    time.sleep(5)
-    try:
-        os.killpg(pgid, signal.SIGKILL)
-    except ProcessLookupError:
-        pass
+    for sig, delay in ((signal.SIGTERM, 5), (signal.SIGKILL, 0)):
+        try:
+            os.killpg(pgid, sig)
+        except (ProcessLookupError, PermissionError):
+            return  # group gone, or (macOS) only zombies left
+        time.sleep(delay)
 
 
 def _kill_tree_windows(pid: int) -> None:
